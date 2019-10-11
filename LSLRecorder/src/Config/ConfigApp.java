@@ -902,8 +902,8 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileFormat()
 	{
-		//listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.PCLIS );
-		listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.CLIS );
+		listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.PCLIS );
+		//listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.CLIS );
 	}
 	
 	private static void loadDefaultLSLOutputFileDescr()
