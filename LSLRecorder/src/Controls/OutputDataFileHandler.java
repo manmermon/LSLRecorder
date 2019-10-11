@@ -29,22 +29,23 @@ import Config.Parameter;
 import Config.ParameterList;
 import Controls.Messages.EventInfo;
 import Controls.Messages.eventType;
-import Auxiliar.LSLConfigParameters;
+import InputStreamReader.TemporalData;
+import InputStreamReader.Binary.TemporalOutputDataFile;
+import InputStreamReader.OutputDataFile.OutputBinaryFileSegmentation;
+import InputStreamReader.OutputDataFile.Compress.OutputZipDataFactory;
+import InputStreamReader.OutputDataFile.Format.Clis.OutputCLISDataWriter;
+import InputStreamReader.OutputDataFile.Format.DataFileFormat;
+import InputStreamReader.OutputDataFile.Format.OutputFileFormatParameters;
+import InputStreamReader.OutputDataFile.Format.OutputFileWriterTemplate;
+import InputStreamReader.Sync.InputSyncData;
+import InputStreamReader.WritingSystemTester.WritingTest;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.Tuple;
-import OutputDataFile.DataFileFormat;
-import OutputDataFile.InputSyncData;
-import OutputDataFile.OuputCLISDataWriter;
-import OutputDataFile.OutputZipDataFactory;
-import OutputDataFile.TemporalData;
-import OutputDataFile.TemporalOutputDataFile;
-import OutputDataFile.WritingTest;
-import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	//private List<LSL.StreamInfo> streamInfos = null;
 
-	private Map<String, SaveOutputFileThread> writers = null;
+	private Map<String, OutputBinaryFileSegmentation> outWriterHandlers = null;
 	private AtomicInteger NumberOfSavingThreads = new AtomicInteger( 0 );
 	private AtomicInteger NumberOfTestThreads = new AtomicInteger( 0 );
 	private AtomicBoolean isRunBinData = new AtomicBoolean( false ); 
@@ -95,7 +96,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		this.temps = new ArrayList< TemporalOutputDataFile >();
 		this.syncInputData = new ArrayList< InputSyncData >();
 		//this.streamInfos = new ArrayList< LSL.StreamInfo >();
-		this.writers = new HashMap< String, SaveOutputFileThread >();
+		this.outWriterHandlers = new HashMap< String, OutputBinaryFileSegmentation >();
 		
 		super.setName( "OutputDataFileHandler" );
 	}
@@ -419,11 +420,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					}
 					else if( event.getEventType().equals( eventType.OUTPUT_DATA_FILE_SAVED ) )
 					{	
-						synchronized ( this.writers ) 
+						synchronized ( this.outWriterHandlers ) 
 						{
 							//this.NumberOfSavingThreads--;
 							
-							this.writers.remove( event.getEventInformation() );
+							this.outWriterHandlers.remove( event.getEventInformation() );
 
 							//if( this.NumberOfSavingThreads < 1 )
 							if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
@@ -447,7 +448,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					{		
 						final IHandlerMinion hand = this;
 						final long time = this.NumberOfTestThreads.incrementAndGet() * 10;
-						synchronized ( this.writers )
+						synchronized ( this.outWriterHandlers )
 						{							
 							Thread t = new Thread()
 							{
@@ -473,9 +474,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					}
 					else if ( event.getEventType().equals( eventType.TEST_OUTPUT_TEMPORAL_FILE ) )
 					{			
-						synchronized ( this.writers )
+						synchronized ( this.outWriterHandlers )
 						{
-							this.writers.remove( event.getEventInformation() );
+							this.outWriterHandlers.remove( event.getEventInformation() );
 														
 							if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
 							{
@@ -497,7 +498,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							this.NumberOfSavingThreads.incrementAndGet();
 						}
 						
-						SaveOutputFileThread saveOutFileThread = null;
+						//OutputCLISDataSequencialWriter saveOutFileThread = null;
+						OutputBinaryFileSegmentation saveOutFileThread = null;
 
 						try
 						{
@@ -525,15 +527,30 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							//headerSize *= Character.BYTES;
 							//headerSize = headerSize * 2; 
 
-							OuputCLISDataWriter writer = new OuputCLISDataWriter( (String)res.x
+							/*
+							OutputCLISDataWriter writer = new OutputCLISDataWriter( (String)res.x
 																					, headerSize 
 																					, OutputZipDataFactory.createOuputZipStream( OutputZipDataFactory.GZIP )
 																					, Charset.forName( "UTF-8" ) );
+							*/
+							
+							String outFormat = dat.getOutputFileFormat();
+							OutputFileFormatParameters pars = new OutputFileFormatParameters();
+							pars.setCharset( Charset.forName( "UTF-8") );
+							pars.setHeaderSize( headerSize );
+							pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
+							
+							OutputFileWriterTemplate writer = DataFileFormat.getDataFileWriter( outFormat, (String)res.x, pars );
 
-							saveOutFileThread = new SaveOutputFileThread( dat, writer );
+							/*							
+							saveOutFileThread = new OutputCLISDataSequencialWriter( dat, writer );
 							saveOutFileThread.taskMonitor( this );
-
-							this.writers.put( dat.getStreamingName(), saveOutFileThread );
+							 */
+							
+							saveOutFileThread = new OutputBinaryFileSegmentation( dat, writer );
+							saveOutFileThread.taskMonitor( this );
+							
+							this.outWriterHandlers.put( dat.getStreamingName(), saveOutFileThread );
 
 							saveOutFileThread.startThread();
 
@@ -591,7 +608,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		List< State > states = new ArrayList< State >();
 		
-		for( SaveOutputFileThread outfile : this.writers.values() )
+		for( OutputBinaryFileSegmentation outfile : this.outWriterHandlers.values() )
 		{
 			states.add( outfile.getState() );
 		}
@@ -674,506 +691,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	//******************************************************************************
 	//
 	//
-	
-	/**
-	 * 
-	 * @author Manuel Merino Monge
-	 *
-	 */
-	private class SaveOutputFileThread extends AbstractStoppableThread implements INotificationTask
-	{
-		private TemporalData DATA;
-		private OuputCLISDataWriter writer;
-		private ITaskMonitor monitor;
 		
-		private List< EventInfo > events;
-
-		/**
-		 *  Save output data file
-		 *  
-		 * @param DAT	-> temporal binary data.
-		 * @param wr 	-> Output writer.
-		 */
-		public SaveOutputFileThread( TemporalData DAT, OuputCLISDataWriter wr)
-		{
-			super.setName( this.getClass().getSimpleName() + "-" + DAT.getStreamingName() );
-			
-			this.DATA = DAT;
-			this.writer = wr;
-			
-			this.events = new ArrayList< EventInfo >();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#startUp()
-		 */
-		@Override
-		protected void startUp() throws Exception
-		{
-			super.startUp();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#runInLoop()
-		 */
-		@Override
-		protected void runInLoop() throws Exception
-		{
-			saveOutputFile();
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#targetDone()
-		 */
-		@Override
-		protected void targetDone() throws Exception
-		{
-			super.targetDone();
-
-			this.stopThread = true;
-		}
-		
-		/*
-		private void saveOutputFile() throws Exception
-		{
-			if (this.DATA != null)
-			{
-				List< Object > data = this.DATA.getData(); // LSL binary data
-				List< Double > time = this.DATA.getTimeStamp(); // LSL time stamps
-				
-				int dataType = this.DATA.getDataType(); // LSL type data
-				int nChannel = this.DATA.getNumberOfChannels() + 1; // number of channels
-				String lslName = this.DATA.getStreamingName(); // LSL streaming name
-				String lslXML = this.DATA.getLslXml(); // LSL description
-
-				String variableName = "data"; // data variable name
-				String timeVarName = "time"; // time variable name
-				String info = "deviceInfo"; // LSL description variable name
-				
-				if (this.writer != null)
-				{
-					String varName = variableName + "_" + lslName;
-					String timeName = timeVarName + "_" + lslName;
-
-					int r = (int)Math.floor( 1.0D * data.size() / nChannel); // number of rows
-
-					if (r < 1)
-					{
-						r = 1;
-					}
-
-					this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
-					
-					// Save binary data
-					switch ( dataType )
-					{
-						case LSL.ChannelFormat.float32:
-						{
-							float[] aux = new float[data.size()];
-							int i = 0;
-							for (Object value  : data)
-							{
-								aux[i] = ((Float)value).floatValue();
-								i++;
-							}
-	
-							this.writer.saveData( varName, aux, r ); // save data
-	
-							break;
-						}
-						case LSL.ChannelFormat.double64:
-						{
-							double[] aux = new double[data.size()];
-							int i = 0;
-							for (Object value : data)
-							{
-								aux[i] = ((Double)value).doubleValue();
-								i++;
-							}
-							
-							this.writer.saveData(varName, aux, r); // save data
-	
-							break;
-						}
-						case LSL.ChannelFormat.int64:
-						{
-							long[] aux = new long[data.size()];
-							int i = 0;
-							for( Object value : data )
-							{
-								aux[ i ] = (long)value;
-								i++;
-							}
-							
-							writer.saveData( varName, aux, r ); // save data
-							
-							break;
-						}
-						case  LSL.ChannelFormat.string:
-						{
-							String aux = new String();
-							for( Object value : data )
-							{
-								aux += " " + (String)value;
-							}
-							
-							writer.saveData( varName, aux );// save data
-							
-							break;
-						}
-						case LSL.ChannelFormat.int8:
-						{
-							int[] aux = new int[data.size()];
-							int i = 0;
-							for( Object value : data )
-							{
-								for( byte b : ( (byte[])value ) )
-								{
-									aux[ i ] = (int)b;
-									i++;
-								}
-							}
-							writer.saveData( varName, aux, r );
-							break;
-						}
-						case LSL.ChannelFormat.int16:
-						{
-							int[] aux = new int[data.size()];
-							int i = 0;
-							for (Object value : data)
-							{
-								aux[i] = ((Short)value).intValue();
-								i++;
-							}
-							
-							this.writer.saveData(varName, aux, r); // save data
-	
-							break;
-						}
-						default: // LSL.ChannelFormat.int32
-						{
-							int[] aux = new int[data.size()];
-							int i = 0;
-							for (Object value : data)
-							{
-								aux[i] = ((Integer)value).intValue();
-								i++;
-							}
-							
-							this.writer.saveData(varName, aux, r); // save data
-						}
-					}
-
-					// Save time stamps
-					double[] aux = new double[time.size()];
-					int i = 0;
-					for (Double value : time)
-					{
-						aux[i] = value.doubleValue();						
-						i++;
-					}					
-					
-					this.writer.saveData( timeName, aux, aux.length ); // save data			
-										
-				}
-				else
-				{
-					if( this.monitor != null )
-					{
-						EventInfo event = new EventInfo( eventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
-					
-						this.events.add( event );
-						this.monitor.taskDone( this );
-					}
-				}
-			}
-		}
-		*/
-		
-		/**
-		 * Store data 
-		 * 
-		 * @throws Exception.
-		 */		
-		private void saveOutputFile() throws Exception
-		{
-			if ( this.DATA != null )
-			{
-				int dataType = this.DATA.getDataType(); // LSL type data
-				int nChannel = this.DATA.getNumberOfChannels(); // number of channels
-				String lslName = this.DATA.getStreamingName(); // LSL streaming name
-				String lslXML = this.DATA.getLslXml(); // LSL description
-
-				String variableName = "data"; // data variable name
-				String timeVarName = "time"; // time variable name
-				String info = "deviceInfo"; // LSL description variable name
-
-				String varName = variableName + "_" + lslName;
-
-				List< Object > data;
-
-				do
-				{				
-					data = this.DATA.getData(); // LSL binary data
-					
-					int rest = data.size() % nChannel;
-											
-					while( rest > 0 )
-					{
-						data.remove( data.size() - 1 );
-						rest--;
-					}						
-					
-					if ( this.writer != null && data.size() > 0 )
-					{	
-						// Save binary data
-						switch ( dataType )
-						{
-							case LSL.ChannelFormat.float32:
-							{
-								float[] aux = new float[data.size()];
-								int i = 0;
-								for (Object value  : data)
-								{
-									aux[i] = ((Float)value).floatValue();
-									i++;
-								}
-	
-								this.writer.saveData( varName, aux, nChannel ); // save data
-	
-								break;
-							}
-							case LSL.ChannelFormat.double64:
-							{
-								double[] aux = new double[data.size()];
-								int i = 0;
-								for (Object value : data)
-								{
-									aux[i] = ((Double)value).doubleValue();
-									i++;
-								}
-	
-								this.writer.saveData(varName, aux, nChannel ); // save data
-	
-								break;
-							}
-							case LSL.ChannelFormat.int64:
-							{
-								long[] aux = new long[data.size()];
-								int i = 0;
-								for( Object value : data )
-								{
-									aux[ i ] = (long)value;
-									i++;
-								}
-	
-								writer.saveData( varName, aux, nChannel ); // save data
-	
-								break;
-							}
-							case  LSL.ChannelFormat.string:
-							{
-								String aux = new String();
-								for( Object value : data )
-								{
-									aux += (Character)value;
-								}
-	
-								writer.saveData( varName, aux );// save data
-	
-								break;
-							}
-							case LSL.ChannelFormat.int8:
-							{
-								byte[] aux = new byte[data.size()];
-								int i = 0;
-								for( Object value : data )
-								{
-									aux[ i ] = (byte)value;
-									i++;
-								}
-								writer.saveData( varName, aux, nChannel );
-								break;
-							}
-							case LSL.ChannelFormat.int16:
-							{
-								short[] aux = new short[data.size()];
-								int i = 0;
-								for (Object value : data)
-								{
-									aux[i] = ((Short)value).shortValue();
-									i++;
-								}
-	
-								this.writer.saveData(varName, aux, nChannel ); // save data
-	
-								break;
-							}
-							default: // LSL.ChannelFormat.int32
-							{
-								int[] aux = new int[data.size()];
-								int i = 0;
-								for (Object value : data)
-								{
-									aux[i] = ((Integer)value).intValue();
-									i++;
-								}
-	
-								this.writer.saveData(varName, aux, nChannel ); // save data
-							}
-						}
-					}
-				}
-				while( data.size() > 0 );
-
-				this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
-
-
-				// Save time stamps
-				
-				String timeName = timeVarName + "_" + lslName;
-
-				List< Double > time;
-
-				do
-				{
-					time = this.DATA.getTimeStamp(); // LSL time stamps
-
-					if( this.writer != null && time.size() > 0 )
-					{
-						double[] aux = new double[time.size()];
-						int i = 0;
-						for (Double value : time)
-						{
-							aux[i] = value.doubleValue();						
-							i++;
-						}					
-
-						this.writer.saveData( timeName, aux, 1 ); // save data
-					}
-				}
-				while( time.size() > 0 );
-				
-				this.DATA.closeTempBinaryFile();
-
-			}
-			else
-			{
-				if( this.monitor != null )
-				{
-					EventInfo event = new EventInfo( eventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
-
-					this.events.add( event );
-					this.monitor.taskDone( this );
-				}
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
-		 */
-		@Override
-		protected void runExceptionManager(Exception e)
-		{
-			if (!(e instanceof InterruptedException))
-			{
-				if( this.monitor != null )
-				{
-					EventInfo event = new EventInfo( eventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
-					
-					this.events.add( event );
-					try 
-					{
-						this.monitor.taskDone( this );
-					} 
-					catch (Exception e1) 
-					{	
-					}
-				}
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#cleanUp()
-		 */
-		@Override
-		protected void cleanUp() throws Exception
-		{
-			super.cleanUp();
-
-			this.writer.closeFile();
-			this.writer = null;
-			
-			DATA.closeTempBinaryFile();
-			
-			if( this.monitor != null )
-			{
-			
-				EventInfo event = new EventInfo( eventType.OUTPUT_DATA_FILE_SAVED, DATA.getStreamingName() );
-				this.events.add( event );
-			
-				this.monitor.taskDone( this );
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#preStopThread(int)
-		 */
-		@Override
-		protected void preStopThread(int friendliness) throws Exception
-		{}
-
-		/*
-		 * (non-Javadoc)
-		 * @see StoppableThread.AbstractStoppableThread#postStopThread(int)
-		 */
-		@Override
-		protected void postStopThread(int friendliness) throws Exception
-		{}
-
-		/*
-		 * (non-Javadoc)
-		 * @see Auxiliar.Tasks.INotificationTask#taskMonitor(Auxiliar.Tasks.ITaskMonitor)
-		 */
-		@Override
-		public void taskMonitor( ITaskMonitor m )
-		{
-			this.monitor = m;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see Auxiliar.Tasks.INotificationTask#getResult()
-		 */
-		@Override
-		public synchronized List<EventInfo> getResult() 
-		{			
-			return this.events;
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * @see Auxiliar.Tasks.INotificationTask#clearResult()
-		 */
-		@Override
-		public synchronized void clearResult() 
-		{
-			this.events.clear();
-		}
-		
-		@Override
-		public String getID() 
-		{
-			return super.getName();
-		}
-	}
-	
 	/**
 	 * 
 	 * @return False if no SaveOutputFileThread instance is saving data, otherwise, True

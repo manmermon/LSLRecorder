@@ -30,8 +30,8 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.eventType;
 import GUI.Miscellany.imagenPoligono2D;
-import OutputDataFile.DataFileFormat;
-import OutputDataFile.TemporalData;
+import InputStreamReader.TemporalData;
+import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;

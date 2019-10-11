@@ -97,7 +97,7 @@ import GUI.Miscellany.DisabledPanel;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.SelectedButtonGroup;
 import GUI.Miscellany.VerticalFlowLayout;
-import OutputDataFile.DataFileFormat;
+import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -107,9 +107,9 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import Auxiliar.LSLConfigParameters;
 import Auxiliar.Extra.Tuple;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
 import edu.ucsd.sccn.LSL.XMLElement;
 

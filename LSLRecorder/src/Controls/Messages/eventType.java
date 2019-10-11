@@ -56,4 +56,6 @@ public class eventType
   public static final String OUTPUT_DATA_FILE_SAVED = "output data file saved";
   public static final String ALL_OUTPUT_DATA_FILES_SAVED = "all output data files saved";
   public static final String INPUT_MARK_READY = "input mark ready";
+  
+  public static final String OUTPUT_FILE_WRITER_READY = "writer ready";  
 }

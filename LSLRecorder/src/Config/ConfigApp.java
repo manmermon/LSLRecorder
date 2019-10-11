@@ -23,7 +23,6 @@
 
 package Config;
 
-import Auxiliar.LSLConfigParameters;
 import Auxiliar.Extra.NumberRange;
 import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
@@ -33,6 +32,7 @@ import GUI.Miscellany.IPAddressValidator;
 import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import Sockets.Info.SocketSetting;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
 
 import java.io.File;
@@ -121,7 +121,8 @@ public class ConfigApp
 	
 	public static boolean isTesting()
 	{
-		return true;
+		//return true;
+		return false;
 	}
 	
 	

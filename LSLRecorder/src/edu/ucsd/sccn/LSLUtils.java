@@ -1,5 +1,7 @@
 package edu.ucsd.sccn;
 
+import java.nio.charset.Charset;
+
 public class LSLUtils 
 {
 	public static int getDataTypeBytes( int type )
@@ -20,7 +22,11 @@ public class LSLUtils
 			}
 			case LSL.ChannelFormat.string:
 			{
-				len = Character.BYTES;
+				//len = Character.BYTES;
+				
+				Charset c = Charset.forName( "UTF-8" );
+				
+				len = ( "A" ).getBytes( c ).length;
 				break;
 			}
 			case LSL.ChannelFormat.int8:

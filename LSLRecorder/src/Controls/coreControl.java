@@ -22,7 +22,6 @@
 
 package Controls;
 
-import Auxiliar.LSLConfigParameters;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.WarningMessage;
@@ -40,7 +39,7 @@ import Excepciones.SettingException;
 import GUI.appUI;
 import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
-import OutputDataFile.outputDataPlot;
+import InputStreamReader.Binary.Plotter.outputDataPlot;
 import Sockets.Info.streamInputMessage;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.streamSocketProblem;
@@ -48,6 +47,7 @@ import Sockets.Info.SocketParameters;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

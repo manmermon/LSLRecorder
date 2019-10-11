@@ -28,7 +28,7 @@ import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.imagenPoligono2D;
-import OutputDataFile.DataFileFormat;
+import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
 import java.awt.Color;
 import javax.swing.JTable;
@@ -1080,8 +1080,10 @@ public class dialogConverBin2CLIS extends JDialog
 			reader = new BufferedReader( new FileReader( new File( file ) ) );
 			
 			String binHeader = reader.readLine( );
+		
+			String binSplitChar = ";" ;
 			
-			String[] parts = binHeader.split( ";" );
+			String[] parts = binHeader.split( binSplitChar );
 					
 			String name = "", type = "", chs = "", xml = "";
 						
@@ -1101,6 +1103,11 @@ public class dialogConverBin2CLIS extends JDialog
 				}
 				else
 				{
+					if( !xml.isEmpty() )
+					{
+						xml += binSplitChar;
+					}
+					
 					xml += parts[ i ];
 				}
 			}

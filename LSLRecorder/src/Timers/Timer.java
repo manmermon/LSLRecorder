@@ -89,10 +89,13 @@ public class Timer extends AbstractStoppableThread implements ITimer, ITaskMonit
 	@Override
 	protected void targetDone() throws Exception 
 	{
-		if( super.stopWhenTaskDone )
+		synchronized( super.stopWhenTaskDone )
 		{
-			this.wait = false;
-			super.stopThread = true;
+			if( super.stopWhenTaskDone.get() )
+			{
+				this.wait = false;
+				super.stopThread = true;
+			}
 		}
 		
 		if( !this.stopTimer )

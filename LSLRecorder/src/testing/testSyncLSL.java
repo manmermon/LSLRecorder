@@ -3,10 +3,10 @@ package testing;
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.LSLConfigParameters;
 import Timers.ITimerMonitor;
 import Timers.Timer;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
 
 public class testSyncLSL implements ITimerMonitor
 {
