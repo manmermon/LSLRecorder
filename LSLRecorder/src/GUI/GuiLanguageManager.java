@@ -1,22 +1,36 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package GUI;
 
 import java.awt.Component;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -49,7 +63,7 @@ public class GuiLanguageManager
 		components.clear();
 	}
 	
-	public static String getTranslateToken( Object c )
+	public static synchronized String getTranslateToken( Object c )
 	{
 		String token = null;
 		
@@ -126,7 +140,10 @@ public class GuiLanguageManager
 		
 		if( cs != null )
 		{
-			cs.remove( idTransToken );
+			if( idTransToken != null )
+			{
+				cs.remove( idTransToken );
+			}
 		}
 	}
 	

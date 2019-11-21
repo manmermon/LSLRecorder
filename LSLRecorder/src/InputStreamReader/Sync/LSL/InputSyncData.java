@@ -18,22 +18,26 @@
  *   
  */
 
-package InputStreamReader.Sync;
+package InputStreamReader.Sync.LSL;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
+import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotifierThread;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
-import InputStreamReader.Binary.readInputData;
+import Controls.Messages.EventType;
+import InputStreamReader.Binary.LSLInStreamDataReceiverTemplate;
+import InputStreamReader.Sync.SyncMarker;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
+import edu.ucsd.sccn.LSLUtils;
 import edu.ucsd.sccn.LSL.StreamInfo;
 
-public class InputSyncData extends readInputData
+public class InputSyncData extends LSLInStreamDataReceiverTemplate
 {	
 	private NotifierThread notifierThread; // Notification thread. Avoid blocks.
 	
@@ -50,7 +54,7 @@ public class InputSyncData extends readInputData
 		{
 			throw new IllegalArgumentException( this.getClass().getName() + 
 													" - Incorrect LSL setting: number of channels = 1"
-													+ " and format data must be integer (32bits)." );
+													+ " and format data must be integer (32 bits)." );
 		}		
 	}
 	
@@ -95,7 +99,7 @@ public class InputSyncData extends readInputData
 	{
 		this.notifierThread.stopThread( IStoppableThread.FORCE_STOP );
 		
-		this.notifierThread = null;
+		//this.notifierThread = null;
 	}
 
 	/*
@@ -103,27 +107,37 @@ public class InputSyncData extends readInputData
 	 * @see OutputDataFile.readInputData#managerData(byte[])
 	 */
 	@Override
-	protected void managerData( byte[] paramArrayOfByte ) throws Exception 
+	protected void managerData( byte[] dataArrayOfBytes, byte[] timeArrayOfBytes ) throws Exception 
 	{
 		int nBytes = Integer.BYTES;
 		
 		byte[] markBuffer = new byte[ nBytes ];
 		for( int i = 0; i < nBytes; i++ )
 		{
-			markBuffer[ i ] = paramArrayOfByte[ i ];
+			markBuffer[ i ] = dataArrayOfBytes[ i ];
 		}
 		
 		int mark = ByteBuffer.wrap( markBuffer ).order( ByteOrder.BIG_ENDIAN ).getInt();
+		double time = ConvertTo.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, LSLUtils.getTimeMarkBytes() ) );		
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
-		EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, mark );
+		EventInfo event = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
 		super.events.add(event);
 		
-		synchronized( this.notifierThread )
-		{
-			//this.notifierThread.notify();
-			this.notifierThread.notify();
-		}
+		Thread antiDeadlock = new Thread()
+				{
+					@Override
+					public synchronized void run() 
+					{
+						synchronized ( notifierThread )
+						{
+							notifierThread.notify();
+						}
+					}					
+				};
+			
+		antiDeadlock.start();
+		
 	}
 	
 	@Override

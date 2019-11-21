@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package InputStreamReader.WritingSystemTester;
 
 import java.awt.event.ActionEvent;
@@ -9,13 +28,13 @@ import javax.swing.Timer;
 import Auxiliar.Extra.Tuple;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
-import InputStreamReader.Binary.TemporalOutputDataFile;
+import Controls.Messages.EventType;
+import InputStreamReader.Binary.TemporalOutDataFileWriter;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
 
-public class WritingTest extends TemporalOutputDataFile 
+public class WritingTest extends TemporalOutDataFileWriter 
 {
 	private List< Long > times;
 	private long initTime;
@@ -40,25 +59,19 @@ public class WritingTest extends TemporalOutputDataFile
 	}
 	
 	@Override
-	protected void managerData(byte[] data) throws Exception 
+	protected void managerData(byte[] data, byte[] times) throws Exception 
 	{
 		this.initTime = System.nanoTime();
 		
-		super.managerData( data );
+		super.managerData( data, times );
 		
 		this.times.add( (System.nanoTime() - this.initTime ) );	
 	}
-	
-	@Override
-	protected String GetFinalOutEvent() 
-	{
-		return eventType.TEST_OUTPUT_TEMPORAL_FILE;
-	}	
-	
+		
 	@Override
 	protected void postCleanUp() throws Exception 
 	{
-		EventInfo event = new EventInfo( eventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.LSLName, this.times ) );
+		EventInfo event = new EventInfo( EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.LSLName, this.times ) );
 
 		this.events.add(event);
 		

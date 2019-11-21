@@ -32,7 +32,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Sockets.Info.SocketSetting;
 import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
 
@@ -140,7 +140,7 @@ public class writeSocketThread extends TemplateReadWriteSocketThread
 			
 			synchronized ( this.events )
 			{
-				this.events.add( new EventInfo( eventType.SOCKET_OUTPUT_MSG_OK, true ) );
+				this.events.add( new EventInfo( EventType.SOCKET_OUTPUT_MSG_OK, true ) );
 			}
 		}	
 		

@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package Sockets;
 
 import java.net.DatagramPacket;
@@ -12,8 +31,8 @@ import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotifierThread;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
-import Sockets.Info.streamInputMessage;
+import Controls.Messages.EventType;
+import Sockets.Info.StreamInputMessage;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 
@@ -108,10 +127,10 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 		
 		synchronized( this.events )
 		{
-			streamInputMessage inMsg  = new streamInputMessage( msg , new InetSocketAddress( this.receivedPacket.getAddress(), this.receivedPacket.getPort() )
+			StreamInputMessage inMsg  = new StreamInputMessage( msg , new InetSocketAddress( this.receivedPacket.getAddress(), this.receivedPacket.getPort() )
 																, this.serverInetSokAddress );
 			
-			this.events.add( new EventInfo( eventType.SOCKET_INPUT_MSG, inMsg ) );
+			this.events.add( new EventInfo( EventType.SOCKET_INPUT_MSG, inMsg ) );
 			
 			synchronized( this.notifier )
 			{
@@ -144,7 +163,7 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 		
 		synchronized ( this.events ) 
 		{
-			this.events.add( new EventInfo( eventType.SOCKET_SERVER_STOP, this.getID() ) );
+			this.events.add( new EventInfo( EventType.SOCKET_SERVER_STOP, this.getID() ) );
 		}
 		
 		synchronized( this.notifier )

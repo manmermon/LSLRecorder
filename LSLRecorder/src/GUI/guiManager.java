@@ -28,10 +28,12 @@ import Controls.OutputDataFileHandler;
 import Controls.coreControl;
 import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import GUI.Miscellany.imagenPoligono2D;
 import InputStreamReader.TemporalData;
+import InputStreamReader.Binary.BinaryHeader;
 import InputStreamReader.OutputDataFile.Format.DataFileFormat;
+import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -39,12 +41,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -195,23 +194,23 @@ public class guiManager
 		
 		diag.setVisible( true );
 				
-		List< Tuple< dialogConverBin2CLIS.BinaryHeader, dialogConverBin2CLIS.BinaryHeader > > binFiles = diag.getBinaryFiles();
+		List< Tuple< BinaryHeader, BinaryHeader > > binFiles = diag.getBinaryFiles();
 				
 		OutputDataFileHandler outCtr = OutputDataFileHandler.getInstance();
 		
-		String idEvent = eventType.SAVED_OUTPUT_TEMPORAL_FILE;
+		String idEvent = EventType.CONVERT_OUTPUT_TEMPORAL_FILE;
 		
 		if( binFiles.size() > 0 )
 		{ 
 			this.setAppState( AppState.SAVING );
 		}
 		
-		for( Tuple< dialogConverBin2CLIS.BinaryHeader, dialogConverBin2CLIS.BinaryHeader > files : binFiles )
+		for( Tuple< BinaryHeader, BinaryHeader > files : binFiles )
 		{				
 			try 
 			{
-				dialogConverBin2CLIS.BinaryHeader dat = files.x;
-				dialogConverBin2CLIS.BinaryHeader tim = files.y;
+				BinaryHeader dat = files.x;
+				BinaryHeader sync = files.y;
 				
 				File dataFile = null;
 				if( dat != null )
@@ -219,14 +218,17 @@ public class guiManager
 					dataFile = new File( dat.getFilePath() );
 				}
 								
-				File timeFile = null;
-				if( tim != null )
+				File syncFile = null;
+				if( sync != null )
 				{
-					timeFile = new File( tim.getFilePath() );
+					syncFile = new File( sync.getFilePath() );
 				}
 				
 				int type = 0;
+				int timeType = LSLUtils.getTimeMarkType();
 				int nc = 1;
+				int chunckSize = 1;
+				boolean interleave = false;
 				String name = "stream";
 				String folder = "./";
 				String outFormat = DataFileFormat.CLIS;
@@ -237,8 +239,11 @@ public class guiManager
 				{
 					type = dat.getType();
 					nc = dat.getNumberOfChannels();
+					chunckSize = dat.getChunckSize();
 					name = dat.getName();
-									
+					interleave = dat.isInterleave();				
+					timeType = dat.getTimeType();
+					
 					folder = dat.getOutputFolder();
 					
 					if( !folder.endsWith( "\\") && !folder.endsWith( "/" ) )
@@ -248,33 +253,35 @@ public class guiManager
 					
 					desc = dat.getXMLDescription();
 					
-					if( tim != null )
+					if( sync != null )
 					{
-						desc += " " + tim.getXMLDescription(); // xml
+						desc += " " + sync.getXMLDescription(); // xml
 					}
 					
 					outFormat = dat.getOutputFormat();
 					del = dat.deleteBinary();
 				}
-				else if( tim != null )
+				else if( sync != null )
 				{ 
-					type = tim.getType();
-					nc = tim.getNumberOfChannels();
-					name = tim.getName();
-									
-					folder = tim.getOutputFolder();
+					type = sync.getType();
+					nc = sync.getNumberOfChannels();
+					name = sync.getName();
+					interleave = sync.isInterleave();
+					
+					folder = sync.getOutputFolder();
 					
 					if( !folder.endsWith( "\\") && !folder.endsWith( "/" ) )
 					{
 						folder += "\\";
 					}
 					
-					desc = tim.getXMLDescription();
+					desc = sync.getXMLDescription();
 										
-					outFormat = tim.getOutputFormat();
-					del = tim.deleteBinary();
+					outFormat = sync.getOutputFormat();
+					del = sync.deleteBinary();
 				}
 				
+				/*
 				TemporalData binData = new TemporalData( dataFile //dataBin
 														, timeFile //timeBin
 														, type //type
@@ -286,6 +293,24 @@ public class guiManager
 															+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
 														, outFormat
 														, del ); //outputFormat
+				*/
+				
+				TemporalData binData = new TemporalData( dataFile
+															, type
+															, nc
+															, chunckSize
+															, interleave 
+															, timeType
+															, name
+															, desc
+															, folder 
+																+ "data" 
+																+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
+															, outFormat
+															, del );
+				
+				
+				
 				
 				EventInfo event = new EventInfo( idEvent, binData );
 				
@@ -512,7 +537,14 @@ public class guiManager
 				{					
 					stopTest();
 					
-					JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + e.getCause().getMessage(),
+					String m = "";
+					
+					if( e != null )
+					{
+						m = e.getCause().getMessage();
+					}
+						
+					JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + m,
 													Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
 				}
 				finally 

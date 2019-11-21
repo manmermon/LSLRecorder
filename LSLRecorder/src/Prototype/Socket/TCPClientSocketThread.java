@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package Prototype.Socket;
 
 import java.net.InetAddress;
@@ -10,7 +29,7 @@ import java.util.concurrent.Semaphore;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 
@@ -193,13 +212,13 @@ public class TCPClientSocketThread extends AbstractStoppableThread implements IT
 				
 				for( EventInfo info : events )
 				{		
-					if( info.getEventType().equals( eventType.SOCKET_INPUT_MSG ) )
+					if( info.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
 					{
 						this.responses.add( new EventInfo( info.getEventType(), info.getEventInformation() ) );			
 					}
-					else if( info.getEventType().equals( eventType.SOCKET_CHANNEL_CLOSE )
-							 || info.getEventType().equals( eventType.SOCKET_CONNECTION_PROBLEM ) 
-							 || info.getEventType().equals( eventType.THREAD_STOP ) )
+					else if( info.getEventType().equals( EventType.SOCKET_CHANNEL_CLOSE )
+							 || info.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ) 
+							 || info.getEventType().equals( EventType.THREAD_STOP ) )
 					{
 						try
 						{

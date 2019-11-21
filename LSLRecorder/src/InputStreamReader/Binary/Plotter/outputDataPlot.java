@@ -23,7 +23,7 @@
 package InputStreamReader.Binary.Plotter;
 
 import GUI.CanvasLSLDataPlot;
-import InputStreamReader.Binary.readInputData;
+import InputStreamReader.Binary.LSLInStreamDataReceiverTemplate;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class outputDataPlot extends readInputData
+public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 {
 	private CanvasLSLDataPlot plot;
 	private int nByteData;
@@ -69,7 +69,7 @@ public class outputDataPlot extends readInputData
 		return this.nByteData;
 	}
 
-	protected void managerData( byte[] data ) throws Exception
+	protected void managerData( byte[] data, byte[] time ) throws Exception
 	{
 		byte[] aux = new byte[ this.nByteData ];
 		int numReadChunk = ( data.length / this.nByteData ) / super.lslChannelCounts;

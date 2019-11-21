@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package InputStreamReader.OutputDataFile.Format.Clis.Parallel;
 
 import java.nio.charset.Charset;
@@ -8,7 +27,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import Auxiliar.Extra.ConvertTo;
 import InputStreamReader.OutputDataFile.Compress.IOutZip;
 import InputStreamReader.OutputDataFile.Compress.OutputZipDataFactory;
-import InputStreamReader.OutputDataFile.DataBlock.CompressedByteBlock;
+import InputStreamReader.OutputDataFile.DataBlock.DataInByteFormatBlock;
 import InputStreamReader.OutputDataFile.DataBlock.DataBlock;
 import InputStreamReader.OutputDataFile.Format.Clis.OutputCLISDataWriter;
 import StoppableThread.IStoppableThread;
@@ -17,7 +36,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 {
 	private int zipType = OutputZipDataFactory.GZIP;
 	
-	private ConcurrentSkipListMap< Integer, CompressedByteBlock > compressDataList = null;
+	private ConcurrentSkipListMap< Integer, DataInByteFormatBlock > compressDataList = null;
 	
 	private int nextNumSeqCompressedDataBlock = 0;
 	
@@ -29,7 +48,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		
 		this.zipType = zip;
 		
-		this.compressDataList = new ConcurrentSkipListMap< Integer, CompressedByteBlock >();
+		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
 		this.zpThreadList = new ArrayList< ZipThread >();
 	}
 	
@@ -81,7 +100,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 	@Override
 	protected void ProcessDataBlock() throws Exception 
 	{
-		CompressedByteBlock block = null;
+		DataInByteFormatBlock block = null;
 		
 		block = this.compressDataList.get( this.nextNumSeqCompressedDataBlock );
 		
@@ -104,7 +123,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 	{
 		if( zpThread != null )
 		{
-			CompressedByteBlock block = zpThread.getCompressedData();
+			DataInByteFormatBlock block = zpThread.getCompressedData();
 			
 			int orderedNumStream = -1;
 			

@@ -26,10 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.event.EventListenerList;
 
-import StoppableThread.Events.IStoppableThreadEventControl;
-import StoppableThread.Events.StoppableThreadEvent;
-import StoppableThread.Events.IStoppableThreadEventListener;
-
 public abstract class AbstractStoppableThread extends Thread implements IStoppableThread//, IStoppableThreadEventControl
 {
     protected volatile boolean stopThread = false;

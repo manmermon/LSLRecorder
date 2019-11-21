@@ -24,7 +24,6 @@
 package Controls;
 
 import Auxiliar.WarningMessage;
-import java.util.Map;
 
 /**
  * A hand

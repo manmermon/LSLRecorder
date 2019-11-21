@@ -30,7 +30,7 @@ import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.SocketParameters;
@@ -138,7 +138,7 @@ public class ManagerInOutStreamSocket extends AbstractStoppableThread implements
 			
 			for( EventInfo e : eventList  )
 			{	
-				if( !e.getEventType().equals( eventType.THREAD_STOP ) )
+				if( !e.getEventType().equals( EventType.THREAD_STOP ) )
 				{
 					this.events.add( e );
 				}
@@ -158,7 +158,7 @@ public class ManagerInOutStreamSocket extends AbstractStoppableThread implements
 					
 					if( this.counterThreads == 0 )
 					{
-						this.events.add( new EventInfo( eventType.THREAD_STOP, new Tuple< SocketSetting, SocketSetting >( this.localSocket, this.remoteSocket ) ) );
+						this.events.add( new EventInfo( EventType.THREAD_STOP, new Tuple< SocketSetting, SocketSetting >( this.localSocket, this.remoteSocket ) ) );
 					}
 				}
 			}

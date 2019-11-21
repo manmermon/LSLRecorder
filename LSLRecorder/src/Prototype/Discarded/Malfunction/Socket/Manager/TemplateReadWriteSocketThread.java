@@ -33,11 +33,11 @@ import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotifierThread;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.IClosedSocketMonitor;
 import Prototype.Discarded.Malfunction.Socket.checkStreamTCPSocket;
 import Sockets.Info.SocketSetting;
-import Sockets.Info.streamSocketProblem;
+import Sockets.Info.StreamSocketProblem;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 
@@ -219,7 +219,7 @@ public abstract class TemplateReadWriteSocketThread  extends AbstractStoppableTh
 	{
 		synchronized ( this.events )
 		{
-			this.events.add( new EventInfo( eventType.THREAD_STOP, null ) );
+			this.events.add( new EventInfo( EventType.THREAD_STOP, null ) );
 		}
 				
 		synchronized ( this.monitorThread )
@@ -264,13 +264,13 @@ public abstract class TemplateReadWriteSocketThread  extends AbstractStoppableTh
 			e.printStackTrace();
 			synchronized ( this.events )
 			{
-				streamSocketProblem problem = new streamSocketProblem( null, e );
+				StreamSocketProblem problem = new StreamSocketProblem( null, e );
 				if( this.remoteSocketInfo != null )
 				{
-					problem = new streamSocketProblem( this.remoteSocketInfo.getSocketAddress(), e );
+					problem = new StreamSocketProblem( this.remoteSocketInfo.getSocketAddress(), e );
 				}
 
-				this.events.add( new EventInfo( eventType.SOCKET_CONNECTION_PROBLEM, problem ) );
+				this.events.add( new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM, problem ) );
 			}
 			
 			/* It is not necessary. CleanUp() will report to monitor

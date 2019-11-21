@@ -28,10 +28,10 @@ import Auxiliar.Tasks.ITaskMonitor;
 import Config.Parameter;
 import Config.ParameterList;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Auxiliar.WarningMessage;
 import Sockets.Info.SocketSetting;
-import Sockets.Info.streamSocketProblem;
+import Sockets.Info.StreamSocketProblem;
 import Sockets.SocketReaderThread;
 import Sockets.TCP_UDPServer;
 import Sockets.Info.SocketParameters;
@@ -45,7 +45,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 {
@@ -228,7 +227,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 				
 				if( e != null )
 				{
-					if ( e.getEventType().equals( eventType.SOCKET_CONNECTION_DONE ) )
+					if ( e.getEventType().equals( EventType.SOCKET_CONNECTION_DONE ) )
 					{						
 						Socket client = (Socket)e.getEventInformation();
 
@@ -240,15 +239,15 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 
 						c.startThread();						
 					}
-					else if ( e.getEventType().equals( eventType.SOCKET_INPUT_MSG ) )
+					else if ( e.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
 					{	
 						this.events.add( e );							
 					}
-					else if (e.getEventType().equals( eventType.SOCKET_CONNECTION_PROBLEM ))
+					else if (e.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 					{
 						this.events.add( e );
 					}
-					else if( e.getEventType().equals( eventType.THREAD_STOP ) )
+					else if( e.getEventType().equals( EventType.THREAD_STOP ) )
 					{						
 						String id = (String)e.getEventInformation();
 						SocketReaderThread reader = this.tcpReader.remove( id );
@@ -256,14 +255,14 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 						if( reader != null && !this.deletingSubordinates )
 						{										
 							InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
-																			this.events.add(new EventInfo( eventType.SOCKET_CONNECTION_PROBLEM
-																					, new streamSocketProblem( address
+																			this.events.add(new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM
+																					, new StreamSocketProblem( address
 																							, new Exception("The output socket " 
 																									+ id 
 																									+ " is closed." ) ) ) ) ;
 						}
 					}
-					else if( e.getEventType().equals( eventType.SOCKET_CHANNEL_CLOSE ) )
+					else if( e.getEventType().equals( EventType.SOCKET_CHANNEL_CLOSE ) )
 					{
 						String id = (String)e.getEventInformation();
 						SocketReaderThread reader = this.tcpReader.remove( id );
@@ -271,15 +270,15 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 						if( reader != null && !this.deletingSubordinates )
 						{
 							InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
-																				this.events.add(new EventInfo( eventType.SOCKET_CHANNEL_CLOSE
-																												, new streamSocketProblem( address
+																				this.events.add(new EventInfo( EventType.SOCKET_CHANNEL_CLOSE
+																												, new StreamSocketProblem( address
 																														, new SocketException("The output socket " 
 																																+ id 
 																																+ " is closed." ) ) ) ) ;
 						}
 						//System.out.println("SocketHandler2.runInLoop() SOCKET_CHANNEL_CLOSE " + this.tcpReader.remove( id ) );
 					}
-					else if ( e.getEventType().equals( eventType.SERVER_THREAD_STOP ))
+					else if ( e.getEventType().equals( EventType.SERVER_THREAD_STOP ))
 					{
 						//System.out.println("SocketHandler2.runInLoop() SERVER_THREAD_STOP");
 						this.server = null;
@@ -359,13 +358,13 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 			{
 				synchronized( super.event )
 				{
-					this.event = new EventInfo(  eventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+					this.event = new EventInfo(  EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 					this.events.clear();
 				}
 			}
 			else
 			{
-				super.event = new EventInfo( eventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+				super.event = new EventInfo( EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 				this.events.clear();
 			}
 

@@ -32,8 +32,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
-import Sockets.Info.streamInputMessage;
+import Controls.Messages.EventType;
+import Sockets.Info.StreamInputMessage;
 
 public class readSocketThread extends TemplateReadWriteSocketThread
 {	
@@ -118,11 +118,11 @@ public class readSocketThread extends TemplateReadWriteSocketThread
 			
 			System.out.println("readSocketThread.runInLoop() Read " + msg);
 			
-			streamInputMessage in  = new streamInputMessage( msg , (InetSocketAddress)client, this.localSocketInfo.getSocketAddress() );
+			StreamInputMessage in  = new StreamInputMessage( msg , (InetSocketAddress)client, this.localSocketInfo.getSocketAddress() );
 			
 			synchronized ( this.events )
 			{
-				this.events.add( new EventInfo( eventType.SOCKET_INPUT_MSG, in ) );
+				this.events.add( new EventInfo( EventType.SOCKET_INPUT_MSG, in ) );
 			}
 		}
 		

@@ -1,7 +1,7 @@
 /*
  * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
- * Copyright 2018-2019 by Manuel Merino Monge <manmermon@dte.us.es>
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec and CLIS.
  *
@@ -22,12 +22,13 @@
 
 package InputStreamReader.Binary;
 
+import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Excepciones.ReadInputDataException;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -36,7 +37,6 @@ import Timers.Timer;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInlet;
-import edu.ucsd.sccn.LSL.XMLElement;
 import edu.ucsd.sccn.LSLUtils;
 
 import java.lang.management.ManagementFactory;
@@ -52,9 +52,8 @@ import java.util.concurrent.TimeoutException;
 import javax.activation.UnsupportedDataTypeException;
 
 import com.sun.management.OperatingSystemMXBean;
-import com.sun.org.apache.bcel.internal.generic.LSHL;
 
-public abstract class readInputData extends AbstractStoppableThread implements INotificationTask, ITimerMonitor
+public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements INotificationTask, ITimerMonitor
 {
 	protected ITaskMonitor monitor = null;
 
@@ -78,8 +77,8 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 	private List tempSampleBytes;
 	private List< Double > tempTimeMark;
 	
-	protected double timeCorrection;
-	protected double[] timeMark;
+	private double timeCorrection;
+	private double[] timeMark;	
 	protected int LSLFormatData = LSL.ChannelFormat.float32;
 
 	//protected Semaphore syncMarkSem = null;
@@ -98,7 +97,9 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 	
 	protected boolean interleavedData = false;
 	
-	public readInputData( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
+	protected int timeType = LSL.ChannelFormat.double64;
+	
+	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
 	{
 		if (info == null)
 		{
@@ -327,7 +328,7 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 		
 		if( data != null )
 		{
-			this.managerData( data );
+			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
 	
 			if (this.timer != null)
 			{
@@ -460,7 +461,7 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 					while( i < nReadData 
 							&& this.tempSampleBytes.size() < chunckSize )
 					{
-						this.tempSampleBytes.add( this.byteData[ i ] );
+						this.tempSampleBytes.add( this.shortData[ i ] );
 						i++;
 					}					
 					
@@ -524,7 +525,7 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 					while( i < nReadData 
 							&& this.tempSampleBytes.size() < chunckSize )
 					{
-						this.tempSampleBytes.add( this.byteData[ i ] );
+						this.tempSampleBytes.add( this.intData[ i ] );
 						i++;
 					}					
 					
@@ -1187,7 +1188,7 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 			
 			if( out != null )
 			{
-				this.managerData( out );
+				this.managerData( out, ConvertTo.doubleArray2byteArray( this.timeMark ) );
 			}
 			
 			rep = !this.tempSampleBytes.isEmpty();
@@ -1221,7 +1222,7 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 		
 		if (this.monitor != null)
 		{
-			this.events.add( new EventInfo( eventType.PROBLEM, errorMsg ) );
+			this.events.add( new EventInfo( EventType.PROBLEM, errorMsg ) );
 			try
 			{
 				this.monitor.taskDone(this);
@@ -1273,5 +1274,5 @@ public abstract class readInputData extends AbstractStoppableThread implements I
 
 	protected abstract void postCleanUp() throws Exception;
 
-	protected abstract void managerData(byte[] paramArrayOfByte) throws Exception;
+	protected abstract void managerData(byte[] dataArrayOfBytes, byte[] timeArrayOfBytes ) throws Exception;
 }

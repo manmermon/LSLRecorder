@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package Prototype.Socket;
 
 import java.io.IOException;
@@ -9,7 +28,7 @@ import java.util.concurrent.Semaphore;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Sockets.SocketReaderThread;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -96,7 +115,7 @@ public class SocketActionManager extends AbstractStoppableThread implements ITas
 		
 		for( EventInfo ev : this.events )
 		{
-			if( ev.getEventType().equals( eventType.SOCKET_INPUT_MSG ) )
+			if( ev.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
 			{
 				String response = this.socketAction.prepareResponse( (String)ev.getEventInformation() );
 				if( response != null )
@@ -104,11 +123,11 @@ public class SocketActionManager extends AbstractStoppableThread implements ITas
 					this.outputWriter.sendMessage( response );
 				}					
 			}
-			else if( ev.getEventType().equals( eventType.SOCKET_OUTPUT_MSG_OK ) )
+			else if( ev.getEventType().equals( EventType.SOCKET_OUTPUT_MSG_OK ) )
 			{
 
 			}
-			else if( ev.getEventType().equals( eventType.SOCKET_OUTPUT_MSG_SEND ) )
+			else if( ev.getEventType().equals( EventType.SOCKET_OUTPUT_MSG_SEND ) )
 			{
 				String outMsg = this.socketAction.prepareSending( (String)ev.getEventInformation() );
 				if( outMsg != null )
@@ -116,8 +135,8 @@ public class SocketActionManager extends AbstractStoppableThread implements ITas
 					this.outputWriter.sendMessage( outMsg );
 				}
 			}
-			else if( ev.getEventType().equals( eventType.SOCKET_CHANNEL_CLOSE )
-					|| ev.getEventType().equals( eventType.SOCKET_CONNECTION_PROBLEM ))
+			else if( ev.getEventType().equals( EventType.SOCKET_CHANNEL_CLOSE )
+					|| ev.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 			{						
 				this.stateEvent.add( new EventInfo( ev.getEventType(),  ev.getEventInformation() ) );
 
@@ -144,7 +163,7 @@ public class SocketActionManager extends AbstractStoppableThread implements ITas
 		{
 		}
 		//System.out.println("SocketActionManager.sendMessage() " + msg);
-		this.events.add( new EventInfo( eventType.SOCKET_OUTPUT_MSG_SEND, msg ) );
+		this.events.add( new EventInfo( EventType.SOCKET_OUTPUT_MSG_SEND, msg ) );
 				
 		synchronized( this )
 		{		
@@ -170,7 +189,7 @@ public class SocketActionManager extends AbstractStoppableThread implements ITas
 		{
 			synchronized( this.stateEvent )
 			{			
-				this.stateEvent.add( new EventInfo( eventType.THREAD_STOP, this.getID() ) );
+				this.stateEvent.add( new EventInfo( EventType.THREAD_STOP, this.getID() ) );
 				
 				if( this.monitor != null )
 				{

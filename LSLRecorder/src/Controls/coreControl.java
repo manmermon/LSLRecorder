@@ -34,15 +34,16 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
 import Controls.Messages.SocketInformations;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Excepciones.SettingException;
 import GUI.appUI;
 import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
 import InputStreamReader.Binary.Plotter.outputDataPlot;
-import Sockets.Info.streamInputMessage;
+import InputStreamReader.Sync.SyncMarker;
+import Sockets.Info.StreamInputMessage;
 import Sockets.Info.SocketSetting;
-import Sockets.Info.streamSocketProblem;
+import Sockets.Info.StreamSocketProblem;
 import Sockets.Info.SocketParameters;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -603,8 +604,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, String >( OutputDataFileHandler.PARAMETER_FILE_FORMAT 
 												, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT ).toString() ) );
 		
-		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, Integer >( OutputDataFileHandler.PARAMETER_SET_MARK 
-												, RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) ) );
+		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker >( OutputDataFileHandler.PARAMETER_SET_MARK 
+												, new SyncMarker( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START )
+																	, System.nanoTime() / 1e9D ) ) );
 	}
 					
 	/**
@@ -633,8 +635,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					this.ctrlOutputFile.setBlockingStartWorking(true);
 										
-					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, Integer>( ctrlOutputFile.PARAMETER_SET_MARK,
-																						RegisterSyncMessages.getSyncMark( key ) ));
+					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK,
+																						 	new SyncMarker( RegisterSyncMessages.getSyncMark( key )
+																						 					, System.nanoTime() / 1e9D ) ) );
 										
 					this.ctrlOutputFile.setBlockingStartWorking( false );
 										
@@ -721,9 +724,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		{
 			for (EventInfo event : EVENTS)
 			{
-				if (event.getEventType().equals( eventType.SOCKET_INPUT_MSG ))
+				if (event.getEventType().equals( EventType.SOCKET_INPUT_MSG ))
 				{
-					streamInputMessage msg = (streamInputMessage)event.getEventInformation();
+					StreamInputMessage msg = (StreamInputMessage)event.getEventInformation();
 					
 					Integer msgMark = this.streamPars.getInputCommands().get( msg.getMessage() );
 
@@ -764,9 +767,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						}
 					}
 				}
-				else if (event.getEventType().equals( eventType.SOCKET_CONNECTION_PROBLEM ))
+				else if (event.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 				{
-					streamSocketProblem problem = (streamSocketProblem)event.getEventInformation();
+					StreamSocketProblem problem = (StreamSocketProblem)event.getEventInformation();
 
 					String msg = problem.getProblemCause().getMessage();
 										
@@ -778,12 +781,12 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
 					
 					JOptionPane.showMessageDialog( managerGUI.getAppUI(), msg, 
-													eventType.SOCKET_CONNECTION_PROBLEM, 
+													EventType.SOCKET_CONNECTION_PROBLEM, 
 													JOptionPane.WARNING_MESSAGE );
 				}
-				else if (event.getEventType().equals(  eventType.SOCKET_CHANNEL_CLOSE ))
+				else if (event.getEventType().equals(  EventType.SOCKET_CHANNEL_CLOSE ))
 				{
-					streamSocketProblem problem = (streamSocketProblem)event.getEventInformation();
+					StreamSocketProblem problem = (StreamSocketProblem)event.getEventInformation();
 
 					String msg = problem.getProblemCause().getMessage();
 					if (msg.isEmpty())
@@ -792,7 +795,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 
 					JOptionPane.showMessageDialog( managerGUI.getAppUI(), msg, 
-													eventType.SOCKET_CHANNEL_CLOSE, 
+													EventType.SOCKET_CHANNEL_CLOSE, 
 													JOptionPane.WARNING_MESSAGE );
 				}
 			}
@@ -1112,7 +1115,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			{
 				//if ( this.eventRegister.size() > 0 )
 				{
-					if (event_type.equals( eventType.SOCKET_EVENTS ) )
+					if (event_type.equals( EventType.SOCKET_EVENTS ) )
 					{
 						List<EventInfo> storedEvents = (List<EventInfo>)this.eventRegister.get(event_type);
 						List<EventInfo> newEvents = (List<EventInfo>)event_Info;
@@ -1160,7 +1163,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						event_Info = newEvents;
 					}
 
-					if( event_type.equals( eventType.TEST_WRITE_TIME ) )
+					if( event_type.equals( EventType.TEST_WRITE_TIME ) )
 					{
 						List ob = (List)this.eventRegister.get( event_type );
 						
@@ -1305,7 +1308,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				this.eventRegister.remove(event_type);
 
-				if( event_type.equals( eventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
+				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
 					guiManager.getInstance().setAppState( AppState.SAVED );
 					
@@ -1314,11 +1317,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						System.exit( 0 );
 					}
 				}
-				else if (event_type.equals( eventType.SOCKET_EVENTS ))
+				else if (event_type.equals( EventType.SOCKET_EVENTS ))
 				{
 					eventSocketMessagesManager( (List< EventInfo> )eventObject );
 				}
-				else if( event_type.equals( eventType.TEST_WRITE_TIME ) )
+				else if( event_type.equals( EventType.TEST_WRITE_TIME ) )
 				{
 					List< Tuple< String, List< Long > > > testValues = (List)eventObject;
 					for( Tuple< String, List< Long > > times : testValues )
@@ -1328,21 +1331,23 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						cal.start();
 					}
 				}
-				else if( event_type.equals( eventType.INPUT_MARK_READY ) )
+				else if( event_type.equals( EventType.INPUT_MARK_READY ) )
 				{
+					SyncMarker mark = (SyncMarker) eventObject;
+					
 					if( isRecording )
 					{
-						managerGUI.addInputMessageLog( eventObject + "\n");
+						managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
 					}
 										
-					if ( eventObject.equals( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) ) )
+					if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) )
 					{ 
 						if( isActiveSpecialInputMsg )
 						{
 							stopWorking( );
 						}
 					}
-					else if ( eventObject.equals( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) ) )
+					else if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) )
 					{
 						if( isActiveSpecialInputMsg 
 								&& !isRecording 
@@ -1350,7 +1355,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 							{
 								isWaitingForStartCommand = false;
 
-								managerGUI.addInputMessageLog( eventObject + "\n");
+								managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
 								
 								try
 								{
@@ -1363,7 +1368,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 							}
 					}
 				}				
-				else if (event_type.equals( eventType.PROBLEM ) )
+				else if (event_type.equals( EventType.PROBLEM ) )
 				{
 					stopWorking( );
 
@@ -1372,7 +1377,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 													event_type, 
 													JOptionPane.ERROR_MESSAGE);
 				}
-				else if (event_type.equals( eventType.WARNING ) )
+				else if (event_type.equals( EventType.WARNING ) )
 				{
 					if( showWarningEvent )
 					{

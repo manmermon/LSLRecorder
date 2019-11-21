@@ -353,7 +353,7 @@ public class Language {
 				new Caption(SETTING_LSL_SYNC_TOOLTIP, defaultLanguage, "Get synchronization mark from this stream"));
 		captions.put(SETTING_LSL_NAME_TOOLTIP, new Caption(SETTING_LSL_NAME_TOOLTIP, defaultLanguage, "Stream's name"));
 
-		captions.put(LSL_PLOT_FILTERS, new Caption(LSL_PLOT_FILTERS, defaultLanguage, "Filters"));
+		captions.put(LSL_PLOT_FILTERS, new Caption(LSL_PLOT_FILTERS, defaultLanguage, "Input ranks"));
 		captions.put(LSL_BIN_DATA_FILES, new Caption(LSL_BIN_DATA_FILES, defaultLanguage, "Binary data files"));
 		captions.put(LSL_BIN_TIME_FILES, new Caption(LSL_BIN_TIME_FILES, defaultLanguage, "Binary time files"));
 		captions.put(LSL_DATA_TYPE, new Caption(LSL_DATA_TYPE, defaultLanguage, "Data type"));

@@ -19,14 +19,10 @@
  */
 package InputStreamReader.OutputDataFile.DataBlock;
 
-import edu.ucsd.sccn.LSL;
-
-public class CharBlock extends DataBlock<Character> 
+public class DataInByteFormatBlock extends DataBlock< Byte >
 {
-
-	public CharBlock(int seqNum, String name, int nCols, Character[] data) 
+	public DataInByteFormatBlock(int seqNum, String name, int dataType, int nCols, Byte[] data) 
 	{
-		super( seqNum, name, LSL.ChannelFormat.string, nCols, data);
+		super(seqNum, name, dataType, nCols, data);
 	}
-
 }

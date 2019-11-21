@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018-2019 by Manuel Merino Monge <manmermon@dte.us.es>
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.
  *
@@ -21,24 +21,25 @@
 package InputStreamReader.OutputDataFile;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import Auxiliar.Extra.ConvertTo;
+import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import InputStreamReader.TemporalData;
-import InputStreamReader.TemporalDataStream;
 import InputStreamReader.OutputDataFile.DataBlock.ByteBlock;
 import InputStreamReader.OutputDataFile.DataBlock.DataBlock;
-import InputStreamReader.OutputDataFile.DataBlock.DoubleBlock;
-import InputStreamReader.OutputDataFile.DataBlock.FloatBlock;
-import InputStreamReader.OutputDataFile.DataBlock.IntegerBlock;
-import InputStreamReader.OutputDataFile.DataBlock.LongBlock;
-import InputStreamReader.OutputDataFile.DataBlock.ShortBlock;
-import InputStreamReader.OutputDataFile.DataBlock.StringBlock;
+import InputStreamReader.OutputDataFile.DataBlock.DataBlockFactory;
+import InputStreamReader.OutputDataFile.Format.DataFileFormat;
+import InputStreamReader.OutputDataFile.Format.OutputFileFormatParameters;
 import InputStreamReader.OutputDataFile.Format.OutputFileWriterTemplate;
+import InputStreamReader.Sync.SyncMarker;
+import InputStreamReader.Sync.SyncMarkerBinFileReader;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
@@ -51,33 +52,68 @@ import edu.ucsd.sccn.LSL;
 
 public class OutputBinaryFileSegmentation extends AbstractStoppableThread implements INotificationTask, ITaskMonitor
 {
+	private int BLOCK_SIZE = (int)( 5 * ( Math.pow( 2, 20 ) ) ); 
+	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 5 MB  
+	
 	private TemporalData DATA;
+	private SyncMarkerBinFileReader syncReader;
+	
 	private OutputFileWriterTemplate writer;
 	private ITaskMonitor monitor;
-	
-	private List< EventInfo > events;
 		
+	private List< EventInfo > events;
+	
 	/**
 	 *  Save output data file
 	 *  
 	 * @param DAT	-> temporal binary data.
-	 * @param wr 	-> Output writer.
+	 * @param SYN -> temporal binary sync markers. 
 	 */
-	public OutputBinaryFileSegmentation( TemporalData DAT, OutputFileWriterTemplate wr) throws Exception
+	public OutputBinaryFileSegmentation( TemporalData DAT, SyncMarkerBinFileReader syncReader ) throws Exception //SyncMarkerCollectorWriter markCollector ) throws Exception
 	{
-		if( DAT == null || wr == null )
+		//this( DAT, markCollector, (byte)5 );
+		this( DAT, syncReader, (byte)5 );
+	}
+	
+	/**
+	 *  Save output data file
+	 *  
+	 * @param DAT	-> temporal binary data.
+	 * @param SYN -> temporal binary sync markers.
+	 * @param bufLen -> buffer length in MiB. 
+	 */
+	public OutputBinaryFileSegmentation( TemporalData DAT, SyncMarkerBinFileReader syncReader, byte bufLen ) throws Exception //SyncMarkerCollectorWriter markCollector, byte bufLen ) throws Exception
+	{
+		if( DAT == null || syncReader == null )
 		{
 			throw new IllegalArgumentException( "Input null." );
 		}
 		
 		super.setName( this.getClass().getSimpleName() + "-" + DAT.getStreamingName() );
-				
+		
 		this.DATA = DAT;
-		this.writer = wr;
-						
+				
+		this.BLOCK_SIZE = (int)( 5 * Math.pow( 2, 20 ) );
+		
+		if( bufLen > 0)
+		{						
+			this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
+
+			this.maxNumElements = ( this.BLOCK_SIZE / this.DATA.getTypeDataBytes() ); 
+					
+			this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / ( this.DATA.getNumberOfChannels() + 1 ) ) ) * ( this.DATA.getNumberOfChannels() + 1 ) );
+			
+			if( this.maxNumElements < this.DATA.getNumberOfChannels() )
+			{
+				this.maxNumElements = this.DATA.getNumberOfChannels();
+			}			
+		}		
+	
+		
+		this.syncReader = syncReader;
 		this.events = new ArrayList< EventInfo >();	
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see StoppableThread.AbstractStoppableThread#startUp()
@@ -87,6 +123,35 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	{
 		super.startUp();
 		
+		// Header size stimation
+		long binFileSize = this.DATA.getDataBinaryFileSize();
+		binFileSize = (long) Math.ceil( 1.0D * binFileSize / this.BLOCK_SIZE );
+		
+		long timeBlocks = this.syncReader.getFileSize();
+		timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
+
+		int blockSizeStrLen = Integer.toString( this.BLOCK_SIZE ).length() + 1;
+
+		long headerSize = binFileSize * blockSizeStrLen + timeBlocks * blockSizeStrLen;
+
+		String xml = this.DATA.getLslXml();						
+
+		headerSize += xml.toCharArray().length;
+		headerSize += ( this.DATA.getStreamingName().length() + 10 ) * 4 ; // device info, binary and time data; 10 -> length of data type in string
+		headerSize += Integer.toString( this.DATA.getNumberOfChannels() + 1 ).length() * 2; // channel numbers 
+
+		// Setting		
+		String outFormat = this.DATA.getOutputFileFormat();
+		OutputFileFormatParameters pars = new OutputFileFormatParameters();
+		pars.setCharset( Charset.forName( "UTF-8") );
+		pars.setHeaderSize( headerSize );
+		pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
+		
+		OutputFileWriterTemplate wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars );
+			
+		this.writer = wr;
+		
+				
 		this.writer.taskMonitor( this );
 		this.writer.startThread();
 	}
@@ -101,7 +166,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		if ( this.DATA != null && this.writer != null )
 		{
 			//int dataType = this.DATA.getDataType(); // LSL type data
-			int nChannel = this.DATA.getNumberOfChannels(); // number of channels
+			//int nChannel = this.DATA.getNumberOfChannels(); // number of channels
 			String lslName = this.DATA.getStreamingName(); // LSL streaming name
 			String lslXML = this.DATA.getLslXml(); // LSL description
 
@@ -109,7 +174,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			String timeVarName = "time"; // time variable name
 			String info = "deviceInfo"; // LSL description variable name
 			
-			int counterDataBlock = -1;
+			int counterDataBlock = 0;
 			
 			// Header info
 			this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
@@ -117,18 +182,19 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			// Save data
 			String varName = variableName + "_" + lslName;
 			
-			counterDataBlock = this.ProcessDataStream( this.DATA.getDataStream(), counterDataBlock, varName, nChannel );
-
+			counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );
+			
 			// Save time stamps			
 			String timeName = timeVarName + "_" + lslName;
 			
-			counterDataBlock = this.ProcessDataStream( this.DATA.getTimeStream(), counterDataBlock - 1, timeName, 1 );			
+			this.DATA.reset();
+			counterDataBlock = this.ProcessTimeStream(  this.DATA, this.DATA.getTimeDataType(), counterDataBlock, timeName );			
 		}
 		else
 		{
 			if( this.monitor != null )
 			{
-				EventInfo event = new EventInfo( eventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
+				EventInfo event = new EventInfo( EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
 
 				this.events.add( event );
 				this.monitor.taskDone( this );
@@ -136,25 +202,280 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		}
 	}
 
-	private int ProcessDataStream( TemporalDataStream stream, int seqNum, String name, int nChannels ) throws Exception
+	private int ProcessDataAndSync( int seqNum,  String name ) throws Exception
 	{
-		int counterDataBlock = seqNum;
+		List< Object > dataBuffer = new ArrayList< Object >();
 		
+		Object NonSyncMarker = SyncMarker.NON_MARK;
+		
+		if( this.DATA.getDataType() == LSL.ChannelFormat.string )
+		{
+			NonSyncMarker = "" + SyncMarker.NON_MARK;
+		}
+		else
+		{
+			 NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
+		}
+								
+		SyncMarker marker = this.syncReader.getSyncMarker();	
+		
+		boolean Loop = true;
+		
+		while( Loop )
+		{			
+			Tuple< Number[], Number[] > block = null;
+			
+			if( this.DATA.getDataType() != LSL.ChannelFormat.string 
+					&& this.DATA.getDataType() != LSL.ChannelFormat.undefined 
+				)
+			{
+				block = this.getNextNumberBlock( this.DATA );
+				
+				if( block != null )
+				{
+					Number[] dat = block.x;
+					Number[] timeData = block.y;
+										
+					if( this.DATA.getChunckSize() > 1 && !this.DATA.isInterleave() )
+					{
+						Number[] copy = new Number[ dat.length ];
+						
+						int indexCopy = 0;
+						
+						for( int i = 0; i < this.DATA.getNumberOfChannels(); i++ )
+						{
+							for( int j = i; j < dat.length; j += this.DATA.getChunckSize() )
+							{
+								copy[ indexCopy ] = dat[ j ];
+								indexCopy++;
+							}
+						}
+						
+						dat = copy;
+					}
+					
+					Number[] Data = new Number[ dat.length + this.DATA.getChunckSize() ];
+					
+					int index = 0;
+					for( int i = 0; i < dat.length; i++ )
+					{
+						Data[ index ] = dat[ i ];
+						
+						index++;
+						
+						if( index % this.DATA.getNumberOfChannels() == 0)
+						{
+							Data[ index ] = (Number)NonSyncMarker;
+							
+							index++;
+						}
+					}
+					
+					if( marker != null )
+					{
+						index = 0;
+						
+						while( index < timeData.length )
+						{
+							Number time = timeData[ index ];
+							
+							SyncMarker aux = new SyncMarker( marker.getMarkValue(), marker.getTimeMarkValue() );
+														
+							while( aux != null 
+									&& time.doubleValue() > aux.getTimeMarkValue() )
+							{
+								marker.addMarkValue( aux.getMarkValue() );
+								
+								aux = this.syncReader.getSyncMarker();																
+							}
+							
+							if( time.doubleValue() > marker.getTimeMarkValue() )
+							{
+								Data[ ( index + 1 ) * ( this.DATA.getNumberOfChannels() + 1 ) - 1] = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataType() );
+								
+								marker = null;
+								if( aux != null  )
+								{
+									marker = aux;
+								}								
+							}
+							
+							index++;
+						}
+						
+						for( Number datVal : Data )
+						{
+							dataBuffer.add( datVal );
+						}
+					}
+									
+					if( dataBuffer.size() >= this.maxNumElements )
+					{					
+						DataBlock dataBlock = DataBlockFactory.getDataBlock( this.DATA.getDataType(), seqNum, name, this.DATA.getNumberOfChannels() + 1, dataBuffer.toArray() );
+						
+						dataBuffer.clear();
+						
+						synchronized ( this )
+						{
+							while( !this.writer.isReady() )
+							{
+								try
+								{
+									super.wait( 1000L );
+								}
+								catch ( InterruptedException e) 
+								{
+								}
+							}					
+						}
+						
+						this.writer.saveData( dataBlock );
+						
+						seqNum++;
+					}
+				}				
+				
+			}
+			
+			Loop = ( block != null );
+		}
+		
+		if( !dataBuffer.isEmpty() )
+		{
+			DataBlock dataBlock = DataBlockFactory.getDataBlock( this.DATA.getDataType(), seqNum, name, this.DATA.getNumberOfChannels() + 1, dataBuffer.toArray() );
+
+			dataBuffer.clear();
+
+			synchronized ( this )
+			{
+				while( !this.writer.isReady() )
+				{
+					try
+					{
+						super.wait( 1000L );
+					}
+					catch ( InterruptedException e) 
+					{
+					}
+				}					
+			}
+
+			this.writer.saveData( dataBlock );
+
+			seqNum++;
+		}
+		
+		return seqNum;
+	}
+		
+	private Tuple< Number[], Number[] > getNextNumberBlock( TemporalData temp ) throws Exception
+	{
+		List< Object > dataBuffer = new ArrayList< Object >();
+		
+		Tuple< Number[], Number[] > out = null;
+		
+		if( temp != null )
+		{
+			List< ByteBlock > block = temp.getDataBlocks();
+			
+			if( block != null )
+			{
+				Number[] data = null; 
+				Number[] time = null; 
+				
+				for( int index = 0; index < block.size(); index++ )
+				{
+					ByteBlock bytes = block.get( index );
+					
+					if( index == 0 )
+					{
+						data = ConvertTo.ByteArrayTo( bytes.getData(), temp.getDataType() );
+					}
+					else if( index == 1 )
+					{
+						time = ConvertTo.ByteArrayTo( bytes.getData(), temp.getTimeDataType() );
+					}
+				}
+				
+				if( data != null || time != null )
+				{
+					out = new Tuple<Number[], Number[]>( data, time );
+				}
+			}
+		}
+		
+		return out;
+	}
+	
+	private int ProcessTimeStream( TemporalData stream, int dataType, int seqNum, String name ) throws Exception
+	{	
 		if( stream != null )
 		{
-			List< Object > data = null;
-			
-			boolean getNextData = true;
-			
+			List< Object > dataBuffer = new ArrayList< Object >();
+			Tuple< Number[], Number[] > block = null;
+						
 			do
 			{
+				if( stream.getDataType() != LSL.ChannelFormat.string 
+						&& stream.getDataType() != LSL.ChannelFormat.undefined 
+					)
+				{
+					block = this.getNextNumberBlock( stream );
+					
+					if( block != null )
+					{
+						Number[] times = block.y;
+						
+						if( times != null )
+						{
+							for( Number t : times )
+							{
+								dataBuffer.add( t );
+							}
+						}
+					}
+						
+					if( dataBuffer.size() >= this.maxNumElements )
+					{
+						DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, 1, dataBuffer.toArray() );
+						
+						dataBuffer.clear();
+						
+						synchronized ( this )
+						{
+							while( !this.writer.isReady() )
+							{
+								try
+								{
+									super.wait( 1000L );
+								}
+								catch ( InterruptedException e) 
+								{
+								}
+							}					
+						}
+						
+						this.writer.saveData( dataBlock );
+						
+						seqNum++;
+					}
+				}
+			}
+			while( block != null );		
+			
+			if( !dataBuffer.isEmpty() )
+			{
+				DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, 1, dataBuffer.toArray() );
+				
+				dataBuffer.clear();
+				
 				synchronized ( this )
 				{
 					while( !this.writer.isReady() )
 					{
 						try
 						{
-							super.wait();
+							super.wait( 1000L );
 						}
 						catch ( InterruptedException e) 
 						{
@@ -162,27 +483,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					}					
 				}
 				
-				if( getNextData )
-				{
-					data = stream.getData(); 
-					counterDataBlock++;
-				}
+				this.writer.saveData( dataBlock );
 				
-				if( data != null 
-						&& data.size() > 0 )
-				{
-					DataBlock block = this.ListNumberToDataBlock( counterDataBlock, name, nChannels, stream.getDataType(), data );
-
-					if( block != null )
-					{
-						getNextData = this.writer.saveData( block ); // save data
-					}
-				}
+				seqNum++;
 			}
-			while( data.size() > 0 );
 		}
 		
-		return counterDataBlock;
+		return seqNum;
 	}
 	
 	/*
@@ -204,7 +511,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			{
 				try
 				{
-					super.wait();
+					super.wait( 1000L );
 				}
 				catch ( InterruptedException e) 
 				{
@@ -213,115 +520,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		}		
 	}
 	
-	private DataBlock ListNumberToDataBlock( int secNum, String varName, int nChannel, int dataType, List data ) throws ClassCastException
-	{	
-		DataBlock b = null;
-				
-		if( data != null && !data.isEmpty() )
-		{
-			// Save binary data
-			switch ( dataType )
-			{
-				case LSL.ChannelFormat.float32:
-				{
-					Float[] aux = new Float[data.size()];
-					int i = 0;
-					for (Object value  : data)
-					{
-						aux[i] = (Float)value;
-						i++;
-					}
-	
-					b = new FloatBlock( secNum, varName, nChannel, aux );
-					
-					break;
-				}
-				case LSL.ChannelFormat.double64:
-				{
-					Double[] aux = new Double[data.size()];
-					int i = 0;
-					for (Object value : data)
-					{
-						aux[i] = (Double)value;
-						i++;
-					}
-	
-					b = new DoubleBlock( secNum, varName, nChannel, aux );
-	
-					break;
-				}
-				case LSL.ChannelFormat.int64:
-				{
-					Long[] aux = new Long[data.size()];
-					int i = 0;
-					for( Object value : data )
-					{
-						aux[ i ] = (long)value;
-						i++;
-					}
-	
-					 b = new LongBlock( secNum, varName, nChannel, aux );
-	
-					break;
-				}
-				case  LSL.ChannelFormat.string:
-				{
-					String aux = new String();
-					for( Object value : data )
-					{
-						aux += (Character)value;
-					}
-	
-					b = new StringBlock( secNum,  varName, 1, aux );
-	
-					break;
-				}
-				case LSL.ChannelFormat.int8:
-				{
-					Byte[] aux = new Byte[data.size()];
-					int i = 0;
-					for( Object value : data )
-					{
-						aux[ i ] = (byte)value;
-						i++;
-					}
-					
-					b = new ByteBlock( secNum, varName, nChannel, aux );
-					
-					break;
-				}
-				case LSL.ChannelFormat.int16:
-				{
-					Short[] aux = new Short[data.size()];
-					int i = 0;
-					for (Object value : data)
-					{
-						aux[i] = (Short)value;
-						i++;
-					}
-	
-					b = new ShortBlock( secNum, varName, nChannel, aux );
-					
-					break;
-				}
-				default: // LSL.ChannelFormat.int32
-				{
-					Integer[] aux = new Integer[data.size()];
-					int i = 0;
-					for (Object value : data)
-					{
-						aux[i] = (Integer)value;
-						i++;
-					}
-	
-					b = new IntegerBlock( secNum, varName, nChannel, aux );
-				}
-			}
-		}
 		
-		return b;
-	}
-	
 	/*
 	 * (non-Javadoc)
 	 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
@@ -333,7 +532,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			if( this.monitor != null )
 			{
-				EventInfo event = new EventInfo( eventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
+				EventInfo event = new EventInfo( EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
 				
 				this.events.add( event );
 				try 
@@ -361,13 +560,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		this.writer = null;
 			
 		this.DATA.closeTempBinaryFile();
+		this.syncReader.closeStream();
 		
 		//this.WriterloopEndInteractionNotifier.stopThread( IStoppableThread.FORCE_STOP );
 		//this.WriterloopEndInteractionNotifier = null;
 		
 		if( this.monitor != null )
 		{		
-			EventInfo event = new EventInfo( eventType.OUTPUT_DATA_FILE_SAVED, DATA.getStreamingName() );
+			EventInfo event = new EventInfo( EventType.OUTPUT_DATA_FILE_SAVED, DATA.getStreamingName() );
 			this.events.add( event );
 		
 			this.monitor.taskDone( this );
@@ -434,15 +634,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		for( EventInfo e : EVENTS )
 		{		 
-			if( e.getEventType().equals( eventType.THREAD_STOP ) )
+			if( e.getEventType().equals( EventType.THREAD_STOP ) )
 			{
-				System.out.println("OutputBinaryFileSegmentation.taskDone() THREAD STOP");
 				synchronized ( this )
 				{
 					super.notify();
 				}
 			}
-			else if( e.getEventType().equals( eventType.OUTPUT_FILE_WRITER_READY ) )
+			else if( e.getEventType().equals( EventType.OUTPUT_FILE_WRITER_READY ) )
 			{
 				synchronized ( this )
 				{						

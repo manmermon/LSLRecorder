@@ -30,7 +30,7 @@ import Config.ParameterList;
 import Controls.HandlerMinionTemplate;
 import Controls.MinionParameters;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.streamClientSocket;
 import Prototype.Discarded.Malfunction.Socket.streamServerSocket;
 import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
@@ -38,7 +38,7 @@ import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.Tuple;
 import Sockets.Info.SocketSetting;
-import Sockets.Info.streamSocketProblem;
+import Sockets.Info.StreamSocketProblem;
 import Sockets.Info.SocketParameters;
 import StoppableThread.IStoppableThread;
 import java.net.InetSocketAddress;
@@ -203,8 +203,8 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 					}
 					catch (Exception e)
 					{
-						streamSocketProblem problem = new streamSocketProblem(par.getSocketInfo().getSocketAddress(), e);
-						this.events.add(new EventInfo( eventType.SOCKET_CONNECTION_PROBLEM, problem));
+						StreamSocketProblem problem = new StreamSocketProblem(par.getSocketInfo().getSocketAddress(), e);
+						this.events.add(new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM, problem));
 					}
 
 				}
@@ -295,7 +295,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 
 				for( EventInfo e : r )
 				{
-					if (e.getEventType().equals(  eventType.SOCKET_INOUT_CHANNEL_CREATED ) )
+					if (e.getEventType().equals(  EventType.SOCKET_INOUT_CHANNEL_CREATED ) )
 					{
 
 						ManagerInOutStreamSocket c = (ManagerInOutStreamSocket)e.getEventInformation();
@@ -321,19 +321,19 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 						}
 						catch (Exception ex)
 						{
-							streamSocketProblem problem = new streamSocketProblem(c.getRemoteSocketInfo().getSocketAddress(), ex);
-							this.events.add(new EventInfo( eventType.SOCKET_CONNECTION_PROBLEM, problem));
+							StreamSocketProblem problem = new StreamSocketProblem(c.getRemoteSocketInfo().getSocketAddress(), ex);
+							this.events.add(new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM, problem));
 						}
 					}
-					else if ( e.getEventType().equals( eventType.SOCKET_INPUT_MSG ) )
+					else if ( e.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
 					{						
 						this.events.add( e );							
 					}
-					else if (e.getEventType().equals( eventType.SOCKET_CONNECTION_PROBLEM ))
+					else if (e.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 					{
 						this.events.add( e );
 					}
-					else if( e.getEventType().equals( eventType.THREAD_STOP ) )
+					else if( e.getEventType().equals( EventType.THREAD_STOP ) )
 					{
 						if( !this.deletingSubordinates )
 						{
@@ -372,15 +372,15 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 
 								if( clientClose )
 								{
-									this.events.add(new EventInfo( eventType.SOCKET_OUTPUT_SOCKET_CLOSES
-											, new streamSocketProblem( id.getSocketAddress()
+									this.events.add(new EventInfo( EventType.SOCKET_OUTPUT_SOCKET_CLOSES
+											, new StreamSocketProblem( id.getSocketAddress()
 														, new Exception("The output socket " + id + " is closed."))));
 								}
 
 							}
 						}
 					}
-					else if (e.getEventType().equals( eventType.SERVER_THREAD_STOP ))
+					else if (e.getEventType().equals( EventType.SERVER_THREAD_STOP ))
 					{
 						this.server = null;
 					}
@@ -439,13 +439,13 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 			{
 				synchronized( super.event )
 				{
-					this.event = new EventInfo(  eventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+					this.event = new EventInfo(  EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 					this.events.clear();
 				}
 			}
 			else
 			{
-				super.event = new EventInfo( eventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+				super.event = new EventInfo( EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 				this.events.clear();
 			}
 

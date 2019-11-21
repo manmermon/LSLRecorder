@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package InputStreamReader.OutputDataFile.Format.Clis.Parallel;
 
 import java.nio.charset.Charset;
@@ -9,9 +28,9 @@ import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import InputStreamReader.OutputDataFile.Compress.IOutZip;
-import InputStreamReader.OutputDataFile.DataBlock.CompressedByteBlock;
+import InputStreamReader.OutputDataFile.DataBlock.DataInByteFormatBlock;
 import StoppableThread.AbstractStoppableThread;
 import edu.ucsd.sccn.LSL;
 
@@ -43,7 +62,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	private List< EventInfo > events = null;
 	private ITaskMonitor monitor = null;
 	
-	private CompressedByteBlock compressedData = null;
+	private DataInByteFormatBlock compressedData = null;
 	
 	public ZipThread( String varName, int dataType, int nChannels, IOutZip zp, ICompressDataCollector col, Charset coding ) throws NullPointerException 
 	{
@@ -207,13 +226,13 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 
 			if( compressData != null )
 			{
-				this.compressedData = new CompressedByteBlock( n, this.varName, this.DataType, this.numChannels, ConvertTo.byteArray2ByteArray( compressData ) );				
+				this.compressedData = new DataInByteFormatBlock( n, this.varName, this.DataType, this.numChannels, ConvertTo.byteArray2ByteArray( compressData ) );				
 				this.collector.SaveCompressedData( this );
 			}
 		}
 	}
 	
-	public CompressedByteBlock getCompressedData()
+	public DataInByteFormatBlock getCompressedData()
 	{
 		return this.compressedData;
 	}
@@ -239,7 +258,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 		
 		if( this.monitor != null )
 		{
-			EventInfo e = new  EventInfo( eventType.THREAD_STOP, this );
+			EventInfo e = new  EventInfo( EventType.THREAD_STOP, this );
 			this.events.add( e );
 			
 			this.monitor.taskDone( this );

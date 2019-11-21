@@ -17,16 +17,40 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package InputStreamReader.OutputDataFile.DataBlock;
+package InputStreamReader.Sync;
 
-import edu.ucsd.sccn.LSL;
-
-public class CharBlock extends DataBlock<Character> 
+public class SyncMarker 
 {
-
-	public CharBlock(int seqNum, String name, int nCols, Character[] data) 
+	public static final int NON_MARK = 0;
+	
+	private int markValue = NON_MARK;
+	
+	private double timeMarkValue = Double.NaN;
+	
+	public SyncMarker( int mark, double time )
 	{
-		super( seqNum, name, LSL.ChannelFormat.string, nCols, data);
+		this.markValue = mark;
+		this.timeMarkValue = time;
 	}
-
+	
+	public void addMarkValue( int val )
+	{
+		this.markValue = this.markValue | val;
+	}
+		
+	public int getMarkValue() 
+	{
+		return markValue;
+	}
+	
+	public double getTimeMarkValue() 
+	{
+		return timeMarkValue;
+	}
+	
+	@Override
+	public String toString() 
+	{
+		return "<" + this.markValue + ", " + this.timeMarkValue + ">";
+	}
 }

@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package Sockets;
 
 import java.io.BufferedReader;
@@ -8,8 +27,8 @@ import java.net.Socket;
 
 import Auxiliar.Tasks.ITaskMonitor;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
-import Sockets.Info.streamInputMessage;
+import Controls.Messages.EventType;
+import Sockets.Info.StreamInputMessage;
 import StoppableThread.IStoppableThread;
 
 public class SocketReaderThread extends SocketReadWriteThreadTemplate 
@@ -59,11 +78,11 @@ public class SocketReaderThread extends SocketReadWriteThreadTemplate
 			//this.inMsg = in;
 			//System.out.println("SocketReaderThread.runInLoop() " + this.getName() + " Inputs: "  + System.nanoTime() + " > " + inMsg );
 			
-			streamInputMessage inMsg  = new streamInputMessage( in , this.remote, this.local );
+			StreamInputMessage inMsg  = new StreamInputMessage( in , this.remote, this.local );
 			
 			synchronized( super.events )
 			{				
-				super.events.add( new EventInfo( eventType.SOCKET_INPUT_MSG, inMsg ) );
+				super.events.add( new EventInfo( EventType.SOCKET_INPUT_MSG, inMsg ) );
 			}
 		}	
 		else
@@ -113,7 +132,7 @@ public class SocketReaderThread extends SocketReadWriteThreadTemplate
 				
 		synchronized ( super.events ) 
 		{			
-			super.events.add( new EventInfo( eventType.SOCKET_CHANNEL_CLOSE, this.getID() ) );
+			super.events.add( new EventInfo( EventType.SOCKET_CHANNEL_CLOSE, this.getID() ) );
 		}
 		
 		synchronized ( this.notifier )

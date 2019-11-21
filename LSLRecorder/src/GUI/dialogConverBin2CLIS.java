@@ -1,3 +1,22 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package GUI;
 
 import java.awt.BorderLayout;
@@ -28,8 +47,10 @@ import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.imagenPoligono2D;
+import InputStreamReader.Binary.BinaryHeader;
 import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
+
 import java.awt.Color;
 import javax.swing.JTable;
 import javax.swing.JLabel;
@@ -820,7 +841,7 @@ public class dialogConverBin2CLIS extends JDialog
 							String nm = e.getDocument().getText( 0, e.getDocument().getLength() );
 							if( !nm.isEmpty() )
 							{
-								currentBinFile.name = nm;
+								currentBinFile.setName( nm );
 								txtStreamName.setBorder( (new JTextField()).getBorder() );
 							}
 							else
@@ -1085,7 +1106,7 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			String[] parts = binHeader.split( binSplitChar );
 					
-			String name = "", type = "", chs = "", xml = "";
+			String name = "", type = "", timeType = "", chs = "", chunck = "", xml = "", interleave = "";
 						
 			for( int i = 0; i < parts.length; i++ )
 			{
@@ -1099,7 +1120,19 @@ public class dialogConverBin2CLIS extends JDialog
 				}
 				else if( i == 2 )
 				{
+					timeType = parts[ i ];
+				}
+				else if( i == 3 )
+				{
 					chs = parts[ i ];
+				}
+				else if( i == 4 )
+				{
+					chunck = parts[ i ];
+				}
+				else if( i == 5 )
+				{
+					interleave = parts[ i ];
 				}
 				else
 				{
@@ -1114,8 +1147,13 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			xml = xml.replaceAll( "\\s+", " " );
 			
-			bH = new BinaryHeader( file, name, new Integer( type )
-									, new Integer( chs ), xml
+			bH = new BinaryHeader( file, name
+									, new Integer( type )
+									, new Integer( timeType )
+									, new Integer( chs )
+									, new Integer( chunck )
+									, new Boolean( interleave )
+									, xml
 									, this.getComboBoxOutputFormat( ).getSelectedItem( ).toString( )
 									, this.getTxtOutFileFolder( ).getText( )
 									, this.getChckbxDeleteBinaries().isSelected() );
@@ -1327,12 +1365,12 @@ public class dialogConverBin2CLIS extends JDialog
 						String f = cb.getSelectedItem( ).toString( );
 						for( BinaryHeader bH : binaryDataFiles )
 						{
-							bH.outFormat = f;
+							bH.setOutputFormat( f );
 						}
 						
 						for( BinaryHeader bH : binaryTimeFiles )
 						{
-							bH.outFormat = f;
+							bH.setOutputFormat( f );
 						}
 					}
 				}
@@ -1402,12 +1440,12 @@ public class dialogConverBin2CLIS extends JDialog
 						
 						for( BinaryHeader bh : binaryDataFiles )
 						{
-							bh.outFolder = folder;
+							bh.setOutputFolder( folder );
 						}
 						
 						for( BinaryHeader bh : binaryTimeFiles )
 						{
-							bh.outFolder = folder;
+							bh.setOutputFolder( folder );
 						}
 					}
 					catch ( BadLocationException e1 ) 
@@ -1471,87 +1509,16 @@ public class dialogConverBin2CLIS extends JDialog
 					
 					for( BinaryHeader bh : binaryDataFiles )
 					{
-						bh.deleteBin = del;
+						bh.setDeleteBinary( del );
 					}
 					
 					for( BinaryHeader bh : binaryTimeFiles )
 					{
-						bh.deleteBin = del;
+						bh.setDeleteBinary( del );
 					}
 				}
 			});
 		}
 		return chckbxDeleteBinaries;
-	}
-	
-	/////////////////////////////////////////////////////////////////////
-	//
-	//  AUXILIAR
-	//
-	/////////////////////////////////////////////////////////////////////
-	
-	public class BinaryHeader
-	
-	{
-		private String filePath;
-		private String name;
-		private int type;
-		private int nChs;
-		private String xml;
-		private String outFormat;
-		private String outFolder;
-		private boolean deleteBin = false;
-		
-		public BinaryHeader( String path, String streamName, int dataType, int channels, String desc, String outputFormat, String outputFolder, boolean delBin ) 
-		{
-			this.filePath = path;
-			this.name = streamName;
-			this.type = dataType;
-			this.nChs = channels;
-			this.xml = desc;
-			this.outFormat = outputFormat;
-			this.outFolder = outputFolder;
-			this.deleteBin = delBin;
-		}
-		
-		public String getFilePath( )
-		{
-			return this.filePath;
-		}
-		
-		public String getName( )
-		{
-			return this.name;
-		}
-		
-		public int getType( ) 
-		{
-			return this.type;
-		}
-		
-		public int getNumberOfChannels( )
-		{
-			return this.nChs;
-		}
-		
-		public String getXMLDescription( )
-		{
-			return this.xml;
-		}
-		
-		public String getOutputFormat( )
-		{
-			return this.outFormat;
-		}
-		
-		public String getOutputFolder( )
-		{
-			return this.outFolder;
-		}
-		
-		public boolean deleteBinary()
-		{
-			return this.deleteBin;
-		}
-	}	
+	}		
 }

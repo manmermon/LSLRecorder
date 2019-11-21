@@ -34,7 +34,7 @@ import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotifierThread;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.SocketParameters;
@@ -192,7 +192,7 @@ public class streamServerSocket extends AbstractStoppableThread implements INoti
 				
 				synchronized( this.events )
 				{					
-					this.events.add( new EventInfo( eventType.SOCKET_INOUT_CHANNEL_CREATED, ioss ) );
+					this.events.add( new EventInfo( EventType.SOCKET_INOUT_CHANNEL_CREATED, ioss ) );
 				}
 				
 				this.notifyEvent();
@@ -204,7 +204,7 @@ public class streamServerSocket extends AbstractStoppableThread implements INoti
 			
 			synchronized ( this.events )
 			{
-				this.events.add( new EventInfo( eventType.SOCKET_INOUT_CHANNEL_CREATED, ioss ) );
+				this.events.add( new EventInfo( EventType.SOCKET_INOUT_CHANNEL_CREATED, ioss ) );
 			}
 			
 			this.notifyEvent();
@@ -238,7 +238,7 @@ public class streamServerSocket extends AbstractStoppableThread implements INoti
 		
 		synchronized ( this.events ) 
 		{
-			this.events.add( new EventInfo( eventType.SERVER_THREAD_STOP, e.getMessage() ) );
+			this.events.add( new EventInfo( EventType.SERVER_THREAD_STOP, e.getMessage() ) );
 		}
 		
 		this.notifyEvent();

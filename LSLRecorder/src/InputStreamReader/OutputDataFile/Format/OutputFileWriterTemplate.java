@@ -1,3 +1,22 @@
+/*
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package InputStreamReader.OutputDataFile.Format;
 
 import java.io.File;
@@ -10,7 +29,7 @@ import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotifierThread;
 import Controls.Messages.EventInfo;
-import Controls.Messages.eventType;
+import Controls.Messages.EventType;
 import InputStreamReader.OutputDataFile.IOutputDataFileWriter;
 import InputStreamReader.OutputDataFile.DataBlock.DataBlock;
 import StoppableThread.AbstractStoppableThread;
@@ -207,7 +226,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			
 			if( this.counterProcessingDataBlocks.get() == 1 )
 			{				
-				EventInfo e = new EventInfo( eventType.OUTPUT_FILE_WRITER_READY, null );
+				EventInfo e = new EventInfo( EventType.OUTPUT_FILE_WRITER_READY, null );
 				synchronized ( this.events )
 				{
 					this.events.add( e );
@@ -248,7 +267,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			{
 				synchronized ( this.events )
 				{
-					EventInfo e = new EventInfo( eventType.THREAD_STOP, null );
+					EventInfo e = new EventInfo( EventType.THREAD_STOP, null );
 					this.events.add( e );
 				}						
 

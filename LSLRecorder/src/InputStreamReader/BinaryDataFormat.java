@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.
@@ -17,16 +17,37 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package InputStreamReader.OutputDataFile.DataBlock;
+package InputStreamReader;
 
-import edu.ucsd.sccn.LSL;
-
-public class CharBlock extends DataBlock<Character> 
+public class BinaryDataFormat 
 {
-
-	public CharBlock(int seqNum, String name, int nCols, Character[] data) 
-	{
-		super( seqNum, name, LSL.ChannelFormat.string, nCols, data);
+	private int dType = 1;
+	private int bytes = 1;
+	private int samples = 1;	
+	
+	public BinaryDataFormat()
+	{		
 	}
-
+	
+	public BinaryDataFormat( int dataType, int byteLength, int chunckSize )
+	{
+		this.dType = dataType;
+		this.bytes = byteLength;
+		this.samples = chunckSize;
+	}
+	
+	public int getDataType() 
+	{
+		return this.dType;
+	}
+	
+	public int getDataByteSize() 
+	{
+		return this.bytes;
+	}
+	
+	public int getChunckSize() 
+	{
+		return this.samples;
+	}
 }

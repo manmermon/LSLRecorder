@@ -38,10 +38,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +61,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JWindow;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.LineBorder;
@@ -79,7 +76,6 @@ import Config.Language.Language;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.InfoDialog;
 import GUI.Miscellany.imagenPoligono2D;
-import sun.misc.ObjectInputFilter.Config;
 
 public class CanvasLSLDataPlot extends JPanel
 {

@@ -1,7 +1,7 @@
 /*
  * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
- * Copyright 2018-2019 by Manuel Merino Monge <manmermon@dte.us.es>
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.
  *
@@ -22,66 +22,61 @@
 
 package InputStreamReader;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.List;
 
+import InputStreamReader.OutputDataFile.DataBlock.ByteBlock;
 import InputStreamReader.OutputDataFile.Format.DataFileFormat;
-import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLUtils;
 
 public class TemporalData
-{
-	public static final int BLOCK_SIZE = (int)( 5 * ( Math.pow( 2, 20 ) ) ); 
-	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 5 MB  
-	
-	//private byte[] buf = new byte[ Float.BYTES ];
-	
-	//private BufferedInputStream data;
-	//private DataInputStream timeStampData;
-	//private BufferedInputStream timeStampData;
-	
+{	
 	private int dataType;
+	private int timeType;
 	
 	private String streamName;
 	private String lslXML;
 	private int CountChannels;
+	private int ChunckSize;
 	
 	private String outFileName = "./data" + DataFileFormat.getSupportedFileExtension( DataFileFormat.CLIS );
 	private String outFileFormat = DataFileFormat.CLIS;
 	
+	private ReadBinaryFile reader = null;
+	
 	private File binFile = null;
-	private File timeFile = null;
-	
-	//private boolean dataStreamClose = false;
-	//private boolean timeStreamClose = false;
-	
-	//private boolean isSkipDataBinHeader = false;
-	//private boolean isSkipTimeBinHeader = false;
 	
 	private boolean deleteBinaries = true;
 	
-	private TemporalDataStream dataStream = null;
-	private TemporalDataStream timeStream = null;
+	private boolean dataInterleave = false; 
 	
 	private int dataTypeBytes;
+	private List< BinaryDataFormat > formats;
 	
-	public TemporalData( File dataBin, File timeBin, int type, int nChannels, String name
-						, String xml, String outName, String outputFormat
+	public TemporalData( File dataBin
+						, int typeData
+						, int nChannels
+						, int chunckSize
+						, boolean interleave
+						, int typeTime
+						, String name
+						, String xml
+						, String outName
+						, String outputFormat
 						, boolean delBinaries ) throws Exception
-	{		
-		//this.dataStreamClose = true;
-		//this.timeStreamClose = true;
-		
+	{	
 		this.deleteBinaries = delBinaries;
 		
 		this.outFileFormat = outputFormat;
-		
+
 		this.binFile = dataBin;
-		this.timeFile = timeBin;
 		
-		this.dataType = type;
+		this.dataType = typeData;
+		this.timeType = typeTime;
+				
 		this.CountChannels = nChannels;
+		this.ChunckSize = chunckSize;
 		this.streamName = name;
 		this.lslXML = xml;
 		this.outFileName = outName;
@@ -93,29 +88,23 @@ public class TemporalData
 			throw new Exception( "Data type unknown." );
 		}
 		
-		this.maxNumElements = ( BLOCK_SIZE / this.dataTypeBytes ); 
-				
-		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / this.CountChannels ) ) * this.CountChannels );
+		this.formats = new ArrayList<BinaryDataFormat>();
+		this.formats.add( new BinaryDataFormat( typeData, dataTypeBytes, this.CountChannels * this.ChunckSize ) );
+		this.formats.add( new BinaryDataFormat( typeTime, LSLUtils.getDataTypeBytes( typeTime), this.ChunckSize ) );
 		
-		if( this.maxNumElements < this.CountChannels )
-		{
-			this.maxNumElements = this.CountChannels;
-		}
+		this.reader = new ReadBinaryFile( dataBin, this.formats, '\n' );
 		
-		if( dataBin != null )
-		{
-			BufferedInputStream data = new BufferedInputStream( new FileInputStream( dataBin ) );
-			this.dataStream = new TemporalDataStream( type, this.maxNumElements, data );
-			//this.dataStreamClose = false;
-		}
-		
-		if( timeBin != null )
-		{
-			//this.timeStampData = new DataInputStream( new FileInputStream( timeBin ) );
-			BufferedInputStream timeStampData = new BufferedInputStream( new FileInputStream( timeBin ) );
-			this.timeStream = new TemporalDataStream( LSL.ChannelFormat.double64, this.maxNumElements,  timeStampData );
-			//this.timeStreamClose = false;
-		}
+		this.dataInterleave = interleave;
+	}
+	
+	public int getTimeDataType()
+	{
+		return this.timeType;
+	}
+	
+	public boolean isInterleave()
+	{
+		return this.dataInterleave;
 	}
 	
 	public String getOutputFileFormat()
@@ -128,54 +117,15 @@ public class TemporalData
 		return this.outFileName;
 	}
 	
-	/*
-	public List<Object> getData() throws Exception
-	{	
-		List< Object > d = new ArrayList< Object >();
-	
-		if( !this.dataStreamClose )
-		{
-			try
-			{
-				d = this.readDataFromBinaryFile();
-			}
-			catch ( EOFException e) 
-			{
-				this.data.close();
-				this.dataStreamClose = true;
-			}
-		}
-		
-		return d; 
+	public void setOutputFileName( String file )
+	{
+		this.outFileName = file;
 	}
-	*/
 	
 	public int getTypeDataBytes()
 	{
 		return this.dataTypeBytes;
 	}
-
-	/*
-	public List< Double > getTimeStamp() throws Exception
-	{
-		List< Double > t = new ArrayList< Double >();
-		
-		if( !this.timeStreamClose )
-		{
-			try
-			{
-				t = this.readTimeBinaryFile();
-			}
-			catch ( EOFException e) 
-			{
-				this.timeStampData.close();
-				this.timeStreamClose = true;
-			}
-		}
-		
-		return t; 
-	}
-	*/
 
 	public int getDataType()
 	{
@@ -187,6 +137,11 @@ public class TemporalData
 		return this.CountChannels;
 	}
 
+	public int getChunckSize() 
+	{
+		return this.ChunckSize;
+	}
+	
 	public String getStreamingName()
 	{
 		return this.streamName;
@@ -197,250 +152,53 @@ public class TemporalData
 		return this.lslXML;
 	}
 	
-	public TemporalDataStream getDataStream()
+	public List< ByteBlock > getDataBlocks(  ) throws Exception
 	{
-		return this.dataStream;
-	}
-	
-	public TemporalDataStream getTimeStream()
-	{
-		return this.timeStream;
-	}
-	
-	/*
-	private List< Object > readDataFromBinaryFile( ) throws Exception
-	{
-		List< Object > Data = new ArrayList< Object >();
+		//List< Object > data = new ArrayList< Object >();
 		
-		if( !this.isSkipDataBinHeader )
+		List< ByteBlock > data = this.reader.readDataFromBinaryFile();
+		
+		/*
+		int index = 0;
+		for( ByteBlock block : Blocks )
 		{
-			this.isSkipDataBinHeader = true;
+			BinaryDataFormat f = this.formats.get( index );
 			
-			try
+			Number[] values = ConvertTo.ByteArrayTo( block.getData(), f.getDataType() );
+			
+			for( Number v : values )
 			{
-				byte[] aux = new byte[ 1 ];
-				while( this.data.read( aux ) > 0 )
-				{
-					if( (new String( aux ) ).equals( "\n" ) )
-					{
-						break;
-					}
-				}
+				data.add( v );
 			}
-			catch (Exception e) 
-			{
-			}		
+			
+			index++;
 		}
+		*/
 		
-		switch( this.dataType ) 
-		{
-			case( LSL.ChannelFormat.double64 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getDouble() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				break;
-			}
-			case( LSL.ChannelFormat.float32 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getFloat() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				break;
-			}
-			case( LSL.ChannelFormat.int8 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( (new Byte( this.buf[ 0 ] ) ).byteValue() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				
-				break;
-			}
-			case( LSL.ChannelFormat.int16 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getShort() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				
-				break;
-			}
-			case( LSL.ChannelFormat.int32 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getInt() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				break;
-			}
-			case( LSL.ChannelFormat.int64 ):
-			{
-				while( this.data.read( this.buf ) > 0 )
-				{
-					Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getLong() );
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				break;
-			}
-			default: // String
-			{					
-				while( this.data.read( this.buf ) > 0 )
-				{
-					if( this.buf.length > 1 )
-					{
-						Data.add( ByteBuffer.wrap( this.buf ).order( ByteOrder.BIG_ENDIAN ).getChar() );
-					}
-					else
-					{
-						Data.add( new Character( (char)this.buf[ 0 ] ) );
-					}
-					
-					if( Data.size() >= this.maxNumElements )
-					{
-						break;
-					}
-				}
-				break;
-			}			
-		}
-				
-		return Data;
+		return data;
 	}
-	*/
 		
-	/*
-	private List< Double > readTimeBinaryFile() throws Exception
+	public void reset() throws Exception
 	{
-		List< Double > Time = new ArrayList< Double >();
-		
-		if( !this.isSkipTimeBinHeader )
-		{
-			this.isSkipTimeBinHeader = true;
-			
-			try
-			{
-				byte[] aux = new byte[ 1 ];
-				while( this.timeStampData.read( aux ) > 0 )
-				{					
-					if( new String( aux ).equals( "\n" ) )
-					{
-						break;
-					}
-				}
-			}
-			catch (Exception e) 
-			{
-			}		
-		}
-		
-		while( this.timeStampData.available() > 0 )
-		{
-			Time.add( this.timeStampData.readDouble() );
-			
-			if(  Time.size() >= this.maxNumElements )
-			{
-				break;
-			}
-		}
-
-		return Time;
+		this.reader.reset();
 	}
-	*/
 	
 	public long getDataBinaryFileSize()
 	{
-		long size = 0;
-		
-		if( binFile != null )
-		{
-			size = this.binFile.length();
-		}
-		
-		return size;
-	}
-	
-	public long getTimeBinaryFileSize()
-	{
-		long size = 0;
-		
-		if( this.timeFile != null )
-		{
-			size = this.timeFile.length();
-		}
-		return size;
+		return this.reader.getFileSize();
 	}
 	
 	public void closeTempBinaryFile()
 	{
 		try
-		{
-			/*
-			if( this.data != null )
-			{
-				this.data.close();
-			}
-			
-			if( this.timeStampData != null )
-			{
-				this.timeStampData.close();
-			}
-			*/
-			
-			if( this.dataStream != null )
-			{
-				this.dataStream.closeStream();
-			}
-			
-			if( this.timeStream != null )
-			{
-				this.timeStream.closeStream();
-			}
+		{			
+			this.reader.close();
 			
 			if( this.binFile != null  && this.deleteBinaries )
 			{
 				if( !this.binFile.delete() )
 				{
 					this.binFile.deleteOnExit();
-				}
-			}
-
-			if( this.timeFile != null && this.deleteBinaries )
-			{
-				if( !this.timeFile.delete() )
-				{
-					this.timeFile.deleteOnExit();
 				}
 			}
 		}
