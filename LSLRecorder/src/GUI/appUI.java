@@ -248,7 +248,7 @@ public class appUI extends JFrame
 							UIManager.getString( "OptionPane.noButtonText" ) };
 
 					int actionDialog = JOptionPane.showOptionDialog( ui, Language.getLocalCaption( Language.MSG_APP_STATE )
-							+ getTextState().getText() + "."
+							+ " " + getTextState().getText() + "."
 							+ "\n" + Language.getLocalCaption( Language.MSG_INTERRUPT ) 
 							+ "?", 
 							Language.getLocalCaption( Language.MSG_WARNING )

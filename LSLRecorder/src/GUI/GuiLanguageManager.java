@@ -67,16 +67,19 @@ public class GuiLanguageManager
 	{
 		String token = null;
 		
-		outerloop:{
-			
-			for( ArrayTreeMap< String, Object > Comps : components.values() )
+		synchronized ( components)
+		{
+			outerloop:
 			{
-				for( String tk : Comps.keySet() )
+				for( ArrayTreeMap< String, Object > Comps : components.values() )
 				{
-					if( Comps.get( tk ).contains( c ) )
+					for( String tk : Comps.keySet() )
 					{
-						token = tk;
-						break outerloop;
+						if( Comps.get( tk ).contains( c ) )
+						{
+							token = tk;
+							break outerloop;
+						}
 					}
 				}
 			}

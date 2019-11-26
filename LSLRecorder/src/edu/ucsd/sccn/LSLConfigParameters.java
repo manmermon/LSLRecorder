@@ -33,6 +33,10 @@ public class LSLConfigParameters
 {
 	public static final String ID_GENERAL_DESCRIPTION_LABEL = "general";
 	public static final String ID_SOCKET_MARK_INFO_LABEL = "socketMarkInfo";
+
+	public static final String ID_LSLREC_SETTING_LABEL = "lslRecSetting";
+	public static final String ID_CHUNKSIZE_LABEL = "chunkSize";
+	public static final String ID_INTERLEAVED_LABEL = "interleaved";
 	
 	private final String ID_EXTRA_INFO_LABEL = "extra";	
 	

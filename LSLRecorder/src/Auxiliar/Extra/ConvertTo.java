@@ -26,6 +26,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.util.Arrays;
 
 import edu.ucsd.sccn.LSL;
 
@@ -432,4 +433,79 @@ public class ConvertTo
 		
 		return val;
 	}
+	
+	public static Number[] Interleaved( Number[] array, int chunkSize )
+	{
+		Number[] inter = null;
+		
+		if( array != null )
+		{
+			if( array.length <= chunkSize )
+			{
+				inter = array;
+			}
+			else
+			{
+				inter = new Number[ array.length ];
+				
+				int index = 0;
+				for( int i = 0; i < chunkSize; i++ )
+				{
+					for( int j = i; j < array.length; j = j + chunkSize )
+					{
+						inter[ index ] = array[ j ];
+						 
+						index++;
+					}
+				}
+			}
+		}
+		
+		return inter;
+	}
+	
+	public static Number[] Interleaved( Number[] array, int channels, int chunkSize )
+	{
+		Number[] inter = null;
+		
+		if( array != null )
+		{
+			if( array.length <= channels )
+			{
+				inter = array;
+			}
+			else
+			{
+				int from = 0;
+				int step = chunkSize * channels;		
+				int index = 0;
+				
+				inter = new Number[ array.length ];
+				
+				while( from < array.length && index < array.length )
+				{
+					int to = from + step;
+					
+					if( to > array.length )
+					{
+						to = array.length;
+					}
+					
+					Number[] aux = Interleaved( Arrays.copyOfRange( array, from, to), chunkSize );
+					
+					for( int i = 0; i < aux.length && index < inter.length; i++)
+					{
+						inter[ index ] = aux[ i ];
+						
+						index++;
+					}
+					
+					from = to;
+				}
+			}
+		}
+		
+		return inter;
+	}
+	
 }

@@ -34,13 +34,13 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
 import Controls.Messages.SocketInformations;
+import DataStream.Binary.Plotter.outputDataPlot;
+import DataStream.Sync.SyncMarker;
 import Controls.Messages.EventType;
 import Excepciones.SettingException;
 import GUI.appUI;
 import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
-import InputStreamReader.Binary.Plotter.outputDataPlot;
-import InputStreamReader.Sync.SyncMarker;
 import Sockets.Info.StreamInputMessage;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.StreamSocketProblem;
@@ -1326,7 +1326,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					List< Tuple< String, List< Long > > > testValues = (List)eventObject;
 					for( Tuple< String, List< Long > > times : testValues )
 					{				
-						System.out.println("coreControl.controlNotifiedManager.runInLoop() " + times.x );
 						WriteTestCalculator cal = new WriteTestCalculator(  times.x, times.y );
 						cal.start();
 					}

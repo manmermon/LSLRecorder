@@ -29,10 +29,10 @@ import Controls.coreControl;
 import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
+import DataStream.StreamHeader;
+import DataStream.Binary.TemporalBinData;
+import DataStream.OutputDataFile.Format.DataFileFormat;
 import GUI.Miscellany.imagenPoligono2D;
-import InputStreamReader.TemporalData;
-import InputStreamReader.Binary.BinaryHeader;
-import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
@@ -194,7 +194,7 @@ public class guiManager
 		
 		diag.setVisible( true );
 				
-		List< Tuple< BinaryHeader, BinaryHeader > > binFiles = diag.getBinaryFiles();
+		List< Tuple< StreamHeader, StreamHeader > > binFiles = diag.getBinaryFiles();
 				
 		OutputDataFileHandler outCtr = OutputDataFileHandler.getInstance();
 		
@@ -205,12 +205,12 @@ public class guiManager
 			this.setAppState( AppState.SAVING );
 		}
 		
-		for( Tuple< BinaryHeader, BinaryHeader > files : binFiles )
+		for( Tuple< StreamHeader, StreamHeader > files : binFiles )
 		{				
 			try 
 			{
-				BinaryHeader dat = files.x;
-				BinaryHeader sync = files.y;
+				StreamHeader dat = files.x;
+				StreamHeader sync = files.y;
 				
 				File dataFile = null;
 				if( dat != null )
@@ -295,7 +295,7 @@ public class guiManager
 														, del ); //outputFormat
 				*/
 				
-				TemporalData binData = new TemporalData( dataFile
+				TemporalBinData binData = new TemporalBinData( dataFile
 															, type
 															, nc
 															, chunckSize
@@ -478,6 +478,7 @@ public class guiManager
 		ui.getMenuSave().setEnabled( enable );
 		ui.getMenuBin2Clis().setEnabled( enable );
 		ui.getMenuExit().setEnabled( enable );
+		ui.getMenuWritingTest().setEnabled( enable );
 		
 		ui.getJButtonRefreshDevice().setEnabled( enable );
 		ui.getJComboxSyncMethod().setEnabled( enable );
@@ -541,7 +542,14 @@ public class guiManager
 					
 					if( e != null )
 					{
-						m = e.getCause().getMessage();
+						if( e.getCause() != null )
+						{						
+							m = e.getCause().getMessage();
+						}
+						else
+						{
+							m = e.getLocalizedMessage();
+						}
 					}
 						
 					JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + m,

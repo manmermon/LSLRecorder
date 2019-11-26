@@ -29,15 +29,15 @@ import Config.Parameter;
 import Config.ParameterList;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import InputStreamReader.TemporalData;
-import InputStreamReader.Binary.TemporalOutDataFileWriter;
-import InputStreamReader.OutputDataFile.OutputBinaryFileSegmentation;
-import InputStreamReader.Sync.SyncMarker;
-import InputStreamReader.Sync.SyncMarkerBinFileReader;
-import InputStreamReader.Sync.SyncMarkerCollectorWriter;
-import InputStreamReader.Sync.LSL.InputSyncData;
-import InputStreamReader.OutputDataFile.Format.DataFileFormat;
-import InputStreamReader.WritingSystemTester.WritingTest;
+import DataStream.Binary.TemporalBinData;
+import DataStream.Binary.TemporalOutDataFileWriter;
+import DataStream.OutputDataFile.OutputBinaryFileSegmentation;
+import DataStream.OutputDataFile.Format.DataFileFormat;
+import DataStream.Sync.SyncMarker;
+import DataStream.Sync.SyncMarkerBinFileReader;
+import DataStream.Sync.SyncMarkerCollectorWriter;
+import DataStream.Sync.LSL.InputSyncData;
+import DataStream.WritingSystemTester.WritingTest;
 import Auxiliar.LaunchThread;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.Tuple;
@@ -55,6 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -163,7 +164,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.syncInputData.clear();
 		}
 		
-		this.syncCollector.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		if( this.syncCollector != null )
+		{
+			this.syncCollector.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		}
 		
 		this.inputSyncLauched = false;
 		this.isRecorderThreadOn = false;
@@ -463,9 +467,14 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							//if( this.NumberOfSavingThreads < 1 )
 							if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
 							{
-								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, event.getEventInformation() )  );
+								Tuple< String, SyncMarkerBinFileReader > t = (Tuple< String, SyncMarkerBinFileReader >)event.getEventInformation();
 								
-								this.syncCollector.getSyncMarkerBinFileReader().closeAndRemoveTempBinaryFile();
+								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.x )  );
+								
+								if( t.y != null )
+								{
+									t.y.closeAndRemoveTempBinaryFile();
+								}
 							}
 							
 							if( this.NumberOfSavingThreads.intValue() < 0 )
@@ -483,7 +492,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					else if ( event.getEventType().equals( EventType.TEST_WRITE_TIME ) )
 					{		
 						final IHandlerMinion hand = this;
-						final long time = this.NumberOfTestThreads.incrementAndGet() * 10;
+						final long time = ThreadLocalRandom.current().nextLong( 20L, 500L );
 						synchronized ( this.outWriterHandlers )
 						{							
 							Thread t = new Thread()
@@ -506,23 +515,52 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							t.start();
 						}
 					}
-					else if ( event.getEventType().equals( EventType.TEST_OUTPUT_TEMPORAL_FILE ) )
+					else if ( event.getEventType().equals( EventType.CONVERT_OUTPUT_TEMPORAL_FILE ) )
 					{			
 						synchronized ( this.outWriterHandlers )
 						{
-							this.outWriterHandlers.remove( event.getEventInformation() );
-														
-							if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
+							/*
+							try
 							{
-								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, event.getEventInformation() )  );
+								TemporalBinData dat = (TemporalBinData)event.getEventInformation();
+								Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
+															
+								if (!((Boolean)res.y).booleanValue())
+								{
+									dat.setOutputFileName( (String)res.x );
+								}
+								
+								dat.setOutputFileName( res.x );
+								
+								launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
+
+								launch.startThread();
+
+								if (!((Boolean)res.y).booleanValue())
+								{
+									this.event = new EventInfo( EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.x);
+									this.supervisor.eventNotification( this, this.event );
+								}
 							}
-							
-							if( this.NumberOfSavingThreads.intValue() < 0 )
+							catch (Exception ex)
 							{
-								this.NumberOfSavingThreads.set( 0 );
+								if( launch != null )
+								{
+									launch.stopThread( IStoppableThread.FORCE_STOP );
+									launch.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
+								}
+								
+								this.NumberOfSavingThreads.decrementAndGet();
+								
+								if( this.NumberOfSavingThreads.get() < 1 )
+								{
+									this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalBinData)event.getEventInformation()).getStreamingName() )  );
+								}
+
+								this.event = new EventInfo( EventType.PROBLEM, "Save process error: " + ex.getMessage() );
+								this.supervisor.eventNotification( this, event );
 							}
-							
-							( (TemporalData)event.getEventInformation() ).closeTempBinaryFile();
+							*/
 						}
 					}
 					else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )
@@ -536,7 +574,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						try
 						{
-							TemporalData dat = (TemporalData)event.getEventInformation();
+							TemporalBinData dat = (TemporalBinData)event.getEventInformation();
 							Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
 														
 							if (!((Boolean)res.y).booleanValue())
@@ -568,7 +606,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							
 							if( this.NumberOfSavingThreads.get() < 1 )
 							{
-								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalData)event.getEventInformation()).getStreamingName() )  );
+								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalBinData)event.getEventInformation()).getStreamingName() )  );
 							}
 
 							this.event = new EventInfo( EventType.PROBLEM, "Save process error: " + ex.getMessage() );
@@ -724,13 +762,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private class LaunchOutBinFileSegmentation extends AbstractStoppableThread
 	{
 		private SyncMarkerCollectorWriter syncCollector = null;
-		private TemporalData dat = null;
+		private TemporalBinData dat = null;
 		private ITaskMonitor m = null;
 		private  Map< String, OutputBinaryFileSegmentation > writeList = null;
 		
 		private OutputBinaryFileSegmentation saveOutFileThread = null;
 		
-		public LaunchOutBinFileSegmentation( SyncMarkerCollectorWriter syncCol, TemporalData data, ITaskMonitor monitor,  Map< String, OutputBinaryFileSegmentation > wrList ) throws Exception 
+		public LaunchOutBinFileSegmentation( SyncMarkerCollectorWriter syncCol, TemporalBinData data, ITaskMonitor monitor,  Map< String, OutputBinaryFileSegmentation > wrList ) throws Exception 
 		{
 			if( syncCol == null )
 			{

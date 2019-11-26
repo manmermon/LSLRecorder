@@ -27,9 +27,9 @@ import Auxiliar.Extra.NumberRange;
 import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
 import Controls.Messages.RegisterSyncMessages;
+import DataStream.OutputDataFile.Format.DataFileFormat;
 import Excepciones.DefaultValueException;
 import GUI.Miscellany.IPAddressValidator;
-import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import Sockets.Info.SocketSetting;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -65,13 +65,13 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2019, 11 - 1, 20 );
-	public static final int buildNum = 33;
+	public static final Calendar buildDate = new GregorianCalendar( 2019, 11 - 1, 26 );
+	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
 	
-	public static final String version = "Version 1" 
-											+ "." + buildNum
+	public static final String version = "Version 2" 
+											//+ "." + buildNum
 											+ "." + ( buildDate.get( Calendar.YEAR ) % 100 )											
 											+ "." + ( buildDate.get( Calendar.DAY_OF_YEAR ) ) 
 											;

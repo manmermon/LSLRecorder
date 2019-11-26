@@ -92,11 +92,11 @@ import javax.swing.tree.DefaultTreeModel;
 import Config.ConfigApp;
 import Config.Language.Language;
 import Controls.coreControl;
+import DataStream.OutputDataFile.Format.DataFileFormat;
 import GUI.Miscellany.DisabledPanel;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.SelectedButtonGroup;
 import GUI.Miscellany.VerticalFlowLayout;
-import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

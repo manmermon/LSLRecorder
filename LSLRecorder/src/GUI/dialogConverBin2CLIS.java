@@ -45,10 +45,10 @@ import javax.swing.text.PlainDocument;
 
 import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
+import DataStream.StreamHeader;
+import DataStream.OutputDataFile.Format.DataFileFormat;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.imagenPoligono2D;
-import InputStreamReader.Binary.BinaryHeader;
-import InputStreamReader.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
 
 import java.awt.Color;
@@ -146,11 +146,11 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	
 	// Others variables	
-	private List< BinaryHeader > binaryDataFiles;
-	private List< BinaryHeader > binaryTimeFiles;
+	private List< StreamHeader > binaryDataFiles;
+	private List< StreamHeader > binaryTimeFiles;
 	
 	private boolean clearBinaryFiles = true;
-	private BinaryHeader currentBinFile = null;
+	private StreamHeader currentBinFile = null;
 	private JCheckBox chckbxDeleteBinaries;
 	
 	
@@ -161,8 +161,8 @@ public class dialogConverBin2CLIS extends JDialog
 	{
 		super( owner, modal );
 		
-		this.binaryDataFiles = new ArrayList< BinaryHeader>( );
-		this.binaryTimeFiles = new ArrayList< BinaryHeader>( );
+		this.binaryDataFiles = new ArrayList< StreamHeader>( );
+		this.binaryTimeFiles = new ArrayList< StreamHeader>( );
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
@@ -211,9 +211,9 @@ public class dialogConverBin2CLIS extends JDialog
 		return this.buttonPane;
 	}
 	
-	public List< Tuple< BinaryHeader, BinaryHeader > > getBinaryFiles( )
+	public List< Tuple< StreamHeader, StreamHeader > > getBinaryFiles( )
 	{
-		List< Tuple<BinaryHeader, BinaryHeader> > binFiles = new ArrayList< Tuple<BinaryHeader, BinaryHeader> >( );
+		List< Tuple<StreamHeader, StreamHeader> > binFiles = new ArrayList< Tuple<StreamHeader, StreamHeader> >( );
 		
 		if( this.clearBinaryFiles )
 	 	{
@@ -221,22 +221,22 @@ public class dialogConverBin2CLIS extends JDialog
 	 		this.binaryTimeFiles.clear( );
 	 	}
 		
-		Iterator< BinaryHeader > dataIT = binaryDataFiles.iterator( );
-		Iterator< BinaryHeader > timeIT = binaryTimeFiles.iterator( );
+		Iterator< StreamHeader > dataIT = binaryDataFiles.iterator( );
+		Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
 		
 		while( dataIT.hasNext( ) && timeIT.hasNext( ) )
 		{
-			binFiles.add( new Tuple<BinaryHeader, BinaryHeader>( dataIT.next( ), timeIT.next( ) ) );
+			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), timeIT.next( ) ) );
 		}
 		
 		while( dataIT.hasNext( ) )
 		{
-			binFiles.add( new Tuple<BinaryHeader, BinaryHeader>( dataIT.next( ), null ) );
+			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), null ) );
 		}
 		
 		while( timeIT.hasNext( ) )
 		{
-			binFiles.add( new Tuple<BinaryHeader, BinaryHeader>( timeIT.next( ), null ) );
+			binFiles.add( new Tuple<StreamHeader, StreamHeader>( timeIT.next( ), null ) );
 		}
 		
 		return binFiles;
@@ -433,7 +433,7 @@ public class dialogConverBin2CLIS extends JDialog
 						{
 							insertBinaryFiles( getTableFileData( ), file );
 							
-							BinaryHeader bh = getBinaryFileInfo( file );
+							StreamHeader bh = getBinaryFileInfo( file );
 							if( bh != null )
 							{
 								binaryDataFiles.add( bh );
@@ -480,7 +480,7 @@ public class dialogConverBin2CLIS extends JDialog
 						for( String file : FILES )
 						{
 							insertBinaryFiles( getTableFileTime( ), file );
-							BinaryHeader bh = getBinaryFileInfo( file );
+							StreamHeader bh = getBinaryFileInfo( file );
 							if( bh != null )
 							{
 								binaryTimeFiles.add( bh );
@@ -494,7 +494,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return buttonAddTime;
 	}
 
-	private void clearBinaryFiles( JTable t, List< BinaryHeader > binaryFiles )	
+	private void clearBinaryFiles( JTable t, List< StreamHeader > binaryFiles )	
 	{
 		this.clearInfoLabels( );
 			
@@ -1049,7 +1049,7 @@ public class dialogConverBin2CLIS extends JDialog
 		m.addRow( vals );
 	}
 
-	private void showBinaryFileInfo( BinaryHeader header )	
+	private void showBinaryFileInfo( StreamHeader header )	
 	{
 		this.clearInfoLabels( );		
 	
@@ -1088,11 +1088,11 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 	}
 		
-	private BinaryHeader getBinaryFileInfo( String file )	
+	private StreamHeader getBinaryFileInfo( String file )	
 	{
 		this.clearInfoLabels( );		
 		
-		BinaryHeader bH = null;
+		StreamHeader bH = null;
 		
 		BufferedReader reader = null;
 		
@@ -1147,7 +1147,7 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			xml = xml.replaceAll( "\\s+", " " );
 			
-			bH = new BinaryHeader( file, name
+			bH = new StreamHeader( file, name
 									, new Integer( type )
 									, new Integer( timeType )
 									, new Integer( chs )
@@ -1317,8 +1317,8 @@ public class dialogConverBin2CLIS extends JDialog
 				( newIndexRow > -1 ) && 
 				( newIndexRow < list.getRowCount( ) ) )
 		{
-			BinaryHeader bh = this.binaryDataFiles.get( indexRow );
-			BinaryHeader bh2 = this.binaryDataFiles.get( newIndexRow );
+			StreamHeader bh = this.binaryDataFiles.get( indexRow );
+			StreamHeader bh2 = this.binaryDataFiles.get( newIndexRow );
 			
 			this.binaryDataFiles.set( newIndexRow, bh );
 			this.binaryDataFiles.set( indexRow, bh2 );
@@ -1363,12 +1363,12 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						JComboBox< String > cb = ( JComboBox<String> )e.getSource( );
 						String f = cb.getSelectedItem( ).toString( );
-						for( BinaryHeader bH : binaryDataFiles )
+						for( StreamHeader bH : binaryDataFiles )
 						{
 							bH.setOutputFormat( f );
 						}
 						
-						for( BinaryHeader bH : binaryTimeFiles )
+						for( StreamHeader bH : binaryTimeFiles )
 						{
 							bH.setOutputFormat( f );
 						}
@@ -1438,12 +1438,12 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						String folder = e.getDocument( ).getText( 0, e.getDocument( ).getLength( ) );
 						
-						for( BinaryHeader bh : binaryDataFiles )
+						for( StreamHeader bh : binaryDataFiles )
 						{
 							bh.setOutputFolder( folder );
 						}
 						
-						for( BinaryHeader bh : binaryTimeFiles )
+						for( StreamHeader bh : binaryTimeFiles )
 						{
 							bh.setOutputFolder( folder );
 						}
@@ -1507,12 +1507,12 @@ public class dialogConverBin2CLIS extends JDialog
 					
 					boolean del = c.isSelected();
 					
-					for( BinaryHeader bh : binaryDataFiles )
+					for( StreamHeader bh : binaryDataFiles )
 					{
 						bh.setDeleteBinary( del );
 					}
 					
-					for( BinaryHeader bh : binaryTimeFiles )
+					for( StreamHeader bh : binaryTimeFiles )
 					{
 						bh.setDeleteBinary( del );
 					}
