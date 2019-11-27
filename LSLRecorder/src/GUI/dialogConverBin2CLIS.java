@@ -31,7 +31,6 @@ import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -64,8 +63,6 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
@@ -95,24 +92,27 @@ public class dialogConverBin2CLIS extends JDialog
 	private JPanel buttonPane;	
 	private JPanel filesPanel;
 	private JPanel dataFilePanel;
-	private JPanel timeStampPanel;
+	//private JPanel timeStampPanel;
 	private JPanel panelBtnAddData;
-	private JPanel panelBtnAddTime;
+	//private JPanel panelBtnAddTime;
 	private JPanel panelFilesInfo;
 	private JPanel panelBinInfo;
 	private JPanel panelOutPath;
+	private JPanel panelSyncFile;
 	
 	// JTable
 	private JTable tableFileData;
-	private JTable tableFileTime;
+	//private JTable tableFileTime;
 	private JLabel lblBinaryDataFiles;
-	private JLabel lblBinaryTimeFiles;
+	//private JLabel lblBinaryTimeFiles;
 	
 	
 	// Labels
 	private JLabel lblStreamName;
 	private JLabel lblDataType;
 	private JLabel lblNoChannels;
+	private JLabel lblChunkSize;
+	private JLabel lblSyncFile;
 	private JLabel lblXmlDescr;
 	private JLabel lblFile;
 	private JLabel lblOutputFormat;
@@ -122,32 +122,35 @@ public class dialogConverBin2CLIS extends JDialog
 	private JTextField txtStreamName;
 	private JTextField txtDataType;
 	private JTextField txtNumChannels;
+	private JTextField txtChunkSize;
 	private JTextField txtXMLDesc;
 	private JTextField txtFilePath;
 	private JTextField txtOutFileFolder;
+	private JTextField txtSyncMarkerFile;
 		
 	// Buttons
 	private JButton btnDone;
 	private JButton btnCancel;
 	private JButton buttonAddData;
-	private JButton buttonAddTime;
+	//private JButton buttonAddTime;
 	private JButton btnMoveUpDataFile;
 	private JButton buttonMoveDownDataFile;
-	private JButton btnMoveUpTimeFile;
-	private JButton buttonMoveDownTimeFile;
+	//private JButton btnMoveUpTimeFile;
+	//private JButton buttonMoveDownTimeFile;
 	private JButton btnOutFolder;
+	private JButton btnSelectSyncFile;
 	
 	// Combox
 	private JComboBox< String > fileFormat;
 	
 	// ScrollPanel
 	private JScrollPane scrollTableData;
-	private JScrollPane scrollTableTime;
+	//private JScrollPane scrollTableTime;
 	
 	
 	// Others variables	
 	private List< StreamHeader > binaryDataFiles;
-	private List< StreamHeader > binaryTimeFiles;
+	//private List< StreamHeader > binaryTimeFiles;
 	
 	private boolean clearBinaryFiles = true;
 	private StreamHeader currentBinFile = null;
@@ -162,7 +165,7 @@ public class dialogConverBin2CLIS extends JDialog
 		super( owner, modal );
 		
 		this.binaryDataFiles = new ArrayList< StreamHeader>( );
-		this.binaryTimeFiles = new ArrayList< StreamHeader>( );
+		//this.binaryTimeFiles = new ArrayList< StreamHeader>( );
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
@@ -218,26 +221,24 @@ public class dialogConverBin2CLIS extends JDialog
 		if( this.clearBinaryFiles )
 	 	{
 	 		this.binaryDataFiles.clear( );
-	 		this.binaryTimeFiles.clear( );
+	 		//this.binaryTimeFiles.clear( );
 	 	}
 		
 		Iterator< StreamHeader > dataIT = binaryDataFiles.iterator( );
-		Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
-		
-		while( dataIT.hasNext( ) && timeIT.hasNext( ) )
-		{
-			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), timeIT.next( ) ) );
-		}
+		//Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
+		StreamHeader syncHeader = this.getBinaryFileInfo( this.getTxtSyncFilePath().getText() );
 		
 		while( dataIT.hasNext( ) )
 		{
-			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), null ) );
+			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), syncHeader ) );
 		}
 		
+		/*
 		while( timeIT.hasNext( ) )
 		{
 			binFiles.add( new Tuple<StreamHeader, StreamHeader>( timeIT.next( ), null ) );
 		}
+		*/
 		
 		return binFiles;
 	}
@@ -315,14 +316,92 @@ public class dialogConverBin2CLIS extends JDialog
 		if ( filesPanel == null ) 
 		{
 			filesPanel = new JPanel( );
-			filesPanel.setLayout( new BoxLayout( filesPanel, BoxLayout.X_AXIS ) );
-			filesPanel.add( getDataFilePanel( ) );
-			filesPanel.add( getTimeStampPanel( ) );
+			filesPanel.setLayout( new BorderLayout() ); //new BoxLayout( filesPanel, BoxLayout.X_AXIS ) );
+			filesPanel.add( this.getDataFilePanel( ), BorderLayout.CENTER );
+			filesPanel.add( this.getSyncFilePanel(), BorderLayout.SOUTH );
+			//filesPanel.add( getTimeStampPanel( ) );
 		}
 
 		return filesPanel;
 	}
 
+	private JPanel getSyncFilePanel()
+	{
+		if( this.panelSyncFile == null )
+		{
+			this.panelSyncFile = new JPanel();
+			this.panelSyncFile.setLayout( new BorderLayout() );
+			this.panelSyncFile.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
+			
+			this.panelSyncFile.add( this.getLblSyncFile(), BorderLayout.WEST );
+			this.panelSyncFile.add( this.getTxtSyncFilePath(), BorderLayout.CENTER );
+			this.panelSyncFile.add( this.getBtnSelectSyncFilePath(), BorderLayout.EAST );
+		}
+		
+		return this.panelSyncFile;
+	}
+	
+	private JLabel getLblSyncFile()
+	{
+		if( this.lblSyncFile == null )
+		{
+			this.lblSyncFile = new JLabel( Language.getLocalCaption( Language.SETTING_LSL_SYNC ) + " " );
+			
+			this.lblSyncFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+		}
+		
+		return this.lblSyncFile;
+	}
+	
+	private JTextField getTxtSyncFilePath()
+	{
+		if( this.txtSyncMarkerFile == null )
+		{
+			this.txtSyncMarkerFile = new JTextField();
+		}
+		
+		return this.txtSyncMarkerFile;
+	}
+	
+	private JButton getBtnSelectSyncFilePath()
+	{
+		if( this.btnSelectSyncFile == null )
+		{
+			try
+			{
+				this.btnSelectSyncFile.setIcon( GeneralAppIcon.Folder( 20, 16, Color.BLACK, Color.GREEN.brighter() ) );
+			}
+			catch ( Exception e ) 
+			{
+				this.btnSelectSyncFile.setText( Language.getLocalCaption( Language.SELECT_TEXT ) );
+			}
+			
+			this.btnSelectSyncFile.addActionListener( new ActionListener( ) 
+			{
+				public void actionPerformed( ActionEvent e ) 
+				{
+					JTextField t = (JTextField)e.getSource();
+					
+					clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					
+					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null );
+					if( FILES != null )
+					{
+						for( String file : FILES )
+						{
+							t.setText( file );
+						}
+					}
+				}
+			} );
+			
+			this.btnSelectSyncFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+			this.btnSelectSyncFile.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
+		}
+		
+		return this.btnSelectSyncFile;
+	}
+	
 	private JPanel getDataFilePanel( ) 
 	{
 		if ( dataFilePanel == null )
@@ -348,6 +427,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return this.scrollTableData;
 	}
 	
+	/*
 	private JPanel getTimeStampPanel( ) 
 	{
 		if ( timeStampPanel == null )
@@ -362,7 +442,9 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return timeStampPanel;
 	}
+	*/
 	
+	/*
 	private JScrollPane getScrollTableTime()
 	{
 		if( this.scrollTableTime == null )
@@ -372,6 +454,7 @@ public class dialogConverBin2CLIS extends JDialog
 		
 		return this.scrollTableTime;
 	}
+	*/
 
 	private JPanel getPanelBtnAddData( ) 
 	{
@@ -389,6 +472,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return panelBtnAddData;
 	}
 
+	/*
 	private JPanel getPanelBtnAddTime( ) 
 	{
 		if ( panelBtnAddTime == null )
@@ -404,6 +488,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return panelBtnAddTime;
 	}
+	*/
 
 	private JButton getButtonAddData( ) 
 	{
@@ -450,6 +535,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return buttonAddData;
 	}
 
+	/*
 	private JButton getButtonAddTime( ) 
 	{
 		if ( buttonAddTime == null )
@@ -493,6 +579,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return buttonAddTime;
 	}
+	*/
 
 	private void clearBinaryFiles( JTable t, List< StreamHeader > binaryFiles )	
 	{
@@ -507,6 +594,7 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 	}
 	
+	/*
 	private JTable getTableFileTime( ) 
 	{
 		if ( tableFileTime == null ) 
@@ -552,13 +640,12 @@ public class dialogConverBin2CLIS extends JDialog
 							currentBinFile = binaryTimeFiles.get( r );
 							showBinaryFileInfo( currentBinFile );
 						}
-						/*
-						if( c >= 0 && r >= 0 )
-						{
-							String file = tableFileTime.getValueAt( r, c ).toString( );
-							getBinaryFileInfo( file );
-						}
-						*/
+						
+						//if( c >= 0 && r >= 0 )
+						//{
+						//	String file = tableFileTime.getValueAt( r, c ).toString( );
+						//	getBinaryFileInfo( file );
+						//}
 					}
 				}
 			} );		
@@ -566,6 +653,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return tableFileTime;
 	}
+	*/
 
 	private JLabel getLblBinaryDataFiles( ) 
 	{
@@ -577,6 +665,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return lblBinaryDataFiles;
 	}
 
+	/*
 	private JLabel getLblBinaryTimeFiles( ) 
 	{
 		if ( lblBinaryTimeFiles == null )
@@ -586,6 +675,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return lblBinaryTimeFiles;
 	}
+	*/
 
 	private JPanel getPanelFilesInfo( ) 
 	{
@@ -670,45 +760,59 @@ public class dialogConverBin2CLIS extends JDialog
 			gbc_txtNumChannels.gridy = 3;
 			panelBinInfo.add( getTxtNumChannels( ), gbc_txtNumChannels );
 			
+			GridBagConstraints gbc_lblChuckSize = new GridBagConstraints( );
+			gbc_lblChuckSize.insets = new Insets( 0, 0, 5, 5 );
+			gbc_lblChuckSize.anchor = GridBagConstraints.EAST;
+			gbc_lblChuckSize.gridx = 0;
+			gbc_lblChuckSize.gridy = 4;
+			panelBinInfo.add( getLblChunkSize(), gbc_lblChuckSize );
+			
+			GridBagConstraints gbc_txtChunkSize = new GridBagConstraints( );
+			gbc_txtChunkSize.insets = new Insets( 0, 0, 5, 0 );
+			gbc_txtChunkSize.fill = GridBagConstraints.HORIZONTAL;
+			gbc_txtChunkSize.gridx = 1;
+			gbc_txtChunkSize.gridy = 4;
+			panelBinInfo.add( getTxtChunkSize( ), gbc_txtChunkSize );
+			
 			GridBagConstraints gbc_lblXmlDescr = new GridBagConstraints( );
 			gbc_lblXmlDescr.insets = new Insets( 0, 0, 5, 5 );
 			gbc_lblXmlDescr.anchor = GridBagConstraints.EAST;
 			gbc_lblXmlDescr.gridx = 0;
-			gbc_lblXmlDescr.gridy = 4;
+			gbc_lblXmlDescr.gridy = 5;
 			panelBinInfo.add( getLblXmlDescr( ), gbc_lblXmlDescr );
 			
 			GridBagConstraints gbc_txtXMLDesc = new GridBagConstraints( );
 			gbc_txtXMLDesc.insets = new Insets( 0, 0, 5, 0 );
 			gbc_txtXMLDesc.fill = GridBagConstraints.HORIZONTAL;
 			gbc_txtXMLDesc.gridx = 1;
-			gbc_txtXMLDesc.gridy = 4;
+			gbc_txtXMLDesc.gridy = 5;
 			panelBinInfo.add( getTxtXMLDesc( ), gbc_txtXMLDesc );
 			
 			GridBagConstraints gbc_lblOutputFormat = new GridBagConstraints( );
 			gbc_lblOutputFormat.anchor = GridBagConstraints.EAST;
 			gbc_lblOutputFormat.insets = new Insets( 0, 0, 5, 5 );
 			gbc_lblOutputFormat.gridx = 0;
-			gbc_lblOutputFormat.gridy = 5;
+			gbc_lblOutputFormat.gridy = 6;
 			panelBinInfo.add( getLblOutputFormat( ), gbc_lblOutputFormat );
 			
 			GridBagConstraints gbc_comboBox = new GridBagConstraints( );
 			gbc_comboBox.insets = new Insets( 0, 0, 5, 0 );
 			gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
 			gbc_comboBox.gridx = 1;
-			gbc_comboBox.gridy = 5;
+			gbc_comboBox.gridy = 6;
 			panelBinInfo.add( getComboBoxOutputFormat( ), gbc_comboBox );
 			
 			GridBagConstraints gbc_lblOutputPath = new GridBagConstraints( );
 			gbc_lblOutputPath.anchor = GridBagConstraints.EAST;
 			gbc_lblOutputPath.insets = new Insets( 0, 0, 0, 5 );
 			gbc_lblOutputPath.gridx = 0;
-			gbc_lblOutputPath.gridy = 6;
+			gbc_lblOutputPath.gridy = 7;
 			panelBinInfo.add( getLblOutputPath( ), gbc_lblOutputPath );
 			
 			GridBagConstraints gbc_panelOutPath = new GridBagConstraints( );
 			gbc_panelOutPath.fill = GridBagConstraints.BOTH;
 			gbc_panelOutPath.gridx = 1;
-			gbc_panelOutPath.gridy = 6;
+			gbc_panelOutPath.gridy = 7;
 			panelBinInfo.add( getPanelOutPath( ), gbc_panelOutPath );
 		}
 
@@ -771,6 +875,18 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return lblNoChannels;
 	}
+	
+	private JLabel getLblChunkSize( ) 
+	{
+		if ( this.lblChunkSize == null )
+		{
+			this.lblChunkSize = new JLabel(  Language.getLocalCaption( Language.SETTING_LSL_CHUNCK )  );
+			this.lblChunkSize.setFont( new Font( "Tahoma", Font.BOLD, 12 ) );
+		}
+
+		return this.lblChunkSize;
+	}
+	
 
 	private JLabel getLblXmlDescr( ) 
 	{
@@ -884,6 +1000,18 @@ public class dialogConverBin2CLIS extends JDialog
 		return txtNumChannels;
 	}
 
+	private JTextField getTxtChunkSize( ) 
+	{
+		if ( this.txtChunkSize == null )
+		{
+			this.txtChunkSize = new JTextField( );
+			this.txtChunkSize.setEditable( false );
+			this.txtChunkSize.setColumns( 10 );
+		}
+
+		return this.txtChunkSize;
+	}
+	
 	private JTextField getTxtXMLDesc( ) 
 	{
 		if ( txtXMLDesc == null )
@@ -909,6 +1037,7 @@ public class dialogConverBin2CLIS extends JDialog
 			this.tableFileData.setPreferredScrollableViewportSize( this.tableFileData.getPreferredSize( ) );
 			this.tableFileData.setFillsViewportHeight( true );
 			
+			/*
 			this.tableFileData.addFocusListener( new FocusListener( ) 
 			{				
 				@Override
@@ -924,6 +1053,7 @@ public class dialogConverBin2CLIS extends JDialog
 					clearInfoLabels( );
 				}
 			} );
+			*/
 			
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{				
@@ -1102,7 +1232,7 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			String binHeader = reader.readLine( );
 		
-			String binSplitChar = ";" ;
+			String binSplitChar = StreamHeader.HEADER_BINARY_SEPARATOR ;
 			
 			String[] parts = binHeader.split( binSplitChar );
 					
@@ -1117,18 +1247,18 @@ public class dialogConverBin2CLIS extends JDialog
 				else if( i == 1 )
 				{
 					type = parts[ i ];
-				}
+				}				
 				else if( i == 2 )
-				{
-					timeType = parts[ i ];
-				}
-				else if( i == 3 )
 				{
 					chs = parts[ i ];
 				}
-				else if( i == 4 )
+				else if( i == 3 )
 				{
 					chunck = parts[ i ];
+				}
+				else if( i == 4 )
+				{
+					timeType = parts[ i ];
 				}
 				else if( i == 5 )
 				{
@@ -1250,6 +1380,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return buttonMoveDownDataFile;
 	}
 	
+	/*
 	private JButton getBtnMoveUpTimeFile( ) 
 	{
 		if ( btnMoveUpTimeFile == null )
@@ -1278,7 +1409,8 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return btnMoveUpTimeFile;
 	}
-
+	 */
+	/*
 	private JButton getButtonMoveDownTimeFile( ) 
 	{
 		if ( buttonMoveDownTimeFile == null )
@@ -1307,6 +1439,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return buttonMoveDownTimeFile;
 	}
+	*/
 	
 	private void moveBinaryFile( JTable list, int relativePos )	
 	{
@@ -1368,10 +1501,12 @@ public class dialogConverBin2CLIS extends JDialog
 							bH.setOutputFormat( f );
 						}
 						
+						/*
 						for( StreamHeader bH : binaryTimeFiles )
 						{
 							bH.setOutputFormat( f );
 						}
+						*/
 					}
 				}
 			} );
@@ -1443,10 +1578,12 @@ public class dialogConverBin2CLIS extends JDialog
 							bh.setOutputFolder( folder );
 						}
 						
+						/*
 						for( StreamHeader bh : binaryTimeFiles )
 						{
 							bh.setOutputFolder( folder );
 						}
+						*/
 					}
 					catch ( BadLocationException e1 ) 
 					{
@@ -1512,10 +1649,12 @@ public class dialogConverBin2CLIS extends JDialog
 						bh.setDeleteBinary( del );
 					}
 					
+					/*
 					for( StreamHeader bh : binaryTimeFiles )
 					{
 						bh.setDeleteBinary( del );
 					}
+					*/
 				}
 			});
 		}

@@ -32,6 +32,8 @@ import Controls.Messages.EventType;
 import DataStream.StreamHeader;
 import DataStream.Binary.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
+import DataStream.Sync.SyncMarker;
+import DataStream.Sync.SyncMarkerBinFileReader;
 import GUI.Miscellany.imagenPoligono2D;
 import edu.ucsd.sccn.LSLUtils;
 
@@ -188,7 +190,7 @@ public class guiManager
 	{
 		dialogConverBin2CLIS diag = new dialogConverBin2CLIS( this.getAppUI(), true );
 		
-		diag.setSize( 550, 400 );
+		diag.setSize( 550, 450 );
 		
 		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT2 ) );
 		
@@ -225,7 +227,7 @@ public class guiManager
 				}
 				
 				int type = 0;
-				int timeType = LSLUtils.getTimeMarkType();
+				int timeType = LSLUtils.getTimeMarkType();								
 				int nc = 1;
 				int chunckSize = 1;
 				boolean interleave = false;
@@ -238,6 +240,7 @@ public class guiManager
 				if( dat != null )
 				{
 					type = dat.getType();
+					timeType = dat.getTimeType();
 					nc = dat.getNumberOfChannels();
 					chunckSize = dat.getChunckSize();
 					name = dat.getName();
@@ -261,24 +264,25 @@ public class guiManager
 					outFormat = dat.getOutputFormat();
 					del = dat.deleteBinary();
 				}
-				else if( sync != null )
+				
+				int markType = SyncMarker.MARK_DATA_TYPE;
+				int markTimeType = SyncMarker.MARK_TIME_TYPE;								
+				int markChannels = 1;
+				int markChunks = 1;
+				boolean markInterleave = false;
+				String makrName = "stream";
+				String markDesc = "";
+				
+				if( sync != null )
 				{ 
-					type = sync.getType();
-					nc = sync.getNumberOfChannels();
-					name = sync.getName();
-					interleave = sync.isInterleave();
-					
-					folder = sync.getOutputFolder();
-					
-					if( !folder.endsWith( "\\") && !folder.endsWith( "/" ) )
-					{
-						folder += "\\";
-					}
-					
-					desc = sync.getXMLDescription();
+					markType = sync.getType();
+					markTimeType = sync.getTimeType();
+					markChannels = sync.getNumberOfChannels();
+					markChunks = sync.getChunckSize();					
+					makrName = sync.getName();
+					markInterleave = sync.isInterleave();
 										
-					outFormat = sync.getOutputFormat();
-					del = sync.deleteBinary();
+					markDesc = sync.getXMLDescription();
 				}
 				
 				/*
@@ -309,10 +313,15 @@ public class guiManager
 															, outFormat
 															, del );
 				
+				SyncMarkerBinFileReader reader = new SyncMarkerBinFileReader( syncFile
+																				, markType
+																				, markTimeType
+																				, StreamHeader.HEADER_END
+																				, del );
 				
 				
 				
-				EventInfo event = new EventInfo( idEvent, binData );
+				EventInfo event = new EventInfo( idEvent, new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );
 				
 				INotificationTask notifTask = new INotificationTask() 
 				{				

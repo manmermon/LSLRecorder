@@ -268,7 +268,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 													, LSL.ChannelFormat.int32
 													, LSL.ChannelFormat.double64
 													, StreamHeader.HEADER_END
-													, !ConfigApp.isTesting() );
+													, !ConfigApp.isTesting() );			
 		}
 		
 		return reader;

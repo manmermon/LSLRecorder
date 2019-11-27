@@ -122,9 +122,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	@Override
 	protected void cleanUp() throws Exception 
 	{
-		super.cleanUp();
+		this.out.close();
 		
-		this.out.close();	
+		super.cleanUp();	
 	}
 	
 	protected void postCleanUp() throws Exception

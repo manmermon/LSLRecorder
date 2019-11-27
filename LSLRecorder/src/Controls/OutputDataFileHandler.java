@@ -475,6 +475,29 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								{
 									t.y.closeAndRemoveTempBinaryFile();
 								}
+								
+								if( this.syncCollector != null )
+								{				
+									int c = 0;
+									SyncMarkerBinFileReader reader = this.syncCollector.getSyncMarkerBinFileReader();
+									while( reader == null && c < 10)
+									{
+										try
+										{											
+											Thread.sleep( 100L );
+										}
+										catch (Exception e) 
+										{
+										}
+										finally
+										{
+											reader = this.syncCollector.getSyncMarkerBinFileReader();
+											c++;
+										}
+									}
+									
+									reader.closeAndRemoveTempBinaryFile();
+								}
 							}
 							
 							if( this.NumberOfSavingThreads.intValue() < 0 )
@@ -509,6 +532,43 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 									}
 									
 									supervisor.eventNotification( hand , new EventInfo( EventType.TEST_WRITE_TIME, event.getEventInformation() ) );
+									
+									INotificationTask taskAux = new INotificationTask()
+									{							
+										@Override
+										public void taskMonitor(ITaskMonitor monitor) 
+										{	
+										}
+										
+										@Override
+										public List<EventInfo> getResult() 
+										{
+											List< EventInfo > ev = new ArrayList< EventInfo >();
+											ev.add( new EventInfo( EventType.OUTPUT_DATA_FILE_SAVED, new Tuple< String, SyncMarkerBinFileReader >( task.getID(), null ) ) );
+											return  ev;
+										}
+										
+										@Override
+										public String getID() 
+										{
+											return task.getID();
+										}
+										
+										@Override
+										public void clearResult() {
+											// TODO Auto-generated method stub
+											
+										}
+									};
+									
+									try 
+									{
+										taskDone( taskAux );
+									}
+									catch (Exception e) 
+									{
+										e.printStackTrace();
+									}
 								}
 							};
 							
@@ -519,48 +579,63 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					{			
 						synchronized ( this.outWriterHandlers )
 						{
-							/*
+							OutputBinaryFileSegmentation saveOutFileThread = null;
+							String binName = "";							
+							
 							try
 							{
-								TemporalBinData dat = (TemporalBinData)event.getEventInformation();
-								Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
-															
-								if (!((Boolean)res.y).booleanValue())
-								{
-									dat.setOutputFileName( (String)res.x );
-								}
+								Tuple< TemporalBinData, SyncMarkerBinFileReader > set = (Tuple< TemporalBinData, SyncMarkerBinFileReader >)event.getEventInformation();
 								
-								dat.setOutputFileName( res.x );
+								TemporalBinData dat = set.x;
+								SyncMarkerBinFileReader reader = set.y;
 								
-								launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
-
-								launch.startThread();
-
-								if (!((Boolean)res.y).booleanValue())
-								{
-									this.event = new EventInfo( EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.x);
-									this.supervisor.eventNotification( this, this.event );
+								if( dat != null )
+								{								
+									binName = dat.getStreamingName();
+									
+									Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), binName );
+																
+									if (!((Boolean)res.y).booleanValue())
+									{
+										dat.setOutputFileName( (String)res.x );
+									}
+									
+									dat.setOutputFileName( res.x );
+									
+									saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
+									saveOutFileThread.taskMonitor( this );
+									
+									if( this.outWriterHandlers != null )
+									{
+										this.outWriterHandlers.put( binName, saveOutFileThread );
+							
+										saveOutFileThread.startThread();		
+									}
+									
+									if (!((Boolean)res.y).booleanValue())
+									{
+										this.event = new EventInfo( EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.x);
+										this.supervisor.eventNotification( this, this.event );
+									}
 								}
 							}
 							catch (Exception ex)
 							{
-								if( launch != null )
+								if( saveOutFileThread != null )
 								{
-									launch.stopThread( IStoppableThread.FORCE_STOP );
-									launch.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
+									saveOutFileThread.stopThread( IStoppableThread.FORCE_STOP );
 								}
 								
 								this.NumberOfSavingThreads.decrementAndGet();
 								
 								if( this.NumberOfSavingThreads.get() < 1 )
 								{
-									this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalBinData)event.getEventInformation()).getStreamingName() )  );
+									this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, binName ) );
 								}
 
 								this.event = new EventInfo( EventType.PROBLEM, "Save process error: " + ex.getMessage() );
 								this.supervisor.eventNotification( this, event );
 							}
-							*/
 						}
 					}
 					else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )

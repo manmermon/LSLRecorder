@@ -633,8 +633,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{	
 					String key = RegisterSyncMessages.INPUT_STOP;
 					
-					this.ctrlOutputFile.setBlockingStartWorking(true);
+					this.ctrlOutputFile.setBlockingStartWorking( true );
 										
+					// TODO
 					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK,
 																						 	new SyncMarker( RegisterSyncMessages.getSyncMark( key )
 																						 					, System.nanoTime() / 1e9D ) ) );

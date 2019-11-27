@@ -138,7 +138,8 @@ public class StreamHeader
 							+ this.type + HEADER_BINARY_SEPARATOR
 							+ ( this.nChs + 1 ) + HEADER_BINARY_SEPARATOR
 							+ this.chunckSize + HEADER_BINARY_SEPARATOR
-							+ this.timeType + HEADER_BINARY_SEPARATOR		
+							+ this.timeType + HEADER_BINARY_SEPARATOR
+							+ this.interleave + HEADER_BINARY_SEPARATOR
 							+ this.xml;
 
 		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + HEADER_END;
