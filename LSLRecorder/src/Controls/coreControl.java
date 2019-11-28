@@ -72,10 +72,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 {
 	private SocketInformations streamPars = null;
 
-	//private SocketHandler ctrSocket = null;
 	private SocketHandler ctrSocket = null;
 
-	//private OutputDataFileHandler ctrlOutputFile = null;
 	private OutputDataFileHandler ctrlOutputFile = null;
 	private outputDataPlot ctrLSLDataPlot = null;
 
@@ -98,14 +96,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	
 	private Timer writingTestTimer;
 	
+	private SyncMarker SpecialMarker = null;
+	
+	private List< SocketMessageDelayCalculator > sockMsgDelayCalList;
+	
 	/**
 	 * Create main control unit.
 	 * 
 	 * @throws Exception - Error in subordinates. 
 	 */
 	private coreControl() throws Exception
-	{
+	{	
 		this.setName( this.getClass().getSimpleName() );
+		
+		this.sockMsgDelayCalList = new ArrayList< SocketMessageDelayCalculator >();
 
 		this.createControlUnits();
 	}
@@ -137,7 +141,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		this.managerGUI = guiManager.getInstance(); // GUI manager
 
 		// socket handler
-		//this.ctrSocket = SocketHandler.getInstance();
 		this.ctrSocket = SocketHandler.getInstance();
 		this.ctrSocket.setControlSupervisor( this );
 		this.ctrSocket.startThread();
@@ -145,7 +148,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		// Output file control
 		try
 		{
-			//this.ctrlOutputFile = OutputDataFileHandler.getInstance();
 			this.ctrlOutputFile = OutputDataFileHandler.getInstance();
 			this.ctrlOutputFile.setControlSupervisor( this );
 			this.ctrlOutputFile.startThread();
@@ -619,9 +621,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		
 		this.ctrlOutputFile.setEnableSaveSyncMark( true );
 		
+		if( this.SpecialMarker == null )
+		{
+			this.SpecialMarker =  new SyncMarker( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START )
+												, System.nanoTime() / 1e9D );
+		}
+
 		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker >( OutputDataFileHandler.PARAMETER_SET_MARK 
-												, new SyncMarker( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START )
-																	, System.nanoTime() / 1e9D ) ) );
+												, this.SpecialMarker ) );
+		
+		this.SpecialMarker = null;
 	}
 					
 	/**
@@ -635,6 +644,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				|| this.isWaitingForStartCommand )
 		{						
 			this.managerGUI.setAppState( AppState.STOP );
+			this.managerGUI.enablePlayButton( false );
 			
 			if( this.writingTestTimer != null )
 			{
@@ -644,17 +654,34 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			if (this.ctrlOutputFile != null)
 			{
+				while( !this.sockMsgDelayCalList.isEmpty() )
+				{
+					try 
+					{
+						super.wait( 100L );
+					} 
+					catch (Exception e) 
+					{
+					}
+				}
+				
 				try
 				{	
 					String key = RegisterSyncMessages.INPUT_STOP;
 					
 					this.ctrlOutputFile.setBlockingStartWorking( true );
-										
+					
+					if( this.SpecialMarker == null )
+					{
+						this.SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
+																, System.nanoTime() / 1e9D );
+					}
+					
 					// TODO
-					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK,
-																						 	new SyncMarker( RegisterSyncMessages.getSyncMark( key )
-																						 					, System.nanoTime() / 1e9D ) ) );
-										
+					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, this.SpecialMarker ) );
+					
+					Thread.sleep( 10L );
+					
 					this.ctrlOutputFile.setBlockingStartWorking( false );
 					
 					this.ctrlOutputFile.setEnableSaveSyncMark( false );
@@ -699,7 +726,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
 			
 			this.managerGUI.restoreGUI();
-			this.managerGUI.enablePlayButton( false );			
+			this.managerGUI.enablePlayButton( false );
+			
+			this.SpecialMarker = null;
 			
 			System.gc();
 						
@@ -749,6 +778,15 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					Integer msgMark = this.streamPars.getInputCommands().get( msg.getMessage() );
 
+					SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, SocketMessageDelayCalculator.DEFAULT_NUM_PINGS );
+					socketMsgDelay.taskMonitor( this.ctrlOutputFile );
+					socketMsgDelay.setControlSupervisor( this );					
+					
+					this.sockMsgDelayCalList.add( socketMsgDelay );
+					
+					socketMsgDelay.startThread();
+										
+					/*					
 					if ( msgMark != null )
 					{
 						this.managerGUI.addInputMessageLog( msg.getMessage() + "\n");
@@ -779,19 +817,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 								}
 						}
 						else 
-						{
-							SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, 4 );
-							socketMsgDelay.taskMonitor( ctrlOutputFile );
-							
-							socketMsgDelay.startThread();
-							
-							/*
+						{	
 							this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, Integer>( this.ctrlOutputFile.PARAMETER_SET_MARK,
 																								 msgMark ) );
-							*/
 
 						}
 					}
+					*/
 				}
 				else if (event.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 				{
@@ -1373,6 +1405,10 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						cal.start();
 					}
 				}
+				else if( event_type.equals( EventType.SOCKET_PING_END ) )
+				{
+					sockMsgDelayCalList.remove( (SocketMessageDelayCalculator)eventObject );
+				}
 				else if( event_type.equals( EventType.INPUT_MARK_READY ) )
 				{
 					SyncMarker mark = (SyncMarker) eventObject;
@@ -1386,6 +1422,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					{ 
 						if( isActiveSpecialInputMsg )
 						{
+							SpecialMarker = mark;
 							stopWorking( );
 						}
 					}
@@ -1401,6 +1438,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 								
 								try
 								{
+									SpecialMarker = mark;
 									startRecord();
 								}
 								catch (Exception e)

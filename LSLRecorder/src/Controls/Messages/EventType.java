@@ -45,6 +45,7 @@ public class EventType
   public static final String SOCKET_READER_THREAD_STOP = "socket reader thread closed";
   public static final String SOCKET_WRITER_THREAD_STOP = "socket writer thread closed";
   public static final String SOCKET_CONNECTION_DONE = "socket connect";
+  public static final String SOCKET_PING_END = "ping end";
   public static final String SOCKET_SERVER_STOP = "stop server";
   
   

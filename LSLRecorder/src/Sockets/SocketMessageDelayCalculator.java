@@ -6,16 +6,22 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import Auxiliar.WarningMessage;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Controls.IHandlerMinion;
+import Controls.IHandlerSupervisor;
+import Controls.MinionParameters;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Sync.SyncMarker;
 import Sockets.Info.StreamInputMessage;
 import StoppableThread.AbstractStoppableThread;
 
-public class SocketMessageDelayCalculator extends AbstractStoppableThread implements INotificationTask
+public class SocketMessageDelayCalculator extends AbstractStoppableThread implements INotificationTask, IHandlerMinion
 {
+	public static final int DEFAULT_NUM_PINGS = 4;
+	
 	private StreamInputMessage socketMsg = null; 
 
 	private int Mark = SyncMarker.NON_MARK;
@@ -25,6 +31,10 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	private ITaskMonitor monitor;
 	
 	private List< EventInfo > events;
+	
+	private IHandlerSupervisor supervisor;
+	
+	private boolean working;
 	
 	public SocketMessageDelayCalculator( StreamInputMessage msg, int markValue, int numPings ) 
 	{
@@ -38,6 +48,8 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		{
 			this.numberOfPings = numPings;
 		}
+		
+		super.setName( super.getClass().getSimpleName() + "-" + msg.getOrigin() );
 	}
 
 	@Override
@@ -55,6 +67,8 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	{
 		super.startUp();
 
+		this.working = true;
+		
 		super.stopThread = true;
 	}
 
@@ -122,6 +136,19 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		}
 	}
 
+	@Override
+	protected void cleanUp() throws Exception 
+	{
+		this.working = false;
+		
+		if( this.supervisor != null )
+		{
+			this.supervisor.eventNotification( this, new EventInfo( EventType.SOCKET_PING_END, this ));
+		}
+		
+		super.cleanUp();
+	}
+	
 	private double RTT( InetSocketAddress ipAddress, int numPings ) throws IOException
 	{
 		InetAddress geek = ipAddress.getAddress();
@@ -178,6 +205,39 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	public String getID() 
 	{
 		return super.getClass().getName();
+	}
+
+	@Override
+	public void addSubordinates(MinionParameters pars) throws Exception 
+	{	
+	}
+
+	@Override
+	public void deleteSubordinates(int friendliness) 
+	{	
+	}
+
+	@Override
+	public void toWorkSubordinates(Object paramObject) throws Exception 
+	{	
+	}
+
+	@Override
+	public void setControlSupervisor( IHandlerSupervisor leader ) 
+	{
+		this.supervisor = leader;
+	}
+
+	@Override
+	public boolean isWorking() 
+	{
+		return this.working;
+	}
+
+	@Override
+	public WarningMessage checkParameters() 
+	{
+		return new WarningMessage();
 	}
 
 
