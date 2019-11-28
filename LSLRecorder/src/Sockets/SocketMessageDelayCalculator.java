@@ -67,9 +67,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	{
 		super.startUp();
 
-		this.working = true;
-		
-		super.stopThread = true;
+		this.working = true;		
 	}
 
 	@Override
@@ -78,7 +76,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		if( this.socketMsg != null )
 		{
 			double time = this.socketMsg.receivedTime();
-
+			
 			double rtt = this.RTT( this.socketMsg.getOrigin(), this.numberOfPings );
 			
 			if( rtt != Double.NaN 
@@ -100,6 +98,14 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 				this.monitor.taskDone( this );
 			}
 		}
+	}
+	
+	@Override
+	protected void targetDone() throws Exception 
+	{
+		this.stopThread = true;
+		
+		super.targetDone();
 	}
 	
 	@Override
