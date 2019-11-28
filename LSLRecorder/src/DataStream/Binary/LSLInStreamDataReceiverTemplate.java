@@ -1275,7 +1275,10 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 	public void clearResult()
 	{
-		this.events.clear();
+		synchronized ( this.events)
+		{
+			this.events.clear();
+		}		
 	}
 		
 	public void timeOver( String timerName )

@@ -75,7 +75,7 @@ import Config.ConfigApp;
 import Config.Language.Language;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.InfoDialog;
-import GUI.Miscellany.imagenPoligono2D;
+import GUI.Miscellany.basicPainter2D;
 
 public class CanvasLSLDataPlot extends JPanel
 {
@@ -733,7 +733,7 @@ public class CanvasLSLDataPlot extends JPanel
 			int h = r.height - pad.top - pad.bottom;
 			if ((w > 0) && (h > 0))
 			{
-				Image img = imagenPoligono2D.crearLienzoVacio( w, h, null );//chart.createBufferedImage(w, h);
+				Image img = basicPainter2D.createEmptyImage( w, h, null );//chart.createBufferedImage(w, h);
 				
 				chart.draw( (Graphics2D)img.getGraphics(), 
 							new Rectangle2D.Double( 0, 0, img.getWidth( null ), img.getHeight( null ) ) );

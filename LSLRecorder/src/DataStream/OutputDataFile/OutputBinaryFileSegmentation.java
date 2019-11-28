@@ -84,9 +84,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 */
 	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader, byte bufLen ) throws Exception //SyncMarkerCollectorWriter markCollector, byte bufLen ) throws Exception
 	{
-		if( DAT == null || syncReader == null )
+		if( DAT == null )
 		{
-			throw new IllegalArgumentException( "Input null." );
+			throw new IllegalArgumentException( "Data input null." );
 		}
 		
 		super.setName( this.getClass().getSimpleName() + "-" + DAT.getStreamingName() );
@@ -127,8 +127,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		long binFileSize = this.DATA.getDataBinaryFileSize();
 		binFileSize = (long) Math.ceil( 1.0D * binFileSize / this.BLOCK_SIZE );
 		
-		long timeBlocks = this.syncReader.getFileSize();
-		timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
+		long timeBlocks = 0;
+		
+		if( this.syncReader != null )
+		{
+			timeBlocks = this.syncReader.getFileSize();
+			timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
+		}
 
 		int blockSizeStrLen = Integer.toString( this.BLOCK_SIZE ).length() + 1;
 
@@ -219,7 +224,12 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			 NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
 		}
 								
-		SyncMarker marker = this.syncReader.getSyncMarker();	
+		SyncMarker marker = null;
+		
+		if( this.syncReader != null )
+		{
+			marker = this.syncReader.getSyncMarker();
+		}
 		
 		boolean Loop = true;
 		
@@ -529,7 +539,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		this.writer = null;
 			
 		this.DATA.closeTempBinaryFile();
-		this.syncReader.closeStream();
+		
+		if( this.syncReader != null )
+		{
+			this.syncReader.closeStream();
+		}
 		
 		//this.WriterloopEndInteractionNotifier.stopThread( IStoppableThread.FORCE_STOP );
 		//this.WriterloopEndInteractionNotifier = null;

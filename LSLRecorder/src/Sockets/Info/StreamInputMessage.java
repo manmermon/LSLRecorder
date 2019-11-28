@@ -30,12 +30,16 @@ public class StreamInputMessage
 	private InetSocketAddress dest = null;
 	private String message = "";
 	
+	private double time = Double.NaN;
+	
 	public StreamInputMessage( String msg, InetSocketAddress origin, InetSocketAddress destination ) 
 	{	
 		if( origin == null && destination == null )
 		{
 			throw new IllegalArgumentException( "InetSocketAddress inputs null." );
 		}
+		
+		this.time = System.nanoTime() / 1e9D;
 		
 		this.dest = destination;
 		this.source = origin;
@@ -55,6 +59,11 @@ public class StreamInputMessage
 	public String getMessage( )
 	{
 		return this.message;
+	}
+	
+	public double receivedTime()
+	{
+		return this.time;
 	}
 	
 	@Override

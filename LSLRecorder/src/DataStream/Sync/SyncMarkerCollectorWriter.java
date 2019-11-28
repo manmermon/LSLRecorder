@@ -248,7 +248,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			this.outDisorderedStream.close();			
 		}
 		
-		this.ReorderedMarkers( );
+		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header.getStreamBinHeader(), true );
 		
 		/*
 		EventInfo event = new EventInfo( GetFinalOutEventID(), syncReader );
@@ -278,7 +278,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		return reader;
 	}
 	
-	private void ReorderedMarkers( ) throws Exception
+	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader, boolean delInSyncFile ) throws Exception
 	{						
 		double minTimeValue = Double.POSITIVE_INFINITY;
 		double refTimeValue = Double.NEGATIVE_INFINITY;
@@ -287,19 +287,19 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		
 		SyncMarker mark = null;
 				
-		DataOutputStream outStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( FileUtils.CreateTemporalBinFile( this.outFileName ) ) ) );
+		DataOutputStream outStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( FileUtils.CreateTemporalBinFile( outSynFileName ) ) ) );
 		
-		SyncMarkerBinFileReader syncReader = new SyncMarkerBinFileReader( this.syncFileDisordered.getAbsoluteFile()
+		SyncMarkerBinFileReader syncReader = new SyncMarkerBinFileReader( new File( inSyncFileName )
 																			, LSL.ChannelFormat.int32
 																			, LSL.ChannelFormat.double64	
 																			, StreamHeader.HEADER_END
-																			, true );
+																			, delInSyncFile );
 		try 
 		{
-			String header = syncReader.getHeader();
-			if( header.isEmpty() )
+			String header = syncReader.getHeader();			
+			if( newHeader != null )
 			{
-				header = this.header.getStreamBinHeader();
+				header = newHeader;
 			}
 			
 			outStream.write( header.getBytes() );

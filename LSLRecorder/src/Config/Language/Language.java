@@ -188,6 +188,8 @@ public class Language {
 	public static final String MSG_TEXT = "MSG_TEXT";
 	public static final String CONTINUE_TEXT = "CONTINUE_TEXT";
 	public static final String DESCRIPTION_TEXT = "DESCRIPTION_TEXT";
+	
+	public static final String SORT_TEXT = "SORT_TEXT";
 
 	public static final String PROBLEM_TEXT = "PROBLEM_TEXT";
 
@@ -329,6 +331,7 @@ public class Language {
 		captions.put(OUTPUT_TEXT, new Caption(OUTPUT_TEXT, defaultLanguage, "Output"));
 		captions.put(MSG_TEXT, new Caption(MSG_TEXT, defaultLanguage, "Message"));
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
+		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
 
 		captions.put(AUTOSCROLL, new Caption(AUTOSCROLL, defaultLanguage, "Autoscroll"));
 

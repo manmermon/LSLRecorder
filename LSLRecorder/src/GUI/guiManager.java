@@ -34,7 +34,7 @@ import DataStream.Binary.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
 import DataStream.Sync.SyncMarkerBinFileReader;
-import GUI.Miscellany.imagenPoligono2D;
+import GUI.Miscellany.basicPainter2D;
 import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
@@ -65,8 +65,8 @@ import Auxiliar.Tasks.ITaskMonitor;
 
 public class guiManager
 {
-	public static final Icon START_ICO = new ImageIcon( imagenPoligono2D.crearImagenTriangulo(10, 1.0F, Color.BLACK, Color.GREEN, imagenPoligono2D.EAST ) );
-	public static final Icon STOP_ICO = new ImageIcon( imagenPoligono2D.crearImagenRectangulo(10, 10, 1.0F, Color.BLACK, Color.RED ) );
+	public static final Icon START_ICO = new ImageIcon( basicPainter2D.paintTriangle(10, 1.0F, Color.BLACK, Color.GREEN, basicPainter2D.EAST ) );
+	public static final Icon STOP_ICO = new ImageIcon( basicPainter2D.paintRectangle(10, 10, 1.0F, Color.BLACK, Color.RED ) );
 
 	private static guiManager ctr = null;
 
@@ -196,7 +196,18 @@ public class guiManager
 		
 		diag.setVisible( true );
 				
-		List< Tuple< StreamHeader, StreamHeader > > binFiles = diag.getBinaryFiles();
+		List< Tuple< StreamHeader, StreamHeader> > binFiles;
+		
+		try 
+		{
+			binFiles = diag.getBinaryFiles();
+		}
+		catch (Exception e1) 
+		{
+			JOptionPane.showMessageDialog( this.getAppUI(),  e1.getMessage(), Language.getLocalCaption( Language.PROBLEM_TEXT ), JOptionPane.ERROR_MESSAGE );
+			
+			binFiles = new ArrayList< Tuple< StreamHeader, StreamHeader > >();
+		}
 				
 		OutputDataFileHandler outCtr = OutputDataFileHandler.getInstance();
 		
@@ -313,13 +324,16 @@ public class guiManager
 															, outFormat
 															, del );
 				
-				SyncMarkerBinFileReader reader = new SyncMarkerBinFileReader( syncFile
-																				, markType
-																				, markTimeType
-																				, StreamHeader.HEADER_END
-																				, del );
+				SyncMarkerBinFileReader reader = null;
 				
-				
+				if( syncFile != null )
+				{
+					reader = new SyncMarkerBinFileReader( syncFile
+															, markType
+															, markTimeType
+															, StreamHeader.HEADER_END
+															, del );
+				}
 				
 				EventInfo event = new EventInfo( idEvent, new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );
 				

@@ -29,8 +29,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -46,11 +49,14 @@ import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
 import DataStream.StreamHeader;
 import DataStream.OutputDataFile.Format.DataFileFormat;
+import DataStream.Sync.SyncMarkerCollectorWriter;
 import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.imagenPoligono2D;
+import GUI.Miscellany.basicPainter2D;
 import edu.ucsd.sccn.LSL;
 
 import java.awt.Color;
+import java.awt.Dimension;
+
 import javax.swing.JTable;
 import javax.swing.JLabel;
 import java.awt.GridBagLayout;
@@ -60,8 +66,11 @@ import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -147,6 +156,12 @@ public class dialogConverBin2CLIS extends JDialog
 	private JScrollPane scrollTableData;
 	//private JScrollPane scrollTableTime;
 	
+	// Checkbox
+	private JCheckBox chckbxDeleteBinaries;
+	
+	// JToggleButton
+	private JToggleButton jtgBtnSortSyncFile;
+	
 	
 	// Others variables	
 	private List< StreamHeader > binaryDataFiles;
@@ -154,7 +169,7 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	private boolean clearBinaryFiles = true;
 	private StreamHeader currentBinFile = null;
-	private JCheckBox chckbxDeleteBinaries;
+	
 	
 	
 	/**
@@ -214,7 +229,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return this.buttonPane;
 	}
 	
-	public List< Tuple< StreamHeader, StreamHeader > > getBinaryFiles( )
+	public List< Tuple< StreamHeader, StreamHeader > > getBinaryFiles( ) throws Exception
 	{
 		List< Tuple<StreamHeader, StreamHeader> > binFiles = new ArrayList< Tuple<StreamHeader, StreamHeader> >( );
 		
@@ -226,7 +241,17 @@ public class dialogConverBin2CLIS extends JDialog
 		
 		Iterator< StreamHeader > dataIT = binaryDataFiles.iterator( );
 		//Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
-		StreamHeader syncHeader = this.getBinaryFileInfo( this.getTxtSyncFilePath().getText() );
+		
+		String syncFile = this.getTxtSyncFilePath().getText();		
+		if( this.getJtgBtSyncFile().isSelected() && !syncFile.isEmpty() )
+		{
+			String outFile = syncFile + "_sort.sync"; 
+			SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+			
+			syncFile = outFile;
+		}
+		
+		StreamHeader syncHeader = this.getBinaryFileInfo( syncFile );
 		
 		while( dataIT.hasNext( ) )
 		{
@@ -330,12 +355,15 @@ public class dialogConverBin2CLIS extends JDialog
 		if( this.panelSyncFile == null )
 		{
 			this.panelSyncFile = new JPanel();
-			this.panelSyncFile.setLayout( new BorderLayout() );
+			this.panelSyncFile.setLayout( new BoxLayout( this.panelSyncFile, BoxLayout.X_AXIS ) );
 			this.panelSyncFile.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 			
-			this.panelSyncFile.add( this.getLblSyncFile(), BorderLayout.WEST );
-			this.panelSyncFile.add( this.getTxtSyncFilePath(), BorderLayout.CENTER );
-			this.panelSyncFile.add( this.getBtnSelectSyncFilePath(), BorderLayout.EAST );
+			this.panelSyncFile.add( this.getJtgBtSyncFile() );
+			this.panelSyncFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
+			this.panelSyncFile.add( this.getLblSyncFile() );
+			this.panelSyncFile.add( this.getTxtSyncFilePath() );
+			this.panelSyncFile.add( this.getBtnSelectSyncFilePath() );
+			
 		}
 		
 		return this.panelSyncFile;
@@ -402,6 +430,38 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 		
 		return this.btnSelectSyncFile;
+	}
+	
+	private JToggleButton getJtgBtSyncFile()
+	{
+		if( this.jtgBtnSortSyncFile == null )
+		{
+			this.jtgBtnSortSyncFile = new JToggleButton( " " + Language.getLocalCaption( Language.SORT_TEXT ) + " " );
+			this.jtgBtnSortSyncFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+			
+			this.jtgBtnSortSyncFile.setHorizontalAlignment( SwingConstants.RIGHT );
+			this.jtgBtnSortSyncFile.setBorder( BorderFactory.createBevelBorder( BevelBorder.RAISED ));
+			
+			this.jtgBtnSortSyncFile.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JToggleButton tgb = (JToggleButton)e.getSource();
+					
+					if( tgb.isSelected() )
+					{
+						tgb.setBorder( BorderFactory.createBevelBorder( BevelBorder.LOWERED ));
+					}
+					else
+					{
+						tgb.setBorder( BorderFactory.createBevelBorder( BevelBorder.RAISED ));
+					}
+				}
+			});
+		}
+		
+		return this.jtgBtnSortSyncFile;
 	}
 	
 	private JPanel getDataFilePanel( ) 
@@ -1333,7 +1393,7 @@ public class dialogConverBin2CLIS extends JDialog
 						
 			try
 			{
-				btnMoveUpDataFile.setIcon( new ImageIcon( imagenPoligono2D.crearImagenTriangulo( 12, 1, Color.BLACK, Color.GRAY, imagenPoligono2D.NORTH ) ) );
+				btnMoveUpDataFile.setIcon( new ImageIcon( basicPainter2D.paintTriangle( 12, 1, Color.BLACK, Color.GRAY, basicPainter2D.NORTH ) ) );
 			}
 			catch( Exception e )
 			{
@@ -1362,7 +1422,7 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			try
 			{
-				buttonMoveDownDataFile.setIcon( new ImageIcon( imagenPoligono2D.crearImagenTriangulo( 12, 1, Color.BLACK, Color.GRAY, imagenPoligono2D.SOUTH ) ) );
+				buttonMoveDownDataFile.setIcon( new ImageIcon( basicPainter2D.paintTriangle( 12, 1, Color.BLACK, Color.GRAY, basicPainter2D.SOUTH ) ) );
 			}
 			catch( Exception e )
 			{

@@ -68,7 +68,7 @@ public class OutputCLISDataWriter extends OutputFileWriterTemplate
 	protected Charset charCode;
 	
 	private IOutZip zipProcess;
-		
+	
 	private ConcurrentLinkedDeque< DataBlock > dataBlockList = null;
 	
 	protected AtomicBoolean dataBlockProcessed = new AtomicBoolean( true );

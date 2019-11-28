@@ -122,7 +122,11 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
 		EventInfo event = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
-		super.events.add(event);
+		
+		synchronized ( super.events )
+		{
+			super.events.add(event);
+		}		
 		
 		Thread antiDeadlock = new Thread()
 				{
@@ -140,12 +144,6 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		
 	}
 	
-	@Override
-	protected void finallyManager() 
-	{
-		super.finallyManager();		
-	}
-
 	@Override
 	public String getID() 
 	{

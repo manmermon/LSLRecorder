@@ -270,11 +270,12 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 						if( reader != null && !this.deletingSubordinates )
 						{
 							InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
-																				this.events.add(new EventInfo( EventType.SOCKET_CHANNEL_CLOSE
-																												, new StreamSocketProblem( address
-																														, new SocketException("The output socket " 
-																																+ id 
-																																+ " is closed." ) ) ) ) ;
+							
+							this.events.add(new EventInfo( EventType.SOCKET_CHANNEL_CLOSE
+															, new StreamSocketProblem( address
+																	, new SocketException("The output socket " 
+																			+ id 
+																			+ " is closed." ) ) ) ) ;
 						}
 						//System.out.println("SocketHandler2.runInLoop() SOCKET_CHANNEL_CLOSE " + this.tcpReader.remove( id ) );
 					}
@@ -358,7 +359,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 			{
 				synchronized( super.event )
 				{
-					this.event = new EventInfo(  EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+					super.event = new EventInfo(  EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 					this.events.clear();
 				}
 			}

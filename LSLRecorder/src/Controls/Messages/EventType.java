@@ -39,6 +39,7 @@ public class EventType
   public static final String SOCKET_OUTPUT_MSG_OK = "output message ok";
   public static final String SOCKET_OUTPUT_MSG_SEND = "send message";
   public static final String SOCKET_CONNECTION_PROBLEM = "connection problem";
+  public static final String SOCKET_PING_PROBLEM = "ping problem";
   public static final String SOCKET_OUTPUT_SOCKET_CLOSES = "Output socket closes";
   public static final String SOCKET_INOUT_CHANNEL_CREATED = "socket channel create";
   public static final String SOCKET_READER_THREAD_STOP = "socket reader thread closed";

@@ -47,11 +47,8 @@ import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -80,6 +77,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	private boolean inputSyncLauched = false;
 	private boolean isRecorderThreadOn = false;
+	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
 	
 	private String fileFormat = DataFileFormat.CLIS;
 	
@@ -257,8 +255,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						temp.addMark( (Integer)t.y );						
 					}
 					*/
-					
-					this.syncCollector.SaveSyncMarker( (SyncMarker)t.y );
+										
+					if( this.saveSyncMarker.get() )
+					{
+						this.syncCollector.SaveSyncMarker( (SyncMarker)t.y );
+					}
 				}
 			}
 		}
@@ -305,6 +306,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				//this.isSyncThreadActive = origin.equals( PARAMETER_START_SYNC ) && ( this.syncInputData.size() > 0 );
 			}			
 		}
+	}
+	
+	public void setEnableSaveSyncMark( boolean saveSyncMark )
+	{
+		this.saveSyncMarker.set( saveSyncMark );
 	}
 
 	/*
@@ -468,11 +474,16 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							
 							this.outWriterHandlers.remove( event.getEventInformation() );
 
+							Tuple< String, SyncMarkerBinFileReader > t = (Tuple< String, SyncMarkerBinFileReader >)event.getEventInformation();
+							
+							if( t.y != null )
+							{
+								t.y.closeStream();
+							}
+							
 							//if( this.NumberOfSavingThreads < 1 )
 							if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
-							{
-								Tuple< String, SyncMarkerBinFileReader > t = (Tuple< String, SyncMarkerBinFileReader >)event.getEventInformation();
-								
+							{	
 								this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.x )  );
 								
 								if( t.y != null )

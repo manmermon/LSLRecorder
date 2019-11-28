@@ -44,6 +44,7 @@ import GUI.guiManager;
 import Sockets.Info.StreamInputMessage;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.StreamSocketProblem;
+import Sockets.SocketMessageDelayCalculator;
 import Sockets.Info.SocketParameters;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -269,6 +270,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			this.managerGUI.setAppState( AppState.PREPARING );
 			
+			this.ctrlOutputFile.setEnableSaveSyncMark( false );
+			
 			// Check settings
 			this.checkSettings();
 			if (this.warnMsg.getWarningType() == WarningMessage.ERROR_MESSAGE )
@@ -283,9 +286,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						UIManager.getString( "OptionPane.noButtonText" ) };
 
 				int actionDialog = JOptionPane.showOptionDialog( this.managerGUI.getAppUI(), this.warnMsg.getMessage() + "\n"
-						+Language.getLocalCaption( Language.CONTINUE_TEXT) + "?", 
-						Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
-						null, opts, opts[1]);
+										+ Language.getLocalCaption( Language.CONTINUE_TEXT) + "?" 
+										, Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE 
+										, null, opts, opts[1]);
 
 				if ( actionDialog == JOptionPane.CANCEL_OPTION 
 						|| actionDialog == JOptionPane.NO_OPTION 
@@ -453,7 +456,15 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 				}
 				
-				JOptionPane.showMessageDialog( appUI.getInstance(), msg, Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+				if( !ConfigApp.isTesting() )
+				{			
+					JOptionPane.showMessageDialog( appUI.getInstance(), msg, Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+				}
+				else
+				{
+					this.managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + msg );
+				}
+				
 				e.printStackTrace();
 			}
 			catch (Exception e1) 
@@ -606,6 +617,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, String >( OutputDataFileHandler.PARAMETER_FILE_FORMAT 
 												, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT ).toString() ) );
 		
+		this.ctrlOutputFile.setEnableSaveSyncMark( true );
+		
 		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker >( OutputDataFileHandler.PARAMETER_SET_MARK 
 												, new SyncMarker( RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START )
 																	, System.nanoTime() / 1e9D ) ) );
@@ -643,6 +656,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 																						 					, System.nanoTime() / 1e9D ) ) );
 										
 					this.ctrlOutputFile.setBlockingStartWorking( false );
+					
+					this.ctrlOutputFile.setEnableSaveSyncMark( false );
 										
 					this.ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
 					
@@ -765,8 +780,15 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						}
 						else 
 						{
+							SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, 4 );
+							socketMsgDelay.taskMonitor( ctrlOutputFile );
+							
+							socketMsgDelay.startThread();
+							
+							/*
 							this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, Integer>( this.ctrlOutputFile.PARAMETER_SET_MARK,
 																								 msgMark ) );
+							*/
 
 						}
 					}
@@ -784,9 +806,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
 					
-					JOptionPane.showMessageDialog( managerGUI.getAppUI(), msg, 
-													EventType.SOCKET_CONNECTION_PROBLEM, 
-													JOptionPane.WARNING_MESSAGE );
+					if( !ConfigApp.isTesting() )
+					{
+						JOptionPane.showMessageDialog( this.managerGUI.getAppUI(), msg, 
+														EventType.SOCKET_CONNECTION_PROBLEM, 
+														JOptionPane.WARNING_MESSAGE );
+					}
+					else
+					{
+						this.managerGUI.addInputMessageLog( EventType.SOCKET_CONNECTION_PROBLEM + ": " + msg );
+					}
 				}
 				else if (event.getEventType().equals(  EventType.SOCKET_CHANNEL_CLOSE ))
 				{
@@ -798,9 +827,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						msg = problem.getProblemCause().getCause().toString();
 					}
 
-					JOptionPane.showMessageDialog( managerGUI.getAppUI(), msg, 
-													EventType.SOCKET_CHANNEL_CLOSE, 
-													JOptionPane.WARNING_MESSAGE );
+					if( !ConfigApp.isTesting() )
+					{
+						JOptionPane.showMessageDialog( this.managerGUI.getAppUI(), msg, 
+														EventType.SOCKET_CHANNEL_CLOSE, 
+														JOptionPane.WARNING_MESSAGE );
+					}
+					else
+					{
+						this.managerGUI.addInputMessageLog( EventType.SOCKET_CHANNEL_CLOSE + ": " + msg );
+					}
 				}
 			}
 		}
@@ -1242,9 +1278,10 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			if (!(e instanceof InterruptedException))
 			{
 				e.printStackTrace();
+				
 				JOptionPane.showMessageDialog( coreControl.this.managerGUI.getAppUI(), e.getMessage(), 
-												"Exception in " + getClass().getSimpleName(), 
-												JOptionPane.ERROR_MESSAGE);
+											"Exception in " + getClass().getSimpleName(),
+											JOptionPane.ERROR_MESSAGE);				
 			}
 		}
 
@@ -1377,10 +1414,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{
 					stopWorking( );
 
-					JOptionPane.showMessageDialog(  coreControl.this.managerGUI.getAppUI(), 
-													eventObject.toString(), 
-													event_type, 
-													JOptionPane.ERROR_MESSAGE);
+					if( !ConfigApp.isTesting() )
+					{
+						JOptionPane.showMessageDialog(  coreControl.this.managerGUI.getAppUI(), 
+														eventObject.toString(), 
+														event_type, 
+														JOptionPane.ERROR_MESSAGE);
+					}
+					else
+					{
+						managerGUI.addInputMessageLog( event_type + ": " + eventObject.toString());
+					}
 				}
 				else if (event_type.equals( EventType.WARNING ) )
 				{
@@ -1390,10 +1434,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						{
 							public void run()
 							{
-								JOptionPane.showMessageDialog(   managerGUI.getAppUI(), 
-										eventObject.toString(), 
-										Language.getLocalCaption( Language.MSG_WARNING ), 
-										JOptionPane.WARNING_MESSAGE);
+								if( !ConfigApp.isTesting() )
+								{
+									JOptionPane.showMessageDialog(   managerGUI.getAppUI(), 
+											eventObject.toString(), 
+											Language.getLocalCaption( Language.MSG_WARNING ), 
+											JOptionPane.WARNING_MESSAGE);
+								}
+								else
+								{
+									managerGUI.addInputMessageLog( Language.getLocalCaption( Language.MSG_WARNING ) + ": " + eventObject.toString());
+								}
 							}
 						}.start();
 					}
@@ -1413,6 +1464,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			if (!(e instanceof InterruptedException))
 			{
 				e.printStackTrace();
+				
 				JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
 						"Exception in " + getClass().getSimpleName(), 
 						JOptionPane.ERROR_MESSAGE);
@@ -1517,4 +1569,5 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.values = null;
 		}
 	}
+
 }

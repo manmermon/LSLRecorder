@@ -225,14 +225,35 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			}
 			
 			if( this.counterProcessingDataBlocks.get() == 1 )
-			{				
-				EventInfo e = new EventInfo( EventType.OUTPUT_FILE_WRITER_READY, null );
+			{	
+				boolean notify = true;
+				
+				String evType = EventType.OUTPUT_FILE_WRITER_READY;
+				
 				synchronized ( this.events )
 				{
-					this.events.add( e );
+					
+					for( EventInfo ev : this.events )
+					{
+						if( ev.getEventType().equals( evType ) )
+						{
+							notify = false;
+							break;
+						}
+					}
+					
+					if( notify )
+					{					
+						EventInfo e = new EventInfo( evType, null );
+						
+						this.events.add( e );
+					}
 				}
 				
-				this.Notifier();
+				if( notify )
+				{
+					this.Notifier();
+				}
 			}
 		}		
 				
