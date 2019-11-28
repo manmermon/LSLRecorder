@@ -367,6 +367,8 @@ public class dialogConverBin2CLIS extends JDialog
 	{
 		if( this.btnSelectSyncFile == null )
 		{
+			this.btnSelectSyncFile = new JButton();
+			
 			try
 			{
 				this.btnSelectSyncFile.setIcon( GeneralAppIcon.Folder( 20, 16, Color.BLACK, Color.GREEN.brighter() ) );

@@ -204,6 +204,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 	private int ProcessDataAndSync( int seqNum,  String name ) throws Exception
 	{
+		try
+		{
 		List< Object > dataBuffer = new ArrayList< Object >();
 		
 		Object NonSyncMarker = SyncMarker.NON_MARK;
@@ -235,7 +237,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 					Number[] dat = block.x;
 					Number[] timeData = block.y;
-										
+					
+					if( !this.DATA.isInterleave() )
+					{
+						dat = ConvertTo.Interleaved( dat, this.DATA.getNumberOfChannels(), this.DATA.getChunckSize() );
+					}
+					
+					/*
 					if( this.DATA.getChunckSize() > 1 && !this.DATA.isInterleave() )
 					{
 						Number[] copy = new Number[ dat.length ];
@@ -253,21 +261,24 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 						
 						dat = copy;
 					}
+					*/
 					
 					Number[] Data = new Number[ dat.length + this.DATA.getChunckSize() ];
 					
 					int index = 0;
+					int cc = 0;
 					for( int i = 0; i < dat.length; i++ )
 					{
 						Data[ index ] = dat[ i ];
 						
 						index++;
-						
-						if( index % this.DATA.getNumberOfChannels() == 0)
+						cc++;
+						if( cc >= this.DATA.getNumberOfChannels() )
 						{
 							Data[ index ] = (Number)NonSyncMarker;
 							
 							index++;
+							cc = 0;
 						}
 					}
 
@@ -300,7 +311,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 						index++;
 					}
 					
-
 					for( Number datVal : Data )
 					{
 						dataBuffer.add( datVal );
@@ -320,6 +330,12 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		while( dataBuffer.size() > 0 )
 		{					
 			seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
+		}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+			throw e;
 		}
 		
 		return seqNum;

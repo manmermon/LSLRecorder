@@ -25,7 +25,6 @@ package DataStream.Binary;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.FileUtils;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -37,6 +36,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import javax.annotation.processing.FilerException;
+
+import Auxiliar.Extra.FileUtils;
 
 public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 {

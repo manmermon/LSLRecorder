@@ -24,16 +24,18 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import Auxiliar.Extra.FileUtils;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.FileUtils;
 import DataStream.StreamHeader;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -63,9 +65,11 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	
 	public SyncMarkerCollectorWriter( String file ) throws Exception 
 	{
-		this.outFileName = file + this.ext;
-			
-		this.syncFileDisordered = FileUtils.CreateTemporalBinFile( file + "_disordered" + this.ext);
+		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+		
+		this.outFileName = file + "_" + date + this.ext;
+		
+		this.syncFileDisordered = FileUtils.CreateTemporalBinFile( file + "_" + date + "_disordered" + this.ext);
 		
 		this.outDisorderedStream = new DataOutputStream( new FileOutputStream( this.syncFileDisordered ) );
 		

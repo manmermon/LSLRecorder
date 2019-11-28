@@ -40,6 +40,7 @@ import DataStream.Sync.LSL.InputSyncData;
 import DataStream.WritingSystemTester.WritingTest;
 import Auxiliar.LaunchThread;
 import Auxiliar.WarningMessage;
+import Auxiliar.Extra.FileUtils;
 import Auxiliar.Extra.Tuple;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -47,6 +48,7 @@ import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -87,6 +89,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private AtomicInteger NumberOfSavingThreads = new AtomicInteger( 0 );
 	private AtomicInteger NumberOfTestThreads = new AtomicInteger( 0 );
 	private AtomicBoolean isRunBinData = new AtomicBoolean( false ); 
+	
+	private Object sync = new Object();
 	
 	//private boolean isSyncThreadActive = false;
 		
@@ -479,24 +483,35 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								if( this.syncCollector != null )
 								{				
 									int c = 0;
-									SyncMarkerBinFileReader reader = this.syncCollector.getSyncMarkerBinFileReader();
+									SyncMarkerBinFileReader reader = null;
 									while( reader == null && c < 10)
 									{
 										try
-										{											
-											Thread.sleep( 100L );
+										{			
+											reader = this.syncCollector.getSyncMarkerBinFileReader();
+											
+											if( reader == null )
+											{
+												Thread.sleep( 100L );
+											}
+										}
+										catch (FileNotFoundException e) 
+										{
+											c = 10;
 										}
 										catch (Exception e) 
 										{
 										}
 										finally
 										{
-											reader = this.syncCollector.getSyncMarkerBinFileReader();
 											c++;
 										}
 									}
 									
-									reader.closeAndRemoveTempBinaryFile();
+									if( reader != null )
+									{
+										reader.closeAndRemoveTempBinaryFile();
+									}
 								}
 							}
 							
@@ -593,8 +608,24 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								{								
 									binName = dat.getStreamingName();
 									
-									Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), binName );
-																
+									Tuple< String, Boolean > res;
+									
+									synchronized( this.sync ) 
+									{
+										res = FileUtils.checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
+										
+										try
+										{
+											super.sleep( 1000L ); // To avoid problems if 2 or more input streaming are called equal.
+											long tSleep = ThreadLocalRandom.current().nextLong( 1000L, 1100L );
+											
+											super.sleep( tSleep );
+										}
+										catch (Exception e) 
+										{
+										}
+									}
+									
 									if (!((Boolean)res.y).booleanValue())
 									{
 										dat.setOutputFileName( (String)res.x );
@@ -650,8 +681,25 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						try
 						{
 							TemporalBinData dat = (TemporalBinData)event.getEventInformation();
-							Tuple< String, Boolean > res = checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
-														
+							
+							Tuple< String, Boolean > res;
+							
+							synchronized( this.sync ) 
+							{
+								res = FileUtils.checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
+								
+								try
+								{
+									super.sleep( 1000L ); // To avoid problems if 2 or more input streaming are called equal.
+									long tSleep = ThreadLocalRandom.current().nextLong( 1000L, 1100L );
+									
+									super.sleep( tSleep );
+								}
+								catch (Exception e) 
+								{
+								}
+							}
+							
 							if (!((Boolean)res.y).booleanValue())
 							{
 								dat.setOutputFileName( (String)res.x );
@@ -707,66 +755,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		return states;
 	}
 	
-	/**
-	 * Format output data file name.
-	 * 
-	 * @param FilePath -> absolute file path.
-	 * @param sourceID -> LSL streaming name.
-	 * 
-	 * @return Join file name and LSL name. File extension is conserved. Example: 
-	 * 		- file name "data.clis"
-	 * 		- LSL name  "SerialPort"
-	 * 	output is "data_SerialPort.clis"
-	 */
-	private synchronized Tuple< String, Boolean > checkOutputFileName( String FilePath, String sourceID )
-	{		
-		boolean ok = true;
-		boolean cont = true;
-
-		Calendar c = Calendar.getInstance();
-
-		int index = FilePath.lastIndexOf(".");
-		String name = FilePath;
-		String ext = "";
-		if (index > -1)
-		{
-			name = FilePath.substring(0, index);
-			ext = FilePath.substring(index);
-		}
-
-		String aux2 = name + "_" + sourceID + ext;
-		while ( cont )
-		{
-			File file = new File(aux2);
-
-			if ( file.exists() )
-			{
-				ok = false;
-
-				c.add( 13, 1 );
-				String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format( c.getTime() );
-
-				aux2 = name + "_" + sourceID + "_" + date + ext;
-			}
-			else
-			{
-				cont = false;
-			}
-		}
-		
-		Tuple< String, Boolean > res = new Tuple< String, Boolean>(aux2,  ok );
-		
-		try 
-		{
-			super.sleep( 1000L ); // To avoid problems if 2 or more input streaming are called equal.
-		}
-		catch (InterruptedException e) 
-		{
-		}
-
-		return res;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 * @see Controls.IHandlerMinion#checkParameters()

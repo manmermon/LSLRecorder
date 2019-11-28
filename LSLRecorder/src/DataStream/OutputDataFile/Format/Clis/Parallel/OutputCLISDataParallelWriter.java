@@ -83,7 +83,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		
 		zipThr.startThread();
 	}
-	
+		
 	@Override
 	protected boolean DataBlockAvailable() 
 	{		
@@ -107,7 +107,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		super.dataBlockProcessed.set( false );
 		
 		if( block != null )
-		{		
+		{	
 			super.saveCompressedData( ConvertTo.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
 			
 			this.compressDataList.remove( this.nextNumSeqCompressedDataBlock );
@@ -143,8 +143,6 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 			}
 			
 			zpThread.stopThread( IStoppableThread.FORCE_STOP );
-			
-			System.out.println("OutputCLISDataParallelWriter.SaveCompressedData() REMOVE ZipThread " + orderedNumStream );
 			
 			this.zpThreadList.remove( zpThread );
 		}

@@ -267,7 +267,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			this.disposeLSLDataPlot(); // Delete plots.
 			
-			guiManager.getInstance().setAppState( AppState.PREPARING );
+			this.managerGUI.setAppState( AppState.PREPARING );
 			
 			// Check settings
 			this.checkSettings();
@@ -413,7 +413,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						guiManager.getInstance().stopTest();						
+						managerGUI.stopTest();						
 					}
 				} );
 				
@@ -532,6 +532,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_LSL_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
 			}
 			
+			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+			
 			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( ConfigApp.SYNC_LSL ) && specialInMsg && !existSelectedSyncLSL )
 			{
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
@@ -577,7 +579,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{
 		if (this.isWaitingForStartCommand )
 		{
-			guiManager.getInstance().setAppState( AppState.WAIT );
+			this.managerGUI.setAppState( AppState.WAIT );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );			
 		}
@@ -595,7 +597,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void startRecord() throws Exception
 	{
-		guiManager.getInstance().StartSessionTimer();
+		this.managerGUI.StartSessionTimer();
 		
 		this.managerGUI.setAppState( AppState.RUN );
 		
@@ -619,7 +621,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		if ( this.isRecording 
 				|| this.isWaitingForStartCommand )
 		{						
-			guiManager.getInstance().setAppState( AppState.STOP );
+			this.managerGUI.setAppState( AppState.STOP );
 			
 			if( this.writingTestTimer != null )
 			{
@@ -646,13 +648,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					if( this.ctrlOutputFile.isSavingData() )
 					{
-						guiManager.getInstance().setAppState( AppState.SAVING );
+						this.managerGUI.setAppState( AppState.SAVING );
 					}
 				}
 				catch (Exception localException) 
 				{
 					localException.printStackTrace();
-					guiManager.getInstance().setAppState( AppState.NONE );
+					this.managerGUI.setAppState( AppState.NONE );
 				}
 				catch (Error localError) 
 				{}
@@ -682,6 +684,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
 			
 			this.managerGUI.restoreGUI();
+			this.managerGUI.enablePlayButton( false );			
 			
 			System.gc();
 						
@@ -1311,7 +1314,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
-					guiManager.getInstance().setAppState( AppState.SAVED );
+					managerGUI.setAppState( AppState.SAVED );
+					
+					managerGUI.enablePlayButton( true );
 					
 					if( closeWhenDoingNothing && !isDoingSomething() )
 					{

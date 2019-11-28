@@ -506,7 +506,7 @@ public class guiManager
 		
 		ui.getSocketSetting().enableSettings( enable );
 	}
-	
+		
 	public void restoreGUI()
 	{
 		JButton btnStart = appUI.getInstance().getJButtonPlay();
@@ -518,6 +518,11 @@ public class guiManager
 		this.enableGUI( true );
 	}
 
+	public void enablePlayButton( boolean enable )
+	{
+		appUI.getInstance().getJButtonPlay().setEnabled( enable );
+	}
+	
 	public void startTest( final boolean test )
 	{	
 		Thread t = new Thread()				
@@ -529,6 +534,8 @@ public class guiManager
 				
 				appUI.getInstance().getSessionTimeTxt().setText( "" );
 				
+				enablePlayButton( false );
+				
 				JButton playBtn = appUI.getInstance().getJButtonPlay();
 								
 				try 
@@ -536,7 +543,7 @@ public class guiManager
 					playBtn.setText( Language.getLocalCaption( Language.ACTION_STOP ) );
 					playBtn.setIcon( STOP_ICO );
 					
-					playBtn.setEnabled( false );
+					//playBtn.setEnabled( false );
 					
 					enableGUI( false );
 															
@@ -566,7 +573,8 @@ public class guiManager
 				}
 				finally 
 				{
-					playBtn.setEnabled( true );
+					//playBtn.setEnabled( true );
+					enablePlayButton( true );
 				}				
 			};
 		};

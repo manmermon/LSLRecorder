@@ -59,6 +59,8 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 	private int numChannels;
 	
+	private int order = -1;
+	
 	private List< EventInfo > events = null;
 	private ITaskMonitor monitor = null;
 	
@@ -247,8 +249,15 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	{
 		synchronized ( this.sync ) 
 		{
+			this.order = ordered;
+			
 			this.DataBlock = new Tuple<Integer, Object[] >( ordered, data );
 		}
+	}
+	
+	public int getZipOrdered()
+	{
+		return this.order;
 	}
 
 	@Override

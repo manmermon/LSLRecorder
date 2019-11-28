@@ -135,6 +135,7 @@ public class Language {
 	public static final String CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
 	public static final String CHECK_LSL_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
 	public static final String CHECK_LSL_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
+	public static final String CHECK_LSL_CHUNCKSIZE_WARNING_MSG = "CHECK_LSL_CHUNCKSIZE_WARNING_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -395,6 +396,8 @@ public class Language {
 				new Caption(CHECK_SYNC_METHOD_WARNING_MSG, defaultLanguage, "Sync method is not selected."));
 		captions.put(CHECK_LSL_SYNC_STREAM_WARNING_MSG,
 				new Caption(CHECK_LSL_SYNC_STREAM_WARNING_MSG, defaultLanguage, "A LSL stream is set as sync, but its data will not be save because LabStreaming Layer is not sync method."));
+		captions.put( CHECK_LSL_CHUNCKSIZE_WARNING_MSG
+				, new Caption( CHECK_LSL_CHUNCKSIZE_WARNING_MSG, defaultLanguage, "Check if the next fields are correct: chunk size and interleaved." ) );
 
 		captions.put(INPUT_START_LEGEND,
 				new Caption(INPUT_START_LEGEND, defaultLanguage, "system must start the recording."));
