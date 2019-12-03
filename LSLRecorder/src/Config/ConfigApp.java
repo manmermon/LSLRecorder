@@ -65,7 +65,7 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2019, 11 - 1, 28 );
+	public static final Calendar buildDate = new GregorianCalendar( 2019, 12 - 1, 3 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute

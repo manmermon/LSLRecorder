@@ -99,7 +99,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected boolean interleavedData = false;
 	
 	protected int timeType = LSL.ChannelFormat.double64;
-	
+		
 	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
 	{
 		if (info == null)
@@ -111,7 +111,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		{
 			throw new IllegalArgumentException( "LSL parameters is null" );
 		}
-		
+			
 		this.chunckLength = lslCfg.getChunckSize();
 		this.interleavedData = lslCfg.isInterleavedData();
 		

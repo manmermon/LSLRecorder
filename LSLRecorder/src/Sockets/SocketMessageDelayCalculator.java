@@ -1,14 +1,18 @@
 package Sockets;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.icmp4j.IcmpPingRequest;
+import org.icmp4j.IcmpPingResponse;
+import org.icmp4j.IcmpPingUtil;
+
 import Auxiliar.WarningMessage;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Auxiliar.Tasks.NotifierThread;
 import Controls.IHandlerMinion;
 import Controls.IHandlerSupervisor;
 import Controls.MinionParameters;
@@ -17,6 +21,7 @@ import Controls.Messages.EventType;
 import DataStream.Sync.SyncMarker;
 import Sockets.Info.StreamInputMessage;
 import StoppableThread.AbstractStoppableThread;
+import StoppableThread.IStoppableThread;
 
 public class SocketMessageDelayCalculator extends AbstractStoppableThread implements INotificationTask, IHandlerMinion
 {
@@ -36,6 +41,8 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	
 	private boolean working;
 	
+	private NotifierThread notifier = null;
+	
 	public SocketMessageDelayCalculator( StreamInputMessage msg, int markValue, int numPings ) 
 	{
 		this.socketMsg = msg;
@@ -48,7 +55,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		{
 			this.numberOfPings = numPings;
 		}
-		
+				
 		super.setName( super.getClass().getSimpleName() + "-" + msg.getOrigin() );
 	}
 
@@ -67,6 +74,14 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	{
 		super.startUp();
 
+		if( this.monitor != null )
+		{
+			this.notifier = new NotifierThread( this.monitor , this );
+			this.notifier.setName( this.notifier.getClass().getSimpleName() + "-" + this.getClass().getSimpleName() );
+			
+			this.notifier.startThread();
+		}
+		
 		this.working = true;		
 	}
 
@@ -77,7 +92,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		{
 			double time = this.socketMsg.receivedTime();
 			
-			double rtt = this.RTT( this.socketMsg.getOrigin(), this.numberOfPings );
+			double rtt = this.pingDuration( this.socketMsg.getOrigin(), this.numberOfPings );
 			
 			if( rtt != Double.NaN 
 					&& rtt != Double.POSITIVE_INFINITY
@@ -86,7 +101,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 				time = time - rtt/ 2;
 			}
 			
-			if( this.monitor != null )
+			if( this.notifier != null )
 			{
 				EventInfo ev = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( this.Mark, time ) );
 
@@ -95,7 +110,11 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 					this.events.add( ev );
 				}				
 				
-				this.monitor.taskDone( this );
+				synchronized ( this.notifier ) 
+				{
+					this.notifier.notify();
+				}
+				
 			}
 		}
 	}
@@ -114,8 +133,8 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		if( !( e instanceof InterruptedException ) )
 		{
 			e.printStackTrace();
-			
-			if( this.monitor != null )
+						
+			if( this.notifier != null )
 			{
 				double time = System.nanoTime() / 1e9D;
 				
@@ -131,13 +150,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 					this.events.add( ev );
 				}				
 				
-				try 
-				{
-					this.monitor.taskDone( this );
-				}
-				catch (Exception e1) 
-				{
-				}				
+				this.notifier.notify();
 			}
 		}
 	}
@@ -153,28 +166,56 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		}
 		
 		super.cleanUp();
+		
+		if( this.notifier != null )
+		{
+			this.notifier.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+			this.notifier = null;
+		}
 	}
 	
-	private double RTT( InetSocketAddress ipAddress, int numPings ) throws IOException
-	{
-		InetAddress geek = ipAddress.getAddress();
+	
+	
+	private double pingDuration( InetSocketAddress ipAddress, int numPings ) throws IOException
+	{		
+		IcmpPingRequest request = IcmpPingUtil.createIcmpPingRequest();
+		request.setHost( ipAddress.getHostString() );
 		
 		double time = Double.POSITIVE_INFINITY;
 		
+		/*
 		for( int i = 0; i < numPings; i++ )
 		{
 			long t = System.nanoTime();
+			
+			final IcmpPingResponse response = IcmpPingUtil.executePingRequest (request);
 			
 			if ( geek.isReachable( 5000 ) )
 			{
 				t = ( System.nanoTime() - t);
 				
-				if( t < time )
+				if( ( t / 1e9D )  < time )
 				{
 					time = t / 1e9D;
 				}
 			}
-		}		
+		}	
+		*/	
+		
+		for( int i = 0; i < numPings; i++ )
+		{			
+			final IcmpPingResponse response = IcmpPingUtil.executePingRequest (request);
+			
+			if ( response.getSuccessFlag() )
+			{
+				double t = response.getDuration() / 1e9D;
+				
+				if( t < time )
+				{
+					time = t;
+				}
+			}
+		}
 		
 		double rtt = Double.NaN;
 		

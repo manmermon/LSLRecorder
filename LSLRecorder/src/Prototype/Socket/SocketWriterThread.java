@@ -93,6 +93,8 @@ public class SocketWriterThread extends SocketReadWriteThreadTemplate
 		//System.out.println("SocketWriterThread.cleanUp() " + super.getName() );
 		super.cleanUp();
 		
+		super.SOCKET.close();
+		
 		synchronized ( super.events ) 
 		{
 			super.events.add( new EventInfo( EventType.SOCKET_CHANNEL_CLOSE, super.SOCKET ) );

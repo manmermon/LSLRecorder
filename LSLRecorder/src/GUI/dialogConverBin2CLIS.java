@@ -410,9 +410,7 @@ public class dialogConverBin2CLIS extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{
-					JTextField t = (JTextField)e.getSource();
-					
-					clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					JTextField t = getTxtSyncFilePath();
 					
 					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null );
 					if( FILES != null )
@@ -1277,6 +1275,7 @@ public class dialogConverBin2CLIS extends JDialog
 			this.getTxtNumChannels( ).setText( header.getNumberOfChannels( ) + "" );
 			this.getTxtXMLDesc( ).setText( header.getXMLDescription( ) );
 			this.getComboBoxOutputFormat( ).setSelectedItem( header.getOutputFormat( ) );
+			this.getTxtChunkSize( ).setText( header.getChunckSize() + "" );
 		}
 	}
 		

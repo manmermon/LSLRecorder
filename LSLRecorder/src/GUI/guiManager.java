@@ -532,7 +532,7 @@ public class guiManager
 		this.enableGUI( true );
 	}
 
-	public void enablePlayButton( boolean enable )
+	private void enablePlayButton( boolean enable )
 	{
 		appUI.getInstance().getJButtonPlay().setEnabled( enable );
 	}

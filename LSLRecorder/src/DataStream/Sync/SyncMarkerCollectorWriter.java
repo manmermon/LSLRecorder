@@ -284,8 +284,6 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		double refTimeValue = Double.NEGATIVE_INFINITY;
 		
 		boolean loop = true;
-		
-		SyncMarker mark = null;
 				
 		DataOutputStream outStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( FileUtils.CreateTemporalBinFile( outSynFileName ) ) ) );
 		
@@ -304,64 +302,96 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			
 			outStream.write( header.getBytes() );
 			
-			do
-			{			
-				loop = true;
-				minTimeValue = Double.POSITIVE_INFINITY;
+			boolean order = !isOrdered( syncReader );
+			syncReader.resetStream();
+			
+			if( order )
+			{	
+				SyncMarker mark = null;
 				
-				mark = null;
-				
+				do
+				{			
+					loop = true;
+					minTimeValue = Double.POSITIVE_INFINITY;
+					
+					mark = null;
+					
+					while( loop )
+					{	
+						try
+						{
+							SyncMarker marker = syncReader.getSyncMarker();
+							
+							if( marker != null )
+							{
+								Integer markValue = marker.getMarkValue();
+								Double timeValue = marker.getTimeMarkValue();
+								
+								if( timeValue > refTimeValue )
+								{
+									if( timeValue < minTimeValue )
+									{				
+										minTimeValue = timeValue;
+										mark = new SyncMarker( markValue, timeValue );
+									}
+									else if( timeValue == minTimeValue )
+									{
+										if( mark != null )
+										{
+											markValue = markValue | mark.getMarkValue();
+										}
+										
+										mark = new SyncMarker( markValue, timeValue );
+									}
+								}
+							}
+							else
+							{
+								loop = false;
+							}
+						}
+						catch ( EOFException e) 
+						{
+							loop = false;
+						}
+					}
+					
+					if( mark != null )
+					{
+						outStream.writeInt( mark.getMarkValue() );
+						outStream.writeDouble( mark.getTimeMarkValue() );
+										
+						refTimeValue = mark.getTimeMarkValue();
+						
+						syncReader.resetStream();
+					}
+				}
+				while( mark != null );
+			}
+			else
+			{								
 				while( loop )
-				{	
+				{
 					try
 					{
 						SyncMarker marker = syncReader.getSyncMarker();
 						
 						if( marker != null )
-						{
-							Integer markValue = marker.getMarkValue();
-							Double timeValue = marker.getTimeMarkValue();
-							
-							if( timeValue > refTimeValue )
-							{
-								if( timeValue < minTimeValue )
-								{				
-									minTimeValue = timeValue;
-									mark = new SyncMarker( markValue, timeValue );
-								}
-								else if( timeValue == minTimeValue )
-								{
-									if( mark != null )
-									{
-										markValue = markValue | mark.getMarkValue();
-									}
-									
-									mark = new SyncMarker( markValue, timeValue );
-								}
-							}
+						{					
+							outStream.writeInt( marker.getMarkValue() );
+							outStream.writeDouble( marker.getTimeMarkValue() );
 						}
 						else
 						{
 							loop = false;
 						}
 					}
-					catch ( EOFException e) 
+					catch (Exception e) 
 					{
 						loop = false;
 					}
 				}
-				
-				if( mark != null )
-				{
-					outStream.writeInt( mark.getMarkValue() );
-					outStream.writeDouble( mark.getTimeMarkValue() );
-									
-					refTimeValue = mark.getTimeMarkValue();
-					
-					syncReader.resetStream();
-				}
 			}
-			while( mark != null );
 			
 		}
 		catch (Exception e) 
@@ -375,6 +405,46 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		}
 						
 	}
+	
+	private static boolean isOrdered( SyncMarkerBinFileReader syncReader )
+	{
+		boolean ordered = true;
+		boolean loop = true;
+		
+		double refTimeValue = Double.NEGATIVE_INFINITY;
+		
+		while( loop && ordered )
+		{	
+			try
+			{
+				SyncMarker marker = syncReader.getSyncMarker();
+
+				if( marker != null )
+				{
+					Double timeValue = marker.getTimeMarkValue();
+
+
+					ordered = timeValue > refTimeValue;
+					
+					if( ordered )
+					{
+						refTimeValue = timeValue;
+					}
+				}
+				else
+				{
+					loop = false;
+				}
+			}
+			catch ( Exception e) 
+			{
+				loop = false;
+			}
+		}
+		
+		return ordered;
+	}
+	
 	
 	public static String GetFinalOutEventID()
 	{

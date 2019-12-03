@@ -136,7 +136,7 @@ public class StreamHeader
 	{
 		String binHeader = this.name + HEADER_BINARY_SEPARATOR
 							+ this.type + HEADER_BINARY_SEPARATOR
-							+ ( this.nChs + 1 ) + HEADER_BINARY_SEPARATOR
+							+ this.nChs + HEADER_BINARY_SEPARATOR
 							+ this.chunckSize + HEADER_BINARY_SEPARATOR
 							+ this.timeType + HEADER_BINARY_SEPARATOR
 							+ this.interleave + HEADER_BINARY_SEPARATOR

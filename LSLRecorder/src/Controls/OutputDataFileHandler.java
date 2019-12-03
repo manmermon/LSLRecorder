@@ -25,6 +25,7 @@ package Controls;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Auxiliar.Thread.LaunchThread;
 import Config.Parameter;
 import Config.ParameterList;
 import Controls.Messages.EventInfo;
@@ -38,7 +39,6 @@ import DataStream.Sync.SyncMarkerBinFileReader;
 import DataStream.Sync.SyncMarkerCollectorWriter;
 import DataStream.Sync.LSL.InputSyncData;
 import DataStream.WritingSystemTester.WritingTest;
-import Auxiliar.LaunchThread;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.FileUtils;
 import Auxiliar.Extra.Tuple;
@@ -85,7 +85,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 	private Map<String, OutputBinaryFileSegmentation> outWriterHandlers = null;
 	private AtomicInteger NumberOfSavingThreads = new AtomicInteger( 0 );
-	private AtomicInteger NumberOfTestThreads = new AtomicInteger( 0 );
+	//private AtomicInteger NumberOfTestThreads = new AtomicInteger( 0 );
 	private AtomicBoolean isRunBinData = new AtomicBoolean( false ); 
 	
 	private Object sync = new Object();
@@ -129,10 +129,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		synchronized ( this.temps )
 		{	
-			//this.NumberOfSavingThreads += this.temps.size(); 
-			this.NumberOfSavingThreads.addAndGet( this.temps.size() );
+			//this.NumberOfSavingThreads += this.temps.size();			
 			this.isRunBinData.set( true );
 			
+			this.NumberOfSavingThreads.set( this.temps.size() );
+									
 			for ( TemporalOutDataFileWriter temp : this.temps )
 			{
 				temp.setOutputFileFormat( this.fileFormat );
@@ -151,6 +152,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			if( this.NumberOfSavingThreads.get() < 1 )
 			{
 				this.isRunBinData.set( false );
+				
+				this.supervisor.eventNotification( this, new EventInfo( EventType.ALL_OUTPUT_DATA_FILES_SAVED, null ) );
 			}
 			
 			this.temps.clear();
@@ -526,7 +529,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 							}
 							
-							if( this.NumberOfSavingThreads.intValue() < 0 )
+							if( this.NumberOfSavingThreads.get() < 0 )
 							{
 								this.NumberOfSavingThreads.set( 0 );
 							}
@@ -730,6 +733,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						}
 						catch (Exception ex)
 						{
+							System.out.println("OutputDataFileHandler.taskDone() " + EventType.SAVED_OUTPUT_TEMPORAL_FILE + " EXception");
+							
 							if( launch != null )
 							{
 								launch.stopThread( IStoppableThread.FORCE_STOP );
@@ -782,7 +787,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	public boolean isSavingData()
 	{			
 		//return this.NumberOfSavingThreads > 0;
-		return this.NumberOfSavingThreads.intValue() > 0;
+		return this.NumberOfSavingThreads.get() > 0;
 	}
 
 	/*
@@ -821,7 +826,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		super.preStart();
 		
-		this.NumberOfTestThreads.set( 0 );
+		//this.NumberOfTestThreads.set( 0 );
 		
 		super.stopThread = true;
 	}

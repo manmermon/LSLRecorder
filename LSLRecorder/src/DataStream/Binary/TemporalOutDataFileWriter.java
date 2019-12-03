@@ -25,6 +25,7 @@ package DataStream.Binary;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
+import DataStream.StreamHeader;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -34,6 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.stream.IntStream;
 
 import javax.annotation.processing.FilerException;
 
@@ -52,9 +54,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	
 	//private int dataTypeByteLength = 1;
 	//private int timeTypeByteLength = 1;	
-	
-	private final String headerBinSeparator = ConfigApp.HEADER_SEPARATOR ;
-	
+		
 	public TemporalOutDataFileWriter( String filePath, LSL.StreamInfo info
 										, LSLConfigParameters lslCfg, int Number ) throws Exception
 	{
@@ -93,12 +93,19 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	@Override
 	protected void startUp() throws Exception 
 	{
-		String binHeader = super.LSLName + this.headerBinSeparator 
-							+ super.LSLFormatData + this.headerBinSeparator
-							+ ( super.lslChannelCounts + 1 ) + this.headerBinSeparator
-							+ super.chunckLength + this.headerBinSeparator
-							+ super.timeType + this.headerBinSeparator
-							+ super.lslXML;
+		StreamHeader header = new StreamHeader( this.file.getAbsolutePath()
+												, super.LSLName
+												, super.LSLFormatData
+												, super.timeType
+												, super.lslChannelCounts
+												, super.chunckLength
+												, super.interleavedData
+												, super.lslXML
+												, this.outFileFormat
+												, this.outFileName
+												, !ConfigApp.isTesting() );
+		
+		String binHeader = header.getStreamBinHeader();
 		
 		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + "\n";
 		
@@ -109,15 +116,31 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	
 	protected void managerData( byte[] data, byte[] time ) throws Exception
 	{	
-		if( data != null )
+		int len = 0;
+		
+		len = ( data != null ? len + data.length : len );
+		len = ( time != null ? len + time.length : len );
+		
+		if( len > 0 )
 		{
-			this.out.write( data );
+			byte[] DAT = new byte[ len ];
+			
+			int init = 0;
+			
+			if( data != null )
+			{
+				System.arraycopy( data, 0, DAT, init, data.length );
+				
+				init = data.length;
+			}
+			
+			if( time != null )
+			{
+				System.arraycopy( time, 0, DAT, init, data.length );
+			}
+			
+			this.out.write( DAT );			
 		}
-
-		if( time != null )
-		{
-			this.out.write( time );
-		}			
 	}		
 
 	@Override

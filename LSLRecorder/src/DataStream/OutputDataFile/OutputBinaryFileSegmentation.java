@@ -211,136 +211,116 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	{
 		try
 		{
-		List< Object > dataBuffer = new ArrayList< Object >();
-		
-		Object NonSyncMarker = SyncMarker.NON_MARK;
-		
-		if( this.DATA.getDataType() == LSL.ChannelFormat.string )
-		{
-			NonSyncMarker = "" + SyncMarker.NON_MARK;
-		}
-		else
-		{
-			 NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
-		}
-								
-		SyncMarker marker = null;
-		
-		if( this.syncReader != null )
-		{
-			marker = this.syncReader.getSyncMarker();
-		}
-		
-		boolean Loop = true;
-		
-		while( Loop )
-		{			
-			Tuple< Number[], Number[] > block = null;
+			List< Object > dataBuffer = new ArrayList< Object >();
 			
-			if( this.DATA.getDataType() != LSL.ChannelFormat.string 
-					&& this.DATA.getDataType() != LSL.ChannelFormat.undefined 
-				)
+			Object NonSyncMarker = SyncMarker.NON_MARK;
+			
+			if( this.DATA.getDataType() == LSL.ChannelFormat.string )
 			{
-				block = this.getNextNumberBlock( this.DATA );
-				
-				if( block != null )
-				{
-					Number[] dat = block.x;
-					Number[] timeData = block.y;
-					
-					if( !this.DATA.isInterleave() )
-					{
-						dat = ConvertTo.Interleaved( dat, this.DATA.getNumberOfChannels(), this.DATA.getChunckSize() );
-					}
-					
-					/*
-					if( this.DATA.getChunckSize() > 1 && !this.DATA.isInterleave() )
-					{
-						Number[] copy = new Number[ dat.length ];
-						
-						int indexCopy = 0;
-						
-						for( int i = 0; i < this.DATA.getNumberOfChannels(); i++ )
-						{
-							for( int j = i; j < dat.length; j += this.DATA.getChunckSize() )
-							{
-								copy[ indexCopy ] = dat[ j ];
-								indexCopy++;
-							}
-						}
-						
-						dat = copy;
-					}
-					*/
-					
-					Number[] Data = new Number[ dat.length + this.DATA.getChunckSize() ];
-					
-					int index = 0;
-					int cc = 0;
-					for( int i = 0; i < dat.length; i++ )
-					{
-						Data[ index ] = dat[ i ];
-						
-						index++;
-						cc++;
-						if( cc >= this.DATA.getNumberOfChannels() )
-						{
-							Data[ index ] = (Number)NonSyncMarker;
-							
-							index++;
-							cc = 0;
-						}
-					}
-
-					index = 0;
-					while( index < timeData.length && marker != null)
-					{
-						Number time = timeData[ index ];
-
-						SyncMarker aux = new SyncMarker( marker.getMarkValue(), marker.getTimeMarkValue() );
-
-						while( aux != null 
-								&& time.doubleValue() > aux.getTimeMarkValue() )
-						{
-							marker.addMarkValue( aux.getMarkValue() );
-
-							aux = this.syncReader.getSyncMarker();																
-						}
-
-						if( time.doubleValue() > marker.getTimeMarkValue() )
-						{
-							Data[ ( index + 1 ) * ( this.DATA.getNumberOfChannels() + 1 ) - 1] = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataType() );
-
-							marker = null;
-							if( aux != null  )
-							{
-								marker = aux;
-							}								
-						}
-
-						index++;
-					}
-					
-					for( Number datVal : Data )
-					{
-						dataBuffer.add( datVal );
-					}
+				NonSyncMarker = "" + SyncMarker.NON_MARK;
+			}
+			else
+			{
+				 NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
+			}
 									
-					while( dataBuffer.size() >= this.maxNumElements )
-					{					
-						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
-					}
-				}				
-				
+			SyncMarker marker = null;
+			
+			if( this.syncReader != null )
+			{
+				marker = this.syncReader.getSyncMarker();
 			}
 			
-			Loop = ( block != null );
-		}
-		
-		while( dataBuffer.size() > 0 )
-		{					
-			seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
-		}
+			boolean Loop = true;
+			
+			while( Loop )
+			{			
+				Tuple< Number[], Number[] > block = null;
+	
+				if( this.DATA.getDataType() != LSL.ChannelFormat.string 
+						&& this.DATA.getDataType() != LSL.ChannelFormat.undefined 
+						)
+				{
+					block = this.getNextNumberBlock( this.DATA );
+	
+					if( block != null )
+					{
+						Number[] dat = block.x;
+						Number[] timeData = block.y;
+	
+						if( !this.DATA.isInterleave() )
+						{
+							dat = ConvertTo.Interleaved( dat, this.DATA.getNumberOfChannels(), this.DATA.getChunckSize() );
+						}
+	
+						Number[] Data = new Number[ dat.length + this.DATA.getChunckSize() ];
+	
+						int index = 0;
+						int cc = 0;
+						for( int i = 0; i < dat.length; i++ )
+						{
+							Data[ index ] = dat[ i ];
+	
+							index++;
+							cc++;
+							if( cc >= this.DATA.getNumberOfChannels() )
+							{
+								Data[ index ] = (Number)NonSyncMarker;
+	
+								index++;
+								cc = 0;
+							}
+						}
+	
+						index = 0;
+						while( timeData != null && index < timeData.length && marker != null)
+						{
+							Number time = timeData[ index ];
+	
+							SyncMarker aux = new SyncMarker( marker.getMarkValue(), marker.getTimeMarkValue() );
+	
+							while( aux != null 
+									&& time.doubleValue() > aux.getTimeMarkValue() )
+							{
+								marker.addMarkValue( aux.getMarkValue() );
+	
+								aux = this.syncReader.getSyncMarker();																
+							}
+	
+							if( time.doubleValue() > marker.getTimeMarkValue() )
+							{
+								Data[ ( index + 1 ) * ( this.DATA.getNumberOfChannels() + 1 ) - 1] = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataType() );
+	
+								marker = null;
+								if( aux != null  )
+								{
+									marker = aux;
+								}								
+							}
+	
+							index++;
+						}
+	
+						for( Number datVal : Data )
+						{
+							dataBuffer.add( datVal );
+						}
+	
+						while( dataBuffer.size() >= this.maxNumElements )
+						{					
+							seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
+						}
+					}				
+	
+				}
+	
+				Loop = ( block != null );
+			}
+
+			while( dataBuffer.size() > 0 )
+			{					
+				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
+			}
 		}
 		catch (Exception e) 
 		{

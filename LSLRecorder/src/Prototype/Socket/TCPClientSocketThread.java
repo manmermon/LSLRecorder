@@ -87,7 +87,7 @@ public class TCPClientSocketThread extends AbstractStoppableThread implements IT
 		this.stopFriendliness = friendliness;
 		//System.out.println("TCPClientSocketThread.postStopThread() " + getName() + "-" + System.nanoTime() + ">> " + friendliness);
 		
-		if( super.stopWhenTaskDone )
+		if( super.stopWhenTaskDone.get() )
 		{
 			//System.out.println("TCPClientSocketThread.postStopThread() "  + getName() );
 			synchronized ( this )
@@ -165,8 +165,8 @@ public class TCPClientSocketThread extends AbstractStoppableThread implements IT
 				
 		if( this.inOutSocketManager != null )
 		{
-			this.inOutSocketManager.stopThread( this.stopFriendliness );
-		}
+			this.inOutSocketManager.stopThread( this.stopFriendliness );			
+		}		
 	}
 
 	public void sendMessage( String msg )

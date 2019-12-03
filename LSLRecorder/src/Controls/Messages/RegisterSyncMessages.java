@@ -239,5 +239,5 @@ public class RegisterSyncMessages
 			outputDataFileMark.put( msg, in );
 			mark = mark << 1;
 		}
-	}
+	}	
 }

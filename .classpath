@@ -5,5 +5,7 @@
 	<classpathentry kind="lib" path="../../Librerias/Graphics/jfreechart-1.0.19/lib/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/Graphics/jfreechart-1.0.19/lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/labstreaminglayer/LSL/liblsl-Java/jna-5.3.1.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/Librerias/labstreaminglayer/LSL/liblsl-Java/jna-platform-5.5.0.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/Proyectos/Icmp4J_mod/src/icmp4j_all_mod.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

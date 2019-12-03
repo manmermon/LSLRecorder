@@ -260,7 +260,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	/**
 	 * Start to record data
 	 */
-	public synchronized void startWorking( boolean test )
+	public synchronized void startWorking( boolean testWriting )
 	{
 		try
 		{	
@@ -282,7 +282,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 
 			if (this.warnMsg.getWarningType() == WarningMessage.WARNING_MESSAGE 
-					&& !test )
+					&& !testWriting 
+					&& !ConfigApp.isTesting() )
 			{
 				String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 						UIManager.getString( "OptionPane.noButtonText" ) };
@@ -389,7 +390,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					Parameter lslSetting = new Parameter( this.ctrlOutputFile.PARAMETER_LSL_SETTING, DEV_ID );
 					LSLPars.addParameter( lslSetting );
 					
-					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, test );
+					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
 					LSLPars.addParameter( writingTest );					
 
 					minionPars.setMinionParameters( this.ctrlOutputFile.ID, LSLPars );
@@ -400,7 +401,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 			this.isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
 			
-			if( !test )
+			if( !testWriting )
 			{
 				this.isWaitingForStartCommand = this.isActiveSpecialInputMsg
 												&& 
@@ -440,7 +441,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 			
 			this.isRecording = false;
-			this.managerGUI.setAppState( AppState.STOP );
+			
+			if( !this.ctrlOutputFile.isSavingData() )
+			{
+				this.managerGUI.setAppState( AppState.STOP );
+			}
+			else
+			{
+				this.managerGUI.setAppState( AppState.SAVING );
+			}
+			
 			this.managerGUI.restoreGUI();
 			this.managerGUI.refreshLSLDevices();
 			this.isWaitingForStartCommand = false;
@@ -487,7 +497,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		WarningMessage socketMsg = this.ctrSocket.checkParameters();
 		
 		this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
-
+		
 		this.warnMsg.addMessage( outFileMsg.getMessage(), outFileMsg.getWarningType() );
 		this.warnMsg.addMessage( socketMsg.getMessage(), socketMsg.getWarningType() );
 
@@ -581,6 +591,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 		}
+		
+		if( this.ctrlOutputFile.isSavingData() )
+		{
+			this.warnMsg.addMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE );
+		}
 	}
 	
 	/**
@@ -640,103 +655,113 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	public synchronized void stopWorking( ) throws Exception
 	{
-		if ( this.isRecording 
-				|| this.isWaitingForStartCommand )
-		{						
-			this.managerGUI.setAppState( AppState.STOP );
-			this.managerGUI.enablePlayButton( false );
-			
-			if( this.writingTestTimer != null )
-			{
-				this.writingTestTimer.stop();
-				this.writingTestTimer = null;
-			}
-			
-			if (this.ctrlOutputFile != null)
-			{
-				while( !this.sockMsgDelayCalList.isEmpty() )
-				{
-					try 
-					{
-						super.wait( 100L );
-					} 
-					catch (Exception e) 
-					{
-					}
-				}
-				
-				try
-				{	
-					String key = RegisterSyncMessages.INPUT_STOP;
+		(new Thread() 
+		{
+			@Override
+			public void run() 
+			{	
+				super.setName( "coreControl-StopWorking");
+		
+				if ( isRecording 
+						|| isWaitingForStartCommand )
+				{						
+					managerGUI.setAppState( AppState.STOP );
+					//managerGUI.enablePlayButton( false );
 					
-					this.ctrlOutputFile.setBlockingStartWorking( true );
-					
-					if( this.SpecialMarker == null )
+					if( writingTestTimer != null )
 					{
-						this.SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
-																, System.nanoTime() / 1e9D );
+						writingTestTimer.stop();
+						writingTestTimer = null;
 					}
 					
-					// TODO
-					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, this.SpecialMarker ) );
-					
-					Thread.sleep( 10L );
-					
-					this.ctrlOutputFile.setBlockingStartWorking( false );
-					
-					this.ctrlOutputFile.setEnableSaveSyncMark( false );
-										
-					this.ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
-					
-					if( this.ctrlOutputFile.isSavingData() )
+					if (ctrlOutputFile != null)
 					{
-						this.managerGUI.setAppState( AppState.SAVING );
-					}
-				}
-				catch (Exception localException) 
-				{
-					localException.printStackTrace();
-					this.managerGUI.setAppState( AppState.NONE );
-				}
-				catch (Error localError) 
-				{}
-			}
-					
-			/*
-			if ( !this.isWaitingForStartCommand )
-			{
-				try
-				{
-					this.ctrSocket.setBlockingStartWorking( true );
-					this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
-					this.ctrSocket.setBlockingStartWorking(false);
-				}
-				catch (Exception localException1)
-				{}
-			}
-			*/
-			
-			this.isRecording = false;
-			this.isWaitingForStartCommand = false;
-			this.isActiveSpecialInputMsg = false;
-
-			this.notifiedEventHandler.interruptProcess();
-			this.notifiedEventHandler.clearEvent();
-			
-			this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
-			
-			this.managerGUI.restoreGUI();
-			this.managerGUI.enablePlayButton( false );
-			
-			this.SpecialMarker = null;
-			
-			System.gc();
+						while( !sockMsgDelayCalList.isEmpty() )
+						{
+							try 
+							{
+								super.wait( 100L );
+							} 
+							catch (Exception e) 
+							{
+							}
+						}
 						
-			if( this.closeWhenDoingNothing && !this.isDoingSomething() )
-			{
-				System.exit( 0 );
+						try
+						{	
+							String key = RegisterSyncMessages.INPUT_STOP;
+							
+							ctrlOutputFile.setBlockingStartWorking( true );
+							
+							if( SpecialMarker == null )
+							{
+								SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
+																		, System.nanoTime() / 1e9D );
+							}
+							
+							// TODO
+							ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, SpecialMarker ) );
+							
+							Thread.sleep( 10L );
+							
+							ctrlOutputFile.setBlockingStartWorking( false );
+							
+							ctrlOutputFile.setEnableSaveSyncMark( false );
+												
+							ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
+							
+							if( ctrlOutputFile.isSavingData() )
+							{
+								managerGUI.setAppState( AppState.SAVING );
+							}
+						}
+						catch (Exception localException) 
+						{
+							localException.printStackTrace();
+							managerGUI.setAppState( AppState.NONE );
+						}
+						catch (Error localError) 
+						{}
+					}
+							
+					/*
+					if ( !this.isWaitingForStartCommand )
+					{
+						try
+						{
+							this.ctrSocket.setBlockingStartWorking( true );
+							this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
+							this.ctrSocket.setBlockingStartWorking(false);
+						}
+						catch (Exception localException1)
+						{}
+					}
+					*/
+					
+					isRecording = false;
+					isWaitingForStartCommand = false;
+					isActiveSpecialInputMsg = false;
+		
+					notifiedEventHandler.interruptProcess();
+					notifiedEventHandler.clearEvent();
+					
+					ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
+					
+					managerGUI.restoreGUI();
+					//managerGUI.enablePlayButton( false );
+					
+					SpecialMarker = null;
+					
+					System.gc();
+								
+					if( closeWhenDoingNothing 
+							&& !isDoingSomething() )
+					{
+						System.exit( 0 );
+					}
+				}
 			}
-		}
+		}).start();
 	}
 	
 	/*
@@ -752,10 +777,27 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	/**
 	 * Register and processing the notification.
 	 */
-	public void eventNotification( IHandlerMinion subordinate, EventInfo event)
+	public void eventNotification( IHandlerMinion subordinate, final EventInfo event)
 	{
+		/*
+		Thread t = new Thread()
+		{
+			@Override
+			public void run() 
+			{
+				super.setName( "coreControl-eventNotification" );
+				
+				notifiedEventHandler.registreNotification( event );
+				
+				notifiedEventHandler.treatEvent();
+			}
+		};
+		
+		t.start();
+		*/
+		
 		this.notifiedEventHandler.registreNotification( event );
-	
+		
 		this.notifiedEventHandler.treatEvent();
 	}
 
@@ -778,13 +820,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					Integer msgMark = this.streamPars.getInputCommands().get( msg.getMessage() );
 
-					SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, SocketMessageDelayCalculator.DEFAULT_NUM_PINGS );
-					socketMsgDelay.taskMonitor( this.ctrlOutputFile );
-					socketMsgDelay.setControlSupervisor( this );					
-					
-					this.sockMsgDelayCalList.add( socketMsgDelay );
-					
-					socketMsgDelay.startThread();
+					if( msgMark != null )
+					{
+						
+						SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, SocketMessageDelayCalculator.DEFAULT_NUM_PINGS );
+						socketMsgDelay.taskMonitor( this.ctrlOutputFile );
+						socketMsgDelay.setControlSupervisor( this );					
+						
+						synchronized ( this.sockMsgDelayCalList )
+						{
+							this.sockMsgDelayCalList.add( socketMsgDelay );
+						}						
+						
+						socketMsgDelay.startThread();
+					}
 										
 					/*					
 					if ( msgMark != null )
@@ -840,9 +889,19 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					if( !ConfigApp.isTesting() )
 					{
-						JOptionPane.showMessageDialog( this.managerGUI.getAppUI(), msg, 
-														EventType.SOCKET_CONNECTION_PROBLEM, 
-														JOptionPane.WARNING_MESSAGE );
+						final String copyMsg = msg;
+						Thread t = new Thread()
+						{
+							@Override
+							public void run() 
+							{
+								JOptionPane.showMessageDialog( guiManager.getInstance().getAppUI(), copyMsg, 
+																EventType.SOCKET_CONNECTION_PROBLEM, 
+																JOptionPane.WARNING_MESSAGE );
+							}
+						};
+						
+						t.start();						
 					}
 					else
 					{
@@ -860,10 +919,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 
 					if( !ConfigApp.isTesting() )
-					{
-						JOptionPane.showMessageDialog( this.managerGUI.getAppUI(), msg, 
-														EventType.SOCKET_CHANNEL_CLOSE, 
-														JOptionPane.WARNING_MESSAGE );
+					{						
+						final String copyMsg = msg;
+						Thread t = new Thread()
+						{
+							@Override
+							public void run() 
+							{
+								JOptionPane.showMessageDialog( guiManager.getInstance().getAppUI(), copyMsg, 
+																EventType.SOCKET_CHANNEL_CLOSE, 
+																JOptionPane.WARNING_MESSAGE );
+							}
+						};
+						
+						t.start();
 					}
 					else
 					{
@@ -1134,7 +1203,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		{
 			if (this.eventRegister.size() == 0)
 			{
-				super.wait();
+				synchronized ( this )
+				{
+					try
+					{
+						super.wait();
+					}
+					catch( InterruptedException e)
+					{						
+					}
+				}
+				
 			}
 
 			try
@@ -1268,10 +1347,18 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 		public synchronized void treatEvent()
 		{
-			if (super.getState().equals( Thread.State.WAITING ) )
+			/*
+			if ( super.getState().equals( Thread.State.WAITING ) )
 			{
 				this.treatEvent = true;
 				super.notify();
+			}
+			*/
+			
+			synchronized ( this )
+			{
+				this.treatEvent = true;
+				super.notify();	
 			}
 		}
 
@@ -1385,7 +1472,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{
 					managerGUI.setAppState( AppState.SAVED );
 					
-					managerGUI.enablePlayButton( true );
+					//managerGUI.enablePlayButton( true );
 					
 					if( closeWhenDoingNothing && !isDoingSomething() )
 					{
@@ -1406,8 +1493,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 				}
 				else if( event_type.equals( EventType.SOCKET_PING_END ) )
-				{
-					sockMsgDelayCalList.remove( (SocketMessageDelayCalculator)eventObject );
+				{	
+					synchronized ( sockMsgDelayCalList ) 
+					{	
+						sockMsgDelayCalList.remove( (SocketMessageDelayCalculator)eventObject );
+					}
 				}
 				else if( event_type.equals( EventType.INPUT_MARK_READY ) )
 				{

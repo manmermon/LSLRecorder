@@ -1,4 +1,4 @@
-package Auxiliar;
+package Auxiliar.Thread;
 
 import java.util.ArrayList;
 import java.util.List;
