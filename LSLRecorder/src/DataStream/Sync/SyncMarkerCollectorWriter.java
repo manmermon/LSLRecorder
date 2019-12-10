@@ -21,12 +21,14 @@ package DataStream.Sync;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -37,6 +39,7 @@ import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.StreamHeader;
+import GUI.Miscellany.ArrayTreeMap;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
@@ -279,10 +282,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	}
 	
 	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader, boolean delInSyncFile ) throws Exception
-	{						
-		double minTimeValue = Double.POSITIVE_INFINITY;
-		double refTimeValue = Double.NEGATIVE_INFINITY;
-		
+	{	
 		boolean loop = true;
 				
 		DataOutputStream outStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( FileUtils.CreateTemporalBinFile( outSynFileName ) ) ) );
@@ -302,6 +302,124 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			
 			outStream.write( header.getBytes() );
 			
+			long freeMemory = Runtime.getRuntime().freeMemory();
+			
+			if( syncReader.getFileSize() < freeMemory )
+			{
+				List< SyncMarker > markers = getSyncMarker( syncReader,  -1 ); // All sync markers
+				
+				Collections.sort( markers );
+				
+				toSave( outStream, markers);
+			}
+			else
+			{
+				int length = (int)( freeMemory / 2 );
+				int lim = (int)( 5 * Math.pow( 2, 20 ) );
+				
+				if( length < lim )
+				{
+					length = lim;
+				}
+				
+				ArrayTreeMap< Integer, SyncMarker > toShift = new ArrayTreeMap< Integer, SyncMarker >();
+				ArrayTreeMap< Integer, SyncMarker > nonSave = new ArrayTreeMap< Integer, SyncMarker >();
+				List< Double > refTimeList = new ArrayList< Double >();
+				
+				int blockCounter = -1;
+				while( loop )
+				{
+					List< SyncMarker > markers = getSyncMarker( syncReader, length  ); // All sync markers					
+					
+					loop = markers.size() > 0 ;
+					
+					if( loop )
+					{
+						blockCounter++;
+						
+						Collections.sort( markers );
+												
+						boolean end = false;
+						
+						for( int j = 0; j < markers.size() && !end; j++ )
+						{
+							SyncMarker marker = markers.get( j );
+							
+							boolean inserted = false;
+							for( int i = 0; i < refTimeList.size() && !inserted; i++ )
+							{
+								Double refTime = refTimeList.get( i );
+
+								inserted = ( refTime > marker.getTimeMarkValue() );
+
+								if( inserted )
+								{
+									nonSave.put( blockCounter, marker );
+									toShift.put( i, marker );
+								}
+							}
+							
+							end = !inserted;
+						}
+						
+						refTimeList.add( markers.get( markers.size() - 1  ).getTimeMarkValue() );							
+					}
+				}
+				
+				if( !toShift.isEmpty() )
+				{
+					syncReader.resetStream();
+					
+					blockCounter = 0;
+					
+					loop = true;
+					
+					while( loop )
+					{
+						List< SyncMarker > markers = getSyncMarker( syncReader, length  ); // All sync markers
+						blockCounter++;
+						
+						loop = markers.size() > 0 ;
+						
+						if( loop )
+						{
+							List< SyncMarker > toAdd = toShift.get( blockCounter );
+							List< SyncMarker > toRemove = nonSave.get( blockCounter );
+							
+							if( toRemove != null )
+							{
+								for( SyncMarker deleteMark : toRemove )
+								{
+									boolean del = false;
+									
+									Iterator< SyncMarker > itMarkers = markers.iterator();
+									
+									while( itMarkers.hasNext() && !del )
+									{										
+										del = itMarkers.next().equals( deleteMark );
+										
+										if( del )
+										{
+											itMarkers.remove();
+										}
+									}
+								}
+							}
+							
+							if( toAdd != null )
+							{
+								markers.addAll( toAdd );
+								
+								Collections.sort( markers );
+							}
+							
+							toSave( outStream, markers );
+						}
+					}						
+				}
+			}
+			
+			/*
 			boolean order = !isOrdered( syncReader );
 			syncReader.resetStream();
 			
@@ -392,6 +510,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 					}
 				}
 			}
+			*/
 			
 		}
 		catch (Exception e) 
@@ -404,6 +523,55 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			syncReader.closeAndRemoveTempBinaryFile();
 		}
 						
+	}
+	
+	private static void toSave( DataOutputStream outStream, List< SyncMarker > markers ) throws IOException
+	{
+		if( outStream != null && markers != null )
+		{
+			for( SyncMarker mark : markers )
+			{
+				outStream.writeInt( mark.getMarkValue() );
+				outStream.writeDouble( mark.getTimeMarkValue() );
+			}
+		}
+	}
+	
+	private static List< SyncMarker > getSyncMarker( SyncMarkerBinFileReader syncReader, int length )
+	{
+		List< SyncMarker > markers = new ArrayList< SyncMarker >();
+		
+		SyncMarker mark = null;
+		boolean loop = true;
+		int count = 0;
+		
+		if( length == 0 ) // length <= 0 to get all markers
+		{
+			length = -1;
+		}
+		
+		while( loop && ( count - length ) != 0 )
+		{		
+			try
+			{
+				mark = syncReader.getSyncMarker();
+
+				loop = ( mark != null );
+				
+				if( loop )
+				{
+					count++;
+					markers.add( mark );
+				}
+			}
+			catch ( Exception e) 
+			{
+				loop = false;
+			}			
+		}
+		
+				
+		return markers;
 	}
 	
 	private static boolean isOrdered( SyncMarkerBinFileReader syncReader )

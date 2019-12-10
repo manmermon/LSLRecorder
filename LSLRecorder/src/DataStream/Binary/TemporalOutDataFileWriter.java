@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.stream.IntStream;
 
 import javax.annotation.processing.FilerException;
 
@@ -136,7 +135,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			
 			if( time != null )
 			{
-				System.arraycopy( time, 0, DAT, init, data.length );
+				System.arraycopy( time, 0, DAT, init, time.length );
 			}
 			
 			this.out.write( DAT );			

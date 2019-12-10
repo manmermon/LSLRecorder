@@ -602,6 +602,7 @@ public class appUI extends JFrame
 			} 
 			catch (Exception e) 
 			{
+				e.printStackTrace();
 				JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );	
 			}
 		}

@@ -21,7 +21,7 @@ package DataStream.Sync;
 
 import edu.ucsd.sccn.LSL;
 
-public class SyncMarker 
+public class SyncMarker implements Comparable< SyncMarker >
 {	
 	public static final int MARK_DATA_TYPE = LSL.ChannelFormat.int32;
 	public static final int MARK_TIME_TYPE = LSL.ChannelFormat.double64;
@@ -58,5 +58,40 @@ public class SyncMarker
 	public String toString() 
 	{
 		return "<" + this.markValue + ", " + this.timeMarkValue + ">";
+	}
+
+	@Override
+	public int compareTo( SyncMarker o ) 
+	{
+		int eq = 0;
+	
+		if( this.timeMarkValue != Double.NaN && o.getTimeMarkValue() != Double.NaN )
+		{
+			if( this.timeMarkValue < o.getTimeMarkValue() )
+			{
+				eq = -1; 
+			}
+			else if( this.timeMarkValue > o.getTimeMarkValue() )
+			{
+				eq = 1;
+			}
+		}
+		
+		return eq;
+	}
+	
+	@Override
+	public boolean equals(Object obj) 
+	{
+		boolean eq = ( obj != null ) && ( obj instanceof SyncMarker );
+		
+		if( eq )
+		{
+			SyncMarker mark = (SyncMarker) obj;
+			
+			eq = ( mark.getMarkValue() == this.markValue ) && ( mark.getTimeMarkValue() == this.timeMarkValue );
+		}
+		
+		return eq;
 	}
 }

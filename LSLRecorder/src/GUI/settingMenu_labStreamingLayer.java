@@ -1028,9 +1028,12 @@ public class settingMenu_labStreamingLayer extends JPanel
 				final LSLConfigParameters dev = auxDev;
 				
 				String idNode = deviceName + " (" + uid + ")";
-				DefaultMutableTreeNode t = this.getDeviceInfo( info, dev, dev.getAdditionalInfo() );				 
-				t.setUserObject( idNode );
-				tmodel.insert( t, tmodel.getChildCount() );
+				DefaultMutableTreeNode t = this.getDeviceInfo( info, dev, dev.getAdditionalInfo() );	
+				if( idNode != null && t != null )
+				{
+					t.setUserObject( idNode );
+					tmodel.insert( t, tmodel.getChildCount() );
+				}				
 	
 				JCheckBox r = new JCheckBox( deviceName );
 				JCheckBox Sync = new JCheckBox();
