@@ -357,7 +357,7 @@ public class Language {
 				new Caption(SETTING_LSL_SYNC_TOOLTIP, defaultLanguage, "Get synchronization mark from this stream"));
 		captions.put(SETTING_LSL_NAME_TOOLTIP, new Caption(SETTING_LSL_NAME_TOOLTIP, defaultLanguage, "Stream's name"));
 
-		captions.put(LSL_PLOT_FILTERS, new Caption(LSL_PLOT_FILTERS, defaultLanguage, "Input ranks"));
+		captions.put(LSL_PLOT_FILTERS, new Caption(LSL_PLOT_FILTERS, defaultLanguage, "Display range"));
 		captions.put(LSL_BIN_DATA_FILES, new Caption(LSL_BIN_DATA_FILES, defaultLanguage, "Binary data files"));
 		captions.put(LSL_BIN_TIME_FILES, new Caption(LSL_BIN_TIME_FILES, defaultLanguage, "Binary time files"));
 		captions.put(LSL_DATA_TYPE, new Caption(LSL_DATA_TYPE, defaultLanguage, "Data type"));
@@ -367,13 +367,13 @@ public class Language {
 
 		captions.put(LSL_PLOT_FILTER_LEGEND,
 				new Caption(LSL_PLOT_FILTER_LEGEND, defaultLanguage,
-						"Filter format: N1:(A1,B1);N2:(A2,B2);N3:(A3,B3);...\n" + "where\n"
-								+ ">> Nx is plot number where filter is applied. Plot numbering starts from 1."
-								+ " The value 0 indicates that filter is applied to all plots.\n"
+						"Display-range (DR) format: N1:(A1,B1);N2:(A2,B2);N3:(A3,B3);...\n" + "where\n"
+								+ ">> Nx is plot number where DR is applied. Plot numbering starts from 1."
+								+ " The value 0 indicates that DR is applied to all plots.\n"
 								+ ">> Ax and Bx are interval limits. Java number format is supported.\n"
 								+ "   Espacial value: "
 								+ "-Inf or Inf means infinity.\n" 
-								+ "\nIncorrect filter format are ignored."));
+								+ "\nIncorrect DR format are ignored."));
 		captions.put(APPLY_TEXT, new Caption(APPLY_TEXT, defaultLanguage, "Apply"));
 		captions.put(INSERT_TEXT, new Caption(INSERT_TEXT, defaultLanguage, "Insert"));
 		captions.put(DELETE_TEXT, new Caption(DELETE_TEXT, defaultLanguage, "Delete"));

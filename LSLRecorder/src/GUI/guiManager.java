@@ -130,7 +130,8 @@ public class guiManager
 				, Language.getLocalCaption( Language.DIALOG_SAVE )
 				, JFileChooser.SAVE_DIALOG, false, JFileChooser.FILES_ONLY
 				, "config (*." + ConfigApp.defaultNameFileConfigExtension + ")"
-				, new String[] { ConfigApp.defaultNameFileConfigExtension });
+				, new String[] { ConfigApp.defaultNameFileConfigExtension }
+				, System.getProperty("user.dir"));
 
 		if ((f != null) && (f[0].exists()))
 		{
@@ -169,7 +170,8 @@ public class guiManager
 								, Language.getLocalCaption( Language.DIALOG_LOAD )
 								, JFileChooser.OPEN_DIALOG, false, JFileChooser.FILES_ONLY
 								, "config (*." + ConfigApp.defaultNameFileConfigExtension + ")"
-								, new String[] { ConfigApp.defaultNameFileConfigExtension } );
+								, new String[] { ConfigApp.defaultNameFileConfigExtension }
+								, System.getProperty("user.dir") );
 
 		if ((f != null) && ( f[0].exists() ) )
 		{
@@ -390,10 +392,11 @@ public class guiManager
 		}
 	}
 
-	protected String[] selectUserFile(String defaultName, boolean mustExist, boolean multiSelection, int selectionModel, String descrFilter, String[] filterExtensions )
+	protected String[] selectUserFile(String defaultName, boolean mustExist, boolean multiSelection, int selectionModel, String descrFilter, String[] filterExtensions, String defaultFolder )
 	{
-		File[] f = selectFile(defaultName, Language.getLocalCaption( Language.DIALOG_SELECT_UESR_FILE ), JFileChooser.OPEN_DIALOG
-								, multiSelection, selectionModel, descrFilter, filterExtensions );
+		File[] f = selectFile( defaultName, Language.getLocalCaption( Language.DIALOG_SELECT_UESR_FILE )
+								, JFileChooser.OPEN_DIALOG
+								, multiSelection, selectionModel, descrFilter, filterExtensions, defaultFolder );
 
 		int N = 1;
 		
@@ -433,7 +436,7 @@ public class guiManager
 		return path;
 	}
 	
-	private File[] selectFile(String defaulName, String titleDialog, int typeDialog, boolean multiSelection, int selectionModel, String descrFilter, String[] filterExtensions )
+	private File[] selectFile(String defaulName, String titleDialog, int typeDialog, boolean multiSelection, int selectionModel, String descrFilter, String[] filterExtensions, String defaultFolder )
 	{		
 		FileNameExtensionFilter filter = null;
 				
@@ -447,7 +450,8 @@ public class guiManager
 
 		JFileChooser jfc = null;
 
-		jfc = new JFileChooser(System.getProperty("user.dir"));
+		//jfc = new JFileChooser(System.getProperty("user.dir"));
+		jfc = new JFileChooser( defaultFolder );
 
 		jfc.setMultiSelectionEnabled(multiSelection);
 

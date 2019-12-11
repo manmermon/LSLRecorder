@@ -633,7 +633,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 					{}
 					
 					String path[] = guiManager.getInstance().selectUserFile( (String)ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_NAME )
-																			, false, false, JFileChooser.FILES_ONLY, format, filters );
+																			, false, false, JFileChooser.FILES_ONLY, format
+																			, filters, System.getProperty("user.dir") );
 					if( path != null )
 					{
 						getJTextFileName().setText( path[ 0 ] );

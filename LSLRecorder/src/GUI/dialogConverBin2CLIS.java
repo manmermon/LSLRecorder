@@ -170,6 +170,7 @@ public class dialogConverBin2CLIS extends JDialog
 	private boolean clearBinaryFiles = true;
 	private StreamHeader currentBinFile = null;
 	
+	private String currentFolderPath = System.getProperty( "user.dir" );
 	
 	
 	/**
@@ -412,13 +413,15 @@ public class dialogConverBin2CLIS extends JDialog
 				{
 					JTextField t = getTxtSyncFilePath();
 					
-					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null );
+					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
 					if( FILES != null )
 					{
 						for( String file : FILES )
 						{
 							t.setText( file );
 						}
+						
+						currentFolderPath = (new File( FILES[ 0 ] )).getAbsolutePath();
 					}
 				}
 			} );
@@ -571,7 +574,7 @@ public class dialogConverBin2CLIS extends JDialog
 				{
 					clearBinaryFiles( getTableFileData( ), binaryDataFiles );
 					
-					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null );
+					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
 					if( FILES != null )
 					{
 						for( String file : FILES )
@@ -584,6 +587,8 @@ public class dialogConverBin2CLIS extends JDialog
 								binaryDataFiles.add( bh );
 							}
 						}
+						
+						currentFolderPath = (new File( FILES[ 0 ] ) ).getAbsolutePath();
 					}
 				}
 			} );
@@ -1605,7 +1610,7 @@ public class dialogConverBin2CLIS extends JDialog
 		if ( txtOutFileFolder == null )
 		{
 			txtOutFileFolder = new JTextField( );
-			txtOutFileFolder.setText( "./" );
+			txtOutFileFolder.setText( this.currentFolderPath );
 			txtOutFileFolder.setColumns( 10 );
 			
 			txtOutFileFolder.getDocument( ).addDocumentListener( new DocumentListener( ) 
@@ -1677,11 +1682,13 @@ public class dialogConverBin2CLIS extends JDialog
 				@Override
 				public void actionPerformed( ActionEvent e ) 
 				{
-					String[] folder = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.DIRECTORIES_ONLY, null, null );
+					String[] folder = guiManager.getInstance( ).selectUserFile( "", true, false, JFileChooser.DIRECTORIES_ONLY, null, null, currentFolderPath );
 					
 					if( folder != null && folder.length > 0 )
 					{
 						getTxtOutFileFolder( ).setText( folder[ 0 ] );
+						
+						currentFolderPath = folder[ 0 ];
 					}
 				}
 			} );
