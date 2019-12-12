@@ -1,2 +1,4 @@
 /bin/
 LSLRecorder/src/testing/
+*.cfg
+LSLRecorder_test.jar

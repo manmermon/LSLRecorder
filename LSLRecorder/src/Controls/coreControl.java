@@ -667,9 +667,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{					
 					isRecording = false;
 					isWaitingForStartCommand = false;
+					isActiveSpecialInputMsg = false;
 					
 					managerGUI.setAppState( AppState.STOP );
 					//managerGUI.enablePlayButton( false );
+					
+					notifiedEventHandler.interruptProcess();
+					notifiedEventHandler.clearEvent();
+					
+					ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
+					
+					managerGUI.restoreGUI();
 					
 					if( writingTestTimer != null )
 					{
@@ -739,16 +747,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						catch (Exception localException1)
 						{}
 					}
-					*/
+					*/					
 					
-					isActiveSpecialInputMsg = false;
-		
-					notifiedEventHandler.interruptProcess();
-					notifiedEventHandler.clearEvent();
-					
-					ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
-					
-					managerGUI.restoreGUI();
 					//managerGUI.enablePlayButton( false );
 					
 					SpecialMarker = null;
