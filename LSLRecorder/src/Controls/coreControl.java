@@ -666,6 +666,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						|| isWaitingForStartCommand )
 				{					
 					isRecording = false;
+					isWaitingForStartCommand = false;
 					
 					managerGUI.setAppState( AppState.STOP );
 					//managerGUI.enablePlayButton( false );
@@ -740,7 +741,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 					*/
 					
-					isWaitingForStartCommand = false;
 					isActiveSpecialInputMsg = false;
 		
 					notifiedEventHandler.interruptProcess();
@@ -811,7 +811,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void eventSocketMessagesManager( List< EventInfo > EVENTS ) throws Exception
 	{
-		if ( (EVENTS != null) && (!EVENTS.isEmpty()) && this.isRecording)
+		if ( (EVENTS != null) && (!EVENTS.isEmpty()) 
+				&& ( this.isRecording || this.isWaitingForStartCommand ) )
 		{
 			for (EventInfo event : EVENTS)
 			{
