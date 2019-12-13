@@ -29,6 +29,7 @@ import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Binary.TemporalBinData;
@@ -52,7 +53,7 @@ import edu.ucsd.sccn.LSL;
 
 public class OutputBinaryFileSegmentation extends AbstractStoppableThread implements INotificationTask, ITaskMonitor
 {
-	private int BLOCK_SIZE = (int)( 5 * ( Math.pow( 2, 20 ) ) ); 
+	private int BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE; 
 	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 5 MB  
 	
 	private TemporalBinData DATA;
@@ -72,7 +73,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader ) throws Exception //SyncMarkerCollectorWriter markCollector ) throws Exception
 	{
 		//this( DAT, markCollector, (byte)5 );
-		this( DAT, syncReader, (byte)5 );
+		this( DAT, syncReader, (byte) 0 ); // Default buffer length
 	}
 	
 	/**
@@ -93,7 +94,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		this.DATA = DAT;
 				
-		this.BLOCK_SIZE = (int)( 5 * Math.pow( 2, 20 ) );
+		this.BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE;
 		
 		if( bufLen > 0)
 		{						
