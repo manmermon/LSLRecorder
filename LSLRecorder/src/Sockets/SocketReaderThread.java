@@ -82,7 +82,7 @@ public class SocketReaderThread extends SocketReadWriteThreadTemplate
 			
 			synchronized( super.events )
 			{				
-				super.events.add( new EventInfo( EventType.SOCKET_INPUT_MSG, inMsg ) );
+				super.events.add( new EventInfo( this.getID(), EventType.SOCKET_INPUT_MSG, inMsg ) );
 			}
 		}	
 		else
@@ -132,7 +132,7 @@ public class SocketReaderThread extends SocketReadWriteThreadTemplate
 				
 		synchronized ( super.events ) 
 		{			
-			super.events.add( new EventInfo( EventType.SOCKET_CHANNEL_CLOSE, this.getID() ) );
+			super.events.add( new EventInfo( this.getID(), EventType.SOCKET_CHANNEL_CLOSE, this.getID() ) );
 		}
 		
 		synchronized ( this.notifier )

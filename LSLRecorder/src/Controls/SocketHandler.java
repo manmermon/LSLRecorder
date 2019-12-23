@@ -25,13 +25,16 @@ package Controls;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Config.ConfigApp;
 import Config.Parameter;
 import Config.ParameterList;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import Auxiliar.WarningMessage;
 import Sockets.Info.SocketSetting;
+import Sockets.Info.StreamInputMessage;
 import Sockets.Info.StreamSocketProblem;
+import Sockets.SocketMessageDelayCalculator;
 import Sockets.SocketReaderThread;
 import Sockets.TCP_UDPServer;
 import Sockets.Info.SocketParameters;
@@ -45,6 +48,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 {
@@ -53,13 +57,14 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 	private static SocketHandler ctrStreaming = null;
 
 	public static final String SERVER_SOCKET_STREAMING = "server socket";
+	public static final String INPUT_MSG = "input messages";
 	
 	private TCP_UDPServer server = null;
 
 	private List< EventInfo > events = null;
 
 	private Map< String, SocketReaderThread > tcpReader = null;
-	private List< EventInfo > taskEvents = null;
+	private ConcurrentLinkedQueue< EventInfo > taskEvents = null;
 
 	private boolean deletingSubordinates = false;
 	
@@ -88,7 +93,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		super.setName( this.getClass().getSimpleName() );
 		
 		this.events = new ArrayList< EventInfo >();
-		this.taskEvents = new ArrayList<EventInfo >();
+		this.taskEvents = new ConcurrentLinkedQueue< EventInfo >();
 
 		this.tcpReader = new HashMap< String, SocketReaderThread >();
 	}
@@ -99,7 +104,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 	 */
 	@Override
 	protected void startWork( Object info ) throws Exception
-	{		
+	{	
 	}
 	
 	/*
@@ -129,10 +134,10 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		{			
 			Parameter parameter = parameters.getParameter( parID );
 			
-			List<SocketParameters> pars = (List< SocketParameters >)parameter.getValue();
-
 			if (parID.equals( SERVER_SOCKET_STREAMING ))
 			{
+				List<SocketParameters> pars = (List< SocketParameters >)parameter.getValue();
+				
 				if ( !pars.isEmpty() )
 				{
 					SocketParameters par = (SocketParameters)pars.get(0);
@@ -146,6 +151,19 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 					socketList.add( this.server );
 				}
 			}
+			/*
+			else if( parID.equals( INPUT_MSG ) )
+			{
+				if( this.delayCalculator == null )
+				{
+					this.delayCalculator = new SocketMessageDelayCalculator( ConfigApp.DEFAULT_NUM_SOCKET_PING );
+					this.delayCalculator.taskMonitor( this );
+				}
+				
+				this.delayCalculator.clearInputMessages();
+				this.delayCalculator.AddInputMessages( (Map< String, Integer >)parameter.getValue() );				
+			}
+			*/
 		}
 
 		this.checkEvents();
@@ -158,7 +176,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 	 * @see Auxiliar.Tasks.ITaskMonitor#taskDone(Auxiliar.Tasks.INotificationTask)
 	 */
 	@Override
-	public void taskDone( INotificationTask t )
+	public synchronized void taskDone( INotificationTask t )
 	{
 		/*
 		try
@@ -171,25 +189,27 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		}
 		*/
 		
-		List< EventInfo > evs = t.getResult();
-		
-		synchronized( this.taskEvents )
+		if( t != null )
 		{
-			this.taskEvents.addAll( evs );
-		}
-		
-		t.clearResult();
+			List< EventInfo > evs = t.getResult( true );
 			
-		/*
-		if (this.taskSem.availablePermits() < 1)
-		{
-			this.taskSem.release();
-		}
-		*/
+			if( evs != null )
+			{
+				this.taskEvents.addAll( evs );
+			}
+			
 				
-		synchronized( this )
-		{
-			super.notify();
+			/*
+			if (this.taskSem.availablePermits() < 1)
+			{
+				this.taskSem.release();
+			}
+			*/
+					
+			synchronized( this )
+			{
+				super.notify();
+			}
 		}
 	}
 
@@ -217,85 +237,100 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		catch (InterruptedException localInterruptedException) 
 		{}
 
-		synchronized( this.taskEvents ) 
+		boolean continued = true;
+		
+		do 
 		{	
-			Iterator< EventInfo > itEvents = this.taskEvents.iterator();
-			
-			while( itEvents.hasNext() )
-			{
-				EventInfo e = itEvents.next();
-				
-				if( e != null )
-				{
-					if ( e.getEventType().equals( EventType.SOCKET_CONNECTION_DONE ) )
-					{						
-						Socket client = (Socket)e.getEventInformation();
+			EventInfo e = this.taskEvents.poll();
 
-						SocketReaderThread c = new SocketReaderThread( client, this );
-						
-						c.setName( "SERVER-" + c.getName() );
-						
-						this.tcpReader.put( c.getID(), c );
+			continued = ( e != null );
 
-						c.startThread();						
-					}
-					else if ( e.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
-					{	
-						this.events.add( e );							
-					}
-					else if (e.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
-					{
-						this.events.add( e );
-					}
-					else if( e.getEventType().equals( EventType.THREAD_STOP ) )
-					{						
-						String id = (String)e.getEventInformation();
-						SocketReaderThread reader = this.tcpReader.remove( id );
-												
-						if( reader != null && !this.deletingSubordinates )
-						{										
-							InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
-																			this.events.add(new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM
-																					, new StreamSocketProblem( address
-																							, new Exception("The output socket " 
-																									+ id 
-																									+ " is closed." ) ) ) ) ;
-						}
-					}
-					else if( e.getEventType().equals( EventType.SOCKET_CHANNEL_CLOSE ) )
-					{
-						String id = (String)e.getEventInformation();
-						SocketReaderThread reader = this.tcpReader.remove( id );
-						
-						if( reader != null && !this.deletingSubordinates )
-						{
-							InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
-							
-							this.events.add(new EventInfo( EventType.SOCKET_CHANNEL_CLOSE
-															, new StreamSocketProblem( address
-																	, new SocketException("The output socket " 
-																			+ id 
-																			+ " is closed." ) ) ) ) ;
-						}
-						//System.out.println("SocketHandler2.runInLoop() SOCKET_CHANNEL_CLOSE " + this.tcpReader.remove( id ) );
-					}
-					else if ( e.getEventType().equals( EventType.SERVER_THREAD_STOP ))
-					{
-						//System.out.println("SocketHandler2.runInLoop() SERVER_THREAD_STOP");
-						this.server = null;
+			if( continued )
+			{			
 
-						for( SocketReaderThread reader : this.tcpReader.values() )
-						{
-							reader.stopThread( IStoppableThread.FORCE_STOP );
-						}
+				if ( e.getEventType().equals( EventType.SOCKET_CONNECTION_DONE ) )
+				{						
+					Socket client = (Socket)e.getEventInformation();
+
+					SocketReaderThread c = new SocketReaderThread( client, this );
+
+					c.setName( "SERVER-" + c.getName() );
+
+					this.tcpReader.put( c.getID(), c );
+
+					c.startThread();						
+				}
+				else if ( e.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
+				{	
+					this.events.add( e );
+				}
+				/*
+					if( this.delayCalculator != null )
+					{
+						this.delayCalculator.CalculateMsgDelay( (StreamInputMessage) e.getEventInformation() );
 					}
 				}
-				
-				itEvents.remove();
+				else if( e.getEventType().equals( EventType.SOCKET_MSG_DELAY ) )
+				{
+					this.events.add( e );
+				}
+				else if( e.getEventType().equals( EventType.SOCKET_PING_END ) )
+				{
+					this.delayCalculator = null;
+				}
+				*/
+				else if (e.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
+				{
+					this.events.add( e );
+				}
+				else if( e.getEventType().equals( EventType.THREAD_STOP ) )
+				{						
+					String id = (String)e.getEventInformation();
+					SocketReaderThread reader = this.tcpReader.remove( id );
+
+					if( reader != null && !this.deletingSubordinates )
+					{										
+						InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
+						this.events.add(new EventInfo( event.getIdSource(),  EventType.SOCKET_CONNECTION_PROBLEM
+														, new StreamSocketProblem( address
+																, new Exception("The output socket " 
+																		+ id 
+																		+ " is closed." ) ) ) ) ;
+					}
+				}
+				else if( e.getEventType().equals( EventType.SOCKET_CHANNEL_CLOSE ) )
+				{
+					String id = (String)e.getEventInformation();
+					SocketReaderThread reader = this.tcpReader.remove( id );
+
+					if( reader != null && !this.deletingSubordinates )
+					{
+						InetSocketAddress address = new InetSocketAddress( reader.getLocalAddress(), reader.getLocatPort() );
+
+						this.events.add(new EventInfo( event.getIdSource(),  EventType.SOCKET_CHANNEL_CLOSE
+														, new StreamSocketProblem( address
+																					, new SocketException("The output socket " 
+																							+ id 
+																							+ " is closed." ) ) ) ) ;
+					}
+					//System.out.println("SocketHandler2.runInLoop() SOCKET_CHANNEL_CLOSE " + this.tcpReader.remove( id ) );
+				}
+				else if ( e.getEventType().equals( EventType.SERVER_THREAD_STOP ))
+				{
+					//System.out.println("SocketHandler2.runInLoop() SERVER_THREAD_STOP");
+					this.server = null;
+
+					for( SocketReaderThread reader : this.tcpReader.values() )
+					{
+						reader.stopThread( IStoppableThread.FORCE_STOP );
+					}
+				}
+
 			}
 
 			this.checkEvents();
 		}
+		while( continued );
 
 		/*
 		if (this.taskSem.availablePermits() < 1)
@@ -319,7 +354,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 			tcpClient.stopThread( IStoppableThread.FORCE_STOP );
 		}
 		
-		super.deleteSubordinates( friendliness );
+		super.deleteSubordinates( friendliness );		
 	}
 	
 	/*
@@ -359,13 +394,13 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 			{
 				synchronized( super.event )
 				{
-					super.event = new EventInfo(  EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+					super.event = new EventInfo(  super.getName(), EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 					this.events.clear();
 				}
 			}
 			else
 			{
-				super.event = new EventInfo( EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
+				super.event = new EventInfo( super.getName(), EventType.SOCKET_EVENTS, new ArrayList< EventInfo >( this.events ) );
 				this.events.clear();
 			}
 
@@ -373,34 +408,13 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		}
 	}
 
-	/**
-	 * Remove client socket (input streaming).
-	 * 
-	 * @param socketID 	-> Socket identifier  
-	 */
 	/*
-	public void removeClientStreamSocket( InetSocketAddress socketID )
-	{		
-		String id = null;
-		for( SocketReaderThread reader : this.tcpReader.values() )
-		{
-			if( reader.getLocalAddress().equals( socketID.getAddress() ) 
-					&& reader.getLocatPort() == socketID.getPort() )
-			{				
-				id = reader.getID();
-				reader.stopThread( IStoppableThread.FORCE_STOP );
-				
-				break;
-			}
-		}
-		
-		if( id != null )
-		{
-			this.tcpReader.remove( id );
-		}
+	public boolean isDelayCalculating()
+	{
+		return ( this.delayCalculator != null );
 	}
 	*/
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see Controls.IHandlerMinion#checkParameters()

@@ -44,9 +44,10 @@ public interface INotificationTask
 	/**
 	 * To get the task result. 
 	 * 
+	 * @param If true, result list is emptying
 	 * @return task result.
 	 */
-	public List< EventInfo > getResult();
+	public List< EventInfo > getResult( boolean clear );
 	
 	/**
 	 * Erase task result.

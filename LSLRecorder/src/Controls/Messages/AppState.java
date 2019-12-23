@@ -26,7 +26,7 @@ public class AppState
 	public static final String SAVING = "Saving";
 	public static final String RUN = "Run";
 	public static final String STOP = "Stop";
-	public static final String WAIT = "Wait";
-	public static final String PREPARING = "Preparing";
+	public static final String WAIT = "Wait";											
+	public static final String PREPARING = "Initiating";
 	public static final String NONE = "";
 }

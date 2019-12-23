@@ -28,8 +28,9 @@ import Auxiliar.Extra.Tuple;
 import Config.Language.Language;
 import Controls.Messages.RegisterSyncMessages;
 import DataStream.OutputDataFile.Format.DataFileFormat;
-import Excepciones.DefaultValueException;
+import Exceptions.DefaultValueException;
 import GUI.Miscellany.IPAddressValidator;
+import Sockets.SocketMessageDelayCalculator;
 import Sockets.Info.SocketSetting;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -65,7 +66,7 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2019, 12 - 1, 13 );
+	public static final Calendar buildDate = new GregorianCalendar( 2019, 12 - 1, 23 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -87,8 +88,9 @@ public class ConfigApp
 	
 	public static final String HEADER_SEPARATOR = ";" ;
 
-	public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 5 * ( Math.pow( 2, 20 ) ) );
+	public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 10 * ( Math.pow( 2, 20 ) ) );
 	
+	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
 
 	/**********************
 	 * 

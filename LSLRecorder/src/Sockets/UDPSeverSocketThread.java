@@ -26,10 +26,13 @@ import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import Sockets.Info.StreamInputMessage;
@@ -40,11 +43,11 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 {
 	private DatagramSocket server;
 			
-	private NotifierThread notifier;
+	private BridgeNotifierThread notifier;
 	
 	private ITaskMonitor monitor;
 	
-	private List< EventInfo > events;
+	private ConcurrentLinkedQueue< EventInfo > events;
 	
 	private int bufferSize = 65507;
 	private DatagramPacket receivedPacket;
@@ -103,7 +106,7 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 	{
 		super.preStart();
 		
-		this.events = new ArrayList< EventInfo >();		
+		this.events = new ConcurrentLinkedQueue< EventInfo >();		
 		
 		this.receivedPacket = new DatagramPacket( new byte[ this.bufferSize ], this.bufferSize );
 		
@@ -113,7 +116,7 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 		}
 		else
 		{
-			this.notifier = new NotifierThread( this.monitor, this );
+			this.notifier = new BridgeNotifierThread( this.monitor, this );
 			this.notifier.startThread();
 		}		
 	}
@@ -125,17 +128,15 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 	
 		String msg = new String( this.receivedPacket.getData(), 0, this.receivedPacket.getLength() ).trim();
 		
-		synchronized( this.events )
-		{
-			StreamInputMessage inMsg  = new StreamInputMessage( msg , new InetSocketAddress( this.receivedPacket.getAddress(), this.receivedPacket.getPort() )
+		
+		StreamInputMessage inMsg  = new StreamInputMessage( msg , new InetSocketAddress( this.receivedPacket.getAddress(), this.receivedPacket.getPort() )
 																, this.serverInetSokAddress );
 			
-			this.events.add( new EventInfo( EventType.SOCKET_INPUT_MSG, inMsg ) );
+		this.events.add( new EventInfo( this.getID(), EventType.SOCKET_INPUT_MSG, inMsg ) );
 			
-			synchronized( this.notifier )
-			{
-				this.notifier.notify();
-			}
+		synchronized( this.notifier )
+		{
+			this.notifier.notify();
 		}		
 	}
 	
@@ -161,10 +162,7 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 		
 		this.server.close();		
 		
-		synchronized ( this.events ) 
-		{
-			this.events.add( new EventInfo( EventType.SOCKET_SERVER_STOP, this.getID() ) );
-		}
+		this.events.add( new EventInfo( this.getID(), EventType.SOCKET_SERVER_STOP, this.getID() ) );
 		
 		synchronized( this.notifier )
 		{	
@@ -181,15 +179,24 @@ public class UDPSeverSocketThread extends AbstractStoppableThread implements INo
 	}
 
 	@Override
-	public List< EventInfo > getResult() 
+	public List< EventInfo > getResult( boolean clear ) 
 	{
-		return this.events;
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		evs.addAll( this.events );
+			
+		if( clear )
+		{
+			this.events.clear();
+		}
+		
+		return evs;
 	}
 
 	@Override
 	public void clearResult() 
 	{		
-		this.events.clear();
+		this.events.clear();		
 	}
 
 	@Override

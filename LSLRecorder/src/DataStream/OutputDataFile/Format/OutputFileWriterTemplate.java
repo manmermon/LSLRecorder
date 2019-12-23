@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.OutputDataFile.IOutputDataFileWriter;
@@ -54,7 +54,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	
 	private List< EventInfo > events = null;
 		
-	private NotifierThread notifier = null;
+	private BridgeNotifierThread notifier = null;
 	
 	private int maxNumProcessors = 1;
 	
@@ -84,7 +84,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		{
 			this.monitor = m;	
 			
-			this.notifier = new NotifierThread( this.monitor, this );
+			this.notifier = new BridgeNotifierThread( this.monitor, this );
 		}
 	}
 	
@@ -100,13 +100,18 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	}
 	
 	@Override
-	public List< EventInfo > getResult()
+	public List< EventInfo > getResult( boolean clear )
 	{
 		List< EventInfo > copy = new ArrayList< EventInfo>( );
 		
 		synchronized ( this.events )
 		{
 			copy.addAll( this.events );
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
 		}
 				
 		return copy;
@@ -244,7 +249,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 					
 					if( notify )
 					{					
-						EventInfo e = new EventInfo( evType, null );
+						EventInfo e = new EventInfo( this.getID(), evType, null );
 						
 						this.events.add( e );
 					}
@@ -288,7 +293,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			{
 				synchronized ( this.events )
 				{
-					EventInfo e = new EventInfo( EventType.THREAD_STOP, null );
+					EventInfo e = new EventInfo( this.getID(), EventType.THREAD_STOP, null );
 					this.events.add( e );
 				}						
 

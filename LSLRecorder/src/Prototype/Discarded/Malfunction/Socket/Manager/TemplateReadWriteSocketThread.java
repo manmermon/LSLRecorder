@@ -31,7 +31,7 @@ import java.util.List;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.IClosedSocketMonitor;
@@ -44,7 +44,7 @@ import StoppableThread.IStoppableThread;
 public abstract class TemplateReadWriteSocketThread  extends AbstractStoppableThread implements INotificationTask, IClosedSocketMonitor
 {
 	private ITaskMonitor monitor = null;
-	protected NotifierThread monitorThread = null;
+	protected BridgeNotifierThread monitorThread = null;
 	
 	protected List< EventInfo > events = null;
 	
@@ -186,7 +186,7 @@ public abstract class TemplateReadWriteSocketThread  extends AbstractStoppableTh
 			this.checkTCPConnectionState.startThread();
 		}
 		
-		this.monitorThread = new NotifierThread( this.monitor, this );
+		this.monitorThread = new BridgeNotifierThread( this.monitor, this );
 		this.monitorThread.setName( this.monitorThread.getClass().getCanonicalName() + suffix );
 		this.monitorThread.startThread();
 	}

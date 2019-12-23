@@ -24,6 +24,7 @@ package Controls;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Auxiliar.Tasks.NotificationTask;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.Tuple;
 import Config.ConfigApp;
@@ -36,8 +37,8 @@ import Controls.Messages.RegisterSyncMessages;
 import Controls.Messages.SocketInformations;
 import DataStream.Binary.Plotter.outputDataPlot;
 import DataStream.Sync.SyncMarker;
+import Exceptions.SettingException;
 import Controls.Messages.EventType;
-import Excepciones.SettingException;
 import GUI.appUI;
 import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
@@ -97,8 +98,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	private Timer writingTestTimer;
 	
 	private SyncMarker SpecialMarker = null;
-	
-	private List< SocketMessageDelayCalculator > sockMsgDelayCalList;
+
+	private SocketMessageDelayCalculator socketMsgDelayCal = null;
 	
 	/**
 	 * Create main control unit.
@@ -109,8 +110,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{	
 		this.setName( this.getClass().getSimpleName() );
 		
-		this.sockMsgDelayCalList = new ArrayList< SocketMessageDelayCalculator >();
-
 		this.createControlUnits();
 	}
 
@@ -144,7 +143,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		this.ctrSocket = SocketHandler.getInstance();
 		this.ctrSocket.setControlSupervisor( this );
 		this.ctrSocket.startThread();
-
+		
 		// Output file control
 		try
 		{
@@ -154,7 +153,12 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		}
 		catch (Error localError) 
 		{
-		}    
+		}
+		
+		// Socket delay calculator
+		this.socketMsgDelayCal = new SocketMessageDelayCalculator( ConfigApp.DEFAULT_NUM_SOCKET_PING );
+		this.socketMsgDelayCal.taskMonitor( this.ctrlOutputFile );
+		this.socketMsgDelayCal.startThread();
 
 		// Notification control thread
 		this.notifiedEventHandler = new NotifiedEventHandler();
@@ -308,7 +312,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 
 			//Create In-Out sockets
-			this.streamPars = this.getStreamingInformations();
+			this.streamPars = this.getSocketStreamingInformations();
 			ParameterList socketParameters = new ParameterList();
 			
 			/*
@@ -335,13 +339,24 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				Parameter par = new Parameter( SocketHandler.SERVER_SOCKET_STREAMING, server );
 				socketParameters.addParameter( par );
+				
+				/*
+				par = new Parameter( SocketHandler.INPUT_MSG, this.streamPars.getInputCommands() );
+				socketParameters.addParameter( par );
+				*/
 			}
 			
 			MinionParameters minionPars = new MinionParameters();
 			minionPars.setMinionParameters( this.ctrSocket.ID, socketParameters );
-			
-			this.ctrSocket.addSubordinates( minionPars );
+									
+			this.ctrSocket.addSubordinates( minionPars );			
 
+			this.socketMsgDelayCal.clearInputMessages();
+			if( !this.streamPars.getInputCommands().isEmpty() )
+			{				
+				this.socketMsgDelayCal.AddInputMessages( this.streamPars.getInputCommands() );
+			}
+			
 			////Output data file
 			
 			boolean isSyncLSL = false;
@@ -605,14 +620,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void waitStartCommand() throws Exception
 	{
-		if (this.isWaitingForStartCommand )
+		if ( this.isWaitingForStartCommand )
 		{
 			this.managerGUI.setAppState( AppState.WAIT );
 			
-			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );			
+			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );
+			this.ctrSocket.toWorkSubordinates( null );
 		}
 		else
 		{			
+			this.ctrSocket.toWorkSubordinates( null );
 			this.startRecord();
 		}
 	}
@@ -654,88 +671,81 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 * @throws Exception
 	 */
 	public synchronized void stopWorking( ) throws Exception
-	{
-		(new Thread() 
-		{
-			@Override
-			public void run() 
-			{	
-				super.setName( "coreControl-StopWorking");
-		
-				if ( isRecording 
-						|| isWaitingForStartCommand )
-				{					
-					isRecording = false;
-					isWaitingForStartCommand = false;
-					isActiveSpecialInputMsg = false;
-					
-					managerGUI.setAppState( AppState.STOP );
-					//managerGUI.enablePlayButton( false );
-					
-					notifiedEventHandler.interruptProcess();
-					notifiedEventHandler.clearEvent();
-					
-					ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
-					
-					managerGUI.restoreGUI();
-					
-					if( writingTestTimer != null )
+	{	
+		if ( this.isRecording 
+				|| this.isWaitingForStartCommand )
+		{					
+			this.isRecording = false;
+			this.isWaitingForStartCommand = false;
+			this.isActiveSpecialInputMsg = false;
+
+			this.managerGUI.setAppState( AppState.STOP );
+			//managerGUI.enablePlayButton( false );
+
+			this.notifiedEventHandler.interruptProcess();
+			this.notifiedEventHandler.clearEvent();
+
+			this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
+
+			this.managerGUI.restoreGUI();
+
+			if( this.writingTestTimer != null )
+			{
+				this.writingTestTimer.stop();
+				this.writingTestTimer = null;
+			}
+
+			if ( this.ctrlOutputFile != null)
+			{
+				while( this.socketMsgDelayCal.isCalculating() )
+				{		
+					try 
 					{
-						writingTestTimer.stop();
-						writingTestTimer = null;
-					}
-					
-					if (ctrlOutputFile != null)
+						super.wait( 100L );
+					} 
+					catch (Exception e) 
 					{
-						while( !sockMsgDelayCalList.isEmpty() )
-						{
-							try 
-							{
-								super.wait( 100L );
-							} 
-							catch (Exception e) 
-							{
-							}
-						}
-						
-						try
-						{	
-							String key = RegisterSyncMessages.INPUT_STOP;
-							
-							ctrlOutputFile.setBlockingStartWorking( true );
-							
-							if( SpecialMarker == null )
-							{
-								SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
-																		, System.nanoTime() / 1e9D );
-							}
-							
-							// TODO
-							ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, SpecialMarker ) );
-							
-							Thread.sleep( 10L );
-							
-							ctrlOutputFile.setBlockingStartWorking( false );
-							
-							ctrlOutputFile.setEnableSaveSyncMark( false );
-												
-							ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
-							
-							if( ctrlOutputFile.isSavingData() )
-							{
-								managerGUI.setAppState( AppState.SAVING );
-							}
-						}
-						catch (Exception localException) 
-						{
-							localException.printStackTrace();
-							managerGUI.setAppState( AppState.NONE );
-						}
-						catch (Error localError) 
-						{}
 					}
-							
-					/*
+				}
+
+				try
+				{	
+					String key = RegisterSyncMessages.INPUT_STOP;
+
+					this.ctrlOutputFile.setBlockingStartWorking( true );
+
+					if( this.SpecialMarker == null )
+					{
+						this.SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
+																, System.nanoTime() / 1e9D );
+					}
+
+					// TODO
+					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( this.ctrlOutputFile.PARAMETER_SET_MARK, this.SpecialMarker ) );
+
+					Thread.sleep( 10L );
+
+					this.ctrlOutputFile.setBlockingStartWorking( false );
+
+					this.ctrlOutputFile.setEnableSaveSyncMark( false );
+
+					this.ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
+
+					if( this.ctrlOutputFile.isSavingData() )
+					{
+						this.managerGUI.setAppState( AppState.SAVING );
+					}
+				}
+				catch (Exception localException) 
+				{
+					localException.printStackTrace();
+					this.managerGUI.setAppState( AppState.NONE );
+				}
+				catch (Error localError) 
+				{}
+			}
+
+			/*
 					if ( !this.isWaitingForStartCommand )
 					{
 						try
@@ -747,22 +757,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						catch (Exception localException1)
 						{}
 					}
-					*/					
-					
-					//managerGUI.enablePlayButton( false );
-					
-					SpecialMarker = null;
-					
-					System.gc();
-								
-					if( closeWhenDoingNothing 
-							&& !isDoingSomething() )
-					{
-						System.exit( 0 );
-					}
-				}
+			 */					
+
+			//managerGUI.enablePlayButton( false );
+
+			this.SpecialMarker = null;
+
+			System.gc();
+
+			if( this.closeWhenDoingNothing 
+					&& !isDoingSomething() )
+			{
+				System.exit( 0 );
 			}
-		}).start();
+		}
 	}
 	
 	/*
@@ -811,70 +819,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void eventSocketMessagesManager( List< EventInfo > EVENTS ) throws Exception
 	{
-		if ( (EVENTS != null) && (!EVENTS.isEmpty()) 
-				&& ( this.isRecording || this.isWaitingForStartCommand ) )
+		if ( ( EVENTS != null ) && ( !EVENTS.isEmpty() ) )
 		{
 			for (EventInfo event : EVENTS)
 			{
 				if (event.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
 				{
-					StreamInputMessage msg = (StreamInputMessage)event.getEventInformation();
-					
-					Integer msgMark = this.streamPars.getInputCommands().get( msg.getMessage() );
-
-					if( msgMark != null )
-					{
-						
-						SocketMessageDelayCalculator socketMsgDelay = new SocketMessageDelayCalculator( msg, msgMark, SocketMessageDelayCalculator.DEFAULT_NUM_PINGS );
-						socketMsgDelay.taskMonitor( this.ctrlOutputFile );
-						socketMsgDelay.setControlSupervisor( this );					
-						
-						synchronized ( this.sockMsgDelayCalList )
-						{
-							this.sockMsgDelayCalList.add( socketMsgDelay );
-						}						
-						
-						socketMsgDelay.startThread();
-					}
-										
-					/*					
-					if ( msgMark != null )
-					{
-						this.managerGUI.addInputMessageLog( msg.getMessage() + "\n");
-						
-						if ( msg.getMessage().equals( RegisterSyncMessages.INPUT_STOP ) )
-						{ 
-							if( this.isActiveSpecialInputMsg )
-							{
-								stopWorking( );
-							}
-						}
-						else if ( msg.getMessage().equals(RegisterSyncMessages.INPUT_START ) )
-						{
-							if( this.isActiveSpecialInputMsg 
-									&& !this.isRecording 
-									&&  this.isWaitingForStartCommand )
-								{
-									this.isWaitingForStartCommand = false;
-
-									try
-									{
-										this.startRecord();
-									}
-									catch (Exception e)
-									{
-										e.printStackTrace();
-									}
-								}
-						}
-						else 
-						{	
-							this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, Integer>( this.ctrlOutputFile.PARAMETER_SET_MARK,
-																								 msgMark ) );
-
-						}
-					}
-					*/
+					this.socketMsgDelayCal.CalculateMsgDelay( ( StreamInputMessage )event.getEventInformation() );
 				}
 				else if (event.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
 				{
@@ -1070,7 +1021,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 * 
 	 * @return
 	 */
-	private SocketInformations getStreamingInformations()
+	private SocketInformations getSocketStreamingInformations()
 	{
 		SocketInformations infos = new SocketInformations();
 
@@ -1214,8 +1165,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					catch( InterruptedException e)
 					{						
 					}
-				}
-				
+				}				
 			}
 
 			try
@@ -1244,13 +1194,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 
-		public void registreNotification(EventInfo event)
+		public void registreNotification( EventInfo event )
 		{
 			try
 			{
 				this.controlNotifySemphore.acquire();
 			}
-			catch (InterruptedException localInterruptedException) 
+			catch ( InterruptedException localInterruptedException ) 
 			{}      
 
 
@@ -1261,59 +1211,63 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			{
 				this.eventRegisterSemaphore.acquire();
 			}
-			catch (Exception localException) 
+			catch ( Exception localException ) 
 			{}
 			
-			synchronized (this.eventRegister)
+			synchronized ( this.eventRegister )
 			{
 				//if ( this.eventRegister.size() > 0 )
-				{
-					if (event_type.equals( EventType.SOCKET_EVENTS ) )
+				//{
+					if ( event_type.equals( EventType.SOCKET_EVENTS ) )
 					{
-						List<EventInfo> storedEvents = (List<EventInfo>)this.eventRegister.get(event_type);
-						List<EventInfo> newEvents = (List<EventInfo>)event_Info;
-						Set<String> setEvents = new HashSet<String>();
-
-						if (storedEvents != null)
+						List< EventInfo > storedEvents = ( List< EventInfo > )this.eventRegister.get( event_type );
+						List< EventInfo > newEvents = ( List< EventInfo > )event_Info;
+						Set< String > setRegisteredEvents = new HashSet< String >(); 
+						
+						if ( storedEvents != null )
 						{
-							Iterator<EventInfo> itEvent = storedEvents.iterator();
+							Iterator< EventInfo > itEvent = storedEvents.iterator();
 
-							while (itEvent.hasNext())
+							while ( itEvent.hasNext() )
 							{
-								EventInfo e = (EventInfo)itEvent.next();
+								EventInfo e = ( EventInfo )itEvent.next();
 
-								if (setEvents.contains(e.getEventType()))
+								if ( !e.getEventType().equals( EventType.SOCKET_MSG_DELAY )
+										&& setRegisteredEvents.contains( e.getEventType() ) )
 								{
 									itEvent.remove();
 								}
 								else
 								{
-									setEvents.add(e.getEventType());
+									setRegisteredEvents.add( e.getEventType() );
 								}
 							}
 						}
-
-						Iterator<EventInfo> itEvent = newEvents.iterator();
-						while (itEvent.hasNext())
+						
+						Iterator<EventInfo> itNewEvent = newEvents.iterator();
+						while ( itNewEvent.hasNext() )
 						{
-							EventInfo e = itEvent.next();
-
-							if (setEvents.contains(e.getEventType()))
+							EventInfo ev = itNewEvent.next();
+							
+							if( !ev.getEventType().equals( EventType.SOCKET_MSG_DELAY ) )
 							{
-								itEvent.remove();
-							}
-							else
-							{
-								setEvents.add(e.getEventType());
-							}
+								if ( setRegisteredEvents.contains( ev.getEventType() ) )
+								{
+									itNewEvent.remove();
+								}
+							}		
 						}
-
+						
 						if (storedEvents != null)
 						{
-							newEvents.addAll(storedEvents);
+							storedEvents.addAll( newEvents );
+						}
+						else
+						{
+							storedEvents = newEvents;
 						}
 
-						event_Info = newEvents;
+						event_Info = storedEvents;
 					}
 
 					if( event_type.equals( EventType.TEST_WRITE_TIME ) )
@@ -1334,7 +1288,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						this.eventRegister.put(event_type, event_Info);
 					}
 				}
-			}
+			//}
 
 			if (this.eventRegisterSemaphore.availablePermits() < 1)
 			{
@@ -1446,29 +1400,33 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 
+		@Override
 		protected void preStart() throws Exception
 		{
 			super.preStart();
 		}
 
 
+		@Override
 		protected void preStopThread(int friendliness) throws Exception
 		{}
 
+		@Override
 		protected void postStopThread(int friendliness)  throws Exception
 		{
 			this.eventRegister.clear();
 			this.eventRegister = null;
 		}
 
+		@Override
 		protected void runInLoop() throws Exception
 		{
-			if (this.eventRegister.size() > 0)
+			if ( this.eventRegister.size() > 0 )
 			{
 				String event_type = (String)this.eventRegister.keySet().iterator().next();
-				final Object eventObject = this.eventRegister.get(event_type);
+				final Object eventObject = this.eventRegister.get( event_type );
 
-				this.eventRegister.remove(event_type);
+				this.eventRegister.remove( event_type );
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
@@ -1485,6 +1443,18 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{
 					eventSocketMessagesManager( (List< EventInfo> )eventObject );
 				}
+				/*
+				else if( event_type.equals( EventType.SOCKET_MSG_DELAY ) )
+				{					
+					NotificationTask not = new NotificationTask();
+					not.setID( not.getID() + "-" + EventType.SOCKET_MSG_DELAY );
+					not.addEvent( new EventInfo( not.getID(), EventType.INPUT_MARK_READY, eventObject ));
+					not.taskMonitor( ctrlOutputFile );					
+					not.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+					
+					not.startThread();					
+				}
+				*/
 				else if( event_type.equals( EventType.TEST_WRITE_TIME ) )
 				{
 					List< Tuple< String, List< Long > > > testValues = (List)eventObject;
@@ -1494,51 +1464,15 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						cal.start();
 					}
 				}
+				/*
 				else if( event_type.equals( EventType.SOCKET_PING_END ) )
 				{	
-					synchronized ( sockMsgDelayCalList ) 
-					{	
-						sockMsgDelayCalList.remove( (SocketMessageDelayCalculator)eventObject );
-					}
+					sockMsgDelayCalculator = null;
 				}
+				*/
 				else if( event_type.equals( EventType.INPUT_MARK_READY ) )
 				{
-					SyncMarker mark = (SyncMarker) eventObject;
-					
-					if( isRecording )
-					{
-						managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
-					}
-										
-					if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) )
-					{ 
-						if( isActiveSpecialInputMsg )
-						{
-							SpecialMarker = mark;
-							stopWorking( );
-						}
-					}
-					else if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) )
-					{
-						if( isActiveSpecialInputMsg 
-								&& !isRecording 
-								&&  isWaitingForStartCommand )
-							{
-								isWaitingForStartCommand = false;
-
-								managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
-								
-								try
-								{
-									SpecialMarker = mark;
-									startRecord();
-								}
-								catch (Exception e)
-								{
-									e.printStackTrace();
-								}
-							}
-					}
+					this.InputMarker( (SyncMarker) eventObject );
 				}				
 				else if (event_type.equals( EventType.PROBLEM ) )
 				{
@@ -1581,7 +1515,65 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 		}
+		
+		private void InputMarker( SyncMarker mark )
+		{			
+			if( isRecording )
+			{
+				managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
+			}
+								
+			if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) )
+			{ 
+				if( isActiveSpecialInputMsg )
+				{
+					SpecialMarker = mark;
+					Thread t = new Thread()
+					{
+						@Override
+						public synchronized void run() 
+						{
+							try 
+							{
+								stopWorking( );
+							}
+							catch (Exception e) 
+							{
+								
+							}
+						}
+					};
+					
+					t.setName( this.getClass().getSimpleName() + "-stopWorking" );
+					
+					t.start();
+					
+				}
+			}
+			else if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) )
+			{
+				if( isActiveSpecialInputMsg 
+						&& !isRecording 
+						&&  isWaitingForStartCommand )
+					{
+						isWaitingForStartCommand = false;
 
+						managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
+						
+						try
+						{
+							SpecialMarker = mark;
+							startRecord();
+						}
+						catch (Exception e)
+						{
+							e.printStackTrace();
+						}
+					}
+			}
+		}
+
+		@Override
 		protected void targetDone() throws Exception
 		{
 			super.targetDone();
@@ -1589,6 +1581,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.stopThread = this.eventRegister.isEmpty();
 		}
 
+		@Override
 		protected void runExceptionManager(Exception e)
 		{
 			if (!(e instanceof InterruptedException))
@@ -1601,6 +1594,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 
+		@Override
 		protected void cleanUp() throws Exception
 		{
 			super.cleanUp();
@@ -1611,18 +1605,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 
-
+		@Override
 		public void taskMonitor(ITaskMonitor monitor)
 		{
 			this.monitor = monitor;
 		}
 
 
-		public List<EventInfo> getResult()
+		@Override
+		public List<EventInfo> getResult( boolean clear )
 		{
 			return null;
 		}
 
+		@Override
 		public void clearResult() 
 		{
 

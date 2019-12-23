@@ -267,7 +267,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 		
 		if( this.monitor != null )
 		{
-			EventInfo e = new  EventInfo( EventType.THREAD_STOP, this );
+			EventInfo e = new  EventInfo( this.getID(), EventType.THREAD_STOP, this );
 			this.events.add( e );
 			
 			this.monitor.taskDone( this );
@@ -281,15 +281,31 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	}
 
 	@Override
-	public List<EventInfo> getResult() 
+	public List<EventInfo> getResult( boolean clear) 
 	{
-		return this.events;
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		synchronized ( this.events )
+		{
+			evs.addAll( this.events );
+		
+			if( clear )
+			{
+				this.events.clear();
+			}
+			
+		}
+		
+		return evs;
 	}
 
 	@Override
 	public void clearResult() 
 	{
-		this.events.clear();		
+		synchronized ( this.events )
+		{
+			this.events.clear();
+		}				
 	}
 
 	@Override

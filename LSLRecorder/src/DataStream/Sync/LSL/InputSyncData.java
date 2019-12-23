@@ -26,7 +26,7 @@ import java.util.Arrays;
 
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Binary.LSLInStreamDataReceiverTemplate;
@@ -39,7 +39,7 @@ import edu.ucsd.sccn.LSL.StreamInfo;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
 {	
-	private NotifierThread notifierThread; // Notification thread. Avoid blocks.
+	private BridgeNotifierThread notifierThread; // Notification thread. Avoid blocks.
 	
 	/*
 	 * 
@@ -67,7 +67,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	{
 		super.taskMonitor( m );
 		
-		this.notifierThread = new NotifierThread( m,  this );
+		this.notifierThread = new BridgeNotifierThread( m,  this );
 		this.notifierThread.setName( this.notifierThread.getClass().getName() + "-" + this.getClass().getName() );
 	}
 
@@ -121,7 +121,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		double time = ConvertTo.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, LSLUtils.getTimeMarkBytes() ) );		
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
-		EventInfo event = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
+		EventInfo event = new EventInfo( this.getID(), EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
 		
 		synchronized ( super.events )
 		{

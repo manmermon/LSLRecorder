@@ -31,6 +31,8 @@ public class EventInfo
 {
 	private String eventType = "";
 	private Object eventInformation;
+	
+	private String idSource = "";
 
 	/**
 	 * Event information.
@@ -38,12 +40,43 @@ public class EventInfo
 	 * @param type 	-> Event identification
 	 * @param info	-> Event information 
 	 */
-	public EventInfo( String type, Object info )
+	private EventInfo( String type, Object info )
 	{
 		this.eventType = type;
 		this.eventInformation = info;
 	}
+	
+	/**
+	 * 
+	 * @param source -> Source ID
+	 * @param type 	-> Event identification
+	 * @param info	-> Event information
+	 */
+	public EventInfo( String source, String type, Object info )
+	{
+		this( type, info );
+		
+		this.idSource = source;
+	}
 
+	/**
+	 * 
+	 * @return Source ID
+	 */
+	public String getIdSource() 
+	{
+		return idSource;
+	}
+	
+	/**
+	 * 
+	 * @param idSource -> new Source ID
+	 */
+	public void setIdSource( String idSource ) 
+	{
+		this.idSource = idSource;
+	}
+	
 	/**
 	 * 
 	 * @return event identification

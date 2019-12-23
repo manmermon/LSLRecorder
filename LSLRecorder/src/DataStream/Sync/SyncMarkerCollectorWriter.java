@@ -70,6 +70,8 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	{
 		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 		
+		super.setName( this.getClass().getSimpleName() );
+		
 		this.outFileName = file + "_" + date + this.ext;
 		
 		this.syncFileDisordered = FileUtils.CreateTemporalBinFile( file + "_" + date + "_disordered" + this.ext);
@@ -213,7 +215,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 				{
 					synchronized ( this.events )
 					{
-						this.events.add( new EventInfo( EventType.INPUT_MARK_READY, mark ) );
+						this.events.add( new EventInfo( this.getID(), EventType.INPUT_MARK_READY, mark ) );
 					}
 				
 					this.monitor.taskDone( this );					
@@ -251,7 +253,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			this.outDisorderedStream.close();			
 		}
 		
-		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header.getStreamBinHeader(), true );
+		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header.getStreamBinHeader(), !ConfigApp.isTesting() );
 		
 		/*
 		EventInfo event = new EventInfo( GetFinalOutEventID(), syncReader );
@@ -639,15 +641,30 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	}
 
 	@Override
-	public List<EventInfo> getResult() 
-	{		
-		return this.events;
+	public List<EventInfo> getResult( boolean clear ) 
+	{	
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		synchronized ( this.events ) 
+		{
+			evs.addAll( this.events );
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
+		}
+		
+		return evs;
 	}
 
 	@Override
 	public void clearResult() 
 	{
-		this.events.clear();
+		synchronized ( this.events )
+		{
+			this.events.clear();
+		}		
 	}
 
 	@Override

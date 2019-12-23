@@ -32,7 +32,7 @@ import java.util.List;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
@@ -46,7 +46,7 @@ public class streamServerSocket extends AbstractStoppableThread implements INoti
 	private SocketParameters socketParameters = null;
 	
 	private ITaskMonitor monitor = null;
-	private NotifierThread monitorThread = null;
+	private BridgeNotifierThread monitorThread = null;
 	
 	private ServerSocketChannel streamTCPServer = null;
 	private DatagramChannel streamUDPServer = null;
@@ -112,7 +112,7 @@ public class streamServerSocket extends AbstractStoppableThread implements INoti
 	{
 		this.setName( this.socketParameters.getSocketInfo().toString() );
 		
-		this.monitorThread = new NotifierThread( this.monitor, this );
+		this.monitorThread = new BridgeNotifierThread( this.monitor, this );
 		this.monitorThread.startThread();
 		
 		if( this.socketParameters.getSocketInfo().getProtocolType() == SocketSetting.TCP_PROTOCOL )

@@ -152,7 +152,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	
 	protected void postCleanUp() throws Exception
 	{			
-		EventInfo event = new EventInfo( GetFinalOutEvent(), this.getTemporalFileData() );
+		EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
 
 		this.events.add(event);
 		

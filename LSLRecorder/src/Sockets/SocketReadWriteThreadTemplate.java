@@ -30,7 +30,7 @@ import java.util.List;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import Sockets.Info.StreamSocketProblem;
@@ -41,7 +41,7 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 {
 	protected Socket SOCKET;
 		
-	protected NotifierThread notifier;
+	protected BridgeNotifierThread notifier;
 	
 	protected ITaskMonitor monitor;
 
@@ -93,7 +93,7 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 	{
 		super.preStart();
 		
-		this.notifier = new NotifierThread( this.monitor, this );
+		this.notifier = new BridgeNotifierThread( this.monitor, this );
 		this.notifier.setName( this.notifier.getClass().getSimpleName() + "-" + super.getName() );
 		this.notifier.startThread();
 		
@@ -128,7 +128,7 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 																								, this.SOCKET.getPort() )
 																		, e );
 
-				this.events.add( new EventInfo( EventType.SOCKET_CONNECTION_PROBLEM, problem ) );
+				this.events.add( new EventInfo( this.getID(), EventType.SOCKET_CONNECTION_PROBLEM, problem ) );
 				
 				synchronized( this.notifier )
 				{
@@ -188,7 +188,7 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 	 * @see Auxiliar.Tasks.INotificationTask#getResult()
 	 */
 	@Override
-	public List< EventInfo > getResult()
+	public List< EventInfo > getResult( boolean clear )
 	{
 		synchronized ( this.events ) 
 		{	
@@ -196,8 +196,14 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 			List< EventInfo > evs = new ArrayList< EventInfo >();
 			for( EventInfo ev : this.events )
 			{
-				evs.add( new EventInfo( ev.getEventType(), ev.getEventInformation() ) );
+				evs.add( new EventInfo( this.getID(), ev.getEventType(), ev.getEventInformation() ) );
 			}
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
+			
 			return evs;
 		}
 	}

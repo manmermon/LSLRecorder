@@ -29,8 +29,8 @@ import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
 import DataStream.StreamHeader;
+import Exceptions.ReadInputDataException;
 import Controls.Messages.EventType;
-import Excepciones.ReadInputDataException;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import Timers.ITimerMonitor;
@@ -1237,7 +1237,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		if (this.monitor != null)
 		{
-			this.events.add( new EventInfo( EventType.PROBLEM, errorMsg ) );
+			this.events.add( new EventInfo( this.getID(), EventType.PROBLEM, errorMsg ) );
 			try
 			{
 				this.monitor.taskDone(this);
@@ -1259,17 +1259,22 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	}
 
 
-	public List<EventInfo> getResult()
+	@Override
+	public List<EventInfo> getResult( boolean clear)
 	{
+		List< EventInfo > lst = new ArrayList< EventInfo >();
+		
 		synchronized( this.events )
-		{
-			List< EventInfo > lst = new ArrayList< EventInfo >();
+		{			
 			lst.addAll( this.events );			
 			
-			this.events.clear();
-			
-			return lst;
+			if( clear )
+			{
+				this.events.clear();
+			}
 		}
+		
+		return lst;
 	}
 
 

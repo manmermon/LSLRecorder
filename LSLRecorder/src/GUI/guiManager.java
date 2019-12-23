@@ -35,6 +35,7 @@ import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
 import DataStream.Sync.SyncMarkerBinFileReader;
 import GUI.Miscellany.basicPainter2D;
+import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
@@ -62,6 +63,7 @@ import javax.swing.text.StyleConstants;
 import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
+import Auxiliar.Tasks.NotificationTask;
 
 public class guiManager
 {
@@ -219,10 +221,11 @@ public class guiManager
 		{ 
 			this.setAppState( AppState.SAVING );
 		}
-		
-		for( Tuple< StreamHeader, StreamHeader > files : binFiles )
-		{				
-			try 
+						
+		try 
+		{
+			List< Tuple< TemporalBinData, SyncMarkerBinFileReader > > STREAMS = new ArrayList<Tuple< TemporalBinData, SyncMarkerBinFileReader >>();
+			for( Tuple< StreamHeader, StreamHeader > files : binFiles )
 			{
 				StreamHeader dat = files.x;
 				StreamHeader sync = files.y;
@@ -321,52 +324,59 @@ public class guiManager
 															, name
 															, desc
 															, folder 
-																+ "data" 
-																+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
+															+ "data" 
+															+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
 															, outFormat
 															, del );
-				
+
 				SyncMarkerBinFileReader reader = null;
-				
+
 				if( syncFile != null )
 				{
 					reader = new SyncMarkerBinFileReader( syncFile
-															, markType
-															, markTimeType
-															, StreamHeader.HEADER_END
-															, del );
+														, markType
+														, markTimeType
+														, StreamHeader.HEADER_END
+														, del );
 				}
-				
-				EventInfo event = new EventInfo( idEvent, new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );
-				
+
+				STREAMS.add( new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );
+			}
+
+			if( !STREAMS.isEmpty() )
+			{	
+				EventInfo event = new EventInfo( this.getClass().getName(), idEvent, STREAMS );
+
+				/*
 				INotificationTask notifTask = new INotificationTask() 
 				{				
 					@Override
 					public void taskMonitor(ITaskMonitor monitor)
 					{					
 					}
-					
+
 					@Override
 					public List<EventInfo> getResult() 
 					{
 						List< EventInfo > ev = new ArrayList< EventInfo >();
 						ev.add( event );
-						
+
 						return ev;
 					}
-					
+
 					@Override
 					public String getID() 
 					{
 						return "NotifyConvertBin2OutputFile";
 					}
-					
+
 					@Override
 					public void clearResult() 
 					{	
 					}
 				};
 				
+
 				new Thread()
 				{
 					public void run() 
@@ -380,15 +390,23 @@ public class guiManager
 						}
 					};
 				}.start();
-			
-				Thread.sleep( 1000L );
+				*/
+				
+				NotificationTask notifTask = new NotificationTask();
+				notifTask.setID( notifTask.getID() + "-NotifyConvertBin2OutputFile" );
+				notifTask.setName( notifTask.getID() );
+				notifTask.taskMonitor( outCtr );
+				notifTask.addEvent( event );
+				notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+				
+				notifTask.startThread();
 			}
-			catch (Exception e) 
-			{
-			}			
-			finally 
-			{
-			}
+		}
+		catch (Exception e) 
+		{
+		}			
+		finally 
+		{
 		}
 	}
 

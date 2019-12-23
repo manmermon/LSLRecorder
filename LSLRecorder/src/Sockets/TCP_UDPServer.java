@@ -132,17 +132,17 @@ public class TCP_UDPServer extends AbstractStoppableThread implements INotificat
 	}
 
 	@Override
-	public List<EventInfo> getResult() 
+	public List<EventInfo> getResult( boolean clear ) 
 	{
 		List< EventInfo > evs;
 		
 		if( this.tcpServer != null )
 		{
-			evs = this.tcpServer.getResult();
+			evs = this.tcpServer.getResult( clear );
 		}
 		else
 		{
-			evs = this.updServer.getResult();
+			evs = this.updServer.getResult( clear );
 		}
 		
 		return evs;

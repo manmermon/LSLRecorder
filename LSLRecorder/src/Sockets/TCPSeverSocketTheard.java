@@ -31,7 +31,7 @@ import java.util.Map;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
+import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import StoppableThread.AbstractStoppableThread;
@@ -45,7 +45,7 @@ public class TCPSeverSocketTheard extends AbstractStoppableThread implements INo
 	
 	private Map< String, Socket > clients;
 		
-	private NotifierThread notifier;
+	private BridgeNotifierThread notifier;
 	
 	private ITaskMonitor monitor;
 	
@@ -113,7 +113,7 @@ public class TCPSeverSocketTheard extends AbstractStoppableThread implements INo
 		}
 		else
 		{
-			this.notifier = new NotifierThread( this.monitor, this );
+			this.notifier = new BridgeNotifierThread( this.monitor, this );
 			this.notifier.startThread();
 		}
 	}
@@ -125,7 +125,7 @@ public class TCPSeverSocketTheard extends AbstractStoppableThread implements INo
 				
 		synchronized( this.events )
 		{			
-			this.events.add( new EventInfo( EventType.SOCKET_CONNECTION_DONE, client ) );
+			this.events.add( new EventInfo( this.getID(), EventType.SOCKET_CONNECTION_DONE, client ) );
 			
 			synchronized( this.notifier )
 			{
@@ -163,7 +163,7 @@ public class TCPSeverSocketTheard extends AbstractStoppableThread implements INo
 				
 				synchronized( this.events )
 				{
-					this.events.add( new EventInfo( EventType.SOCKET_SERVER_STOP, this.getID() ) );
+					this.events.add( new EventInfo( this.getID(), EventType.SOCKET_SERVER_STOP, this.getID() ) );
 				}
 				
 				synchronized ( notifier ) 
@@ -181,15 +181,30 @@ public class TCPSeverSocketTheard extends AbstractStoppableThread implements INo
 	}
 
 	@Override
-	public List< EventInfo > getResult() 
+	public List< EventInfo > getResult( boolean clear ) 
 	{
-		return this.events;
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		synchronized ( this.events) 
+		{
+			evs.addAll( this.events );
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
+		}	
+		
+		return evs;
 	}
 
 	@Override
 	public void clearResult() 
 	{		
-		this.events.clear();
+		synchronized ( this.events )
+		{
+			this.events.clear();
+		}		
 	}
 
 	@Override

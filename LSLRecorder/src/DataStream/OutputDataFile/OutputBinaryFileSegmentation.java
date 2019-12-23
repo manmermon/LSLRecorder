@@ -200,7 +200,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			if( this.monitor != null )
 			{
-				EventInfo event = new EventInfo( EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
+				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
 
 				this.events.add( event );
 				this.monitor.taskDone( this );
@@ -492,7 +492,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			if( this.monitor != null )
 			{
-				EventInfo event = new EventInfo( EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
+				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
 				
 				this.events.add( event );
 				try 
@@ -533,7 +533,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{		
 			Tuple< String, SyncMarkerBinFileReader > t = new Tuple<String, SyncMarkerBinFileReader>( DATA.getStreamingName(), this.syncReader );
 			
-			EventInfo event = new EventInfo( EventType.OUTPUT_DATA_FILE_SAVED, t);
+			EventInfo event = new EventInfo( this.getID(), EventType.OUTPUT_DATA_FILE_SAVED, t);
 			this.events.add( event );
 		
 			this.monitor.taskDone( this );
@@ -571,9 +571,21 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 * @see Auxiliar.Tasks.INotificationTask#getResult()
 	 */
 	@Override
-	public synchronized List<EventInfo> getResult() 
-	{			
-		return this.events;
+	public synchronized List<EventInfo> getResult( boolean clear ) 
+	{	
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		synchronized ( this.events )
+		{
+			evs.addAll( this.events );
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
+		}
+		
+		return evs;
 	}
 
 	/*
@@ -583,7 +595,10 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	@Override
 	public synchronized void clearResult() 
 	{
-		this.events.clear();
+		synchronized ( this.events )
+		{
+			this.events.clear();
+		}		
 	}
 	
 	@Override
@@ -595,8 +610,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	@Override
 	public void taskDone(INotificationTask task) throws Exception 
 	{
-		List< EventInfo > EVENTS =  new ArrayList< EventInfo>( task.getResult() );
-		task.clearResult();
+		List< EventInfo > EVENTS =  new ArrayList< EventInfo>( task.getResult( true ) );
 		
 		for( EventInfo e : EVENTS )
 		{		 

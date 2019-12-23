@@ -2,20 +2,16 @@ package Sockets;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.icmp4j.IcmpPingRequest;
 import org.icmp4j.IcmpPingResponse;
 import org.icmp4j.IcmpPingUtil;
 
-import Auxiliar.WarningMessage;
-import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotifierThread;
-import Controls.IHandlerMinion;
-import Controls.IHandlerSupervisor;
-import Controls.MinionParameters;
+import Auxiliar.Tasks.NotificationTask;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Sync.SyncMarker;
@@ -23,110 +19,160 @@ import Sockets.Info.StreamInputMessage;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 
-public class SocketMessageDelayCalculator extends AbstractStoppableThread implements INotificationTask, IHandlerMinion
+public class SocketMessageDelayCalculator extends AbstractStoppableThread 
 {
 	public static final int DEFAULT_NUM_PINGS = 4;
-	
-	private StreamInputMessage socketMsg = null; 
 
-	private int Mark = SyncMarker.NON_MARK;
-		
 	private int numberOfPings = 4;
 	
-	private ITaskMonitor monitor;
+	private ConcurrentLinkedQueue< StreamInputMessage > msgList = null;
 	
-	private List< EventInfo > events;
+	private StreamInputMessage currentMsg = null;
 	
-	private IHandlerSupervisor supervisor;
+	private NotificationTask notifier = null;
 	
-	private boolean working;
+	private ITaskMonitor monitor = null;
 	
-	private NotifierThread notifier = null;
+	private ConcurrentHashMap< String, Integer > regMsgs = null;
 	
-	public SocketMessageDelayCalculator( StreamInputMessage msg, int markValue, int numPings ) 
+	public SocketMessageDelayCalculator( int numPings ) 
 	{
-		this.socketMsg = msg;
-
-		this.Mark = markValue;
-		
-		this.events = new ArrayList<EventInfo>();
+		this.msgList = new ConcurrentLinkedQueue< StreamInputMessage >();
 		
 		if( numPings > 0 )
 		{
 			this.numberOfPings = numPings;
 		}
 				
-		super.setName( super.getClass().getSimpleName() + "-" + msg.getOrigin() );
+		this.regMsgs = new ConcurrentHashMap< String, Integer >(); 
+		super.setName( super.getClass().getSimpleName() );
 	}
-
+	
+	public void CalculateMsgDelay( StreamInputMessage msg )
+	{
+		final SocketMessageDelayCalculator cal = this;
+		Thread t = new Thread()
+		{
+			@Override
+			public synchronized void run() 
+			{
+				if( regMsgs.containsKey( msg.getMessage() ) )
+				{
+					msgList.add( msg );
+					
+					synchronized ( cal )
+					{
+						cal.notify();
+					}
+				}
+			}
+		};
+		t.setName( "CalculateMsgDelay-" +t.getId() );
+		
+		t.start();		
+	}
+	
+	public void clearInputMessages()
+	{
+		this.regMsgs.clear();		
+	}
+	
+	public void AddInputMessages( Map< String, Integer > msgs )
+	{		
+		if( msgs != null  )
+		{
+			this.regMsgs.putAll( msgs );
+		}
+	}
+	
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{	
 	}
 
 	@Override
-	protected void postStopThread(int friendliness) throws Exception 
-	{	
-	}
-
-	@Override
-	protected void startUp() throws Exception 
+	protected void preStart() throws Exception 
 	{
-		super.startUp();
-
+		super.preStart();
+		
 		if( this.monitor != null )
 		{
-			this.notifier = new NotifierThread( this.monitor , this );
-			this.notifier.setName( this.notifier.getClass().getSimpleName() + "-" + this.getClass().getSimpleName() );
-			
+			this.notifier = new NotificationTask();
+			this.notifier.setID( this.notifier.getID() + "-" + this.getID() );
+			this.notifier.setName( this.notifier.getID() );
+			this.notifier.taskMonitor( this.monitor );
 			this.notifier.startThread();
 		}
-		
-		this.working = true;		
+	}
+	
+	@Override
+	protected void postStopThread(int friendliness) throws Exception 
+	{	
+		synchronized ( this )
+		{
+			if( friendliness != IStoppableThread.FORCE_STOP 
+					&& super.getState().equals( Thread.State.WAITING ) )
+			{
+				this.notify();
+			}
+		}
 	}
 
 	@Override
 	protected void runInLoop() throws Exception 
 	{
-		if( this.socketMsg != null )
+		synchronized ( this )
 		{
-			double time = this.socketMsg.receivedTime();
-			
-			double rtt = this.pingDuration( this.socketMsg.getOrigin(), this.numberOfPings );
-			
-			if( rtt != Double.NaN 
-					&& rtt != Double.POSITIVE_INFINITY
-					&& rtt != Double.NEGATIVE_INFINITY )
+			if( this.msgList.isEmpty() )
 			{
-				time = time - rtt/ 2;
-			}
-			
-			if( this.notifier != null )
-			{
-				EventInfo ev = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( this.Mark, time ) );
-
-				synchronized ( this.events )
+				try
 				{
-					this.events.add( ev );
-				}				
-				
-				synchronized ( this.notifier ) 
-				{
-					this.notifier.notify();
+					this.wait();
 				}
+				catch (Exception e) 
+				{					
+				}
+			}			
+		}
+		
+		boolean continued = true;
 				
+		do
+		{			
+			this.currentMsg = this.msgList.poll();
+			
+			continued = ( this.currentMsg != null );
+					
+			if( continued )
+			{				
+				Integer Mark = this.regMsgs.get( this.currentMsg.getMessage() );
+				
+				double time = this.currentMsg.receivedTime();
+			
+				double rtt = this.pingDuration( this.currentMsg.getOrigin(), this.numberOfPings );
+
+				if( rtt != Double.NaN 
+						&& rtt != Double.POSITIVE_INFINITY
+						&& rtt != Double.NEGATIVE_INFINITY )
+				{
+					time = time - rtt/ 2;
+				}
+
+				if( this.notifier != null )
+				{
+					EventInfo ev = new EventInfo( super.getName(), EventType.INPUT_MARK_READY, new SyncMarker( Mark, time ) );
+					
+					this.notifier.addEvent( ev );
+					synchronized ( this.notifier )
+					{
+						this.notifier.notify();
+					}
+				}
 			}
 		}
+		while( continued );
 	}
-	
-	@Override
-	protected void targetDone() throws Exception 
-	{
-		this.stopThread = true;
 		
-		super.targetDone();
-	}
-	
 	@Override
 	protected void runExceptionManager(Exception e) 
 	{
@@ -134,23 +180,20 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		{
 			e.printStackTrace();
 						
-			if( this.notifier != null )
+			if( this.notifier != null && this.currentMsg != null)
 			{
 				double time = System.nanoTime() / 1e9D;
+				Integer Mark = this.regMsgs.get( this.currentMsg.getMessage() );
 				
-				if( this.socketMsg != null )
-				{
-					time = this.socketMsg.receivedTime();
-				}
-				
-				EventInfo ev = new EventInfo( EventType.INPUT_MARK_READY, new SyncMarker( this.Mark, time ) );
+				time = this.currentMsg.receivedTime();				
+				EventInfo ev = new EventInfo( super.getName(), EventType.INPUT_MARK_READY, new SyncMarker( Mark, time ) );
 
-				synchronized ( this.events )
-				{
-					this.events.add( ev );
-				}				
+				this.notifier.addEvent( ev );
 				
-				this.notifier.notify();
+				synchronized ( this.notifier ) 
+				{
+					this.notifier.notify();
+				}				
 			}
 		}
 	}
@@ -158,23 +201,26 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 	@Override
 	protected void cleanUp() throws Exception 
 	{
-		this.working = false;
-		
-		if( this.supervisor != null )
-		{
-			this.supervisor.eventNotification( this, new EventInfo( EventType.SOCKET_PING_END, this ));
-		}
-		
 		super.cleanUp();
-		
+				
 		if( this.notifier != null )
-		{
-			this.notifier.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-			this.notifier = null;
+		{			
+			EventInfo ev = new EventInfo( super.getName(), EventType.SOCKET_PING_END, this );
+			this.notifier.addEvent( ev );
+			
+			synchronized ( this.notifier )
+			{
+				this.notifier.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+				this.notifier.notify();
+			}
+			
 		}
 	}
 	
-	
+	public boolean isCalculating()
+	{
+		return !this.msgList.isEmpty();
+	}
 	
 	private double pingDuration( InetSocketAddress ipAddress, int numPings ) throws IOException
 	{		
@@ -182,26 +228,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		request.setHost( ipAddress.getHostString() );
 		
 		double time = Double.POSITIVE_INFINITY;
-		
-		/*
-		for( int i = 0; i < numPings; i++ )
-		{
-			long t = System.nanoTime();
-			
-			final IcmpPingResponse response = IcmpPingUtil.executePingRequest (request);
-			
-			if ( geek.isReachable( 5000 ) )
-			{
-				t = ( System.nanoTime() - t);
 				
-				if( ( t / 1e9D )  < time )
-				{
-					time = t / 1e9D;
-				}
-			}
-		}	
-		*/	
-		
 		for( int i = 0; i < numPings; i++ )
 		{			
 			final IcmpPingResponse response = IcmpPingUtil.executePingRequest (request);
@@ -226,66 +253,18 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread implem
 		
 		return rtt;
 	}
-	
-	@Override
+
 	public void taskMonitor( ITaskMonitor m ) 
 	{
-		this.monitor = m;
-	}
-
-	@Override
-	public List<EventInfo> getResult()
-	{
-		return this.events;
-	}
-
-	@Override
-	public void clearResult() 
-	{
-		synchronized ( this.events )
+		if( this.notifier == null )
 		{
-			this.events.clear();
+			this.monitor = m;
 		}
 	}
 
-	@Override
+
 	public String getID() 
 	{
-		return super.getClass().getName();
+		return this.getClass().getName();
 	}
-
-	@Override
-	public void addSubordinates(MinionParameters pars) throws Exception 
-	{	
-	}
-
-	@Override
-	public void deleteSubordinates(int friendliness) 
-	{	
-	}
-
-	@Override
-	public void toWorkSubordinates(Object paramObject) throws Exception 
-	{	
-	}
-
-	@Override
-	public void setControlSupervisor( IHandlerSupervisor leader ) 
-	{
-		this.supervisor = leader;
-	}
-
-	@Override
-	public boolean isWorking() 
-	{
-		return this.working;
-	}
-
-	@Override
-	public WarningMessage checkParameters() 
-	{
-		return new WarningMessage();
-	}
-
-
 }

@@ -28,15 +28,30 @@ public class LaunchThread extends AbstractStoppableThread implements INotificati
 	}
 
 	@Override
-	public List<EventInfo> getResult() 
+	public List<EventInfo> getResult( boolean clear ) 
 	{
-		return this.events;
+		List< EventInfo > evs = new ArrayList< EventInfo >();
+		
+		synchronized ( this.events )
+		{
+			evs.addAll( this.events );
+			
+			if( clear )
+			{
+				this.events.clear();
+			}
+		}
+		
+		return evs;
 	}
 
 	@Override
 	public void clearResult() 
 	{
-		this.events.clear();
+		synchronized ( this.events)
+		{
+			this.events.clear();
+		}		
 	}
 
 	@Override
@@ -73,7 +88,7 @@ public class LaunchThread extends AbstractStoppableThread implements INotificati
 	@Override
 	protected void runExceptionManager( Exception e ) 
 	{
-		EventInfo ev = new EventInfo( EventType.PROBLEM, e );
+		EventInfo ev = new EventInfo( this.getID(), EventType.PROBLEM, e );
 		
 		this.events.add( ev );
 		

@@ -25,6 +25,7 @@ package GUI;
 import Config.ConfigApp;
 import Config.Language.Language;
 import Controls.coreControl;
+import Controls.Messages.AppState;
 import Controls.Messages.RegisterSyncMessages;
 import GUI.Miscellany.DisabledGlassPane;
 import GUI.Miscellany.GeneralAppIcon;
@@ -820,12 +821,17 @@ public class appUI extends JFrame
 		{
 			this.sessionTimeText = new JTextField();
 			
-			Dimension d = this.sessionTimeText.getPreferredSize();
-			d.width = 90;
-			this.sessionTimeText.setPreferredSize( d );
-			this.sessionTimeText.setEditable( false );
 			Font f = this.sessionTimeText.getFont();
 			this.sessionTimeText.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+			
+			FontMetrics fm = this.sessionTimeText.getFontMetrics( this.sessionTimeText.getFont() );
+			
+			Dimension d = this.sessionTimeText.getPreferredSize();
+			d.width = fm.stringWidth( String.format( "%02d:%02d:%02d.%03d", 23, 56, 56, 9999 ) + 2);
+			
+			this.sessionTimeText.setPreferredSize( d );
+			this.sessionTimeText.setEditable( false );
+			
 		}
 		
 		return this.sessionTimeText;
@@ -838,12 +844,16 @@ public class appUI extends JFrame
 			this.appTextState = new JTextField( );
 
 			//this.appTextState.setBorder( BorderFactory.createEmptyBorder() );	
-			Dimension d = this.appTextState.getPreferredSize();
-			d.width = 60;
-			this.appTextState.setPreferredSize( d );
-			this.appTextState.setEditable( false );
 			Font f = this.appTextState.getFont();
 			this.appTextState.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+			
+			FontMetrics fm = this.appTextState.getFontMetrics( this.appTextState.getFont() );
+			
+			Dimension d = this.appTextState.getPreferredSize();
+			d.width = fm.stringWidth( AppState.PREPARING + 5 );
+			this.appTextState.setPreferredSize( d );
+			this.appTextState.setEditable( false );
+			
 		}
 
 		return this.appTextState;
@@ -856,12 +866,17 @@ public class appUI extends JFrame
 			this.timeState = new JTextField( );
 
 			//this.appTextState.setBorder( BorderFactory.createEmptyBorder() );
-			Dimension d = this.timeState.getPreferredSize();
-			d.width = 60;
-			this.timeState.setPreferredSize( d );
-			this.timeState.setEditable( false );
 			Font f = this.timeState.getFont();
 			this.timeState.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+			
+			FontMetrics fm = this.timeState.getFontMetrics( this.timeState.getFont() );
+			
+			Dimension d = this.timeState.getPreferredSize();			
+			d.width = fm.stringWidth( "23:59:59" + 5);
+			
+			this.timeState.setPreferredSize( d );
+			this.timeState.setEditable( false );
+			
 		}
 
 		return this.timeState;

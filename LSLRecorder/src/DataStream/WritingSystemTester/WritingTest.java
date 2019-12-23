@@ -71,7 +71,7 @@ public class WritingTest extends TemporalOutDataFileWriter
 			super.file.deleteOnExit();
 		}
 		
-		EventInfo event = new EventInfo( EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.LSLName, this.times ) );
+		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.LSLName, this.times ) );
 
 		this.events.add(event);
 		
