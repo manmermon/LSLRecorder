@@ -24,7 +24,6 @@ package Controls;
 
 import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotificationTask;
 import Auxiliar.WarningMessage;
 import Auxiliar.Extra.Tuple;
 import Config.ConfigApp;
@@ -101,6 +100,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 	private SocketMessageDelayCalculator socketMsgDelayCal = null;
 	
+	private StopWorkingThread stopThread = null;
+		
 	/**
 	 * Create main control unit.
 	 * 
@@ -441,7 +442,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				this.writingTestTimer.start();
 			}
 			
-			waitStartCommand();
+			this.waitStartCommand();
 		}
 		catch (Exception | Error e )
 		{			
@@ -621,7 +622,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	private synchronized void waitStartCommand() throws Exception
 	{
 		if ( this.isWaitingForStartCommand )
-		{
+		{			
 			this.managerGUI.setAppState( AppState.WAIT );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );
@@ -672,6 +673,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	public synchronized void stopWorking( ) throws Exception
 	{	
+		/*
 		if ( this.isRecording 
 				|| this.isWaitingForStartCommand )
 		{					
@@ -745,19 +747,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{}
 			}
 
-			/*
-					if ( !this.isWaitingForStartCommand )
-					{
-						try
-						{
-							this.ctrSocket.setBlockingStartWorking( true );
-							this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
-							this.ctrSocket.setBlockingStartWorking(false);
-						}
-						catch (Exception localException1)
-						{}
-					}
-			 */					
+			//	if ( !this.isWaitingForStartCommand )
+			//	{
+			// 		try
+			// 		{
+			//			this.ctrSocket.setBlockingStartWorking( true );
+			//			this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
+			//			this.ctrSocket.setBlockingStartWorking(false);
+			//		}
+			//		catch (Exception localException1)
+			//		{}
+			//	}				
 
 			//managerGUI.enablePlayButton( false );
 
@@ -769,6 +769,28 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					&& !isDoingSomething() )
 			{
 				System.exit( 0 );
+			}
+		}
+		 */
+		
+		synchronized ( this )
+		{
+			if( this.stopThread == null )
+			{
+				this.stopThread = new StopWorkingThread();
+				this.stopThread.setName( this.stopThread.getClass().getCanonicalName() );
+				this.stopThread.startThread();
+			}
+		}		
+	}
+	
+	private void stopWorkingThreadEnd()
+	{
+		synchronized ( this )
+		{
+			if( this.stopThread != null )
+			{
+				this.stopThread = null;
 			}
 		}
 	}
@@ -1398,6 +1420,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 				}				
 			}
+			
+			super.setName( this.getClass().getName() );
 		}
 
 		@Override
@@ -1476,7 +1500,36 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				}				
 				else if (event_type.equals( EventType.PROBLEM ) )
 				{
-					stopWorking( );
+					/*
+					Thread t = new Thread()
+					{
+						@Override
+						public synchronized void run() 
+						{
+							try 
+							{
+								stopWorking( );
+							}
+							catch (Exception e) 
+							{
+								
+							}
+						}
+					};
+					
+					t.setName( this.getClass().getSimpleName() + "-stopWorking" );
+					
+					t.start();
+					*/
+					
+					try 
+					{
+						stopWorking( );
+					}
+					catch (Exception e) 
+					{
+						e.printStackTrace();
+					}
 
 					if( !ConfigApp.isTesting() )
 					{
@@ -1528,6 +1581,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				if( isActiveSpecialInputMsg )
 				{
 					SpecialMarker = mark;
+					/*
 					Thread t = new Thread()
 					{
 						@Override
@@ -1547,6 +1601,16 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					t.setName( this.getClass().getSimpleName() + "-stopWorking" );
 					
 					t.start();
+					*/					
+				
+					try 
+					{
+						stopWorking( );
+					}
+					catch (Exception e) 
+					{
+						e.printStackTrace();
+					}
 					
 				}
 			}
@@ -1694,6 +1758,167 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.values.clear();
 			this.values = null;
 		}
+	}
+	
+
+	///////////////////////////////////////
+	//
+	//
+	//
+	
+	private class StopWorkingThread extends AbstractStoppableThread 
+	{
+
+		@Override
+		protected void preStopThread(int friendliness) throws Exception 
+		{	
+		}
+
+		@Override
+		protected void postStopThread(int friendliness) throws Exception 
+		{	
+		}
+		
+		@Override
+		protected void runInLoop() throws Exception 
+		{
+			if ( isRecording 
+					|| isWaitingForStartCommand )
+			{					
+				isRecording = false;
+				isWaitingForStartCommand = false;
+				isActiveSpecialInputMsg = false;
+
+				managerGUI.setAppState( AppState.STOP );
+				//managerGUI.enablePlayButton( false );
+
+				notifiedEventHandler.interruptProcess();
+				notifiedEventHandler.clearEvent();
+
+				ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
+
+				managerGUI.restoreGUI();
+
+				if( writingTestTimer != null )
+				{
+					writingTestTimer.stop();
+					writingTestTimer = null;
+				}
+
+				if ( ctrlOutputFile != null)
+				{
+					while( socketMsgDelayCal.isCalculating() )
+					{		
+						try 
+						{
+							super.wait( 100L );
+						} 
+						catch (Exception e) 
+						{
+						}
+					}
+
+					try
+					{	
+						String key = RegisterSyncMessages.INPUT_STOP;
+
+						ctrlOutputFile.setBlockingStartWorking( true );
+
+						if( SpecialMarker == null )
+						{
+							SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
+									, System.nanoTime() / 1e9D );
+						}
+
+						// TODO
+						ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, SpecialMarker ) );
+
+						Thread.sleep( 10L );
+
+						ctrlOutputFile.setBlockingStartWorking( false );
+
+						ctrlOutputFile.setEnableSaveSyncMark( false );
+
+						ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
+
+						if( ctrlOutputFile.isSavingData() )
+						{
+							managerGUI.setAppState( AppState.SAVING );
+						}
+					}
+					catch (Exception localException) 
+					{
+						localException.printStackTrace();
+						managerGUI.setAppState( AppState.NONE );
+					}
+					catch (Error localError) 
+					{}
+				}
+
+				/*
+						if ( !this.isWaitingForStartCommand )
+						{
+							try
+							{
+								this.ctrSocket.setBlockingStartWorking( true );
+								this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
+								this.ctrSocket.setBlockingStartWorking(false);
+							}
+							catch (Exception localException1)
+							{}
+						}
+				 */					
+
+				//managerGUI.enablePlayButton( false );
+
+				SpecialMarker = null;
+
+				System.gc();
+
+				if( closeWhenDoingNothing 
+						&& !isDoingSomething() )
+				{
+					System.exit( 0 );
+				}
+			}
+		}
+		
+		@Override
+		protected void runExceptionManager(Exception e) 
+		{
+			if( !( e instanceof InterruptedException ) )
+			{
+				e.printStackTrace();
+				
+				if( !ConfigApp.isTesting() )
+				{				
+					JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
+							"Exception in " + getClass().getSimpleName(), 
+							JOptionPane.ERROR_MESSAGE);
+				}
+				else
+				{
+					managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + e.getMessage() );
+				}
+			}
+		}
+		
+		@Override
+		protected void targetDone() throws Exception 
+		{	
+			super.targetDone();
+			
+			super.stopThread = true;
+		}
+		
+		@Override
+		protected void cleanUp() throws Exception 
+		{
+			super.cleanUp();
+			
+			stopWorkingThreadEnd();
+		}
+		
 	}
 
 }

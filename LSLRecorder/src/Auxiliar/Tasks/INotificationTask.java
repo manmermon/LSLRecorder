@@ -31,16 +31,8 @@ import Controls.Messages.EventInfo;
  * @author Manuel Merino Monge
  *
  */
-public interface INotificationTask 
-{
-	/**
-	 * Setting task monitor.
-	 *  
-	 * @param monitor: task monitor
-	 */
-	public void taskMonitor( ITaskMonitor monitor );
-		
-	
+public interface INotificationTask extends ITaskIdentity, IMonitoredTask
+{	
 	/**
 	 * To get the task result. 
 	 * 
@@ -54,10 +46,5 @@ public interface INotificationTask
 	 */
 	public void clearResult();
 	
-	/**
-	 * 
-	 * @return task ID
-	 */
-	public String getID();
-
+	
 }

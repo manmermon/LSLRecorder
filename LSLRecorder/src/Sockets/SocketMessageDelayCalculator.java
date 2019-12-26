@@ -95,14 +95,17 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 	{
 		super.preStart();
 		
-		if( this.monitor != null )
+		synchronized ( this )
 		{
-			this.notifier = new NotificationTask();
-			this.notifier.setID( this.notifier.getID() + "-" + this.getID() );
-			this.notifier.setName( this.notifier.getID() );
-			this.notifier.taskMonitor( this.monitor );
-			this.notifier.startThread();
-		}
+			if( this.monitor != null )
+			{
+				this.notifier = new NotificationTask();
+				this.notifier.setID( this.notifier.getID() + "-" + this.getID() );
+				this.notifier.setName( this.notifier.getID() );
+				this.notifier.taskMonitor( this.monitor );
+				this.notifier.startThread();
+			}
+		}		
 	}
 	
 	@Override
@@ -256,9 +259,12 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 
 	public void taskMonitor( ITaskMonitor m ) 
 	{
-		if( this.notifier == null )
+		if( super.getState().equals( Thread.State.NEW ) && this.notifier == null )
 		{
-			this.monitor = m;
+			synchronized ( this )
+			{
+				this.monitor = m;
+			}			
 		}
 	}
 
