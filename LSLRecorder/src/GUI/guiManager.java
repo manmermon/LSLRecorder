@@ -34,6 +34,9 @@ import DataStream.Binary.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
 import DataStream.Sync.SyncMarkerBinFileReader;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import GUI.Miscellany.basicPainter2D;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSLUtils;
@@ -61,8 +64,6 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import Auxiliar.Extra.Tuple;
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotificationTask;
 
 public class guiManager
@@ -159,9 +160,13 @@ public class guiManager
 				ConfigApp.saveConfig( f[0] );
 			}
 			catch (Exception e)
-			{
+			{	
+				/*
 				JOptionPane.showMessageDialog( appUI.getInstance(), e.getMessage(), Language.getLocalCaption( Language.DIALOG_ERROR )
 												, JOptionPane.ERROR_MESSAGE );
+				*/
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg,	true, false );
 			}
 		}
 	}
@@ -181,7 +186,10 @@ public class guiManager
 		}
 		else if ((f != null) && (!f[0].exists()))
 		{
-			JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.FILE_NOT_FOUND), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.WARNING_MESSAGE );
+			//JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.FILE_NOT_FOUND), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.WARNING_MESSAGE );
+			Exception e1 = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
+			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
 	}
 	
@@ -208,7 +216,9 @@ public class guiManager
 		}
 		catch (Exception e1) 
 		{
-			JOptionPane.showMessageDialog( this.getAppUI(),  e1.getMessage(), Language.getLocalCaption( Language.PROBLEM_TEXT ), JOptionPane.ERROR_MESSAGE );
+			//JOptionPane.showMessageDialog( this.getAppUI(),  e1.getMessage(), Language.getLocalCaption( Language.PROBLEM_TEXT ), JOptionPane.ERROR_MESSAGE );
+			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionDictionary.ERROR_MESSAGE );
+			ExceptionDialog.showMessageDialog( msg,	true, true );
 			
 			binFiles = new ArrayList< Tuple< StreamHeader, StreamHeader > >();
 		}
@@ -437,7 +447,10 @@ public class guiManager
 			if ( mustExist && !allFileExist )
 			{
 				path = null;
-				JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.FILE_NOT_FOUND ), Language.getLocalCaption( Language.DIALOG_ERROR ),JOptionPane.WARNING_MESSAGE );
+				//JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.FILE_NOT_FOUND ), Language.getLocalCaption( Language.DIALOG_ERROR ),JOptionPane.WARNING_MESSAGE );
+				Exception e = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg,	true, false );
 			}
 			else
 			{
@@ -509,7 +522,9 @@ public class guiManager
 		}
 		catch (Exception e)
 		{
-			JOptionPane.showMessageDialog( appUI.getInstance(), e.getMessage(), Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.WARNING_MESSAGE );
+			//JOptionPane.showMessageDialog( appUI.getInstance(), e.getMessage(), Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.WARNING_MESSAGE );			
+			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
+			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
 	}
 
@@ -590,6 +605,7 @@ public class guiManager
 				{					
 					stopTest();
 					
+					/*
 					String m = "";
 					
 					if( e != null )
@@ -606,6 +622,10 @@ public class guiManager
 						
 					JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + m,
 													Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+					*/
+					
+					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionDialog.showMessageDialog( msg,	true, true );
 				}
 				finally 
 				{
@@ -646,8 +666,15 @@ public class guiManager
 		catch (Exception e)
 		{
 			e.printStackTrace();
+			
+			/*
 			JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + e.getCause(),
-											Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+					Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+			*/
+			
+			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+			ExceptionDialog.showMessageDialog( msg, true, true );
+			
 		}
 		finally
 		{	

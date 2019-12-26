@@ -93,6 +93,9 @@ import Config.ConfigApp;
 import Config.Language.Language;
 import Controls.coreControl;
 import DataStream.OutputDataFile.Format.DataFileFormat;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import GUI.Miscellany.DisabledPanel;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.SelectedButtonGroup;
@@ -1120,10 +1123,16 @@ public class settingMenu_labStreamingLayer extends JPanel
 						{	
 							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( ConfigApp.SYNC_LSL ) )
 							{
+								/*
 								JOptionPane.showMessageDialog( winOwner
 																, Language.getLocalCaption( Language.MSG_SELECTED_LSL_SYNC_STREAM_ERROR )
 																, Language.getLocalCaption( Language.DIALOG_ERROR )
 																, JOptionPane.ERROR_MESSAGE );
+								*/
+								
+								Exception ex = new Exception( Language.getLocalCaption( Language.MSG_SELECTED_LSL_SYNC_STREAM_ERROR ) );
+								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+								ExceptionDialog.showMessageDialog( msg, true, false );
 								
 								c.setSelected( false );
 							}

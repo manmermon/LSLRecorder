@@ -33,27 +33,37 @@
 
 package GUI.Miscellany;
 
+import java.awt.Color;
 import java.io.*;
 
 import javax.swing.*;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 public class TextAreaPrintStream extends PrintStream 
 {
 
-    //The JTextArea to wich the output stream will be redirected.
-    private JTextArea textArea;
+    //The JTextPane to wich the output stream will be redirected.
+    private JTextPane textArea;
 
+    private AttributeSet attSet;
 
     /**
      * Method TextAreaPrintStream
      * The constructor of the class.
-     * @param the JTextArea to wich the output stream will be redirected.
+     * @param the JTextPane to wich the output stream will be redirected.
      * @param a standard output stream (needed by super method)
      **/
-    public TextAreaPrintStream(JTextArea area, OutputStream out) 
+    public TextAreaPrintStream( JTextPane area, OutputStream out) 
     {
     	super(out);
     	this.textArea = area;
+    	
+    	this.attSet = SimpleAttributeSet.EMPTY;
     }
 
     /**
@@ -64,7 +74,21 @@ public class TextAreaPrintStream extends PrintStream
      **/
     public void println(String string) 
     {
-    	this.textArea.append( string + "\n" );
+    	int len = this.textArea.getDocument().getLength();
+    	
+    	this.textArea.setCaretPosition( len );
+    	this.textArea.setCharacterAttributes( this.attSet, true );
+    	
+    	StyledDocument doc = this.textArea.getStyledDocument();
+    	try 
+    	{
+			doc.insertString( len, string + "\n", this.attSet );
+		} 
+    	catch (BadLocationException e) 
+    	{
+    		this.textArea.setText( this.textArea.getText() + "\n" + string );
+		}
+    	
     }
 
 
@@ -78,5 +102,25 @@ public class TextAreaPrintStream extends PrintStream
     {
     	//textArea.append( string );
     	this.println( string );
+    }
+    
+    /**
+     * 
+     */
+    @Override
+    public void flush() 
+    {
+    	super.flush();
+    	
+    	this.textArea.setText( "" );
+    }
+    
+    public void SetColorText( Color color )
+    {    	
+    	StyleContext sc = StyleContext.getDefaultStyleContext();
+    	
+    	AttributeSet attrs = SimpleAttributeSet.EMPTY;
+		
+    	this.attSet = sc.addAttribute( attrs , StyleConstants.Foreground, color);
     }
 }

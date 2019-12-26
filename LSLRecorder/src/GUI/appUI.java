@@ -27,6 +27,9 @@ import Config.Language.Language;
 import Controls.coreControl;
 import Controls.Messages.AppState;
 import Controls.Messages.RegisterSyncMessages;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import GUI.Miscellany.DisabledGlassPane;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.InfoDialog;
@@ -604,7 +607,12 @@ public class appUI extends JFrame
 			catch (Exception e) 
 			{
 				e.printStackTrace();
-				JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );	
+				
+				//JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );
+				ExceptionMessage msg = new  ExceptionMessage( e
+																, "LSL Exception" 
+																, ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog(msg, true, true );
 			}
 		}
 
@@ -1107,7 +1115,11 @@ public class appUI extends JFrame
 				{					
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
-					guiManager.getInstance().addInputMessageLog( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n");
+					//guiManager.getInstance().addInputMessageLog( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n");
+					Exception ex = new Exception( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
+					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+					ExceptionDialog.showMessageDialog( msg, true, false );
+
 					guiManager.getInstance().startTest( true );
 				}
 			});
@@ -1115,7 +1127,6 @@ public class appUI extends JFrame
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_WRITE_TEST, this.menuWritingTest );
 		}
-
 		
 		return this.menuWritingTest;
 	}

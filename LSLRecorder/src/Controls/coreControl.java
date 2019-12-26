@@ -37,8 +37,10 @@ import Controls.Messages.SocketInformations;
 import DataStream.Binary.Plotter.outputDataPlot;
 import DataStream.Sync.SyncMarker;
 import Exceptions.SettingException;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import Controls.Messages.EventType;
-import GUI.appUI;
 import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
 import Sockets.Info.StreamInputMessage;
@@ -249,16 +251,27 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 			else
 			{
-				JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+				//JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
+				
+				Exception ex = new Exception( Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ) );
+												
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 		}
 		catch (Exception localException) 
 		{
 			localException.printStackTrace();
+			
+			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 		catch (Error localError) 
 		{
 			localError.printStackTrace();
+			
+			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 	}
 
@@ -474,6 +487,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						
 			try 
 			{
+				/*
 				String msg = e.getMessage() + "\n";
 				
 				if( !( e instanceof SettingException ) )
@@ -492,6 +506,10 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{
 					this.managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + msg );
 				}
+				*/
+				
+				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( ex, true, true );
 				
 				e.printStackTrace();
 			}
@@ -862,6 +880,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
 					
+					Exception ex = new Exception( msg );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionDialog.showMessageDialog( exmsg, true, false );
+					
+					/*
 					if( !ConfigApp.isTesting() )
 					{
 						final String copyMsg = msg;
@@ -882,6 +905,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					{
 						this.managerGUI.addInputMessageLog( EventType.SOCKET_CONNECTION_PROBLEM + ": " + msg );
 					}
+					*/
 				}
 				else if (event.getEventType().equals(  EventType.SOCKET_CHANNEL_CLOSE ))
 				{
@@ -893,6 +917,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						msg = problem.getProblemCause().getCause().toString();
 					}
 
+					Exception ex = new Exception( msg );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionDialog.showMessageDialog( exmsg, true, false );
+									
+					/*
 					if( !ConfigApp.isTesting() )
 					{						
 						final String copyMsg = msg;
@@ -913,6 +942,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					{
 						this.managerGUI.addInputMessageLog( EventType.SOCKET_CHANNEL_CLOSE + ": " + msg );
 					}
+					*/
 				}
 			}
 		}
@@ -1376,9 +1406,14 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			{
 				e.printStackTrace();
 				
+				/*
 				JOptionPane.showMessageDialog( coreControl.this.managerGUI.getAppUI(), e.getMessage(), 
 											"Exception in " + getClass().getSimpleName(),
-											JOptionPane.ERROR_MESSAGE);				
+											JOptionPane.ERROR_MESSAGE);
+				*/
+				
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, true );
 			}
 		}
 
@@ -1528,9 +1563,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 					catch (Exception e) 
 					{
-						e.printStackTrace();
+						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionDictionary.ERROR_MESSAGE );
+						ExceptionDialog.showMessageDialog( msg , true, true );
 					}
 
+					/*
 					if( !ConfigApp.isTesting() )
 					{
 						JOptionPane.showMessageDialog(  coreControl.this.managerGUI.getAppUI(), 
@@ -1542,6 +1579,18 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					{
 						managerGUI.addInputMessageLog( event_type + ": " + eventObject.toString());
 					}
+					*/
+					
+					Exception ex = new Exception( eventObject.toString() );
+										
+					if( eventObject instanceof Exception )
+					{
+						ex = (Exception)eventObject;
+					}
+					
+					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionDialog.showMessageDialog( msg, true, true );
+					
 				}
 				else if (event_type.equals( EventType.WARNING ) )
 				{
@@ -1551,6 +1600,20 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						{
 							public void run()
 							{
+								Exception ex = new Exception( eventObject.toString() );
+								
+								if( eventObject instanceof Exception )
+								{
+									ex = (Exception)eventObject ;
+								}
+								
+								ExceptionMessage msg = new ExceptionMessage( ex
+																			, Language.getLocalCaption( Language.MSG_WARNING )
+																			, ExceptionDictionary.WARNING_MESSAGE );
+								
+								ExceptionDialog.showMessageDialog( msg, true, false );
+								
+								/*
 								if( !ConfigApp.isTesting() )
 								{
 									JOptionPane.showMessageDialog(   managerGUI.getAppUI(), 
@@ -1562,6 +1625,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 								{
 									managerGUI.addInputMessageLog( Language.getLocalCaption( Language.MSG_WARNING ) + ": " + eventObject.toString());
 								}
+								*/
 							}
 						}.start();
 					}
@@ -1651,10 +1715,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			if (!(e instanceof InterruptedException))
 			{
 				e.printStackTrace();
+								
+				ExceptionMessage msg = new ExceptionMessage( e
+															, "Exception in " + getClass().getSimpleName()
+															, ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, true );
 				
+				/*
 				JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
 						"Exception in " + getClass().getSimpleName(), 
 						JOptionPane.ERROR_MESSAGE);
+				*/
 			}
 		}
 
@@ -1748,11 +1819,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				}
 				
 				DecimalFormat df = new DecimalFormat("#.00"); 
-				managerGUI.addInputMessageLog( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) + " " + timeUnits[ unitIndex ] + "" +" (Freq = " + df.format( freq )+ ")\n");
+				//managerGUI.addInputMessageLog( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) + " " + timeUnits[ unitIndex ] + "" +" (Freq = " + df.format( freq )+ ")\n");
+				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) + " " + timeUnits[ unitIndex ] + "" +" (Freq = " + df.format( freq )+ ")" );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 			else
 			{
-				managerGUI.addInputMessageLog( this.ID + " -> non data available.\n" );
+				//managerGUI.addInputMessageLog( this.ID + " -> non data available.\n" );
+				Exception ex = new Exception( this.ID + " -> non data available." );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, false );				
 			}
 			
 			this.values.clear();
@@ -1889,7 +1966,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			if( !( e instanceof InterruptedException ) )
 			{
 				e.printStackTrace();
-				
+								
+				/*
 				if( !ConfigApp.isTesting() )
 				{				
 					JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
@@ -1900,6 +1978,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				{
 					managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + e.getMessage() );
 				}
+				*/
+				
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, true );
+				
 			}
 		}
 		

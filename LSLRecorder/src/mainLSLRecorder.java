@@ -21,37 +21,23 @@
  */
 
 import Controls.coreControl;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import GUI.appUI;
 import GUI.guiManager;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.OpeningDialog;
-import GUI.Miscellany.TextAreaPrintStream;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 
-import javax.swing.Icon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import Config.ConfigApp;
@@ -86,6 +72,9 @@ public class mainLSLRecorder
 			Language.loadLanguages();
 			Language.setDefaultLocalLanguage();
 			
+
+			ExceptionDialog.createExceptionDialog( null );
+						
 			createApplication();
 			
 			// load configuration
@@ -131,7 +120,7 @@ public class mainLSLRecorder
 
 	public static void createApplication() throws Throwable
 	{	
-		createAppGUI();
+		ExceptionDialog.createExceptionDialog( createAppGUI() );
 		createAppCoreControl();
 	}
 
@@ -200,10 +189,11 @@ public class mainLSLRecorder
 		ui.setVisible(true);
 		
 		open.dispose();
-
+		
 		return ui;
 	}
 
+	/*
 	private static void showError( Throwable e, final boolean fatalError )
 	{
 		JTextArea jta = new JTextArea();
@@ -291,5 +281,18 @@ public class mainLSLRecorder
 		p.add( close, BorderLayout.SOUTH );
 		p.toFront();
 		p.setVisible( true );		
+	}
+	*/
+	
+	private static void showError( Throwable e, final boolean fatalError )
+	{
+		if( fatalError )
+		{
+			ExceptionDialog.AppExitWhenWindowClosing();
+		}
+		
+		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionDictionary.ERROR_MESSAGE );
+		
+		ExceptionDialog.showMessageDialog( msg, true, true );
 	}
 }
