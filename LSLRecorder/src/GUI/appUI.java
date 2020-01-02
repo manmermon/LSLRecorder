@@ -739,7 +739,7 @@ public class appUI extends JFrame
 		return this.jLangMenu;
 	}
 
-	private JMenu getFileMenu()
+	protected JMenu getFileMenu()
 	{
 		if( this.jFileMenu == null )
 		{

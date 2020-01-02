@@ -567,6 +567,8 @@ public class guiManager
 		this.StopSessionTimer();
 		
 		this.enableGUI( true );
+		
+		this.getAppUI().getFileMenu().requestFocusInWindow();
 	}
 
 	private void enablePlayButton( boolean enable )
