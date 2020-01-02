@@ -696,7 +696,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 								*/
 								
-								NotificationTask nt = new NotificationTask();
+								NotificationTask nt = new NotificationTask( true );
 								nt.setID( nt.getID() +  "-" + event.getEventType() );
 								nt.setName( nt.getID() );
 								nt.taskMonitor( handMonitor );

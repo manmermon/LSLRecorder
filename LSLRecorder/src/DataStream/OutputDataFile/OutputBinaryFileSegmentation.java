@@ -130,7 +130,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			if( this.monitor != null )
 			{
-				this.notifTask = new NotificationTask();
+				this.notifTask = new NotificationTask( false );
 				this.notifTask.setName( this.notifTask.getID() + "-" + this.getID() );
 				this.notifTask.taskMonitor( this.monitor );
 				this.notifTask.startThread(); 

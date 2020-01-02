@@ -27,6 +27,7 @@ import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.StreamHeader;
 import DataStream.OutputDataFile.Format.DataFileFormat;
+import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
@@ -154,11 +155,20 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	{			
 		EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
 
+		/*		
 		this.events.add(event);
 		
 		if (this.monitor != null)
 		{
 			this.monitor.taskDone(this);
+		}
+		*/
+		
+		super.notifTask.addEvent( event );
+		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		synchronized ( super.notifTask )
+		{
+			super.notifTask.notify();
 		}
 	}
 	

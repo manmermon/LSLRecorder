@@ -2,8 +2,13 @@ package Auxiliar.Tasks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import Config.Language.Language;
 import Controls.Messages.EventInfo;
+import Exceptions.Handler.ExceptionDialog;
+import Exceptions.Handler.ExceptionDictionary;
+import Exceptions.Handler.ExceptionMessage;
 import StoppableThread.AbstractStoppableThread;
 
 public class NotificationTask extends AbstractStoppableThread implements INotificationTask 
@@ -14,6 +19,17 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 	
 	private ITaskMonitor monitor = null;
 
+	private AtomicBoolean blocking = new AtomicBoolean( true );
+	
+	/**
+	 * 
+	 * @param blockingNotification -> True if task notification must be blocked. 
+	 */
+	public NotificationTask( boolean blockingNotification )
+	{
+		this.blocking.set( blockingNotification );
+	}
+		
 	@Override
 	public void taskMonitor( ITaskMonitor m ) 
 	{	
@@ -77,6 +93,13 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 	@Override
 	protected void postStopThread(int friendliness) throws Exception 
 	{	
+		synchronized ( this )
+		{
+			if( super.getState().equals( Thread.State.WAITING ) )
+			{
+				this.notify();
+			}
+		}
 	}
 
 	@Override
@@ -93,7 +116,7 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 					wait = this.events.isEmpty();
 				}
 				
-				if( wait )
+				if( wait && !super.stopWhenTaskDone.get() )
 				{
 					super.wait();
 				}
@@ -105,7 +128,33 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 		
 		if( this.monitor != null )
 		{
-			this.monitor.taskDone( this );
+			if( this.blocking.get() )
+			{
+				this.monitor.taskDone( this );
+			}
+			else
+			{
+				final NotificationTask refNot = this;
+				
+				Thread t = new Thread()
+				{
+					@Override
+					public void run() 
+					{
+						try 
+						{
+							monitor.taskDone( refNot );
+						}
+						catch (Exception e) 
+						{
+							runExceptionManager( e );
+						}
+					}
+				};
+				
+				t.setName( this.getID() + "-AntiDeadlock" );
+				t.start();
+			}
 		}		
 	}
 }

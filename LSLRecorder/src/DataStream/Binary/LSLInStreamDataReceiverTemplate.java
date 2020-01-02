@@ -23,13 +23,17 @@
 package DataStream.Binary;
 
 import Auxiliar.Extra.ConvertTo;
+import Auxiliar.Tasks.IMonitoredTask;
 import Auxiliar.Tasks.INotificationTask;
+import Auxiliar.Tasks.ITaskIdentity;
 import Auxiliar.Tasks.ITaskMonitor;
+import Auxiliar.Tasks.NotificationTask;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
 import DataStream.StreamHeader;
 import Exceptions.ReadInputDataException;
+import Exceptions.SettingException;
 import Controls.Messages.EventType;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -54,7 +58,7 @@ import javax.activation.UnsupportedDataTypeException;
 
 import com.sun.management.OperatingSystemMXBean;
 
-public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements INotificationTask, ITimerMonitor
+public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements ITimerMonitor, IMonitoredTask, ITaskIdentity //INotificationTask
 {
 	protected ITaskMonitor monitor = null;
 
@@ -90,8 +94,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 	protected int lslChannelCounts = 0;
 
-	protected List< EventInfo > events;
-
+	//protected List< EventInfo > events;
+	protected NotificationTask notifTask = null;
+	
 	//protected int LSLFormatData = LSL.ChannelFormat.float32;
 	
 	protected int chunckLength = 1;
@@ -190,7 +195,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		this.lslChannelCounts = info.channel_count();
 
-		this.events = new ArrayList< EventInfo >();
+		//this.events = new ArrayList< EventInfo >();
 		
 		try
 		{
@@ -278,7 +283,22 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected void preStart() throws Exception
 	{
 		super.preStart(); 
-				
+		
+		synchronized ( this )
+		{
+			if( this.monitor != null )
+			{
+				this.notifTask = new NotificationTask( false );
+				this.notifTask.taskMonitor( this.monitor );
+				this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() );
+				this.notifTask.startThread();
+			}
+			else
+			{
+				throw new SettingException( "Monitor non defined. Use taskMonitor( ... ) function to set it." );
+			}
+		}
+		
 		if( this.timer != null )
 		{
 			this.timer.startThread();
@@ -1235,6 +1255,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 		e.printStackTrace();
 		
+		/*
 		if (this.monitor != null)
 		{
 			this.events.add( new EventInfo( this.getID(), EventType.PROBLEM, errorMsg ) );
@@ -1251,14 +1272,33 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				this.stopThread = true;
 			}
 		}
+		*/
+		
+		if( this.notifTask != null )
+		{
+			EventInfo ev = new EventInfo( this.getID(), EventType.PROBLEM, errorMsg ) ;
+			
+			this.notifTask.addEvent( ev );
+			synchronized ( this.notifTask )
+			{
+				this.notifTask.notify();
+			}
+		}
 	}
 
 	public void taskMonitor(ITaskMonitor m)
 	{
-		this.monitor = m;
+		if( super.getState().equals( Thread.State.NEW ) && this.notifTask == null )
+		{
+			synchronized ( this )
+			{
+				this.monitor = m;
+			}			
+		}
 	}
 
 
+	/*
 	@Override
 	public List<EventInfo> getResult( boolean clear)
 	{
@@ -1276,8 +1316,10 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		return lst;
 	}
+	 */
 
-
+	/*
+	@Override
 	public void clearResult()
 	{
 		synchronized ( this.events)
@@ -1285,6 +1327,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			this.events.clear();
 		}		
 	}
+	*/
 		
 	public void timeOver( String timerName )
 	{		

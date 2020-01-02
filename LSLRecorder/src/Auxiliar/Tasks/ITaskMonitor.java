@@ -34,5 +34,5 @@ public interface ITaskMonitor
 	 * 
 	 * @param INotificationTask source
 	 */
-	public void taskDone( INotificationTask task ) throws Exception;
+	public void taskDone( INotificationTask task ) throws Exception;	
 }

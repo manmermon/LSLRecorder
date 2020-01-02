@@ -21,15 +21,11 @@ package DataStream.OutputDataFile.Format;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskIdentity;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotificationTask;
-import Auxiliar.Tasks.BridgeNotifierThread;
 import Auxiliar.Tasks.IMonitoredTask;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
@@ -119,7 +115,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		{
 			if( this.monitor != null )
 			{
-				this.notifTask = new NotificationTask();
+				this.notifTask = new NotificationTask( false );
 				this.notifTask.taskMonitor( this.monitor );
 				this.notifTask.setName( this.notifTask.getID() + "-" + this.getID() );
 				this.notifTask.startThread();

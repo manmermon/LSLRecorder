@@ -25,8 +25,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 
 import Auxiliar.Extra.ConvertTo;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Binary.LSLInStreamDataReceiverTemplate;
@@ -39,7 +37,7 @@ import edu.ucsd.sccn.LSL.StreamInfo;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
 {	
-	private BridgeNotifierThread notifierThread; // Notification thread. Avoid blocks.
+	//private BridgeNotifierThread notifierThread; // Notification thread. Avoid blocks.
 	
 	/*
 	 * 
@@ -62,6 +60,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	 * (non-Javadoc)
 	 * @see OutputDataFile.readInputData#taskMonitor(Auxiliar.Tasks.ITaskMonitor)
 	 */
+	/*
 	@Override
 	public void taskMonitor(ITaskMonitor m) 
 	{
@@ -70,11 +69,13 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		this.notifierThread = new BridgeNotifierThread( m,  this );
 		this.notifierThread.setName( this.notifierThread.getClass().getName() + "-" + this.getClass().getName() );
 	}
+	*/
 
 	/*
 	 * (non-Javadoc)
 	 * @see OutputDataFile.readInputData#preStart()
 	 */
+	/*
 	@Override
 	protected void preStart() throws Exception 
 	{
@@ -89,6 +90,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 			this.notifierThread.startThread();
 		}
 	}
+	*/
 	
 	/*
 	 * (non-Javadoc)
@@ -97,7 +99,13 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	@Override
 	protected void postCleanUp() throws Exception 
 	{
-		this.notifierThread.stopThread( IStoppableThread.FORCE_STOP );
+		//this.notifierThread.stopThread( IStoppableThread.FORCE_STOP );
+		
+		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		synchronized ( super.notifTask )
+		{
+			super.notifTask.notify();
+		}		
 		
 		//this.notifierThread = null;
 	}
@@ -122,12 +130,13 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
 		EventInfo event = new EventInfo( this.getID(), EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
-		
+		/*
 		synchronized ( super.events )
 		{
 			super.events.add(event);
-		}		
-		
+		}
+		*/
+		/*
 		Thread antiDeadlock = new Thread()
 				{
 					@Override
@@ -140,6 +149,24 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 					}					
 				};
 			
+		antiDeadlock.start();
+		*/
+		
+		this.notifTask.addEvent( event );
+		
+		Thread antiDeadlock = new Thread()
+		{
+			@Override
+			public synchronized void run() 
+			{
+				this.setName( "antiDeadlock-InputSyncData" );
+				synchronized ( notifTask )
+				{
+					notifTask.notify();
+				}
+			}					
+		};
+	
 		antiDeadlock.start();
 		
 	}

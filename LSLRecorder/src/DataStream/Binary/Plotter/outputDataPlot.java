@@ -23,12 +23,12 @@
 package DataStream.Binary.Plotter;
 
 import GUI.CanvasLSLDataPlot;
+import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import Auxiliar.Extra.ConvertTo;
@@ -297,7 +297,13 @@ public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 	}
 
 	protected void postCleanUp() throws Exception
-	{}
+	{
+		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		synchronized ( super.notifTask )
+		{
+			super.notifTask.notify();
+		}		
+	}
 
 	@Override
 	public String getID() 

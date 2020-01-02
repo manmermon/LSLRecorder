@@ -402,7 +402,7 @@ public class guiManager
 				}.start();
 				*/
 				
-				NotificationTask notifTask = new NotificationTask();
+				NotificationTask notifTask = new NotificationTask( true );
 				notifTask.setID( notifTask.getID() + "-NotifyConvertBin2OutputFile" );
 				notifTask.setName( notifTask.getID() );
 				notifTask.taskMonitor( outCtr );
