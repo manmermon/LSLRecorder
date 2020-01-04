@@ -50,7 +50,6 @@ import edu.ucsd.sccn.LSLConfigParameters;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;

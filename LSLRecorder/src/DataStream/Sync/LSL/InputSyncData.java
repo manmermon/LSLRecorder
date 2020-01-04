@@ -152,8 +152,9 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		antiDeadlock.start();
 		*/
 		
-		this.notifTask.addEvent( event );
+		super.notifTask.addEvent( event );
 		
+		/*
 		Thread antiDeadlock = new Thread()
 		{
 			@Override
@@ -168,6 +169,12 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		};
 	
 		antiDeadlock.start();
+		*/
+		
+		synchronized ( super.notifTask )
+		{
+			super.notifTask.notify();
+		}
 		
 	}
 	

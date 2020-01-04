@@ -24,7 +24,6 @@ package DataStream.Binary;
 
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.IMonitoredTask;
-import Auxiliar.Tasks.INotificationTask;
 import Auxiliar.Tasks.ITaskIdentity;
 import Auxiliar.Tasks.ITaskMonitor;
 import Auxiliar.Tasks.NotificationTask;
@@ -314,10 +313,12 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 		double samplingRate = this.inLet.info().nominal_srate();
 		
-		this.blockTimer = 0.5D / samplingRate; // 0.5 s
+		this.blockTimer = 0.5D; // 0.5 s
 		
 		if ( samplingRate != LSL.IRREGULAR_RATE )
 		{
+			this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
+			
 			this.timer = new Timer();
 
 			long time = (long)(3*1000.0D / samplingRate);
@@ -363,19 +364,18 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		if( data != null )
 		{
+			if (this.timer != null)
+			{
+				this.timer.interruptTimer();
+			}
+			
 			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
-	
+			
 			if (this.timer != null)
 			{
 				this.timer.restartTimer();
 			}
 		}
-	}
-		
-	@Override
-	protected void finallyManager() 
-	{
-		super.finallyManager();
 	}
 	
 	private byte[] readData() throws Exception
@@ -771,11 +771,13 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		return out;
 	}
-			
+				
 	protected void runExceptionManager( Exception e )
 	{
 		if ( !(e instanceof InterruptedException) )
 		{
+			this.stopThread = true;
+			
 			String msg = e.getMessage();
 			
 			if( msg != null )
@@ -785,8 +787,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			
 			Exception ex = new Exception( msg, e );
 			
-			ex.addSuppressed( new ReadInputDataException( "Timer is over. The stream " + super.getName() + " does not respond."  ) );
-			this.stopThread = true;
+			ex.addSuppressed( new ReadInputDataException( "Timer is over. The stream " + super.getName() + " does not respond."  ) );			
 			this.notifyProblem( ex );
 		}
 	}
@@ -807,9 +808,8 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		}
 		catch (Exception localException) {}
 		
-		this.inLet.close_stream();
-				
-		//this.inLet.close();
+		this.inLet.close_stream();			
+		this.inLet.close();
 		
 		this.postCleanUp();
 	}
@@ -1239,7 +1239,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			errorMsg = "";
 		}
 		
-		if ( errorMsg.isEmpty())
+		if ( errorMsg.isEmpty() )
 		{
 			Throwable t = e.getCause();
 			if (t != null)
@@ -1330,9 +1330,10 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	*/
 		
 	public void timeOver( String timerName )
-	{		
+	{	
 		this.stopThread( IStoppableThread.FORCE_STOP );
 		this.inLet.close_stream();
+		this.inLet.close();
 		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.LSLName + "> was exceeded." ) );		
 	}
 
