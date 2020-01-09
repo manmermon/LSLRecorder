@@ -97,7 +97,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
 	            this.runInLoop();
 	            this.targetDone();
              }
-        	 catch( Exception e )
+        	 catch( Exception | Error e )
              {
         		 this.runExceptionManager( e );             	
              }
@@ -128,7 +128,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
      * 
      * @param e	-> Exception
      */
-    protected void runExceptionManager( Exception e )
+    protected void runExceptionManager( Throwable e )
     {
     	e.printStackTrace();
     }

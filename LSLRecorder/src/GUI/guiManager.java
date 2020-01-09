@@ -683,10 +683,10 @@ public class guiManager
 		}
 	}
 
-	public void setAppState( String msg )
-	{
+	public synchronized void setAppState( String msg )
+	{				
 		JTextField statePanel = appUI.getInstance().getTextState();
-				
+			
 		statePanel.setText( msg );
 		statePanel.setCaretPosition( 0 );
 		

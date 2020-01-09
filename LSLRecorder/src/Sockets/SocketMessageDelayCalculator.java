@@ -177,7 +177,7 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 	}
 		
 	@Override
-	protected void runExceptionManager(Exception e) 
+	protected void runExceptionManager( Throwable e) 
 	{
 		if( !( e instanceof InterruptedException ) )
 		{

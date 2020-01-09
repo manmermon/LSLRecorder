@@ -1498,6 +1498,10 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						System.exit( 0 );
 					}
 				}
+				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
+				{
+					managerGUI.setAppState( AppState.SAVING );
+				}				
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))
 				{
 					eventSocketMessagesManager( (List< EventInfo> )eventObject );
@@ -1710,7 +1714,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		}
 
 		@Override
-		protected void runExceptionManager(Exception e)
+		protected void runExceptionManager( Throwable e)
 		{
 			if (!(e instanceof InterruptedException))
 			{
@@ -1961,7 +1965,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		@Override
-		protected void runExceptionManager(Exception e) 
+		protected void runExceptionManager( Throwable e) 
 		{
 			if( !( e instanceof InterruptedException ) )
 			{

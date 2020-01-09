@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import Config.Language.Language;
 import Controls.Messages.EventInfo;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
 import StoppableThread.AbstractStoppableThread;
 
 public class NotificationTask extends AbstractStoppableThread implements INotificationTask 
@@ -20,6 +16,9 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 	private ITaskMonitor monitor = null;
 
 	private AtomicBoolean blocking = new AtomicBoolean( true );
+
+	private Thread antideadlockThread = null;	
+	private AtomicBoolean antideadLockIsWorking = new AtomicBoolean();
 	
 	/**
 	 * 
@@ -136,24 +135,39 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 			{
 				final NotificationTask refNot = this;
 				
-				Thread t = new Thread()
+				synchronized ( this.antideadLockIsWorking )
 				{
-					@Override
-					public void run() 
+					if( !this.antideadLockIsWorking.get() )
 					{
-						try 
+						this.antideadLockIsWorking.set( true );
+						
+						this.antideadlockThread = new Thread()
 						{
-							monitor.taskDone( refNot );
-						}
-						catch (Exception e) 
-						{
-							runExceptionManager( e );
-						}
+							@Override
+							public void run() 
+							{
+								try 
+								{
+									monitor.taskDone( refNot );									
+								}
+								catch (Exception e) 
+								{
+									runExceptionManager( e );
+								}
+								finally 
+								{
+									synchronized ( antideadLockIsWorking )
+									{
+										antideadLockIsWorking.set( false );
+									}
+								}
+							}
+						};
+						
+						this.antideadlockThread.setName( this.getID() + "-AntiDeadlock" );
+						this.antideadlockThread.start();
 					}
-				};
-				
-				t.setName( this.getID() + "-AntiDeadlock" );
-				t.start();
+				}				
 			}
 		}		
 	}

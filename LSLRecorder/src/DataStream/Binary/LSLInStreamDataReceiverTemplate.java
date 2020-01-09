@@ -36,13 +36,13 @@ import Exceptions.SettingException;
 import Controls.Messages.EventType;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
-import Timers.ITimerMonitor;
-import Timers.Timer;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInlet;
 import edu.ucsd.sccn.LSLUtils;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -53,11 +53,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javax.activation.UnsupportedDataTypeException;
+import javax.swing.Timer;
 
 import com.sun.management.OperatingSystemMXBean;
 
-public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements ITimerMonitor, IMonitoredTask, ITaskIdentity //INotificationTask
+public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
 {
 	protected ITaskMonitor monitor = null;
 
@@ -103,6 +106,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected boolean interleavedData = false;
 	
 	protected int timeType = LSL.ChannelFormat.double64;
+	
+	private AtomicBoolean isStreamClosed = new AtomicBoolean( false );
+	private AtomicBoolean isRecording = new AtomicBoolean( false );
 		
 	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
 	{
@@ -283,27 +289,24 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	{
 		super.preStart(); 
 		
-		synchronized ( this )
+		synchronized ( this.isRecording )
 		{
-			if( this.monitor != null )
-			{
-				this.notifTask = new NotificationTask( false );
-				this.notifTask.taskMonitor( this.monitor );
-				this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() );
-				this.notifTask.startThread();
-			}
-			else
-			{
-				throw new SettingException( "Monitor non defined. Use taskMonitor( ... ) function to set it." );
-			}
+			this.isRecording.set( true );
 		}
 		
-		if( this.timer != null )
+		synchronized ( this )
 		{
+			startMonitor();
+		}
+		
+		/*
+		if( this.timer != null )
+		{			
 			this.timer.startThread();
 		}
+		*/
 	}
-	
+		
 	private void createArrays() throws Exception 
 	{
 		this.createArrayData();
@@ -319,19 +322,28 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		{
 			this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
 			
-			this.timer = new Timer();
-
-			long time = (long)(3*1000.0D / samplingRate);
-			if (time < 3000L)
-			{
-				time = 3000L; // 3 seconds
-			}
-
-			this.timer.setTimerValue( time );
-			this.timer.setName( this.getClass() + "-Timer");
-			this.timer.setTimerMonitor( this );
+			//this.timer = new Timer();
 			
-			//this.timer.startThread();
+			int time = (int)(3*1000.0D / samplingRate);
+			if (time < 3000)
+			{
+				time = 3000; // 3 seconds
+			}
+						
+			this.timer = new Timer( time, new ActionListener() 
+				{				
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						timeOver();
+					}
+			});
+			
+			//this.timer.setTimerValue( time );
+			//this.timer.setName( this.getClass() + "-Timer");
+			//this.timer.setTimerMonitor( this );
+			
+			//this.timer.startThread();					
 		}		
 		
 		this.timeCorrection = this.inLet.time_correction();
@@ -341,7 +353,16 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	{
 		super.startUp();
 
-		this.inLet.open_stream();		
+		if( this.timer != null )
+		{
+			this.timer.start();
+		}
+		
+		synchronized ( this.isStreamClosed )
+		{
+			this.isStreamClosed.set( false );
+			this.inLet.open_stream();
+		}
 	}
 
 	protected void preStopThread(int friendliness) throws Exception
@@ -349,7 +370,17 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		if( friendliness == IStoppableThread.FORCE_STOP 
 				|| ( this.inLet.info().nominal_srate() == LSL.IRREGULAR_RATE ))
 		{
-			this.inLet.close_stream();
+			if( this.timer != null )
+			{
+				this.timer.stop();
+			}
+			
+			synchronized ( this.isStreamClosed ) 
+			{
+				this.isStreamClosed.set( true );
+				this.inLet.close_stream();				
+			}
+						
 			//this.inLet.close();
 		}
 	}
@@ -364,16 +395,44 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		if( data != null )
 		{
+			/*
 			if (this.timer != null)
 			{
 				this.timer.interruptTimer();
 			}
-			
-			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
+			*/
 			
 			if (this.timer != null)
 			{
+				this.timer.stop();
+			}
+			
+			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
+			
+			/*
+			if (this.timer != null)
+			{
 				this.timer.restartTimer();
+			}
+			*/
+			
+			if (this.timer != null)
+			{
+				this.timer.restart();
+			}
+		}
+	}
+	
+	@Override
+	protected void finallyManager() 
+	{	
+		super.finallyManager();
+		
+		synchronized ( this.isStreamClosed )
+		{
+			if( this.isStreamClosed.get() && this.isRecording.get() )
+			{
+				super.stopThread = true;
 			}
 		}
 	}
@@ -772,10 +831,13 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		return out;
 	}
 				
-	protected void runExceptionManager( Exception e )
+	protected void runExceptionManager( Throwable e )
 	{
-		if ( !(e instanceof InterruptedException) )
+		if ( !(e instanceof InterruptedException) 
+				|| ( e instanceof Error ) )
 		{
+			this.timer.stop(); 
+			
 			this.stopThread = true;
 			
 			String msg = e.getMessage();
@@ -787,7 +849,17 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			
 			Exception ex = new Exception( msg, e );
 			
-			ex.addSuppressed( new ReadInputDataException( "Timer is over. The stream " + super.getName() + " does not respond."  ) );			
+			String errMsg = "Timer is over. ";
+			
+			if( e instanceof Error ) 
+			{
+				errMsg = "Fatal Error. "; 
+			}
+			
+			errMsg += "The stream " + super.getName() + " does not respond." ;
+			
+			ex.addSuppressed( new ReadInputDataException( errMsg ) );
+			
 			this.notifyProblem( ex );
 		}
 	}
@@ -796,10 +868,16 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	{
 		super.cleanUp();
 
+		/*
 		if (this.timer != null)
 		{
 			this.timer.stopThread( IStoppableThread.FORCE_STOP );
 		}
+		*/
+		if (this.timer != null)
+		{
+			this.timer.stop();
+		}		
 		this.timer = null;
 		
 		try
@@ -808,8 +886,16 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		}
 		catch (Exception localException) {}
 		
-		this.inLet.close_stream();			
-		this.inLet.close();
+		//this.inLet.close_stream();
+		synchronized ( this.isStreamClosed )
+		{
+			if( !this.isStreamClosed.get() )
+			{
+				this.isStreamClosed.set( true );
+				this.inLet.close();
+			}
+		}
+		
 		
 		this.postCleanUp();
 	}
@@ -1329,17 +1415,41 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	}
 	*/
 		
-	public void timeOver( String timerName )
+	private void timeOver( )
 	{	
 		this.stopThread( IStoppableThread.FORCE_STOP );
-		this.inLet.close_stream();
-		this.inLet.close();
+		//this.inLet.close_stream();
+		synchronized ( this.isStreamClosed )
+		{
+			if( !this.isStreamClosed.get() )
+			{
+				this.isStreamClosed.set( true );
+				this.inLet.close();
+			}
+		}		
+		
 		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.LSLName + "> was exceeded." ) );		
 	}
 
-	public void reportClockTime(long time) {}
+	protected void startMonitor() throws Exception 
+	{
+		if( this.monitor != null )
+		{
+			this.notifTask = new NotificationTask( false );
+			this.notifTask.taskMonitor( this.monitor );
+			this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() );
+			this.notifTask.startThread();
+		}
+		else
+		{
+			throw new SettingException( "Monitor non defined. Use taskMonitor( ... ) function to set it." );
+		}
+	}
+	
+	//public void reportClockTime(long time) {}
 
 	protected abstract void postCleanUp() throws Exception;
 
 	protected abstract void managerData(byte[] dataArrayOfBytes, byte[] timeArrayOfBytes ) throws Exception;
+	
 }

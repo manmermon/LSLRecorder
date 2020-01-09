@@ -27,9 +27,9 @@ import java.net.InetSocketAddress;
 public class StreamSocketProblem 
 {
 	private InetSocketAddress socketAddress = null;
-	private Exception exc = null;
+	private Throwable exc = null;
 	
-	public StreamSocketProblem( InetSocketAddress address, Exception ex ) throws IllegalArgumentException 
+	public StreamSocketProblem( InetSocketAddress address, Throwable ex ) throws IllegalArgumentException 
 	{
 		this.socketAddress = address;
 		this.exc = ex; 
@@ -40,7 +40,7 @@ public class StreamSocketProblem
 		return this.socketAddress;
 	}
 	
-	public Exception getProblemCause()
+	public Throwable getProblemCause()
 	{
 		return this.exc;
 	}

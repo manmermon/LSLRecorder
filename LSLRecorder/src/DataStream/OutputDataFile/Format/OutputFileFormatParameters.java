@@ -23,7 +23,6 @@ import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import DataStream.OutputDataFile.Compress.IOutZip;
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 
 public class OutputFileFormatParameters 

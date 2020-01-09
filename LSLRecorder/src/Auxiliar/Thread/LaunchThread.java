@@ -86,7 +86,7 @@ public class LaunchThread extends AbstractStoppableThread implements INotificati
 	}
 
 	@Override
-	protected void runExceptionManager( Exception e ) 
+	protected void runExceptionManager( Throwable e ) 
 	{
 		EventInfo ev = new EventInfo( this.getID(), EventType.PROBLEM, e );
 		

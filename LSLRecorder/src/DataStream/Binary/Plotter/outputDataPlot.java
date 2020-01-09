@@ -27,7 +27,6 @@ import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -196,53 +195,58 @@ public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 		}
 	}
 	
+	/*
 	private double getDataValue( byte[] aux )
 	{
 		Number out = this.getInValue( aux );
 		
-		/*
-		switch( super.LSLFormatData ) 
-		{
-			case( LSL.ChannelFormat.double64 ):
-			{
-				out = ByteBuffer.wrap(aux).getDouble();
-				break;
-			}
-			case( LSL.ChannelFormat.float32 ):
-			{
-				out = new Double( ByteBuffer.wrap(aux).getFloat() );
-				break;
-			}
-			case( LSL.ChannelFormat.int8 ):
-			{
-				out = new Double( ByteBuffer.wrap(aux).get() );
-				break;
-			}
-			case( LSL.ChannelFormat.int16 ):
-			{
-				out = new Double( ByteBuffer.wrap(aux).getShort() );
-				break;
-			}
-			case( LSL.ChannelFormat.int32 ):
-			{
-				out = new Double( ByteBuffer.wrap(aux).getInt() );
-				break;
-			}
-			case( LSL.ChannelFormat.int64 ):
-			{
-				out = new Double( ByteBuffer.wrap(aux).getLong() );
-				break;
-			}
-			default: // String
-			{					
-				
-			}
-		}
-		*/
+//		switch( super.LSLFormatData ) 
+//		{
+//			case( LSL.ChannelFormat.double64 ):
+//			{
+//				out = ByteBuffer.wrap(aux).getDouble();
+//				break;
+//			}
+//			case( LSL.ChannelFormat.float32 ):
+//			{
+//				out = new Double( ByteBuffer.wrap(aux).getFloat() );
+//				break;
+//			}
+//			case( LSL.ChannelFormat.int8 ):
+//			{
+//				out = new Double( ByteBuffer.wrap(aux).get() );
+//				break;
+//			}
+//			case( LSL.ChannelFormat.int16 ):
+//			{
+//				out = new Double( ByteBuffer.wrap(aux).getShort() );
+//				break;
+//			}
+//			case( LSL.ChannelFormat.int32 ):
+//			{
+//				out = new Double( ByteBuffer.wrap(aux).getInt() );
+//				break;
+//			}
+//			case( LSL.ChannelFormat.int64 ):
+//			{
+//				out = new Double( ByteBuffer.wrap(aux).getLong() );
+//				break;
+//			}
+//			default: // String
+//			{					
+//				
+//			}
+//		}
 		
 		return out.doubleValue();
 	}
-	
+	*/
+		
+	/**
+	 * @param buf
+	 * @return
+	 */
+	/*
 	private Number getInValue( byte[] buf )
 	{
 		Number in;
@@ -295,13 +299,17 @@ public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 				
 		return in;
 	}
+	*/
 
 	protected void postCleanUp() throws Exception
 	{
-		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-		synchronized ( super.notifTask )
+		if( this.notifTask != null )
 		{
-			super.notifTask.notify();
+			super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+			synchronized ( super.notifTask )
+			{
+				super.notifTask.notify();
+			}
 		}		
 	}
 
@@ -309,5 +317,10 @@ public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 	public String getID() 
 	{
 		return this.getName();
+	}
+	
+	@Override
+	protected void startMonitor() throws Exception 
+	{
 	}
 }

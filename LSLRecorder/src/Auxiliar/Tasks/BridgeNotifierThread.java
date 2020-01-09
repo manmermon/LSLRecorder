@@ -174,7 +174,7 @@ public class BridgeNotifierThread extends AbstractStoppableThread
 	 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
 	 */
 	@Override
-	protected void runExceptionManager( Exception e ) 
+	protected void runExceptionManager( Throwable e ) 
 	{
 		super.stopThread = true;
 		e.printStackTrace();

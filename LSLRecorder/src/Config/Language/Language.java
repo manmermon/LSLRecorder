@@ -207,7 +207,7 @@ public class Language {
 	public static final String INPUT_STOP_LEGEND = "INPUT_STOP_LEGEND";
 	public static final String LANGUAGE_TEXT = "LANGUAGE_TEXT";
 
-	private static Map<String, Caption> captions = new HashMap();
+	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
 	static {
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));

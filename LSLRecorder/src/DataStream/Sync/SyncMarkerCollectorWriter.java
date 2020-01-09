@@ -576,6 +576,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		return markers;
 	}
 	
+	/*
 	private static boolean isOrdered( SyncMarkerBinFileReader syncReader )
 	{
 		boolean ordered = true;
@@ -614,7 +615,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		
 		return ordered;
 	}
-	
+	*/
 	
 	public static String GetFinalOutEventID()
 	{

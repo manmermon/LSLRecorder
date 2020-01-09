@@ -429,7 +429,7 @@ public class CanvasLSLDataPlot extends JPanel
 					InfoDialog w = new InfoDialog( setTask, getFilterTextInfo() );
 					
 					w.setSize( 300, 200 );
-					Dimension size = w.getSize();
+					//Dimension size = w.getSize();
 					Point pos = b.getLocationOnScreen();
 					
 					Point loc = new Point( pos.x + b.getWidth() //- size.width

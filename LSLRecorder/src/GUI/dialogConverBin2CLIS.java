@@ -974,6 +974,10 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			txtStreamName.setDocument( new PlainDocument()
 					{
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = 6140600460345989861L;
 						private String text = "";
 						@Override
 						public void insertString(int offset, String txt, AttributeSet a) throws BadLocationException 

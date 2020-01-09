@@ -101,11 +101,14 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	{
 		//this.notifierThread.stopThread( IStoppableThread.FORCE_STOP );
 		
-		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-		synchronized ( super.notifTask )
+		if( this.notifTask != null )
 		{
-			super.notifTask.notify();
-		}		
+			super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+			synchronized ( super.notifTask )
+			{
+				super.notifTask.notify();
+			}
+		}
 		
 		//this.notifierThread = null;
 	}

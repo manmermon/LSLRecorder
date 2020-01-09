@@ -124,7 +124,7 @@ public class Timer extends AbstractStoppableThread implements ITimer, ITaskMonit
 	 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
 	 */
 	@Override
-	protected void runExceptionManager(Exception e) 
+	protected void runExceptionManager( Throwable e) 
 	{
 		if( !( e instanceof InterruptedException ) )
 		{

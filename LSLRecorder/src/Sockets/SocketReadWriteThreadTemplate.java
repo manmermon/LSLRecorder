@@ -110,7 +110,7 @@ public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThr
 	}
 	
 	@Override
-	protected void runExceptionManager(Exception e) 
+	protected void runExceptionManager( Throwable e) 
 	{
 		boolean report = ( !this.stopThread ) 
 						 	&& !( e instanceof InterruptedException ) 

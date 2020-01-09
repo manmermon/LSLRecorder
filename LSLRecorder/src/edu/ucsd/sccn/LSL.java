@@ -529,7 +529,7 @@ public class LSL {
      * A stream inlet.
      * Inlets are used to receive streaming data (and meta-data) from the lab network.
      */
-    public static class StreamInlet {
+    public static class StreamInlet {    	    	
         /**
          * Construct a new stream inlet from a resolved stream info.
          * @param info A resolved stream info object (as coming from one of the resolver functions).
@@ -657,7 +657,7 @@ public class LSL {
         public int pull_chunk(int[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
         public int pull_chunk(String[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception { int[] ec = {0}; long res = inst.lsl_pull_chunk_str(obj, data_buffer, timestamp_buffer, data_buffer.length, timestamp_buffer.length, timeout, ec); check_error(ec); return (int)res; }
         public int pull_chunk(String[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
-
+        
         /**
          * Query whether samples are currently available for immediate pickup.
          * Note that it is not a good idea to use samples_available() to determine whether

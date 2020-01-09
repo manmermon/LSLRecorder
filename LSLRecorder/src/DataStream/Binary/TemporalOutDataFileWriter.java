@@ -152,23 +152,28 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	}
 	
 	protected void postCleanUp() throws Exception
-	{			
-		EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
+	{	
+		if( this.notifTask != null )
+		{
+			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
 
-		/*		
-		this.events.add(event);
-		
-		if (this.monitor != null)
-		{
-			this.monitor.taskDone(this);
-		}
-		*/
-		
-		super.notifTask.addEvent( event );
-		super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-		synchronized ( super.notifTask )
-		{
-			super.notifTask.notify();
+			/*		
+			this.events.add(event);
+	
+			if (this.monitor != null)
+			{
+				this.monitor.taskDone(this);
+			}
+			 */
+
+
+			super.notifTask.addEvent( event );
+			super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+			synchronized ( super.notifTask )
+			{
+				super.notifTask.notify();
+			}
+			super.notifTask = null;
 		}
 	}
 	

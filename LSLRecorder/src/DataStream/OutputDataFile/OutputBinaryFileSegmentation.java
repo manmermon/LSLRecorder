@@ -522,7 +522,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
 	 */
 	@Override
-	protected void runExceptionManager(Exception e)
+	protected void runExceptionManager( Throwable e)
 	{
 		if (!(e instanceof InterruptedException))
 		{

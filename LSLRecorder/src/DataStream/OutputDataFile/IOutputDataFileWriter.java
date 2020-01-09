@@ -24,7 +24,6 @@ package DataStream.OutputDataFile;
 
 import DataStream.OutputDataFile.DataBlock.DataBlock;
 import StoppableThread.IStoppableThread;
-import StoppableThread.Events.IStoppableThreadEventControl;
 
 public abstract interface IOutputDataFileWriter extends IStoppableThread//, IStoppableThreadEventControl
 {
