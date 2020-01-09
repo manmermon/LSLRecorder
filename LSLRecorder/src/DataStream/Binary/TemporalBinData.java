@@ -40,8 +40,8 @@ public class TemporalBinData
 	private int CountChannels;
 	private int ChunckSize;
 	
-	private String outFileName = "./data" + DataFileFormat.getSupportedFileExtension( DataFileFormat.CLIS );
-	private String outFileFormat = DataFileFormat.CLIS;
+	private String outFileName = "./data" + DataFileFormat.getSupportedFileExtension( DataFileFormat.CLIS_GZIP );
+	private String outFileFormat = DataFileFormat.CLIS_GZIP;
 	
 	private ReadBinaryFile reader = null;
 	

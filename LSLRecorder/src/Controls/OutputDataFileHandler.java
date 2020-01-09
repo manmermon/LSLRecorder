@@ -81,7 +81,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private boolean isRecorderThreadOn = false;
 	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
 	
-	private String fileFormat = DataFileFormat.CLIS;
+	private String fileFormat = DataFileFormat.CLIS_GZIP;
 	
 	//private List<LSL.StreamInfo> streamInfos = null;
 

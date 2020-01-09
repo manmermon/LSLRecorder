@@ -915,7 +915,7 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileFormat()
 	{
-		listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.PCLIS );
+		listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.PCLIS_GZIP );
 		//listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.CLIS );
 	}
 	

@@ -50,7 +50,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	private String ext = ".temp";
 	
 	private String outFileName = "";
-	private String outFileFormat = DataFileFormat.CLIS;
+	private String outFileFormat = DataFileFormat.CLIS_GZIP;
 	
 	//private int dataTypeByteLength = 1;
 	//private int timeTypeByteLength = 1;	

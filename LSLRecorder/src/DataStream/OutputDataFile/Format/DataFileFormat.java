@@ -22,6 +22,9 @@
 
 package DataStream.OutputDataFile.Format;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.Format.Clis.OutputCLISDataWriter;
 import DataStream.OutputDataFile.Format.Clis.Parallel.OutputCLISDataParallelWriter;
@@ -30,52 +33,69 @@ public class DataFileFormat
 {
 	//public static String MATLAB = "Matlab";
 	//public static String CSV = "CSV";
-	public static String CLIS = "CLIS";
-	public static String PCLIS = "PCLIS";
-
+	public static final String CLIS_GZIP = "CLIS-GZIP";
+	public static final String PCLIS_GZIP = "PCLIS-GZIP";
+	public static final String CLIS_BZIP2 = "CLIS-BZIP2";
+	public static final String PCLIS_BZIP2 = "PCLIS-BZIP2";
 
 	public static String[] getSupportedFileFormat()
 	{
-		return new String[] { PCLIS, CLIS };//, MATLAB, CSV };
+		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2 };//, MATLAB, CSV };
 		//return new String[] { CLIS, PCLIS };//, MATLAB, CSV };
 	}
 
-	public static String[] getSupportedFileExtension()
+	public static Map<String, String > getSupportedFileExtension()
 	{
-		return new String[] { ".clis", ".clis" };//, ".mat", ".csv" };
+		Map< String, String > exts = new HashMap< String, String >();
+		
+		exts.put( PCLIS_GZIP, ".clis" );
+		exts.put( CLIS_GZIP, ".clis" );
+		exts.put( PCLIS_BZIP2, ".clis" );
+		exts.put( CLIS_BZIP2, ".clis" );
+		
+		//exts.put( MATLAB, ".mat" );
+		//exts.put( CSV, ".csv" );		
+		
+		return exts;
 	}
-
+	
 	public static int getCompressTech( String fileFormat )
 	{
 		int zp = OutputZipDataFactory.UNDEFINED;
 		
-		if( fileFormat.toUpperCase().equals( CLIS ))
+		fileFormat = fileFormat.toUpperCase();
+		
+		if( fileFormat.equals( CLIS_GZIP ) 
+				||fileFormat.equals( PCLIS_GZIP ))
 		{
 			zp = OutputZipDataFactory.GZIP;
 		}
-		else if( fileFormat.toUpperCase().equals( PCLIS ))
+		else if( fileFormat.equals( CLIS_BZIP2 ) 
+				|| fileFormat.equals( PCLIS_BZIP2 ) )
 		{
-			zp = OutputZipDataFactory.GZIP;
+			zp = OutputZipDataFactory.BZIP2;
 		}
 		
 		return zp;
 	}
 	
-	public static String getSupportedFileExtension(String fileFormat) throws IllegalArgumentException
+	public static String getSupportedFileExtension( String fileFormat ) throws IllegalArgumentException
 	{
 		if( !isSupportedFileFormat( fileFormat ) )
 		{
 			throw new IllegalArgumentException( "Unsupport file format." );
 		}
 		
-		String[] exts = getSupportedFileExtension();
+		Map<String, String > exts = getSupportedFileExtension();
 
-		String ext = exts[0];
+		String ext = exts.get( fileFormat );
 		
-		if (fileFormat.toUpperCase().equals( PCLIS ))
+		/*
+		if (fileFormat.toUpperCase().equals( PCLIS_GZIP ))
 		{
 			ext = exts[1];
 		}
+		*/
 		
 		/*
 		if (fileFormat.equals(MATLAB))
@@ -107,10 +127,20 @@ public class DataFileFormat
 	public static OutputFileWriterTemplate getDataFileWriter(String format, String file, OutputFileFormatParameters p ) throws Exception
 	{
 		OutputFileWriterTemplate writer = null;
-		if (isSupportedFileFormat(format))
-		{
+		
+		if ( isSupportedFileFormat( format ) )
+		{	
+			format = format.toUpperCase();
+			
+			if ( format.equals(CLIS_GZIP) 
+					|| format.equals( CLIS_BZIP2 )
+					|| format.equals( PCLIS_GZIP )
+					|| format.equals( PCLIS_BZIP2 ) )
+			{				
+				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
+			}
 			/*
-			if (format.equals(MATLAB))
+			else if (format.equals(MATLAB))
 			{
 				writer = new MatlabFile(file);
 			}
@@ -119,15 +149,6 @@ public class DataFileFormat
 				writer = new CSVFile(file);
 			}
 			*/
-			if (format.toUpperCase().equals(CLIS))
-			{				
-				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
-			}
-			else if ( format.toUpperCase().equals( PCLIS ) )
-			{				
-				//writer = new OutputCLISDataParallelWriter_old( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() ); 
-				writer = new OutputCLISDataParallelWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
-			}
 		}
 
 		return writer;

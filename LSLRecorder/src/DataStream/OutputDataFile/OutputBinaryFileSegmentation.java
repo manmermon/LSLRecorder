@@ -135,53 +135,43 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				this.notifTask.taskMonitor( this.monitor );
 				this.notifTask.startThread(); 
 			}
-		}		
-	}
+			
+			// Header size stimation
+			long binFileSize = this.DATA.getDataBinaryFileSize();
+			binFileSize = (long) Math.ceil( 1.0D * binFileSize / this.BLOCK_SIZE );
+			
+			long timeBlocks = 0;
+			
+			if( this.syncReader != null )
+			{
+				timeBlocks = this.syncReader.getFileSize();
+				timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
+			}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see StoppableThread.AbstractStoppableThread#startUp()
-	 */
-	@Override
-	protected void startUp() throws Exception
-	{
-		super.startUp();
-		
-		// Header size stimation
-		long binFileSize = this.DATA.getDataBinaryFileSize();
-		binFileSize = (long) Math.ceil( 1.0D * binFileSize / this.BLOCK_SIZE );
-		
-		long timeBlocks = 0;
-		
-		if( this.syncReader != null )
-		{
-			timeBlocks = this.syncReader.getFileSize();
-			timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
+			int blockSizeStrLen = Integer.toString( this.BLOCK_SIZE ).length() + 1;
+	
+			long headerSize = binFileSize * blockSizeStrLen + timeBlocks * blockSizeStrLen;
+	
+			String xml = this.DATA.getLslXml();						
+	
+			headerSize += xml.toCharArray().length;
+			headerSize += ( this.DATA.getStreamingName().length() + 10 ) * 4 ; // device info, binary and time data; 10 -> length of data type in string
+			headerSize += Integer.toString( this.DATA.getNumberOfChannels() + 1 ).length() * 2; // channel numbers 
+	
+			// Setting		
+			String outFormat = this.DATA.getOutputFileFormat();
+			OutputFileFormatParameters pars = new OutputFileFormatParameters();
+			pars.setCharset( Charset.forName( "UTF-8") );
+			pars.setHeaderSize( headerSize );
+			pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
+			
+			OutputFileWriterTemplate wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars );
+					
+			this.writer = wr;
+					
+			this.writer.taskMonitor( this );
+			this.writer.startThread();
 		}
-
-		int blockSizeStrLen = Integer.toString( this.BLOCK_SIZE ).length() + 1;
-
-		long headerSize = binFileSize * blockSizeStrLen + timeBlocks * blockSizeStrLen;
-
-		String xml = this.DATA.getLslXml();						
-
-		headerSize += xml.toCharArray().length;
-		headerSize += ( this.DATA.getStreamingName().length() + 10 ) * 4 ; // device info, binary and time data; 10 -> length of data type in string
-		headerSize += Integer.toString( this.DATA.getNumberOfChannels() + 1 ).length() * 2; // channel numbers 
-
-		// Setting		
-		String outFormat = this.DATA.getOutputFileFormat();
-		OutputFileFormatParameters pars = new OutputFileFormatParameters();
-		pars.setCharset( Charset.forName( "UTF-8") );
-		pars.setHeaderSize( headerSize );
-		pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
-		
-		OutputFileWriterTemplate wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars );
-				
-		this.writer = wr;
-				
-		this.writer.taskMonitor( this );
-		this.writer.startThread();
 	}
 
 	/*
@@ -522,7 +512,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 * @see StoppableThread.AbstractStoppableThread#runExceptionManager(java.lang.Exception)
 	 */
 	@Override
-	protected void runExceptionManager( Throwable e)
+	protected void runExceptionManager( Throwable e )
 	{
 		if (!(e instanceof InterruptedException))
 		{
@@ -544,7 +534,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			if( this.notifTask != null )
 			{
-				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
+				String fileName = "";
+				
+				if( this.writer != null )
+				{
+					fileName = this.writer.getFileName();
+				}
+				
+				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + fileName + "\n" + e.getClass()));
 				
 				this.notifTask.addEvent( event );
 				

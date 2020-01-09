@@ -259,7 +259,7 @@ public class guiManager
 				boolean interleave = false;
 				String name = "stream";
 				String folder = "./";
-				String outFormat = DataFileFormat.CLIS;
+				String outFormat = DataFileFormat.CLIS_GZIP;
 				boolean del = false;
 				String desc = "";
 				

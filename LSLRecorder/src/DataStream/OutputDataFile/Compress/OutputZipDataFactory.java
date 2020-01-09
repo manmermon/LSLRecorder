@@ -20,16 +20,18 @@
 
 package DataStream.OutputDataFile.Compress;
 
-import DataStream.OutputDataFile.Compress.GZip.OutputGZipData;
+import DataStream.OutputDataFile.Compress.Zip.OutputBZip2Data;
+import DataStream.OutputDataFile.Compress.Zip.OutputGZipData;
 
 public class OutputZipDataFactory 
 {
 	public static final int UNDEFINED = -1;
 	public static final int GZIP = 0;
+	public static final int BZIP2 = 1;
 	
 	/**
 	 * 
-	 * @param type: Compress algorithm ID: 0 -> GZip
+	 * @param type: Compress algorithm ID: 0 -> GZip, 1 -> BZIP2
 	 * @return Temporal output to compress data
 	 * @throws IllegalArgumentException: if type value is not supported.
 	 */
@@ -44,9 +46,13 @@ public class OutputZipDataFactory
 				zip = new OutputGZipData();
 				break;
 			}
+			case BZIP2:
+			{
+				zip = new OutputBZip2Data();
+			}
 			default:
 			{
-				throw new IllegalArgumentException( "Unsupport type" );
+				//throw new IllegalArgumentException( "Unsupport type" );
 			}
 		}
 		

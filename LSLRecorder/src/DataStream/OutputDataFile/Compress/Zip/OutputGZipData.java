@@ -18,7 +18,7 @@
  *   
  */
 
-package DataStream.OutputDataFile.Compress.GZip;
+package DataStream.OutputDataFile.Compress.Zip;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
