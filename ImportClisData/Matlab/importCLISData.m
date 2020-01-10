@@ -57,144 +57,145 @@ function [data, info] = importCLISData( filename, opts )
     %%              
     %%info      -> Information from the file. Only for version 2 or greater of CLIS. 
     
-    info = struct();
-        
-    rank = [];
-    selVarIndexes = [];
-    
-    if nargin < 2
-       
-        opts = {};
-        
-    end
-    
-    NOpts = length( opts );
-    
-    if mod( NOpts, 2 ) > 0
-       
-        error( '%s%s', 'Length of cell array of attributes is not correct.',...
-                       'This must contain tuple of 2 elements: identifier and values.' );
-        
-    end
-    
-    if NOpts > 0
-       
-        keys    = {'selVarIndexes'  , 'selVarNames' };        
-        values  = {'selVarNames'    , 'selVarIndexes' };
-        optsIncompatibles = containers.Map( keys, values );
-        regOpts = cell( NOpts/2, 1 );
-        iRegOpts = 1;
-        for i = 2 : 2 : NOpts
-           
-            id = opts{ i - 1 };
-            values = opts{ i };
-            
-            if ~ischar( id )
-               
-                error( 'The attribute identifier must be a text string' );
-                
-            end
-            
-            incompatibles = findStrInCell( optsIncompatibles.keys, id, 1, 1 );
-            if ~isempty( incompatibles )
-               
-                val = optsIncompatibles( id );
-                if ~isempty( findStrInCell( regOpts( 1 : ( iRegOpts - 1 ) ), val ) )
-                   
-                    error( 'Options %s and %s are incompatibles.', id, val );
-                    
-                end
-                
-            end                
-            
-            if strcmpi( id, 'rank' )
-                
-                rank = values;
-                
-            elseif strcmpi( id, 'selVarIndexes' )
-                
-                selVarIndexes = sort( values(:));
-                
-                if ~isempty( selVarIndexes ) && selVarIndexes( 1 ) <= 0
-                   
-                    selVarIndexes = 0;
-                    
-                end    
-                
-            elseif strcmpi( id, 'selVarNames' )
-                
-                if ischar( values )
-                   
-                    values = { values };
-                    
-                end
-                
-                if ~iscellstr( values )
-                   
-                    error( 'Variable names must be a cell array of strings.') ;
-                    
-                end
-                
-                values( cellfun( 'isempty', values) ) = [];
-                
-                selVarIndexes = unique( values );
-                
-            elseif strcmpi( id, 'info' )
-                
-                if ~iscellstr( values )
-                   
-                    error( 'Info must be a cell array of strings.') ;
-                    
-                end
-                
-                infoFields = values;
-                
-            else
-                
-                error( '%s%s%s', 'Option ', id, ' unknown' );
-                
-            end
-            
-            regOpts{ iRegOpts } = id;
-            iRegOpts = iRegOpts +1;
-            
-        end
-        
-    end
-    
-    rank = rank(:);
-    validateattributes( rank, {'numeric'},{'nonnegative', 'nonzero' }, 2 )
-    
-    if length( rank ) > 2 
-       
-        error( 'rank is not a vector of 0, 1, or 2 elements.' );
-        
-    end
-    
-    if length( rank ) == 2
-       
-        if diff( rank ) < 0
-           
-            error( 'Expected input number 2 to be increasing valued or equals.' );
-            
-        end
-        
-    end
-    
-    fid = fopen( filename );
-
-    header = fgetl( fid );
-
-    headerFields = strsplit( header, ';' );
-
-    headerFields = headerFields( ~cellfun( @isempty, headerFields ) );
-
-    vers = headerFields{ 1 };
-    fields = headerFields( 2 : end );
-
-    vs = strsplit( vers, '=' );
-
     try
+        
+        info = struct();
+        
+        rank = [];
+        selVarIndexes = [];
+        
+        if nargin < 2
+            
+            opts = {};
+            
+        end
+        
+        NOpts = length( opts );
+        
+        if mod( NOpts, 2 ) > 0
+            
+            error( '%s%s', 'Length of cell array of attributes is not correct.',...
+                'This must contain tuple of 2 elements: identifier and values.' );
+            
+        end
+        
+        if NOpts > 0
+            
+            keys    = {'selVarIndexes'  , 'selVarNames' };
+            values  = {'selVarNames'    , 'selVarIndexes' };
+            optsIncompatibles = containers.Map( keys, values );
+            regOpts = cell( NOpts/2, 1 );
+            iRegOpts = 1;
+            for i = 2 : 2 : NOpts
+                
+                id = opts{ i - 1 };
+                values = opts{ i };
+                
+                if ~ischar( id )
+                    
+                    error( 'The attribute identifier must be a text string' );
+                    
+                end
+                
+                incompatibles = findStrInCell( optsIncompatibles.keys, id, 1, 1 );
+                if ~isempty( incompatibles )
+                    
+                    val = optsIncompatibles( id );
+                    if ~isempty( findStrInCell( regOpts( 1 : ( iRegOpts - 1 ) ), val ) )
+                        
+                        error( 'Options %s and %s are incompatibles.', id, val );
+                        
+                    end
+                    
+                end
+                
+                if strcmpi( id, 'rank' )
+                    
+                    rank = values;
+                    
+                elseif strcmpi( id, 'selVarIndexes' )
+                    
+                    selVarIndexes = sort( values(:));
+                    
+                    if ~isempty( selVarIndexes ) && selVarIndexes( 1 ) <= 0
+                        
+                        selVarIndexes = 0;
+                        
+                    end
+                    
+                elseif strcmpi( id, 'selVarNames' )
+                    
+                    if ischar( values )
+                        
+                        values = { values };
+                        
+                    end
+                    
+                    if ~iscellstr( values )
+                        
+                        error( 'Variable names must be a cell array of strings.') ;
+                        
+                    end
+                    
+                    values( cellfun( 'isempty', values) ) = [];
+                    
+                    selVarIndexes = unique( values );
+                    
+                elseif strcmpi( id, 'info' )
+                    
+                    if ~iscellstr( values )
+                        
+                        error( 'Info must be a cell array of strings.') ;
+                        
+                    end
+                    
+                    infoFields = values;
+                    
+                else
+                    
+                    error( '%s%s%s', 'Option ', id, ' unknown' );
+                    
+                end
+                
+                regOpts{ iRegOpts } = id;
+                iRegOpts = iRegOpts +1;
+                
+            end
+            
+        end
+        
+        rank = rank(:);
+        validateattributes( rank, {'numeric'},{'nonnegative', 'nonzero' }, 2 )
+        
+        if length( rank ) > 2
+            
+            error( 'rank is not a vector of 0, 1, or 2 elements.' );
+            
+        end
+        
+        if length( rank ) == 2
+            
+            if diff( rank ) < 0
+                
+                error( 'Expected input number 2 to be increasing valued or equals.' );
+                
+            end
+            
+        end
+        
+        fid = fopen( filename );
+        
+        header = fgetl( fid );
+        
+        headerFields = strsplit( header, ';' );
+        
+        headerFields = headerFields( ~cellfun( @isempty, headerFields ) );
+        
+        vers = headerFields{ 1 };
+        fields = headerFields( 2 : end );
+        
+        vs = strsplit( vers, '=' );
+        
 
         if length( vs ) ~= 2 || ~strcmpi( vs{ 1 }, 'ver' )
 
@@ -832,6 +833,10 @@ function [data, infoClis] = importCLISDataV2( headerFields, fid, headerLength, r
 
         d = gzipdecode( data );
 
+    elseif strcmpi( idTech, 'bzip2' )
+        
+        d = bzip2decode( data );
+        
     else
 
         errorManager( 2, fid );
