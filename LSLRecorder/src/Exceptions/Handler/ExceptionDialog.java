@@ -122,52 +122,59 @@ public class ExceptionDialog
 
 	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
 	{
-		if( dialog != null )
+		(new Thread()
 		{
-			if( !concatMsg )
+			@Override
+			public void run() 
 			{
-				log.flush();
-			}
-			
-			dialog.setTitle( msg.getTitleException() );
-			
-			ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
-			Color msgColor = Color.ORANGE;
-			
-			if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
-			{
-				ic = GeneralAppIcon.Error( 64, Color.RED );
-				msgColor = Color.RED;
-			}
-			else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
-			{
-				ic = GeneralAppIcon.Info( 64, Color.BLACK );
-				msgColor = Color.BLACK;
-			}
-			
-			log.SetColorText( msgColor );
-			
-			if( ic != null )
-			{
-				dialog.setIconImage( ic.getImage() );
-			}
-			
-			Throwable ex = msg.getException();
-			
-			if( ex != null )
-			{
-				if( printExceptionTrace )
+				if( dialog != null )
 				{
-					ex.printStackTrace( log );
-				}
-				else
-				{
-					log.println( ex.getMessage() );
+					if( !concatMsg )
+					{
+						log.flush();
+					}
+
+					dialog.setTitle( msg.getTitleException() );
+
+					ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
+					Color msgColor = Color.ORANGE;
+
+					if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
+					{
+						ic = GeneralAppIcon.Error( 64, Color.RED );
+						msgColor = Color.RED;
+					}
+					else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
+					{
+						ic = GeneralAppIcon.Info( 64, Color.BLACK );
+						msgColor = Color.BLACK;
+					}
+
+					log.SetColorText( msgColor );
+
+					if( ic != null )
+					{
+						dialog.setIconImage( ic.getImage() );
+					}
+
+					Throwable ex = msg.getException();
+
+					if( ex != null )
+					{
+						if( printExceptionTrace )
+						{
+							ex.printStackTrace( log );
+						}
+						else
+						{
+							log.println( ex.getMessage() );
+						}
+					}
+
+					dialog.setVisible( true );
+					dialog.toFront();
 				}
 			}
-			
-			dialog.setVisible( true );
-			dialog.toFront();
-		}
+		}).start();
 	}	
 }
