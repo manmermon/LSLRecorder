@@ -38,6 +38,7 @@ import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
+import edu.ucsd.sccn.LSL.StreamInfo;
 import edu.ucsd.sccn.LSL.StreamInlet;
 import edu.ucsd.sccn.LSLUtils;
 
@@ -112,7 +113,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
 	{
-		if (info == null)
+		if ( info == null )
 		{
 			throw new IllegalArgumentException("LSL.StreamInlet is null");
 		}
@@ -125,68 +126,22 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		this.chunckLength = lslCfg.getChunckSize();
 		this.interleavedData = lslCfg.isInterleavedData();
 		
-		double samplingRate = info.nominal_srate();
-		
-		//this.LSLFormatData = info.channel_format();
-
+		this.lslChannelCounts = info.channel_count();
+				
 		this.LSLFormatData = info.channel_format();
 
 		this.LSLName = info.name();
-
-		Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
-		String markInfoText = "";
-		for( String idMark : MARKS.keySet() )
-		{
-			Integer v = MARKS.get( idMark );
-			markInfoText += idMark + "=" + v + StreamHeader.HEADER_BINARY_SEPARATOR;
-		}		
 		
-		LSL.StreamInlet str = new LSL.StreamInlet( info );
-		
-		String idLab = LSLConfigParameters.ID_SOCKET_MARK_INFO_LABEL;
-		int countEq = LSLConfigParameters.existNodoName( str.info().desc().first_child(), idLab );		
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}		
-		info.desc().remove_child( idLab );
-		info.desc().append_child_value( idLab, markInfoText );
-		
-		idLab = LSLConfigParameters.ID_GENERAL_DESCRIPTION_LABEL;
-		countEq = LSLConfigParameters.existNodoName( str.info().desc().first_child(), idLab );
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}			
-		info.desc().remove_child( idLab );
-		info.desc().append_child_value( idLab, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_DESCR ).toString() );
-		
-		idLab = LSLConfigParameters.ID_LSLREC_SETTING_LABEL;
-		countEq = LSLConfigParameters.existNodoName( str.info().desc().first_child(), idLab );
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}			
-		info.desc().remove_child( idLab );
-		
-		String setting = LSLConfigParameters.ID_CHUNKSIZE_LABEL + "=" + this.chunckLength + StreamHeader.HEADER_BINARY_SEPARATOR;
-		setting += LSLConfigParameters.ID_INTERLEAVED_LABEL + "=" + this.interleavedData;
-		info.desc().append_child_value( idLab, setting );		
-		
-		info.desc().remove_child( lslCfg.getExtraInfoLabel() );
-		info.desc().append_child_value( lslCfg.getExtraInfoLabel(), lslCfg.getAdditionalInfo() );
+		double samplingRate = info.nominal_srate();
 		
 		int bufSize = 1000_000;
 		
 		if( samplingRate != LSL.IRREGULAR_RATE )
 		{
-			bufSize = 360 * info.channel_count(); // 360 s * number of channels
+			bufSize = 360 * this.lslChannelCounts; // 360 s * number of channels
 		}
 		
-		int nBytes = LSLUtils.getDataTypeBytes( info.channel_format() );
+		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
 		long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
 		
 		if( bufSize > freePhysicalMemorySize / nBytes )
@@ -196,17 +151,77 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		this.inLet = new StreamInlet( info, bufSize, 0, false );
 		
-		this.lslXML = info.as_xml();
+		//info = str.info();
 		
-		this.lslChannelCounts = info.channel_count();
+		//this.LSLFormatData = info.channel_format();
+		
 
+		Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
+		String markInfoText = "";
+		for( String idMark : MARKS.keySet() )
+		{
+			Integer v = MARKS.get( idMark );
+			markInfoText += idMark + "=" + v + StreamHeader.HEADER_BINARY_SEPARATOR;
+		}		
+					
+		StreamInfo infoAux = this.inLet.info();
+				
+		String idLab = LSLConfigParameters.ID_SOCKET_MARK_INFO_LABEL;
+		int countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );		
+		
+		if( countEq > 0 )
+		{
+			idLab += "_" + countEq;
+		}		
+		infoAux.desc().remove_child( idLab );
+		infoAux.desc().append_child_value( idLab, markInfoText );
+		
+		idLab = LSLConfigParameters.ID_GENERAL_DESCRIPTION_LABEL;
+		countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );
+		
+		if( countEq > 0 )
+		{
+			idLab += "_" + countEq;
+		}			
+		infoAux.desc().remove_child( idLab );
+		infoAux.desc().append_child_value( idLab, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_DESCR ).toString() );
+		
+		idLab = LSLConfigParameters.ID_LSLREC_SETTING_LABEL;
+		countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );
+		
+		if( countEq > 0 )
+		{
+			idLab += "_" + countEq;
+		}			
+		infoAux.desc().remove_child( idLab );
+		
+		String setting = LSLConfigParameters.ID_CHUNKSIZE_LABEL + "=" + this.chunckLength + StreamHeader.HEADER_BINARY_SEPARATOR;
+		setting += LSLConfigParameters.ID_INTERLEAVED_LABEL + "=" + this.interleavedData;
+		infoAux.desc().append_child_value( idLab, setting );		
+		
+		infoAux.desc().remove_child( lslCfg.getExtraInfoLabel() );
+		infoAux.desc().append_child_value( lslCfg.getExtraInfoLabel(), lslCfg.getAdditionalInfo() );
+				
+		this.lslXML = infoAux.as_xml();
+				
 		//this.events = new ArrayList< EventInfo >();
 		
 		try
-		{
-			this.timeCorrection = this.inLet.time_correction();
+		{	
+			/*
+			double waitTime = 3 / info.nominal_srate();
+			
+			if( waitTime < 3 )
+			{
+				waitTime = 3;
+			}			
+			
+			this.timeCorrection = this.inLet.time_correction( waitTime );
+			*/
+			
+			this.timeCorrection = this.inLet.time_correction( );
 		}
-		catch( Error e )
+		catch( Exception | Error e )
 		{
 			this.timeCorrection =  0D;
 		}

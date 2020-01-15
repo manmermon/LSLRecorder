@@ -7,6 +7,8 @@
 	<classpathentry kind="lib" path="../../Librerias/labstreaminglayer/LSL/liblsl-Java/jna-5.3.1.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/labstreaminglayer/LSL/liblsl-Java/jna-platform-5.5.0.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/Compresion/commons-compress-1.19/commons-compress-1.19.jar"/>
-	<classpathentry kind="lib" path="./icmp4j_all_mod.jar"/>
+	<classpathentry kind="lib" path="icmp4j_all_mod.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/Librerias/Sigar/sigar.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/Librerias/Sigar/log4j.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
