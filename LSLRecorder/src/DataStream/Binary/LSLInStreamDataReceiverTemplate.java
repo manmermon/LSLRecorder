@@ -108,6 +108,8 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 	protected int timeType = LSL.ChannelFormat.double64;
 	
+	protected double samplingRate = LSL.IRREGULAR_RATE;
+	
 	private AtomicBoolean isStreamClosed = new AtomicBoolean( false );
 	private AtomicBoolean isRecording = new AtomicBoolean( false );
 		
@@ -132,11 +134,11 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 		this.LSLName = info.name();
 		
-		double samplingRate = info.nominal_srate();
+		this.samplingRate = info.nominal_srate();
 		
 		int bufSize = 1000_000;
 		
-		if( samplingRate != LSL.IRREGULAR_RATE )
+		if( this.samplingRate != LSL.IRREGULAR_RATE )
 		{
 			bufSize = 360 * this.lslChannelCounts; // 360 s * number of channels
 		}
@@ -383,7 +385,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected void preStopThread(int friendliness) throws Exception
 	{		
 		if( friendliness == IStoppableThread.FORCE_STOP 
-				|| ( this.inLet.info().nominal_srate() == LSL.IRREGULAR_RATE ))
+				|| ( this.samplingRate == LSL.IRREGULAR_RATE ))
 		{
 			if( this.timer != null )
 			{
@@ -851,7 +853,10 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		if ( !(e instanceof InterruptedException) 
 				|| ( e instanceof Error ) )
 		{
-			this.timer.stop(); 
+			if( this.timer != null )
+			{
+				this.timer.stop(); 
+			}
 			
 			this.stopThread = true;
 			

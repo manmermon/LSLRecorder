@@ -384,7 +384,25 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}					
 		}
 		
-		this.writer.saveData( dataBlock );
+		Thread t = new Thread()
+		{
+			@Override
+			public synchronized void run() 
+			{
+				try 
+				{
+					writer.saveData( dataBlock );
+				}
+				catch (Exception e) 
+				{
+					runExceptionManager( e );
+				}
+			}
+		};
+		
+		t.setName( "Antideadlock-writer" );
+		t.start();
+	
 		
 		 dataBuffer.subList( from, to ).clear();
 		
@@ -532,8 +550,10 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 			*/
 			
+			super.stopThread = true;
+						
 			if( this.notifTask != null )
-			{
+			{	
 				String fileName = "";
 				
 				if( this.writer != null )
@@ -541,8 +561,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					fileName = this.writer.getFileName();
 				}
 				
-				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + fileName + "\n" + e.getClass()));
+				String cl = "";
+				if( e != null )
+				{
+					cl = e.getClass().getName();
+				}
 				
+				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new Exception("Problem: it is not possible to write in the file " + fileName + "\n" + cl));				
 				this.notifTask.addEvent( event );
 				
 				synchronized ( this.notifTask )
