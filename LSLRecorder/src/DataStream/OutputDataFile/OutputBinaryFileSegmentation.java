@@ -389,15 +389,15 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}					
 		}
 		
+		this.antideadlockCounter.incrementAndGet();
+		
 		Thread t = new Thread()
 		{
 			@Override
 			public synchronized void run() 
 			{
 				try 
-				{
-					antideadlockCounter.incrementAndGet();
-					
+				{	
 					writer.saveData( dataBlock );
 				}
 				catch (Exception e) 
