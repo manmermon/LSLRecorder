@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import com.sun.jna.platform.unix.X11.Atom;
 
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Extra.Tuple;
@@ -66,6 +69,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	private ITaskMonitor monitor;
 	
 	private NotificationTask notifTask = null;
+	
+	private AtomicInteger antideadlockCounter = new AtomicInteger( 0 );
 	
 	//private List< EventInfo > events;
 	
@@ -391,11 +396,17 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			{
 				try 
 				{
+					antideadlockCounter.incrementAndGet();
+					
 					writer.saveData( dataBlock );
 				}
 				catch (Exception e) 
 				{
 					runExceptionManager( e );
+				}
+				finally 
+				{
+					antideadlockCounter.decrementAndGet();
 				}
 			}
 		};
@@ -589,6 +600,17 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		super.cleanUp();
 
 		//this.writer.closeWriter();
+		while( this.antideadlockCounter.get() > 0 )
+		{
+			try 
+			{
+				super.wait( 1000L );
+			}
+			catch (Exception e) 
+			{
+			}
+		}
+		
 		this.writer.stopThread( IStoppableThread.FORCE_STOP );
 		this.writer = null;
 			
