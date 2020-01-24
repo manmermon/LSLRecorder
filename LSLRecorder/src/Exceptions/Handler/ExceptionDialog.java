@@ -72,7 +72,7 @@ public class ExceptionDialog
 		icono.paintIcon( null, g, 0, 0 );
 		dialog.setIconImage( img );
 		
-		Dimension d = new Dimension( (int)( dim.width /4 ), dim.height / 2 );
+		Dimension d = new Dimension( (int)( dim.width /3 ), dim.height / 2 );
 		dialog.setSize( d );
 
 		
