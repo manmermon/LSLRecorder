@@ -140,8 +140,10 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		if( this.samplingRate != LSL.IRREGULAR_RATE )
 		{
-			bufSize = 360 * this.lslChannelCounts; // 360 s * number of channels
+			bufSize = 360; // 360 s
 		}
+		
+		bufSize *= this.lslChannelCounts * this.chunckLength;
 		
 		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
 		long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
