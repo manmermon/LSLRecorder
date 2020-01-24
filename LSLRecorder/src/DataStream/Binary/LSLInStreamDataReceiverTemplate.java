@@ -145,6 +145,11 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		bufSize *= this.lslChannelCounts * this.chunckLength;
 		
+		if( bufSize > Runtime.getRuntime().maxMemory() / 2 )
+		{
+			bufSize = (int)Runtime.getRuntime().maxMemory();
+		}
+		
 		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
 		long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
 		
