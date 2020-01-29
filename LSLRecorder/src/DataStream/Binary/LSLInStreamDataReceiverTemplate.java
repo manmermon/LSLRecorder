@@ -51,6 +51,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -136,29 +137,49 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 		this.samplingRate = info.nominal_srate();
 		
+		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
+		
+		long maxMem = Runtime.getRuntime().maxMemory() / 2;
+		maxMem /= nBytes;
+		
 		int bufSize = 1000_000;
 		
 		if( this.samplingRate != LSL.IRREGULAR_RATE )
 		{
 			bufSize = 360; // 360 s
+			
+			if( bufSize * this.samplingRate * this.lslChannelCounts * this.chunckLength > maxMem )
+			{
+				bufSize = (int)( maxMem / ( this.samplingRate * this.lslChannelCounts * this.chunckLength ) ) ;
+				
+				if( bufSize < 1 )
+				{
+					throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available memory." );
+				}
+			}
+				
+			/*
+			long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
+			
+			if( bufSize > freePhysicalMemorySize / nBytes )
+			{
+				throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available free physical memory." );
+			}
+			*/
 		}
 		
-		bufSize *= this.lslChannelCounts * this.chunckLength;
+		//bufSize *= this.lslChannelCounts * this.chunckLength;
 		
-		if( bufSize > Runtime.getRuntime().maxMemory() / 2 )
+		
+		int chunk = 0;
+		
+		if( this.chunckLength > 1 )
 		{
-			bufSize = (int)Runtime.getRuntime().maxMemory();
+			chunk = this.chunckLength;
 		}
 		
-		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
-		long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
+		this.inLet = new StreamInlet( info, bufSize, chunk, false );
 		
-		if( bufSize > freePhysicalMemorySize / nBytes )
-		{
-			throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available free physical memory." );
-		}		
-		
-		this.inLet = new StreamInlet( info, bufSize, 0, false );
 		
 		//info = str.info();
 		
