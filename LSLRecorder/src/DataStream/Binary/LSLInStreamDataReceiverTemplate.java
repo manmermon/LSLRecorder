@@ -939,12 +939,21 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		{
 			if( !this.isStreamClosed.get() )
 			{
+				this.timer = new Timer( this.timer.getDelay(), new ActionListener() 
+				{					
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						stopThread( IStoppableThread.FORCE_STOP );
+					}
+				});
+				this.timer.start();
+				
 				this.isStreamClosed.set( true );
 				this.inLet.close();
 			}
 		}
-		
-		
+				
 		this.postCleanUp();
 	}
 	

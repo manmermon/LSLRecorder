@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.sun.jna.platform.unix.X11.Atom;
-
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Extra.Tuple;
 import Auxiliar.Tasks.IMonitoredTask;
@@ -350,7 +348,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 
 			while( dataBuffer.size() > 0 )
-			{					
+			{				
 				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1, name );
 			}
 		}

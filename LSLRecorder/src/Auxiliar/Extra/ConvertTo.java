@@ -380,6 +380,108 @@ public class ConvertTo
 		return (new String( bytes )).toCharArray();
 	}
 
+	public static double[] NumberArray2DoubleArray( Number[] values )
+	{
+		double[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new double[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].doubleValue();
+			}
+		}
+		
+		return vals;
+	}
+	
+	public static float[] NumberArray2FloatArray( Number[] values )
+	{
+		float[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new float[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].floatValue();
+			}
+		}
+		
+		return vals;
+	}
+	
+	public static byte[] NumberArray2ByteArray( Number[] values )
+	{
+		byte[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new byte[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].byteValue();
+			}
+		}
+		
+		return vals;
+	}
+	
+	public static short[] NumberArray2ShortArray( Number[] values )
+	{
+		short[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new short[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].shortValue();
+			}
+		}
+		
+		return vals;
+	}
+	
+	public static int[] NumberArray2IntegerArray( Number[] values )
+	{
+		int[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new int[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].intValue();
+			}
+		}
+		
+		return vals;
+	}
+	
+	public static long[] NumberArray2LongArray( Number[] values )
+	{
+		long[] vals = null;
+		
+		if( values != null && values.length > 0 )
+		{
+			vals = new long[ values.length ];
+			
+			for( int i = 0; i < values.length; i++ )
+			{
+				vals[ i ] = values[ i ].longValue();
+			}
+		}
+		
+		return vals;
+	}
+		
 	public static Number NumberTo( Number value, int type )
 	{
 		Number val = null;

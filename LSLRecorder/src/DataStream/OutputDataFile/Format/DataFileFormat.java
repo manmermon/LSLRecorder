@@ -28,6 +28,7 @@ import java.util.Map;
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.Format.Clis.OutputCLISDataWriter;
 import DataStream.OutputDataFile.Format.Clis.Parallel.OutputCLISDataParallelWriter;
+import DataStream.OutputDataFile.Format.HDF5.OutputHDF5DataWriter;
 
 public class DataFileFormat
 {
@@ -37,10 +38,11 @@ public class DataFileFormat
 	public static final String PCLIS_GZIP = "PCLIS-GZIP";
 	public static final String CLIS_BZIP2 = "CLIS-BZIP2";
 	public static final String PCLIS_BZIP2 = "PCLIS-BZIP2";
+	public static final String HDF5 = "HDF5";
 
 	public static String[] getSupportedFileFormat()
 	{
-		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2 };//, MATLAB, CSV };
+		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2, HDF5 };//, MATLAB, CSV };
 		//return new String[] { CLIS, PCLIS };//, MATLAB, CSV };
 	}
 
@@ -52,6 +54,7 @@ public class DataFileFormat
 		exts.put( CLIS_GZIP, ".clis" );
 		exts.put( PCLIS_BZIP2, ".clis" );
 		exts.put( CLIS_BZIP2, ".clis" );
+		exts.put( HDF5, ".h5" );
 		
 		//exts.put( MATLAB, ".mat" );
 		//exts.put( CSV, ".csv" );		
@@ -138,6 +141,10 @@ public class DataFileFormat
 					|| format.equals( PCLIS_BZIP2 ) )
 			{				
 				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
+			}
+			else if( format.equals( HDF5 ) )
+			{
+				writer = new OutputHDF5DataWriter( file );
 			}
 			/*
 			else if (format.equals(MATLAB))

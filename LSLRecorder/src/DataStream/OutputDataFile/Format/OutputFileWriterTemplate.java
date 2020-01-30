@@ -61,12 +61,16 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	
 	private AtomicInteger counterProcessingDataBlocks = null;
 	
-	public OutputFileWriterTemplate( String file ) throws Exception 
+	public OutputFileWriterTemplate( String file, boolean createFile ) throws Exception 
 	{	
 		//this.events = new ArrayList< EventInfo >();
 		
 		this.fileName = file;
-		this.fStream = new RandomAccessFile( new File( file ), "rw" );		
+		
+		if( createFile )
+		{
+			this.fStream = new RandomAccessFile( new File( file ), "rw" );		
+		}
 		
 		this.maxNumProcessors = this.getMaxNumThreads();
 		
@@ -338,7 +342,11 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		}
 		finally 
 		{			
-			this.fStream.close();
+			if( this.fStream != null )
+			{
+				this.fStream.close();
+			}
+			
 			this.fStream = null;
 			
 			/*

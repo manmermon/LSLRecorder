@@ -75,7 +75,7 @@ public class OutputCLISDataWriter extends OutputFileWriterTemplate
 	
 	public OutputCLISDataWriter( String file, long headersize, int zip, Charset coding ) throws Exception
 	{	
-		super( file );
+		super( file, true );
 		
 		super.setName( this.getClass().getSimpleName() + "-" + this.fileName );
 		
