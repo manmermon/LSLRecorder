@@ -58,6 +58,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.activation.UnsupportedDataTypeException;
+import javax.security.auth.DestroyFailedException;
 import javax.swing.Timer;
 
 import com.sun.management.OperatingSystemMXBean;
@@ -113,6 +114,8 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 	private AtomicBoolean isStreamClosed = new AtomicBoolean( false );
 	private AtomicBoolean isRecording = new AtomicBoolean( false );
+	
+	private AtomicBoolean postCleanDone = new AtomicBoolean( false );
 		
 	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
 	{
@@ -916,12 +919,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	{
 		super.cleanUp();
 
-		/*
-		if (this.timer != null)
-		{
-			this.timer.stopThread( IStoppableThread.FORCE_STOP );
-		}
-		*/
+		
 		if (this.timer != null)
 		{
 			this.timer.stop();
@@ -934,27 +932,41 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		}
 		catch (Exception localException) {}
 		
-		//this.inLet.close_stream();
 		synchronized ( this.isStreamClosed )
 		{
 			if( !this.isStreamClosed.get() )
 			{
-				this.timer = new Timer( this.timer.getDelay(), new ActionListener() 
+				this.isStreamClosed.set( true );
+								
+				int delay = 3000; // 3 seconds								
+				this.timer = new Timer( delay, new ActionListener() 
 				{					
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						stopThread( IStoppableThread.FORCE_STOP );
+						timeOver2();
 					}
 				});
 				this.timer.start();
-				
-				this.isStreamClosed.set( true );
+								
 				this.inLet.close();
 			}
 		}
+		
+		synchronized ( this.postCleanDone ) 
+		{
+			if( this.timer != null )
+			{
+				this.timer.stop();
+			}
+			
+			if( !this.postCleanDone.get() )
+			{
+				this.postCleanDone.set( true );
 				
-		this.postCleanUp();
+				postCleanUp();
+			}
+		}		
 	}
 	
 	private void readRemainingData() throws Exception
@@ -1481,11 +1493,61 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			if( !this.isStreamClosed.get() )
 			{
 				this.isStreamClosed.set( true );
+				
+				this.timer = new Timer( this.timer.getDelay(), new ActionListener()
+				{					
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						timeOver2();
+					}
+				});
+				this.timer.start();
+				
 				this.inLet.close();
+				
+				this.timer.stop();
 			}
 		}		
 		
 		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.LSLName + "> was exceeded." ) );		
+	}
+	
+	private void timeOver2( )
+	{	
+		super.interrupt(); // a new try to stop the thread
+				
+		this.timer = new Timer( this.timer.getDelay(), new ActionListener() 
+		{			
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{	
+				try 
+				{
+					synchronized ( postCleanDone ) 
+					{
+						if( !postCleanDone.get() )
+						{
+							postCleanDone.set( true );
+							
+							postCleanUp();
+						}
+					}					
+				} 
+				catch (Exception e1) 
+				{
+					runExceptionManager( e1 );
+				}
+				finally 
+				{
+					notifyProblem( new DestroyFailedException( "The input stream " + LSLName 
+																+ " is blocked. It is not possible released/closed. "
+																+ "Quit " + ConfigApp.shortNameApp + " is recommended.") );
+				}
+			}
+		});
+		
+		this.timer.start();
 	}
 
 	protected void startMonitor() throws Exception 
