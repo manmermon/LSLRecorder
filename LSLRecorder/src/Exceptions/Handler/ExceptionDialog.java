@@ -177,4 +177,13 @@ public class ExceptionDialog
 			}
 		}).start();
 	}	
+
+	public static void showDialog()
+	{
+		if( dialog != null )
+		{
+			dialog.setVisible( true );
+			dialog.toFront();
+		}
+	}
 }

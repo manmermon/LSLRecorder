@@ -96,6 +96,7 @@ import DataStream.OutputDataFile.Format.DataFileFormat;
 import Exceptions.Handler.ExceptionDialog;
 import Exceptions.Handler.ExceptionDictionary;
 import Exceptions.Handler.ExceptionMessage;
+import GUI.DataPlot.CanvasLSLDataPlot;
 import GUI.Miscellany.DisabledPanel;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.SelectedButtonGroup;

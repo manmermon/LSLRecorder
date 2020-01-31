@@ -25,7 +25,7 @@ import java.util.List;
 import Auxiliar.Extra.Tuple;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.Binary.TemporalOutDataFileWriter;
+import DataStream.Binary.Writer.TemporalOutDataFileWriter;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
 

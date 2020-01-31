@@ -26,7 +26,7 @@ import java.util.List;
 
 import Auxiliar.Extra.ConvertTo;
 import DataStream.Binary.BinaryDataFormat;
-import DataStream.Binary.ReadBinaryFile;
+import DataStream.Binary.Reader.ReadBinaryFile;
 import DataStream.OutputDataFile.DataBlock.ByteBlock;
 import edu.ucsd.sccn.LSLUtils;
 

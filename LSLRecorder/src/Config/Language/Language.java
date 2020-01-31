@@ -55,6 +55,7 @@ public class Language {
 	public static final String MENU_ABOUT = "MENU_ABOUT";
 	public static final String MENU_GNU_GPL = "MENU_GNU_GPL";
 	public static final String MENU_PREFERENCE = "MENU_PREFERENCE";
+	public static final String MENU_SHOW_LOG = "MENU_SHOW_LOG";
 	public static final String MENU_CONVERT2 = "MENU_CONVERT2";
 	public static final String MENU_FILE = "MENU_FILE";
 	public static final String MENU_LOAD = "MENU_LOAD";
@@ -254,6 +255,7 @@ public class Language {
 		captions.put(MENU_GNU_GPL, new Caption(MENU_GNU_GPL, defaultLanguage, "GNU GLP"));
 		captions.put(MENU_PREFERENCE, new Caption(MENU_PREFERENCE, defaultLanguage, "Preference"));
 
+		captions.put(MENU_SHOW_LOG, new Caption(MENU_SHOW_LOG, defaultLanguage, "Show log" ) );
 		captions.put(MENU_FILE, new Caption(MENU_FILE, defaultLanguage, "File"));
 		captions.put(MENU_LOAD, new Caption(MENU_LOAD, defaultLanguage, "Load setting"));
 		captions.put(MENU_SAVE, new Caption(MENU_SAVE, defaultLanguage, "Save setting"));

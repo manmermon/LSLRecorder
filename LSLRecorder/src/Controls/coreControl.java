@@ -41,8 +41,8 @@ import Exceptions.Handler.ExceptionDialog;
 import Exceptions.Handler.ExceptionDictionary;
 import Exceptions.Handler.ExceptionMessage;
 import Controls.Messages.EventType;
-import GUI.CanvasLSLDataPlot;
 import GUI.guiManager;
+import GUI.DataPlot.CanvasLSLDataPlot;
 import Sockets.Info.StreamInputMessage;
 import Sockets.Info.SocketSetting;
 import Sockets.Info.StreamSocketProblem;
@@ -103,6 +103,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	private SocketMessageDelayCalculator socketMsgDelayCal = null;
 	
 	private StopWorkingThread stopThread = null;
+	
+	private int savingDataProgress = 0;
 		
 	/**
 	 * Create main control unit.
@@ -288,7 +290,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			this.disposeLSLDataPlot(); // Delete plots.
 			
-			this.managerGUI.setAppState( AppState.PREPARING );
+			this.managerGUI.setAppState( AppState.PREPARING, 0 );
 			
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
@@ -316,7 +318,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						|| actionDialog == JOptionPane.CLOSED_OPTION )
 				{
 					this.isRecording = false;
-					this.managerGUI.setAppState( AppState.STOP );
+					this.managerGUI.setAppState( AppState.STOP, 0 );
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshLSLDevices();
 
@@ -473,11 +475,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			if( !this.ctrlOutputFile.isSavingData() )
 			{
-				this.managerGUI.setAppState( AppState.STOP );
+				this.managerGUI.setAppState( AppState.STOP, 0 );
 			}
 			else
 			{
-				this.managerGUI.setAppState( AppState.SAVING );
+				this.managerGUI.setAppState( AppState.SAVING, 0 );
 			}
 			
 			this.managerGUI.restoreGUI();
@@ -641,7 +643,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{
 		if ( this.isWaitingForStartCommand )
 		{			
-			this.managerGUI.setAppState( AppState.WAIT );
+			this.managerGUI.setAppState( AppState.WAIT, 0 );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );
 			this.ctrSocket.toWorkSubordinates( null );
@@ -663,7 +665,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{
 		this.managerGUI.StartSessionTimer();
 		
-		this.managerGUI.setAppState( AppState.RUN );
+		this.managerGUI.setAppState( AppState.RUN, 0 );
 		
 		this.isRecording = true;
 		
@@ -1489,8 +1491,9 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
-					managerGUI.setAppState( AppState.SAVED );
+					managerGUI.setAppState( AppState.SAVED, 100 );
 					
+					savingDataProgress = 0;
 					//managerGUI.enablePlayButton( true );
 					
 					if( closeWhenDoingNothing && !isDoingSomething() )
@@ -1499,9 +1502,27 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					}
 				}
 				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
+				{	
+					managerGUI.setAppState( AppState.SAVING, 0 );
+				}		
+				else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
 				{
-					managerGUI.setAppState( AppState.SAVING );
-				}				
+					int val = -1;
+					
+					try
+					{
+						val = (Integer)eventObject;
+					}
+					catch (Exception e) 
+					{
+						val = -1;
+					}
+					
+					if( val > savingDataProgress )
+					{
+						managerGUI.setAppState( AppState.SAVING, val );
+					}
+				}
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))
 				{
 					eventSocketMessagesManager( (List< EventInfo> )eventObject );
@@ -1870,7 +1891,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				isWaitingForStartCommand = false;
 				isActiveSpecialInputMsg = false;
 
-				managerGUI.setAppState( AppState.STOP );
+				managerGUI.setAppState( AppState.STOP, 0 );
 				//managerGUI.enablePlayButton( false );
 
 				notifiedEventHandler.interruptProcess();
@@ -1924,13 +1945,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 						if( ctrlOutputFile.isSavingData() )
 						{
-							managerGUI.setAppState( AppState.SAVING );
+							managerGUI.setAppState( AppState.SAVING, 0 );
 						}
 					}
 					catch (Exception localException) 
 					{
 						localException.printStackTrace();
-						managerGUI.setAppState( AppState.NONE );
+						managerGUI.setAppState( AppState.NONE, 0 );
 					}
 					catch (Error localError) 
 					{}

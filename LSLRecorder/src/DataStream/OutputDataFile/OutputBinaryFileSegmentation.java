@@ -36,7 +36,7 @@ import Auxiliar.Tasks.NotificationTask;
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.Binary.TemporalBinData;
+import DataStream.Binary.Reader.TemporalBinData;
 import DataStream.OutputDataFile.DataBlock.ByteBlock;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
 import DataStream.OutputDataFile.DataBlock.DataBlockFactory;
@@ -72,6 +72,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 	//private List< EventInfo > events;
 	
+	private long totalBlock = 0;
+	
 	/**
 	 *  Save output data file
 	 *  
@@ -80,7 +82,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 */
 	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader ) throws Exception //SyncMarkerCollectorWriter markCollector ) throws Exception
 	{
-		//this( DAT, markCollector, (byte)5 );
+		//this( DAT, markCollector, (byte)10 );
 		this( DAT, syncReader, (byte) 0 ); // Default buffer length
 	}
 	
@@ -104,22 +106,27 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				
 		this.BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE;
 		
-		if( bufLen > 0)
+		if( bufLen <= 0 )
 		{						
-			this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
-
-			this.maxNumElements = ( this.BLOCK_SIZE / this.DATA.getTypeDataBytes() ); 
-					
-			this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / ( this.DATA.getNumberOfChannels() + 1 ) ) ) * ( this.DATA.getNumberOfChannels() + 1 ) );
-			
-			if( this.maxNumElements < this.DATA.getNumberOfChannels() )
-			{
-				this.maxNumElements = this.DATA.getNumberOfChannels();
-			}			
+			bufLen = (byte)10;
 		}		
-	
 		
-		this.syncReader = syncReader;
+		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
+
+		this.maxNumElements = ( this.BLOCK_SIZE / this.DATA.getTypeDataBytes() ); 
+				
+		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / ( this.DATA.getNumberOfChannels() + 1 ) ) ) * ( this.DATA.getNumberOfChannels() + 1 ) );
+		
+		if( this.maxNumElements < this.DATA.getNumberOfChannels() )
+		{
+			this.maxNumElements = this.DATA.getNumberOfChannels();
+		}			
+		
+		this.syncReader = syncReader;		
+
+		this.totalBlock = 2 + ( DAT.getDataBinaryFileSize() / ( this.maxNumElements * this.DATA.getTypeDataBytes() ) );
+		
+		
 		//this.events = new ArrayList< EventInfo >();	
 	}
 	
@@ -411,12 +418,22 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		t.setName( "Antideadlock-writer" );
 		t.start();
-	
-		
+			
 		 dataBuffer.subList( from, to ).clear();
 		
 		seqNum++;
 		
+		if( this.notifTask != null )
+		{
+			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * seqNum ) / totalBlock ) );
+			
+			this.notifTask.addEvent( ev );
+			synchronized ( this.notifTask )
+			{
+				this.notifTask.notify();
+			}			
+		}
+				
 		return seqNum;
 	}
 		
@@ -522,15 +539,29 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			while( !this.writer.finished() )
 			{
+				if( this.writer.getState().equals( Thread.State.TIMED_WAITING ) 
+						|| this.writer.getState().equals( Thread.State.WAITING ) )
+				{
+					synchronized ( this.writer ) 
+					{
+						this.writer.notify();
+					} 
+				}
+				
 				try
 				{
-					super.wait( 1000L );
+					super.wait( 1000L );					
 				}
 				catch ( InterruptedException e) 
 				{
 				}
+				finally 
+				{
+					
+				}
 			}			
 		}		
+		
 	}
 	
 		

@@ -34,6 +34,7 @@ import GUI.Miscellany.DisabledGlassPane;
 import GUI.Miscellany.GeneralAppIcon;
 import GUI.Miscellany.InfoDialog;
 import GUI.Miscellany.MenuScroller;
+import GUI.Miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -157,9 +158,13 @@ public class appUI extends JFrame
 	private JMenuItem menuBin2Clis = null;
 	private JMenuItem menuWritingTest = null;
 	private JMenuItem menuExit = null;
+	private JMenuItem menuShowLog = null;
 
+	// Processbar
+	private LevelIndicator appTextState = null;
+	
 	// textField
-	private JTextField appTextState = null;
+	//private JTextField appTextState = null;
 	private JTextField timeState = null;
 	private JTextField sessionTimeText = null;
 
@@ -252,7 +257,8 @@ public class appUI extends JFrame
 							UIManager.getString( "OptionPane.noButtonText" ) };
 
 					int actionDialog = JOptionPane.showOptionDialog( ui, Language.getLocalCaption( Language.MSG_APP_STATE )
-							+ " " + getTextState().getText() + "."
+							//+ " " + getExecutionTextState().getText() + "."
+							+ " " + getExecutionTextState().getString() + "."
 							+ "\n" + Language.getLocalCaption( Language.MSG_INTERRUPT ) 
 							+ "?", 
 							Language.getLocalCaption( Language.MSG_WARNING )
@@ -752,6 +758,7 @@ public class appUI extends JFrame
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
 			this.jFileMenu.add( this.getMenuBin2Clis() );
 			this.jFileMenu.add( this.getMenuWritingTest() );
+			this.jFileMenu.add( this.getShowLogMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
 			this.jFileMenu.add( this.getPreferenceMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
@@ -782,6 +789,28 @@ public class appUI extends JFrame
 		return this.menuPreference;
 	}
 	
+	private JMenuItem getShowLogMenu()
+	{
+		if( this.menuShowLog == null )
+		{
+			this.menuShowLog = new JMenuItem( Language.getLocalCaption( Language.MENU_SHOW_LOG ) );
+			this.menuShowLog.setIcon( GeneralAppIcon.NewFile( 16, Color.BLACK ) );
+			
+			this.menuShowLog.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					ExceptionDialog.showDialog();
+				}
+			});
+						
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_SHOW_LOG, this.menuShowLog );	
+		}
+		
+		return this.menuShowLog;
+	}
+	
 	private JPanel getAppStatePanel( int maxHeight )
 	{
 		if( this.jPanelAppState == null )
@@ -803,7 +832,7 @@ public class appUI extends JFrame
 
 			this.jPanelAppState.add( lbstate );
 			this.jPanelAppState.add( Box.createRigidArea( new Dimension(2, 0) ) );
-			this.jPanelAppState.add( this.getTextState() );
+			this.jPanelAppState.add( this.getExecutionTextState() );
 			this.jPanelAppState.add( this.getTimeState() );
 			
 			this.jPanelAppState.add( Box.createRigidArea( new Dimension(2, 0) ) );
@@ -845,6 +874,7 @@ public class appUI extends JFrame
 		return this.sessionTimeText;
 	}
 	
+	/*
 	protected JTextField getTextState()
 	{
 		if( this.appTextState == null ) 
@@ -862,6 +892,39 @@ public class appUI extends JFrame
 			this.appTextState.setPreferredSize( d );
 			this.appTextState.setEditable( false );
 			
+		}
+
+		return this.appTextState;
+	}
+	*/
+	
+	protected LevelIndicator getExecutionTextState()
+	{
+		if( this.appTextState == null ) 
+		{    
+			this.appTextState = new LevelIndicator( );
+			this.appTextState.setMinimum( 0 );
+			this.appTextState.setMaximum( 100 );
+			
+			Font f = this.getSessionTimeTxt().getFont();
+			this.appTextState.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+			
+			this.appTextState.setEditable( false );
+			this.appTextState.setPaintedString( true );
+			
+			this.appTextState.setLevelStickWidth( 0 );
+			this.appTextState.setString( "" );
+			
+			this.appTextState.setOpaque( false );
+			
+			this.appTextState.setColorLevels( new Color[] { new Color(170, 242, 175), new Color( 255, 255, 255 ) } );
+			this.appTextState.setLevels( new int[] { 0 } );
+			
+			FontMetrics fm = this.appTextState.getFontMetrics( this.appTextState.getFont() );
+			
+			Dimension d = this.appTextState.getPreferredSize();
+			d.width = fm.stringWidth( AppState.SAVING + " (100%)" + 5 );						
+			this.appTextState.setPreferredSize( d );			
 		}
 
 		return this.appTextState;

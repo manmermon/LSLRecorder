@@ -29,10 +29,11 @@ import Auxiliar.Tasks.NotificationTask;
 import Auxiliar.Thread.LaunchThread;
 import Config.Parameter;
 import Config.ParameterList;
+import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.Binary.TemporalBinData;
-import DataStream.Binary.TemporalOutDataFileWriter;
+import DataStream.Binary.Reader.TemporalBinData;
+import DataStream.Binary.Writer.TemporalOutDataFileWriter;
 import DataStream.OutputDataFile.OutputBinaryFileSegmentation;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
@@ -807,6 +808,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							}
 						}
 					}
+				}
+				else if( event.getEventType().equals( EventType.SAVING_DATA_PROGRESS ) )
+				{
+					this.supervisor.eventNotification( this, event );
 				}
 				else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )
 				{			

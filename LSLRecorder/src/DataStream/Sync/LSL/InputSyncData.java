@@ -27,7 +27,7 @@ import java.util.Arrays;
 import Auxiliar.Extra.ConvertTo;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
-import DataStream.Binary.LSLInStreamDataReceiverTemplate;
+import DataStream.Binary.Writer.LSLInStreamDataReceiverTemplate;
 import DataStream.Sync.SyncMarker;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;

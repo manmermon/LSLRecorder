@@ -22,7 +22,6 @@
 
 package DataStream.Binary.Plotter;
 
-import GUI.CanvasLSLDataPlot;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -31,7 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Auxiliar.Extra.ConvertTo;
-import DataStream.Binary.LSLInStreamDataReceiverTemplate;
+import DataStream.Binary.Writer.LSLInStreamDataReceiverTemplate;
+import GUI.DataPlot.CanvasLSLDataPlot;
 
 public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 {
@@ -72,127 +72,57 @@ public class outputDataPlot extends LSLInStreamDataReceiverTemplate
 	}
 
 	protected void managerData( byte[] data, byte[] time ) throws Exception
-	{
-		/*
-		byte[] aux = new byte[ this.nByteData ];
-		int numReadChunk = ( data.length / this.nByteData ) / super.lslChannelCounts;
-
-		List< Double > DATA = new ArrayList< Double >();
+	{	
+		Number[] dat = null;
 		
-		int channel = 0;
-		if( !super.interleavedData )
-		{		
-			for (int i = 0; i < data.length; i += this.nByteData)
-			{	
-				if (data.length - i >= this.nByteData)
-				{
-					for (int j = 0; j < this.nByteData; j++)
-					{
-						aux[ j ] = data[ i + j ];
-					}
-					 
-					DATA.add( this.getDataValue( aux ) );			
-				}
-	
-				if( DATA.size() >= numReadChunk )
-				{					
-					if( this.dataBuffer.size() > channel )
-					{
-						List< Double > buf = this.dataBuffer.get( channel );
-						buf.addAll( DATA );
-					}
-					else
-					{
-						this.dataBuffer.add( DATA );
-					}
-					
-					channel++;
-					DATA = new ArrayList< Double >();					
-				}			
-			}
+		if( super.LSLFormatData != LSL.ChannelFormat.string )
+		{
+			dat = ConvertTo.ByteArrayTo( ConvertTo.byteArray2ByteArray( data ), super.LSLFormatData );
 		}
 		else
 		{
-			int N = super.lslChannelCounts * this.nByteData;
-			for( int c = 0; c <= ( N - this.nByteData ) ; c += this.nByteData )
-			{
-				for( int j = c; j < data.length; j += N )
-				{
-					for( int k = 0; k < this.nByteData; k++ )
-					{
-						aux[ k ] = data[ j + k ];
-					}					
-					
-					DATA.add( this.getDataValue( aux ) );
-				}
-				
-				if( this.dataBuffer.size() > channel )
-				{
-					List< Double > buf = this.dataBuffer.get( channel );
-					buf.addAll( DATA );
-				}
-				else 
-				{		
-					this.dataBuffer.add( DATA );
-				}
-				
-				channel++;
-				DATA = new ArrayList< Double >();
-			}
+			dat = ConvertTo.byteArray2ByteArray( data );
 		}
 		
-		if( DATA.size() > 0 )
-		{			
-			if( this.dataBuffer.size() > channel )
-			{
-				List< Double > buf = this.dataBuffer.get( channel );
-				buf.addAll( DATA );
-			}
-			else 
-			{		
-				this.dataBuffer.add( DATA );
-			}
-		}
-		*/
-		
-		Number[] dat = ConvertTo.ByteArrayTo( ConvertTo.byteArray2ByteArray( data ), super.LSLFormatData );
-				
 		if( super.interleavedData )
 		{
 			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.lslChannelCounts );
 		}
-		
-		for( int index = 0; index < dat.length; index++ )
-		{	
-			int c = ( ( index / super.chunckLength ) % super.lslChannelCounts );
-			
-			if( c >= this.dataBuffer.size() )
-			{
-				this.dataBuffer.add( new ArrayList< Double>() );
-			}
-			
-			List< Double > buf = this.dataBuffer.get( c );
-			
-			buf.add( dat[ index ].doubleValue() );
-		}
-		
-		boolean draw = false;
-		
-		for( List< Double > buf : this.dataBuffer )
+
+		if( dat != null )
 		{
-			draw = buf.size() > this.minDataLengthToDraw;
-			
-			if( draw )
-			{
-				break;
+			for( int index = 0; index < dat.length; index++ )
+			{	
+				int c = ( ( index / super.chunckLength ) % super.lslChannelCounts );
+	
+				if( c >= this.dataBuffer.size() )
+				{
+					this.dataBuffer.add( new ArrayList< Double>() );
+				}
+	
+				List< Double > buf = this.dataBuffer.get( c );
+	
+				buf.add( dat[ index ].doubleValue() );
 			}
-		}
-		
-		if( draw )
-		{			
-			this.plot.addXYData( this.dataBuffer );
-			this.dataBuffer.clear();
-		}
+	
+			boolean draw = false;
+	
+			for( List< Double > buf : this.dataBuffer )
+			{
+				draw = buf.size() > this.minDataLengthToDraw;
+	
+				if( draw )
+				{
+					break;
+				}
+			}
+	
+			if( draw )
+			{			
+				this.plot.addXYData( this.dataBuffer );
+				this.dataBuffer.clear();
+			}
+		}		
 	}
 	
 	/*

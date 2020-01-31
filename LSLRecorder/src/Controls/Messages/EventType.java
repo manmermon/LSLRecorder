@@ -53,6 +53,7 @@ public class EventType
   public static final String PROBLEM = "problem";
   public static final String SAVED_OUTPUT_TEMPORAL_FILE = "saved output temporal file";
   public static final String SAVING_OUTPUT_TEMPORAL_FILE = "saving output temporal file";
+  public static final String SAVING_DATA_PROGRESS = "saving progress";
   public static final String CONVERT_OUTPUT_TEMPORAL_FILE = "convert output temporal file";
   public static final String SAVED_SYNCMARKER_TEMPORAL_FILE = "saved sync marker file";
   public static final String TEST_OUTPUT_TEMPORAL_FILE = "test output temporal file";

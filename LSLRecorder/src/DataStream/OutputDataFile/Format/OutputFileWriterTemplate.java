@@ -176,7 +176,38 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			{			
 				add = add && this.DataBlockManager( data );
 				
-				this.counterProcessingDataBlocks.decrementAndGet();				
+				this.counterProcessingDataBlocks.decrementAndGet();
+				
+				if( !add )
+				{
+					Thread t = new Thread()
+					{
+						@Override
+						public void run() 
+						{
+							try 
+							{
+								while( !DataBlockManager( data ) )
+								{
+									try
+									{
+										this.wait( 40L );
+									}
+									catch (Exception e) 
+									{
+									}
+								}
+							}
+							catch (Exception e) 
+							{
+								runExceptionManager( e );
+							}
+						}
+					};
+					
+					t.setName( "sendDataToSaveWriter" );
+					t.start();
+				}
 				
 				super.notify();			
 			}

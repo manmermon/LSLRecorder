@@ -70,7 +70,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		
 		return add; 
 	}
-	
+		
 	private void Zip( String varName, int dataType, int nChannels, int ordered, Object[] data ) throws Exception
 	{
 		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
@@ -130,7 +130,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 			if( block != null )
 			{	
 				orderedNumStream = block.getSeqNum();
-							
+				
 				if( orderedNumStream >= this.nextNumSeqCompressedDataBlock )
 				{
 					this.compressDataList.put( orderedNumStream, block );

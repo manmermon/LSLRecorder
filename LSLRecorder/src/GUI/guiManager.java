@@ -30,13 +30,14 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.StreamHeader;
-import DataStream.Binary.TemporalBinData;
+import DataStream.Binary.Reader.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
 import DataStream.Sync.SyncMarkerBinFileReader;
 import Exceptions.Handler.ExceptionDialog;
 import Exceptions.Handler.ExceptionDictionary;
 import Exceptions.Handler.ExceptionMessage;
+import GUI.Miscellany.LevelIndicator;
 import GUI.Miscellany.basicPainter2D;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSLUtils;
@@ -56,6 +57,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -229,7 +231,7 @@ public class guiManager
 		
 		if( binFiles.size() > 0 )
 		{ 
-			this.setAppState( AppState.SAVING );
+			this.setAppState( AppState.SAVING, 0 );
 		}
 						
 		try 
@@ -683,15 +685,35 @@ public class guiManager
 		}
 	}
 
+	/*
 	public synchronized void setAppState( String msg )
 	{				
-		JTextField statePanel = appUI.getInstance().getTextState();
+		JTextField statePanel = appUI.getInstance().getExecutionTextState();
 			
 		statePanel.setText( msg );
 		statePanel.setCaretPosition( 0 );
 		
 		statePanel.setToolTipText( msg );		
 		
+		JTextField timeState = appUI.getInstance().getTimeState();
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+		Date date = new Date();		
+		timeState.setText( dateFormat.format( date ) );
+	}
+	*/
+	
+	public synchronized void setAppState( String msg, int perc )
+	{				
+		LevelIndicator statePanel = appUI.getInstance().getExecutionTextState();
+		
+		if( perc >= 0 )
+		{
+			statePanel.setValue( perc );
+			statePanel.setLevels( new int[] { perc} );
+		}
+		
+		statePanel.setString( msg + " (" + perc + "%)"  );		
+				
 		JTextField timeState = appUI.getInstance().getTimeState();
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();		
