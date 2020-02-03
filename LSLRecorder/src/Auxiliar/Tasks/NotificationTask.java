@@ -84,6 +84,37 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 		}
 	}
 	
+	public boolean addEvent( EventInfo event, boolean addIfNotContainSameEventType )
+	{
+		boolean add = event != null;
+		
+		if( add )
+		{
+			synchronized ( this.events )
+			{
+				if( addIfNotContainSameEventType )
+				{
+					for( EventInfo ev : this.events )
+					{
+						add = add && !ev.getEventType().equals( event.getEventType() );
+						
+						if( !add )
+						{
+							break;
+						}
+					}
+				}
+				
+				if( add )
+				{
+					this.events.add( event );
+				}
+			}
+		}
+		
+		return add;
+	}
+	
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{	

@@ -43,7 +43,7 @@ public abstract interface IOutputDataFileWriter extends IStoppableThread//, ISto
 	public void saveData(String paramString1, String paramString2) throws Exception;
 	*/
 	
-	public boolean isReady();
+	//public boolean isReady();
 	
 	public boolean saveData( DataBlock data )  throws Exception;
 

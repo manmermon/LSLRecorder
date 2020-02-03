@@ -290,7 +290,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			this.disposeLSLDataPlot(); // Delete plots.
 			
-			this.managerGUI.setAppState( AppState.PREPARING, 0 );
+			this.managerGUI.setAppState( AppState.PREPARING, 0, false );
 			
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
@@ -318,7 +318,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						|| actionDialog == JOptionPane.CLOSED_OPTION )
 				{
 					this.isRecording = false;
-					this.managerGUI.setAppState( AppState.STOP, 0 );
+					this.managerGUI.setAppState( AppState.STOP, 0, false );
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshLSLDevices();
 
@@ -475,11 +475,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			
 			if( !this.ctrlOutputFile.isSavingData() )
 			{
-				this.managerGUI.setAppState( AppState.STOP, 0 );
+				this.managerGUI.setAppState( AppState.STOP, 0, false );
 			}
 			else
 			{
-				this.managerGUI.setAppState( AppState.SAVING, 0 );
+				this.managerGUI.setAppState( AppState.SAVING, 0, true );
 			}
 			
 			this.managerGUI.restoreGUI();
@@ -643,7 +643,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{
 		if ( this.isWaitingForStartCommand )
 		{			
-			this.managerGUI.setAppState( AppState.WAIT, 0 );
+			this.managerGUI.setAppState( AppState.WAIT, 0, false );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );
 			this.ctrSocket.toWorkSubordinates( null );
@@ -665,7 +665,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	{
 		this.managerGUI.StartSessionTimer();
 		
-		this.managerGUI.setAppState( AppState.RUN, 0 );
+		this.managerGUI.setAppState( AppState.RUN, 0, false );
 		
 		this.isRecording = true;
 		
@@ -693,106 +693,6 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 */
 	public synchronized void stopWorking( ) throws Exception
 	{	
-		/*
-		if ( this.isRecording 
-				|| this.isWaitingForStartCommand )
-		{					
-			this.isRecording = false;
-			this.isWaitingForStartCommand = false;
-			this.isActiveSpecialInputMsg = false;
-
-			this.managerGUI.setAppState( AppState.STOP );
-			//managerGUI.enablePlayButton( false );
-
-			this.notifiedEventHandler.interruptProcess();
-			this.notifiedEventHandler.clearEvent();
-
-			this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
-
-			this.managerGUI.restoreGUI();
-
-			if( this.writingTestTimer != null )
-			{
-				this.writingTestTimer.stop();
-				this.writingTestTimer = null;
-			}
-
-			if ( this.ctrlOutputFile != null)
-			{
-				while( this.socketMsgDelayCal.isCalculating() )
-				{		
-					try 
-					{
-						super.wait( 100L );
-					} 
-					catch (Exception e) 
-					{
-					}
-				}
-
-				try
-				{	
-					String key = RegisterSyncMessages.INPUT_STOP;
-
-					this.ctrlOutputFile.setBlockingStartWorking( true );
-
-					if( this.SpecialMarker == null )
-					{
-						this.SpecialMarker = new SyncMarker( RegisterSyncMessages.getSyncMark( key )
-																, System.nanoTime() / 1e9D );
-					}
-
-					// TODO
-					this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( this.ctrlOutputFile.PARAMETER_SET_MARK, this.SpecialMarker ) );
-
-					Thread.sleep( 10L );
-
-					this.ctrlOutputFile.setBlockingStartWorking( false );
-
-					this.ctrlOutputFile.setEnableSaveSyncMark( false );
-
-					this.ctrlOutputFile.deleteSubordinates( IStoppableThread.STOP_IN_NEXT_LOOP );
-
-					if( this.ctrlOutputFile.isSavingData() )
-					{
-						this.managerGUI.setAppState( AppState.SAVING );
-					}
-				}
-				catch (Exception localException) 
-				{
-					localException.printStackTrace();
-					this.managerGUI.setAppState( AppState.NONE );
-				}
-				catch (Error localError) 
-				{}
-			}
-
-			//	if ( !this.isWaitingForStartCommand )
-			//	{
-			// 		try
-			// 		{
-			//			this.ctrSocket.setBlockingStartWorking( true );
-			//			this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
-			//			this.ctrSocket.setBlockingStartWorking(false);
-			//		}
-			//		catch (Exception localException1)
-			//		{}
-			//	}				
-
-			//managerGUI.enablePlayButton( false );
-
-			this.SpecialMarker = null;
-
-			System.gc();
-
-			if( this.closeWhenDoingNothing 
-					&& !isDoingSomething() )
-			{
-				System.exit( 0 );
-			}
-		}
-		 */
-		
 		synchronized ( this )
 		{
 			if( this.stopThread == null )
@@ -1491,7 +1391,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
-					managerGUI.setAppState( AppState.SAVED, 100 );
+					managerGUI.setAppState( AppState.SAVED, 100, false );
 					
 					savingDataProgress = 0;
 					//managerGUI.enablePlayButton( true );
@@ -1503,7 +1403,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				}
 				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
 				{	
-					managerGUI.setAppState( AppState.SAVING, 0 );
+					managerGUI.setAppState( AppState.SAVING, 0, true );
 				}		
 				else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
 				{
@@ -1520,7 +1420,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					
 					if( val > savingDataProgress )
 					{
-						managerGUI.setAppState( AppState.SAVING, val );
+						managerGUI.setAppState( AppState.SAVING, val, true );
 					}
 				}
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))
@@ -1891,7 +1791,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				isWaitingForStartCommand = false;
 				isActiveSpecialInputMsg = false;
 
-				managerGUI.setAppState( AppState.STOP, 0 );
+				managerGUI.setAppState( AppState.STOP, 0, false );
 				//managerGUI.enablePlayButton( false );
 
 				notifiedEventHandler.interruptProcess();
@@ -1945,13 +1845,13 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 						if( ctrlOutputFile.isSavingData() )
 						{
-							managerGUI.setAppState( AppState.SAVING, 0 );
+							managerGUI.setAppState( AppState.SAVING, 0, true );
 						}
 					}
 					catch (Exception localException) 
 					{
 						localException.printStackTrace();
-						managerGUI.setAppState( AppState.NONE, 0 );
+						managerGUI.setAppState( AppState.NONE, 0, false );
 					}
 					catch (Error localError) 
 					{}

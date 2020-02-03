@@ -113,6 +113,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
 
+		/*
 		this.maxNumElements = ( this.BLOCK_SIZE / this.DATA.getTypeDataBytes() ); 
 				
 		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / ( this.DATA.getNumberOfChannels() + 1 ) ) ) * ( this.DATA.getNumberOfChannels() + 1 ) );
@@ -120,7 +121,10 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		if( this.maxNumElements < this.DATA.getNumberOfChannels() )
 		{
 			this.maxNumElements = this.DATA.getNumberOfChannels();
-		}			
+		}
+		*/
+		
+		this.setMaxNumElements( this.DATA.getTypeDataBytes(), this.DATA.getNumberOfChannels() + 1 ); 
 		
 		this.syncReader = syncReader;		
 
@@ -128,6 +132,16 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		
 		//this.events = new ArrayList< EventInfo >();	
+	}
+	
+	private void setMaxNumElements( int dataTypeBytes, int channels )
+	{
+		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / channels ) ) * channels );
+		
+		if( this.maxNumElements < this.DATA.getNumberOfChannels() )
+		{
+			this.maxNumElements = this.DATA.getNumberOfChannels();
+		}	
 	}
 	
 	@Override
@@ -210,12 +224,15 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			// Save data
 			String varName = variableName + "_" + lslName;
 			
+			this.setMaxNumElements( this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1 );			
 			counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );
 			
 			// Save time stamps			
 			String timeName = timeVarName + "_" + lslName;
+			 
 			
 			this.DATA.reset();
+			this.setMaxNumElements( this.DATA.getTimeDataType(), 1 );
 			counterDataBlock = this.ProcessTimeStream(  this.DATA, this.DATA.getTimeDataType(), counterDataBlock, timeName );			
 		}
 		else
@@ -235,7 +252,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
 				
 				this.notifTask.addEvent( event );
-				synchronized ( this.notifTask)
+				synchronized ( this.notifTask )
 				{
 					this.notifTask.notify();
 				}				
@@ -380,6 +397,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 		DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, Nchannels, dataBuffer.subList( from, to ).toArray() );
 				
+		/*
 		synchronized ( this )
 		{
 			while( !this.writer.isReady() )
@@ -393,7 +411,23 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				}
 			}					
 		}
+		*/
 		
+		synchronized ( this )
+		{
+			while( !this.writer.saveData( dataBlock ) )
+			{			
+				try 
+				{
+					super.wait( 1000L );
+				}
+				catch (Exception e) 
+				{
+				}
+			}
+		}
+		
+		/*
 		this.antideadlockCounter.incrementAndGet();
 		
 		Thread t = new Thread()
@@ -418,7 +452,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		t.setName( "Antideadlock-writer" );
 		t.start();
-			
+		*/
+		
 		 dataBuffer.subList( from, to ).clear();
 		
 		seqNum++;

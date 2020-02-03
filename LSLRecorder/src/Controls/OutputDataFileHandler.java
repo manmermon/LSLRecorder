@@ -29,7 +29,6 @@ import Auxiliar.Tasks.NotificationTask;
 import Auxiliar.Thread.LaunchThread;
 import Config.Parameter;
 import Config.ParameterList;
-import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.Binary.Reader.TemporalBinData;
@@ -48,7 +47,10 @@ import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
+import javafx.util.Pair;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +62,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.Timer;
 
 public class OutputDataFileHandler extends HandlerMinionTemplate implements ITaskMonitor
 {	
@@ -94,6 +98,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private Object sync = new Object();
 	
 	private ConcurrentLinkedQueue< EventInfo > _events = new ConcurrentLinkedQueue< EventInfo >();
+	
+	private Timer checkOutWriterTimer = null;
+	
+	private Map< String, Integer > savingPercentage = new  HashMap< String, Integer >();
 	
 	//private boolean isSyncThreadActive = false;
 		
@@ -138,9 +146,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.isRunBinData.set( true );
 			
 			this.NumberOfSavingThreads.set( this.temps.size() );
-									
+						
 			for ( TemporalOutDataFileWriter temp : this.temps )
-			{
+			{	
 				temp.setOutputFileFormat( this.fileFormat );
 				
 				if( !temp.getState().equals( Thread.State.NEW ) )
@@ -565,10 +573,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				else if( event.getEventType().equals( EventType.OUTPUT_DATA_FILE_SAVED ) )
 				{	
 					synchronized ( this.outWriterHandlers ) 
-					{							
-						//this.NumberOfSavingThreads--;
-						
-						//this.outWriterHandlers.remove( event.getEventInformation() );
+					{	
 						this.outWriterHandlers.remove( event.getIdSource() );
 
 						Tuple< String, SyncMarkerBinFileReader > t = (Tuple< String, SyncMarkerBinFileReader >)event.getEventInformation();
@@ -580,7 +585,15 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						//if( this.NumberOfSavingThreads < 1 )
 						if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
-						{	
+						{								
+							if( this.checkOutWriterTimer != null )
+							{
+								this.checkOutWriterTimer.stop();
+								this.checkOutWriterTimer = null;
+							}
+
+							this.savingPercentage.clear();
+							
 							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.x )  );
 							
 							if( t.y != null )
@@ -640,6 +653,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					final IHandlerMinion hand = this;
 					final ITaskMonitor handMonitor = this;
 					final long time = ThreadLocalRandom.current().nextLong( 20L, 500L );
+					
+					this.InitCheckOutOWriters();
+					
 					synchronized ( this.outWriterHandlers )
 					{							
 						Thread t = new Thread()
@@ -656,46 +672,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 								
 								supervisor.eventNotification( hand , new EventInfo( event.getIdSource(), EventType.TEST_WRITE_TIME, event.getEventInformation() ) );
-								
-								/*
-								INotificationTask taskAux = new INotificationTask()
-								{							
-									@Override
-									public void taskMonitor(ITaskMonitor monitor) 
-									{	
-									}
-									
-									@Override
-									public List<EventInfo> getResult() 
-									{
-										List< EventInfo > ev = new ArrayList< EventInfo >();
-										ev.add( new EventInfo( event.getIdSource(), EventType.OUTPUT_DATA_FILE_SAVED, new Tuple< String, SyncMarkerBinFileReader >( event.getIdSource(), null ) ) );
-										return  ev;
-									}
-									
-									@Override
-									public String getID() 
-									{
-										return event.getIdSource();
-									}
-									
-									@Override
-									public void clearResult() {
-										// TODO Auto-generated method stub
-										
-									}
-								};
-								
-								try 
-								{
-									taskDone( taskAux );
-								}
-								catch (Exception e) 
-								{
-									e.printStackTrace();
-								}
-								*/
-								
+																
 								NotificationTask nt = new NotificationTask( true );
 								nt.setID( nt.getID() +  "-" + event.getEventType() );
 								nt.setName( nt.getID() );
@@ -714,11 +691,15 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							}
 						};
 						
+						t.setName( EventType.TEST_WRITE_TIME + "-AuxThread");
+						
 						t.start();
 					}
 				}
 				else if ( event.getEventType().equals( EventType.CONVERT_OUTPUT_TEMPORAL_FILE ) )
 				{			
+					this.InitCheckOutOWriters();
+					
 					synchronized ( this.outWriterHandlers )
 					{	
 						OutputBinaryFileSegmentation saveOutFileThread = null;
@@ -811,7 +792,23 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				}
 				else if( event.getEventType().equals( EventType.SAVING_DATA_PROGRESS ) )
 				{
-					this.supervisor.eventNotification( this, event );
+					int perc = (Integer) event.getEventInformation();
+					
+					this.savingPercentage.put( event.getIdSource(), perc );
+					
+					int minPerc = Integer.MAX_VALUE;					
+					for( Integer Perc : this.savingPercentage.values() )
+					{
+						if( Perc < minPerc)
+						{
+							minPerc = Perc;
+						}
+					}
+					
+					if( perc == minPerc )
+					{					
+						this.supervisor.eventNotification( this, event );
+					}					
 				}
 				else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )
 				{			
@@ -819,6 +816,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					{
 						this.NumberOfSavingThreads.incrementAndGet();
 					}
+					
+					this.InitCheckOutOWriters();
+					
 
 					LaunchOutBinFileSegmentation launch = null;
 					
@@ -907,6 +907,53 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		//super.stopThread = true;
 	}
 	
+	private void InitCheckOutOWriters()
+	{
+		if( this.checkOutWriterTimer == null )
+		{
+			this.checkOutWriterTimer = new Timer( 10_000 , new ActionListener() // 10 s 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					CheckOutWriters();
+				}
+			});
+			
+			this.checkOutWriterTimer.start();
+		}
+	}
+	
+	
+	private void CheckOutWriters()
+	{
+		if( !this.outWriterHandlers.isEmpty() )
+		{
+			synchronized ( this.outWriterHandlers )
+			{
+				for( OutputBinaryFileSegmentation wr : this.outWriterHandlers.values() )
+				{
+					if( wr.getState().equals( Thread.State.TERMINATED ) ) 
+					{
+						this.NumberOfSavingThreads.decrementAndGet();
+					}
+				}
+			}
+		}
+		
+		if( this.outWriterHandlers.isEmpty() && this.NumberOfSavingThreads.get() < 1 )
+		{
+			super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, "" )  );
+			this.checkOutWriterTimer.stop();
+			this.checkOutWriterTimer = null;
+		}
+		else
+		{
+			this.checkOutWriterTimer.restart();
+		}
+		
+	}
+	
 	//
 	//
 	//******************************************************************************
@@ -969,6 +1016,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{
 					this.writeList.put( this.dat.getStreamingName(), this.saveOutFileThread );
 		
+					savingPercentage.put( this.saveOutFileThread.getID(), 0 );
+					
 					this.saveOutFileThread.startThread();		
 				}
 			}
@@ -988,6 +1037,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			{
 				this.saveOutFileThread.stopThread( friendliness );
 			}
-		}		
+		}
 	}
 }

@@ -57,7 +57,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -231,7 +230,7 @@ public class guiManager
 		
 		if( binFiles.size() > 0 )
 		{ 
-			this.setAppState( AppState.SAVING, 0 );
+			this.setAppState( AppState.SAVING, 0, true );
 		}
 						
 		try 
@@ -702,7 +701,7 @@ public class guiManager
 	}
 	*/
 	
-	public synchronized void setAppState( String msg, int perc )
+	public synchronized void setAppState( String msg, int perc, boolean showPerc )
 	{				
 		LevelIndicator statePanel = appUI.getInstance().getExecutionTextState();
 		
@@ -712,7 +711,12 @@ public class guiManager
 			statePanel.setLevels( new int[] { perc} );
 		}
 		
-		statePanel.setString( msg + " (" + perc + "%)"  );		
+		if( showPerc )
+		{
+			msg += " (" + perc + "%)";
+		}
+		
+		statePanel.setString( msg  );		
 				
 		JTextField timeState = appUI.getInstance().getTimeState();
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");

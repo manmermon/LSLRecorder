@@ -53,18 +53,12 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	
 	private NotificationTask notifTask = null;
 	
-	//private List< EventInfo > events = null;
-		
-	//private BridgeNotifierThread notifier = null;
-	
 	private int maxNumProcessors = 1;
 	
 	private AtomicInteger counterProcessingDataBlocks = null;
-	
+		
 	public OutputFileWriterTemplate( String file, boolean createFile ) throws Exception 
 	{	
-		//this.events = new ArrayList< EventInfo >();
-		
 		this.fileName = file;
 		
 		if( createFile )
@@ -84,16 +78,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	
 	@Override
 	public void taskMonitor( ITaskMonitor m )
-	{
-		/*
-		if( this.getState().equals( Thread.State.NEW ) )
-		{
-			this.monitor = m;	
-			
-			this.notifier = new BridgeNotifierThread( this.monitor, this );
-		}
-		*/
-		
+	{		
 		if( this.getState().equals( Thread.State.NEW ) && this.notifTask == null )
 		{
 			synchronized ( this ) 
@@ -108,13 +93,6 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	{
 		super.preStart();
 		
-		/*
-		if( this.notifier != null )
-		{
-			this.notifier.startThread();
-		}
-		*/
-		
 		synchronized ( this ) 
 		{
 			if( this.monitor != null )
@@ -127,36 +105,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		}
 		
 	}
-	
-	/*
-	@Override
-	public List< EventInfo > getResult( boolean clear )
-	{
-		List< EventInfo > copy = new ArrayList< EventInfo>( );
-		
-		synchronized ( this.events )
-		{
-			copy.addAll( this.events );
 			
-			if( clear )
-			{
-				this.events.clear();
-			}
-		}
-				
-		return copy;
-	}
-		
-	@Override
-	public void clearResult()
-	{
-		synchronized ( this.events )
-		{
-			this.events.clear();
-		}		
-	}
-	*/
-		
 	@Override
 	public String getID()
 	{
@@ -170,14 +119,21 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		
 		synchronized ( this )
 		{
-			add = this.counterProcessingDataBlocks.get() > 0;
+			synchronized ( this.counterProcessingDataBlocks )
+			{
+				add = this.counterProcessingDataBlocks.get() > 0;
+			}			
 			
 			if( add )
 			{			
 				add = add && this.DataBlockManager( data );
+					
+				if( add )
+				{
+					this.counterProcessingDataBlocks.decrementAndGet();
+				}
 				
-				this.counterProcessingDataBlocks.decrementAndGet();
-				
+				/*
 				if( !add )
 				{
 					Thread t = new Thread()
@@ -208,6 +164,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 					t.setName( "sendDataToSaveWriter" );
 					t.start();
 				}
+				*/
 				
 				super.notify();			
 			}
@@ -216,6 +173,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		return add;
 	}
 	
+	/*
 	@Override
 	public boolean isReady() 
 	{
@@ -224,20 +182,13 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			return this.counterProcessingDataBlocks.get() > 0 ;
 		}		
 	}
+	*/
 	
 	@Override
 	public String getFileName() 
 	{
 		return this.fileName;
 	}
-
-	/*
-	@Override
-	final synchronized public void closeWriter() throws Exception 
-	{
-		super.stopThread( STOP_WITH_TASKDONE );			
-	}
-	*/
 		
 	@Override
 	protected void runInLoop() throws Exception 
@@ -263,17 +214,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	
 	@Override
 	final protected void postStopThread(int friendliness) throws Exception 
-	{
-		/*
-		synchronized ( this )
-		{
-			System.out.println("OutputFileWriterTemplate.postStopThread() " + super.stopThread + " - " + super.stopWhenTaskDone.get() );
-			if( this.getState().equals( Thread.State.WAITING ) )
-			{
-				super.notify();
-			}
-		}
-		*/
+	{	
 	}
 	
 	@Override
@@ -281,8 +222,11 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	{	
 		if( this.wasDataBlockProcessed() )
 		{
+			int preIncCounter = 0;
+			
 			synchronized ( this.counterProcessingDataBlocks )
 			{
+				preIncCounter = this.counterProcessingDataBlocks.get();
 				this.counterProcessingDataBlocks.incrementAndGet();
 				
 				if( this.counterProcessingDataBlocks.get() > this.maxNumProcessors )
@@ -291,42 +235,17 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 				}
 			}
 			
-			if( this.counterProcessingDataBlocks.get() == 1 )
+			if( this.counterProcessingDataBlocks.get() == 1 && preIncCounter == 0 )
 			{	
 				boolean notify = true;
 				
 				String evType = EventType.OUTPUT_FILE_WRITER_READY;
-				
-				/*
-				synchronized ( this.events )
-				{					
-					for( EventInfo ev : this.events )
-					{
-						if( ev.getEventType().equals( evType ) )
-						{
-							notify = false;
-							break;
-						}
-					}
-					
-					if( notify )
-					{					
-						EventInfo e = new EventInfo( this.getID(), evType, null );
-						
-						this.events.add( e );
-					}
-				}
-				
-				if( notify )
-				{
-					this.Notifier();
-				}
-				*/
-				
+							
 				if( this.notifTask != null )
 				{
+					/*
 					synchronized ( this.notifTask )
-					{					
+					{		
 						for( EventInfo ev : this.notifTask.getResult( false ) )
 						{
 							if( ev.getEventType().equals( evType ) )
@@ -334,7 +253,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 								notify = false;
 								break;
 							}
-						}
+						}						
 						
 						if( notify )
 						{					
@@ -342,6 +261,10 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 							this.notifTask.addEvent( e );
 						}
 					}
+					*/
+					
+					EventInfo e = new EventInfo( this.getID(), evType, null );
+					notify = this.notifTask.addEvent( e, true );
 					
 					if( notify )
 					{
@@ -379,22 +302,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			}
 			
 			this.fStream = null;
-			
-			/*
-			this.notifier.stopThread( IStoppableThread.STOP_IN_NEXT_LOOP );
-			
-			if( this.notifier != null )
-			{
-				synchronized ( this.events )
-				{
-					EventInfo e = new EventInfo( this.getID(), EventType.THREAD_STOP, null );
-					this.events.add( e );
-				}						
-
-				this.Notifier();
-			}
-			*/
-			
+						
 			if( this.notifTask != null )
 			{
 				EventInfo e = new EventInfo( this.getID(), EventType.THREAD_STOP, null );
@@ -424,7 +332,7 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 			}
 		};
 		
-		t.setName( "AntiDeadlockNotifierThread" );
+		t.setName( "AntiDeadlockNotifierThread-Notify" );
 		
 		t.start();
 	}
@@ -444,8 +352,6 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	protected abstract void ProcessDataBlock() throws Exception;
 	
 	protected abstract boolean wasDataBlockProcessed(); 
-	
-	//protected abstract void CleanDataBlock();
-	
+		
 	protected abstract void CloseWriterActions()  throws Exception;
 }
