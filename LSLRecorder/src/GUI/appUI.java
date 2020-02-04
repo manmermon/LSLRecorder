@@ -912,7 +912,7 @@ public class appUI extends JFrame
 			this.appTextState.setEditable( false );
 			this.appTextState.setPaintedString( true );
 			
-			this.appTextState.setLevelStickWidth( 0 );
+			this.appTextState.setLevelIndicatorWidth( 0 );
 			this.appTextState.setString( "" );
 			
 			this.appTextState.setOpaque( false );

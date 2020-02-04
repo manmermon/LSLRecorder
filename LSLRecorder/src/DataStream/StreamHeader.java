@@ -62,6 +62,11 @@ public class StreamHeader
 		return this.filePath;
 	}
 	
+	public void setFilePath( String file )
+	{
+		this.filePath = file;
+	}
+	
 	public String getName( )
 	{
 		return this.name;
@@ -95,6 +100,11 @@ public class StreamHeader
 	public boolean isInterleave()
 	{
 		return this.interleave;
+	}
+	
+	public void setInterleave( boolean inter )
+	{
+		this.interleave = inter;
 	}
 	
 	public String getXMLDescription( )

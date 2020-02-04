@@ -39,6 +39,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.AttributeSet;
@@ -161,6 +163,7 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	// JToggleButton
 	private JToggleButton jtgBtnSortSyncFile;
+	private JToggleButton jtgBtnInterleaved;
 	
 	
 	// Others variables	
@@ -578,12 +581,11 @@ public class dialogConverBin2CLIS extends JDialog
 					if( FILES != null )
 					{
 						for( String file : FILES )
-						{
-							insertBinaryFiles( getTableFileData( ), file );
-							
+						{	
 							StreamHeader bh = getBinaryFileInfo( file );
 							if( bh != null )
 							{
+								insertBinaryFiles( getTableFileData( ), bh );
 								binaryDataFiles.add( bh );
 							}
 						}
@@ -1100,11 +1102,37 @@ public class dialogConverBin2CLIS extends JDialog
 		{	
 			this.tableFileData = this.getCreateJTable( );
 			this.tableFileData.setModel( this.createBinFileTable( ) );
+			this.tableFileData.getModel().addTableModelListener( new TableModelListener() 
+			{				
+				@Override
+				public void tableChanged(TableModelEvent e) 
+				{
+					if( e.getType() == TableModelEvent.UPDATE )
+					{
+						int row = e.getFirstRow();
+						int col = e.getColumn();
+						
+						if( row >= 0 && col >= 0 )
+						{
+							TableModel tm = (TableModel)e.getSource();							
+							Object d = tm.getValueAt( row, col );
+							
+							updateStreamHeader( row, col, d );
+						}
+					}
+				}
+			});
 			
 			this.tableFileData.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 			
 			this.tableFileData.setPreferredScrollableViewportSize( this.tableFileData.getPreferredSize( ) );
 			this.tableFileData.setFillsViewportHeight( true );
+			
+			this.tableFileData.getColumnModel().getColumn( 0  ).setResizable( false );
+			
+			this.tableFileData.getColumnModel().getColumn( 1  ).setResizable( false );
+			this.tableFileData.getColumnModel().getColumn( 1 ).setPreferredWidth( 75 );
+			this.tableFileData.getColumnModel().getColumn( 1 ).setMaxWidth( 75 );
 			
 			/*
 			this.tableFileData.addFocusListener( new FocusListener( ) 
@@ -1212,12 +1240,13 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	private TableModel createBinFileTable( )
 	{					
-		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE ) } )
+		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE )
+																	, Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED )} )
 						{
 							private static final long serialVersionUID = 1L;
 								
-							Class[] columnTypes = new Class[]{ String.class };								
-							boolean[] columnEditables = new boolean[] { false };
+							Class[] columnTypes = getColumnTableTypes();
+							boolean[] columnEditables = new boolean[] { false, true };
 								
 							public Class getColumnClass( int columnIndex ) 
 							{
@@ -1230,18 +1259,34 @@ public class dialogConverBin2CLIS extends JDialog
 									
 								return editable;
 							}
-						};
-							
+						};		
+						
 		return tm;
 	}
 	
-	private void insertBinaryFiles( JTable t, String file )
-	{				
+	private Class[] getColumnTableTypes()
+	{
+		return new Class[]{ String.class, Boolean.class };
+	}
+		
+	private void insertBinaryFiles( JTable t, StreamHeader bh )
+	{	
 		Object[] vals = new Object[ t.getColumnCount( ) ];
+		Class[] colTableTypes = this.getColumnTableTypes();
 		
 		for( int i = 0; i < vals.length; i++ )
-		{
-			vals[ i ] = file;
+		{			
+			if( i < colTableTypes.length )
+			{
+				if( colTableTypes[ i ].equals( String.class ) )
+				{
+					vals[ i ] = bh.getFilePath();
+				}
+				else if( colTableTypes[ i ].equals( Boolean.class ) )
+				{
+					vals[ i ] = bh.isInterleave();
+				}
+			}			
 		}
 		
 		DefaultTableModel m = ( DefaultTableModel )t.getModel( );
@@ -1288,6 +1333,38 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 	}
 		
+	
+	private void updateStreamHeader( int index, int fieldIndex, Object val )
+	{
+		if( index >= 0 && index < this.binaryDataFiles.size() )
+		{
+			StreamHeader bh = this.binaryDataFiles.get( index );
+			
+			switch ( fieldIndex )
+			{
+				case 0:
+				{
+					bh.setFilePath( val.toString() );
+					break;
+				}
+				case 1:
+				{
+					try
+					{
+						bh.setInterleave( (Boolean)val);
+					}
+					catch (Exception e) 
+					{
+					}
+					
+					break;
+				}
+				default:
+					break;
+			}
+		}
+	}
+	
 	private StreamHeader getBinaryFileInfo( String file )	
 	{
 		this.clearInfoLabels( );		
@@ -1392,6 +1469,7 @@ public class dialogConverBin2CLIS extends JDialog
 		this.getTxtXMLDesc( ).setText( "" );	
 	}
 	
+	
 	private JButton getBtnMoveUpDataFile( ) 
 	{
 		if ( btnMoveUpDataFile == null )
@@ -1420,6 +1498,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return btnMoveUpDataFile;
 	}
+	
 
 	private JButton getButtonMoveDownDataFile( ) 
 	{
@@ -1449,6 +1528,7 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return buttonMoveDownDataFile;
 	}
+	
 	
 	/*
 	private JButton getBtnMoveUpTimeFile( ) 
@@ -1480,6 +1560,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return btnMoveUpTimeFile;
 	}
 	 */
+	
 	/*
 	private JButton getButtonMoveDownTimeFile( ) 
 	{
@@ -1510,6 +1591,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return buttonMoveDownTimeFile;
 	}
 	*/
+	
 	
 	private void moveBinaryFile( JTable list, int relativePos )	
 	{
@@ -1701,7 +1783,7 @@ public class dialogConverBin2CLIS extends JDialog
 		return btnOutFolder;
 	}
 	
-
+	
 	private JCheckBox getChckbxDeleteBinaries() 
 	{
 		if ( chckbxDeleteBinaries == null ) 

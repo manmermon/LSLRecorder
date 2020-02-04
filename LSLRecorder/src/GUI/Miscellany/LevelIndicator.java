@@ -263,7 +263,7 @@ public class LevelIndicator extends JComponent
 		this.repaint();
 	}
 	
-	public void setLevelStickWidth( int width )
+	public void setLevelIndicatorWidth( int width )
 	{
 		this.widtStick = width;
 		
@@ -594,7 +594,7 @@ public class LevelIndicator extends JComponent
 	
 	private void drawStick( Graphics g )
 	{
-		Point coord = this.stickPosition( this.value );
+		Point coord = this.indicatorPosition( this.value );
 		
 		int w = this.widtStick;
 		int h = super.getHeight();
@@ -760,7 +760,7 @@ public class LevelIndicator extends JComponent
 		return loc;
 	}
 	
-	private Point stickPosition( double val )
+	private Point indicatorPosition( double val )
 	{	
 		Point loc = this.valuePositionPixel( val );
 		
