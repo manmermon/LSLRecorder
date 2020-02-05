@@ -1004,7 +1004,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 
 				//In-out Messages
 				Map< String, Integer > cmdTable = RegisterSyncMessages.getSyncMessagesAndMarks();
-
+				
 				for( String command : cmdTable.keySet() )
 				{
 					Integer commandType = cmdTable.get( command );

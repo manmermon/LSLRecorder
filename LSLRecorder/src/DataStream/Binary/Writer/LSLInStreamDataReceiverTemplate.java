@@ -454,7 +454,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			{
 				this.timer.stop();
 			}
-			
+						
 			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
 			
 			/*

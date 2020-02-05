@@ -38,6 +38,8 @@ public class LSLConfigParameters
 	public static final String ID_CHUNKSIZE_LABEL = "chunkSize";
 	public static final String ID_INTERLEAVED_LABEL = "interleaved";
 	
+	public static final String ID_RECORDED_SAMPLES_BY_CHANNELS = "recordedSamplesByChannels";
+	
 	private final String ID_EXTRA_INFO_LABEL = "extra";	
 	
 	private int extraCount = 1;

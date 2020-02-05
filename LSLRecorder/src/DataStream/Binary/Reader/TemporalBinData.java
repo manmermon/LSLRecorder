@@ -154,27 +154,8 @@ public class TemporalBinData
 	}
 	
 	public List< ByteBlock > getDataBlocks(  ) throws Exception
-	{
-		//List< Object > data = new ArrayList< Object >();
-		
-		List< ByteBlock > data = this.reader.readDataFromBinaryFile();
-		
-		/*
-		int index = 0;
-		for( ByteBlock block : Blocks )
-		{
-			BinaryDataFormat f = this.formats.get( index );
-			
-			Number[] values = ConvertTo.ByteArrayTo( block.getData(), f.getDataType() );
-			
-			for( Number v : values )
-			{
-				data.add( v );
-			}
-			
-			index++;
-		}
-		*/
+	{		
+		List< ByteBlock > data = this.reader.readDataFromBinaryFile();		
 		
 		return data;
 	}

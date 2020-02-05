@@ -23,6 +23,11 @@ import java.nio.charset.Charset;
 
 public class LSLUtils 
 {
+	public static String getAdditionalInformationLabelInXml()
+	{
+		return "desc";
+	}
+	
 	public static int getDataTypeBytes( int type )
 	{
 		int len = -1;

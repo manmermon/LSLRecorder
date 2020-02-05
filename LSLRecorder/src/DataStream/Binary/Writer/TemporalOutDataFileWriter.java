@@ -31,6 +31,7 @@ import DataStream.OutputDataFile.Format.DataFileFormat;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
+import edu.ucsd.sccn.LSLUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -139,7 +140,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			{
 				System.arraycopy( time, 0, DAT, init, time.length );
 			}
-			
+						
 			this.out.write( DAT );			
 		}
 	}		

@@ -21,10 +21,26 @@
 package DataStream.OutputDataFile;
 
 import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Extra.Tuple;
@@ -48,6 +64,8 @@ import DataStream.Sync.SyncMarkerBinFileReader;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
+import edu.ucsd.sccn.LSLConfigParameters;
+import edu.ucsd.sccn.LSLUtils;
 
 /**
  * 
@@ -73,6 +91,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	//private List< EventInfo > events;
 	
 	private long totalBlock = 0;
+	
+	private double totalSampleByChannels = 0; 
 	
 	/**
 	 *  Save output data file
@@ -217,10 +237,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			String info = "deviceInfo"; // LSL description variable name
 			
 			int counterDataBlock = 0;
-			
-			// Header info
-			this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
-						
+									
 			// Save data
 			String varName = variableName + "_" + lslName;
 			
@@ -233,7 +250,15 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			this.DATA.reset();
 			this.setMaxNumElements( this.DATA.getTimeDataType(), 1 );
-			counterDataBlock = this.ProcessTimeStream(  this.DATA, this.DATA.getTimeDataType(), counterDataBlock, timeName );			
+			counterDataBlock = this.ProcessTimeStream(  this.DATA, this.DATA.getTimeDataType(), counterDataBlock, timeName );
+			
+			// Header info
+			
+			lslXML = this.addElementToXml( lslXML, LSLUtils.getAdditionalInformationLabelInXml()
+													, LSLConfigParameters.ID_RECORDED_SAMPLES_BY_CHANNELS
+													, (long)this.totalSampleByChannels );			
+			
+			this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
 		}
 		else
 		{
@@ -260,7 +285,74 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 		}
 	}
+	
+	private String addElementToXml( String xml, String nodeRoot, String name, long value )
+	{			
+		if( xml != null && nodeRoot != null && name != null )
+		{
+			Document doc = this.convertStringToXMLDocument( xml );
 
+			NodeList nodes = doc.getElementsByTagName( nodeRoot );
+			
+			if( nodes.getLength() > 0 )
+			{
+				Element newElement = doc.createElement( name );
+				newElement.appendChild( doc.createTextNode( value + "" ) );
+				
+				Node node = nodes.item( 0 );
+				node.appendChild( newElement );
+			}	
+			
+			TransformerFactory tf = TransformerFactory.newInstance();
+		    Transformer transformer;
+		    try 
+		    {
+		        transformer = tf.newTransformer();
+		        transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
+		        
+		        StringWriter writer = new StringWriter();
+		        
+		        //transform document to string 
+		        transformer.transform(new DOMSource( doc ), new StreamResult( writer ) );
+		 
+		        xml = writer.getBuffer().toString(); 
+		    }
+		    catch( Exception e )
+		    {		    	
+		    }			
+		}
+		
+		return xml;
+	}	
+	
+	private Document convertStringToXMLDocument(String xmlString) 
+    {
+		Document doc = null;
+		
+		if( xmlString != null && xmlString.length() > 0 )
+		{
+	        //Parser that produces DOM object trees from XML content
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	         
+	        //API to obtain DOM Document instance
+	        DocumentBuilder builder = null;
+	        try
+	        {
+	            //Create DocumentBuilder with default configuration
+	            builder = factory.newDocumentBuilder();
+	             
+	            //Parse the content to Document object
+	           doc = builder.parse(new InputSource(new StringReader( xmlString ) ) );
+	        } 
+	        catch (Exception e) 
+	        {
+	            e.printStackTrace();
+	        }
+		}
+		
+		return doc;
+    }
+	
 	private int ProcessDataAndSync( int seqNum,  String name ) throws Exception
 	{
 		try
@@ -415,6 +507,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		synchronized ( this )
 		{
+			this.totalSampleByChannels += ( to - from ) / Nchannels;
+			
 			while( !this.writer.saveData( dataBlock ) )
 			{			
 				try 

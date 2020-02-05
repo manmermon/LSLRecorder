@@ -238,6 +238,6 @@ public class RegisterSyncMessages
 			in.setSpecial( true );
 			outputDataFileMark.put( msg, in );
 			mark = mark << 1;
-		}
+		}		
 	}	
 }
