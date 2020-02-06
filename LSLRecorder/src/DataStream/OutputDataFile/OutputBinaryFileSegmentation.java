@@ -228,7 +228,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		if ( this.DATA != null && this.writer != null )
 		{
 			//int dataType = this.DATA.getDataType(); // LSL type data
-			//int nChannel = this.DATA.getNumberOfChannels(); // number of channels
+			int nChannel = this.DATA.getNumberOfChannels(); // number of channels
 			String lslName = this.DATA.getStreamingName(); // LSL streaming name
 			String lslXML = this.DATA.getLslXml(); // LSL description
 
@@ -241,7 +241,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			// Save data
 			String varName = variableName + "_" + lslName;
 			
-			this.setMaxNumElements( this.DATA.getDataType(), this.DATA.getNumberOfChannels() + 1 );			
+			this.setMaxNumElements( this.DATA.getDataType(), nChannel + 1 );			
 			counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );
 			
 			// Save time stamps			
@@ -256,7 +256,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			lslXML = this.addElementToXml( lslXML, LSLUtils.getAdditionalInformationLabelInXml()
 													, LSLConfigParameters.ID_RECORDED_SAMPLES_BY_CHANNELS
-													, (long)this.totalSampleByChannels );			
+													, (long)( this.totalSampleByChannels / ( nChannel + 2 ) )); // nChannel + 2: channels + marker column + time ;			
 			
 			this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
 		}
