@@ -292,34 +292,38 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			Document doc = this.convertStringToXMLDocument( xml );
 
-			NodeList nodes = doc.getElementsByTagName( nodeRoot );
-			
-			if( nodes.getLength() > 0 )
+			if( doc != null )
 			{
-				Element newElement = doc.createElement( name );
-				newElement.appendChild( doc.createTextNode( value + "" ) );
+				NodeList nodes = doc.getElementsByTagName( nodeRoot );
 				
-				Node node = nodes.item( 0 );
-				node.appendChild( newElement );
-			}	
-			
-			TransformerFactory tf = TransformerFactory.newInstance();
-		    Transformer transformer;
-		    try 
-		    {
-		        transformer = tf.newTransformer();
-		        transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
-		        
-		        StringWriter writer = new StringWriter();
-		        
-		        //transform document to string 
-		        transformer.transform(new DOMSource( doc ), new StreamResult( writer ) );
-		 
-		        xml = writer.getBuffer().toString(); 
-		    }
-		    catch( Exception e )
-		    {		    	
-		    }			
+				if( nodes.getLength() > 0 )
+				{
+					try 
+				    {
+						Element newElement = doc.createElement( name );
+						newElement.appendChild( doc.createTextNode( value + "" ) );
+						
+						Node node = nodes.item( 0 );
+						node.appendChild( newElement );
+					
+						TransformerFactory tf = TransformerFactory.newInstance();
+					    Transformer transformer;
+				    
+				        transformer = tf.newTransformer();
+				        transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
+				        
+				        StringWriter writer = new StringWriter();
+				        
+				        //transform document to string 
+				        transformer.transform(new DOMSource( doc ), new StreamResult( writer ) );
+				 
+				        xml = writer.getBuffer().toString(); 
+				    }
+				    catch( Exception e )
+				    {		    	
+				    }
+				}
+			}
 		}
 		
 		return xml;
@@ -734,6 +738,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				if( e != null )
 				{
 					cl = e.getClass().getName();
+					
+					for( StackTraceElement track : e.getStackTrace() )
+					{
+						cl += "\n\t" + track.toString();
+					}
 				}
 				
 				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new Exception("Problem: it is not possible to write in the file " + fileName + "\n" + cl));				
