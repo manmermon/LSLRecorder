@@ -8,9 +8,7 @@
 	<classpathentry kind="lib" path="../../Librerias/labstreaminglayer/LSL/liblsl-Java/jna-platform-5.5.0.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/Compresion/commons-compress-1.19/commons-compress-1.19.jar"/>
 	<classpathentry kind="lib" path="icmp4j_all_mod.jar"/>
-	<classpathentry kind="lib" path="../../Librerias/Sigar/sigar.jar"/>
-	<classpathentry kind="lib" path="../../Librerias/Sigar/log4j.jar"/>
-	<classpathentry kind="lib" path="../../Librerias/HDF5/sis-jhdf5/lib/sis-jhdf5-19.04.0.jar"/>
 	<classpathentry kind="lib" path="../../Librerias/HDF5/sis-jhdf5/lib/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="../../Librerias/HDF5/sis-jhdf5/lib/sis-jhdf5-19.04.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
