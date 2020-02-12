@@ -296,13 +296,10 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		}
 		finally 
 		{			
-			if( this.fStream != null )
-			{
-				this.fStream.close();
-			}
+			this.closeWriter();
 			
 			this.fStream = null;
-						
+			
 			if( this.notifTask != null )
 			{
 				EventInfo e = new EventInfo( this.getID(), EventType.THREAD_STOP, null );
@@ -312,6 +309,15 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 				
 				this.Notifier();
 			}
+		}
+	}
+	
+	@Override
+	public void closeWriter() throws Exception 
+	{
+		if( this.fStream != null )
+		{
+			this.fStream.close();
 		}
 	}
 
@@ -352,6 +358,6 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	protected abstract void ProcessDataBlock() throws Exception;
 	
 	protected abstract boolean wasDataBlockProcessed(); 
-		
+	
 	protected abstract void CloseWriterActions()  throws Exception;
 }

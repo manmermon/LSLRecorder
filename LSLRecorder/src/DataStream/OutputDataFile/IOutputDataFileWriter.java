@@ -50,6 +50,6 @@ public abstract interface IOutputDataFileWriter extends IStoppableThread//, ISto
 	public String getFileName();
 	
 	public boolean finished();
-
-	//public void closeWriter() throws Exception;
+	
+	public void closeWriter() throws Exception;
 }

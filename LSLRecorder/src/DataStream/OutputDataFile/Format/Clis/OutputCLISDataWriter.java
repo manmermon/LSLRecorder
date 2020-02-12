@@ -364,7 +364,10 @@ public class OutputCLISDataWriter extends OutputFileWriterTemplate
 		
 		this.blockSizes.add( compressData.length );
 		
-		this.fStream.write( compressData );		
+		if( this.fStream != null )
+		{
+			this.fStream.write( compressData );		
+		}
 	}
 	
 	private String getDataTypeIdentifier( int type )
@@ -502,17 +505,21 @@ public class OutputCLISDataWriter extends OutputFileWriterTemplate
 		ByteBuffer byteBuffer = this.charCode.encode( charBuffer );
 		byte[] bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 
-		super.fStream.seek( 0 );
-		super.fStream.write( bytes );
-
-		if ( this.addHeader )
+		if( this.fStream != null )
 		{
-			charBuffer = CharBuffer.wrap( this.header.trim() + this.endLine);
-			byteBuffer = this.charCode.encode(charBuffer);
-			bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
+			super.fStream.seek( 0 );
 			super.fStream.write( bytes );
+	
+			if ( this.addHeader )
+			{
+				charBuffer = CharBuffer.wrap( this.header.trim() + this.endLine);
+				byteBuffer = this.charCode.encode(charBuffer);
+				bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
+				super.fStream.write( bytes );
+			}
 		}
 	}
+	
 
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
