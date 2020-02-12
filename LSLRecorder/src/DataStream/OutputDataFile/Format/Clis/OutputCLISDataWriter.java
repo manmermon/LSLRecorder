@@ -505,18 +505,15 @@ public class OutputCLISDataWriter extends OutputFileWriterTemplate
 		ByteBuffer byteBuffer = this.charCode.encode( charBuffer );
 		byte[] bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 
-		if( this.fStream != null )
+		super.fStream.seek( 0 );
+		super.fStream.write( bytes );
+
+		if ( this.addHeader )
 		{
-			super.fStream.seek( 0 );
+			charBuffer = CharBuffer.wrap( this.header.trim() + this.endLine);
+			byteBuffer = this.charCode.encode(charBuffer);
+			bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 			super.fStream.write( bytes );
-	
-			if ( this.addHeader )
-			{
-				charBuffer = CharBuffer.wrap( this.header.trim() + this.endLine);
-				byteBuffer = this.charCode.encode(charBuffer);
-				bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
-				super.fStream.write( bytes );
-			}
 		}
 	}
 	

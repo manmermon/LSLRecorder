@@ -20,7 +20,9 @@
 package DataStream.OutputDataFile.Format;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import Auxiliar.Tasks.ITaskIdentity;
@@ -56,6 +58,8 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	private int maxNumProcessors = 1;
 	
 	private AtomicInteger counterProcessingDataBlocks = null;
+	
+	private AtomicBoolean isOpen = null;
 		
 	public OutputFileWriterTemplate( String file, boolean createFile ) throws Exception 
 	{	
@@ -74,6 +78,8 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		}
 		
 		this.counterProcessingDataBlocks = new AtomicInteger( this.maxNumProcessors );	
+		
+		this.isOpen = new AtomicBoolean( true );
 	}
 	
 	@Override
@@ -119,6 +125,14 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		
 		synchronized ( this )
 		{
+			synchronized ( this.isOpen )
+			{
+				if( !this.isOpen.get() )
+				{
+					throw new IOException( "Output file is closed. " );
+				}
+			}
+			
 			synchronized ( this.counterProcessingDataBlocks )
 			{
 				add = this.counterProcessingDataBlocks.get() > 0;
@@ -315,10 +329,12 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 	@Override
 	public void closeWriter() throws Exception 
 	{
-		if( this.fStream != null )
+		synchronized ( this.isOpen)
 		{
-			this.fStream.close();
+			this.isOpen.set( false );
 		}
+		
+		super.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 	}
 
 	private void Notifier()

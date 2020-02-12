@@ -189,25 +189,13 @@ public class OutputHDF5DataWriter extends OutputFileWriterTemplate
 	{
 		this.writer.writeStringArray( "header", this.header.toArray( new String[0] ) );
 		
-		this.closeWriter();
-	}
-	
-	@Override
-	public void closeWriter() throws Exception 
-	{
-		super.closeWriter();
-		
 		for( HDF5Data wr : this.dataWriters.values() )
 		{
 			wr.close();
 		}
 		
-		if( this.writer != null )
-		{	
-			this.writer.close();
-		}
+		this.writer.close();
 	}
-
 
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
