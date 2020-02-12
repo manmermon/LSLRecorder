@@ -310,7 +310,10 @@ public abstract class OutputFileWriterTemplate extends AbstractStoppableThread i
 		}
 		finally 
 		{			
-			this.closeWriter();
+			if( this.fStream != null )
+			{
+				this.fStream.close();
+			}
 			
 			this.fStream = null;
 			
