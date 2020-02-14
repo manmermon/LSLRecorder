@@ -22,34 +22,53 @@
 
 package DataStream.OutputDataFile;
 
+import Auxiliar.Tasks.IMonitoredTask;
+import Auxiliar.Tasks.ITaskMonitor;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
-import StoppableThread.IStoppableThread;
+import edu.ucsd.sccn.LSL;
 
-public abstract interface IOutputDataFileWriter extends IStoppableThread//, IStoppableThreadEventControl
+public abstract interface IOutputDataFileWriter extends IMonitoredTask //extends IStoppableThread //, IStoppableThreadEventControl
 {
-	public void addHeader(String paramString1, String paramString2) throws Exception;
-
-	/*
-	public void saveData(String paramString, int[] paramArrayOfInt, int paramInt) throws Exception;
-
-	public void saveData(String paramString, long[] paramArrayOfLong, int paramInt) throws Exception;
-
-	public void saveData(String paramString, double[] paramArrayOfDouble, int paramInt) throws Exception;
-
-	public void saveData(String paramString, float[] paramArrayOfFloat, int paramInt) throws Exception;
-
-	public void saveData(String paramString, char[] paramArrayOfChar) throws Exception;
-
-	public void saveData(String paramString1, String paramString2) throws Exception;
-	*/
+	public final static int BYTE_TYPE = LSL.ChannelFormat.int8;
+	public final static int SHORT_TYPE = LSL.ChannelFormat.int16;
+	public final static int INT_TYPE = LSL.ChannelFormat.int32;
+	public final static int LONG_TYPE = LSL.ChannelFormat.int64;
+	public final static int FLOAT_TYPE = LSL.ChannelFormat.float32;
+	public final static int DOUBLE_TYPE = LSL.ChannelFormat.double64;
+	public final static int STRING_TYPE = LSL.ChannelFormat.string;
+		
+	/**
+	 * 
+	 * @param id
+	 * @param text
+	 * @throws Exception
+	 */
+	public void addMetadata(String id, String text) throws Exception;
 	
-	//public boolean isReady();
-	
+	/**
+	 * Save data block
+	 * 
+	 * @param data
+	 * @return True if data was saved. Otherwise, false
+	 * @throws Exception
+	 */
 	public boolean saveData( DataBlock data )  throws Exception;
-
+	
+	/**
+	 * 
+	 * @return Filen path
+	 */
 	public String getFileName();
 	
+	/**
+	 * 
+	 * @return True if all data are saved. Otherwise, false
+	 */
 	public boolean finished();
-	
-	public void closeWriter() throws Exception;
+		
+	/**
+	 * Close output file and finish the writer
+	 * @throws Exception
+	 */
+	public void close() throws Exception;
 }

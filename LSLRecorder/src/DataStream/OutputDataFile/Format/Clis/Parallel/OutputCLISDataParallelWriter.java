@@ -23,16 +23,20 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import Auxiliar.Extra.ConvertTo;
+import Auxiliar.Tasks.ITaskMonitor;
 import DataStream.OutputDataFile.Compress.IOutZip;
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
 import DataStream.OutputDataFile.DataBlock.DataInByteFormatBlock;
-import DataStream.OutputDataFile.Format.Clis.OutputCLISDataWriter;
+import DataStream.OutputDataFile.Format.Clis.CLISCompressorWriter;
+import DataStream.OutputDataFile.Format.Clis.CLISMetadata;
+import DataStream.OutputDataFile.Format.Parallelize.OutputParallelizableFileWriterTemplate;
 import StoppableThread.IStoppableThread;
 
-public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implements ICompressDataCollector
+public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
 {
 	private int zipType = OutputZipDataFactory.GZIP;
 	
@@ -42,14 +46,42 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 	
 	private List< ZipThread > zpThreadList = null;
 	
-	public OutputCLISDataParallelWriter( String file, long headersize, int zip, Charset coding ) throws Exception 
+	private CLISMetadata metadata = null;
+	
+	private CLISCompressorWriter clisWriter = null;
+	
+	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
+	
+	public OutputCLISDataParallelWriter( String file, long headersize, int zip, Charset coding, ITaskMonitor monitor ) throws Exception 
 	{
-		super( file, headersize, zip, coding );
+		super();
+		
+		IOutZip zp = OutputZipDataFactory.createOuputZipStream( zip );
+		
+		if( zp == null )
+		{
+			throw new IllegalArgumentException( "Compress technique unknown." );
+		}
+		
+		super.taskMonitor( monitor );
+		
+		this.metadata = new CLISMetadata( headersize, zp.getZipID(), coding );
+		this.clisWriter = new CLISCompressorWriter( file, this.metadata );
 		
 		this.zipType = zip;
 		
 		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
 		this.zpThreadList = new ArrayList< ZipThread >();
+		
+		super.setName( this.getClass().getSimpleName() + "-" + this.clisWriter.getSimpleFileName() );
+		
+		super.startThread();
+	}
+	
+	@Override
+	public String getFileName() 
+	{
+		return this.clisWriter.getFileName();
 	}
 	
 	@Override
@@ -59,7 +91,7 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 	}
 	
 	@Override
-	protected boolean DataBlockManager(DataBlock dataBlock) throws Exception 
+	protected boolean DataBlockManager( DataBlock dataBlock ) throws Exception 
 	{
 		boolean add = this.zpThreadList.size() < this.getMaxNumThreads() ;
 		
@@ -70,12 +102,32 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		
 		return add; 
 	}
+	
+	/*
+	@Override
+	protected boolean DataBlockManager(DataBlock dataBlock) throws Exception 
+	{
+		boolean added = false;
+			
+		if( dataBlock != null )
+		{
+			added = this.dataBlockList.isEmpty();
+		
+			if( added )
+			{
+				this.dataBlockList.add( dataBlock );
+			}
+		}
+		
+		return added;
+	}
+	*/
 		
 	private void Zip( String varName, int dataType, int nChannels, int ordered, Object[] data ) throws Exception
 	{
 		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
 		
-		ZipThread zipThr = new ZipThread( varName, dataType, nChannels, zp, this, this.charCode );
+		ZipThread zipThr = new ZipThread( varName, dataType, nChannels, zp, this, this.metadata.getCharCode() );
 				
 		zipThr.CompressData( ordered, data );
 		
@@ -96,7 +148,15 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 				
 		return available;  
 	}
-
+	
+	/*
+	@Override
+	protected boolean DataBlockAvailable()
+	{
+		return !this.dataBlockList.isEmpty();
+	}
+	*/
+	
 	@Override
 	protected void ProcessDataBlock() throws Exception 
 	{
@@ -104,22 +164,25 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		
 		block = this.compressDataList.get( this.nextNumSeqCompressedDataBlock );
 		
-		super.dataBlockProcessed.set( false );
+		this.dataBlockProcessed.set( false );
 		
 		if( block != null )
 		{	
-			super.saveCompressedData( ConvertTo.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
+			this.clisWriter.saveCompressedData( ConvertTo.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
 			
 			this.compressDataList.remove( this.nextNumSeqCompressedDataBlock );
 			
 			this.nextNumSeqCompressedDataBlock++;
 			
-			super.dataBlockProcessed.set( true );			
+			this.dataBlockProcessed.set( true ); 
+			// If block == null, wasDataBlockProcessed() return false; otherwise true
+			// To avoid this thread can be awakened without data
 		}
 	}	
 	
+	
 	@Override
-	public void SaveCompressedData( ZipThread zpThread ) throws Exception 
+	public void SaveZipData( ZipThread zpThread ) throws Exception 
 	{
 		if( zpThread != null )
 		{
@@ -154,4 +217,28 @@ public class OutputCLISDataParallelWriter extends OutputCLISDataWriter implement
 		return this.zpThreadList.isEmpty() 
 				&& this.compressDataList.isEmpty();
 	}
+
+	@Override
+	public void addMetadata(String id, String text) throws Exception 
+	{
+		this.clisWriter.addMetadata(  id, text );
+	}
+
+	@Override
+	protected boolean wasDataBlockProcessed() 
+	{
+		return this.dataBlockProcessed.get() ;
+	}
+	
+	@Override
+	protected void CloseWriterActions() throws Exception 
+	{	
+		this.clisWriter.saveMetadata();
+		this.clisWriter.close();		
+	}
+
+	@Override
+	protected void preStopThread(int friendliness) throws Exception 
+	{	
+	}	
 }

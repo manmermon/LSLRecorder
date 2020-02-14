@@ -1556,7 +1556,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		{
 			this.notifTask = new NotificationTask( false );
 			this.notifTask.taskMonitor( this.monitor );
-			this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() );
+			this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() + "-" + super.getId() );
 			this.notifTask.startThread();
 		}
 		else

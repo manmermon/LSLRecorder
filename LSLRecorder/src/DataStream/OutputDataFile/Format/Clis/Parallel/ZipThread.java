@@ -73,7 +73,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 			throw new NullPointerException( "Any input is null." );
 		}
 		
-		super.setName( this.getClass().getName() );
+		super.setName( this.getClass().getName() + "-" + super.getId() );
 		
 		this.varName = varName;
 		this.numChannels = nChannels;		
@@ -229,7 +229,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 			if( compressData != null )
 			{
 				this.compressedData = new DataInByteFormatBlock( n, this.varName, this.DataType, this.numChannels, ConvertTo.byteArray2ByteArray( compressData ) );				
-				this.collector.SaveCompressedData( this );
+				this.collector.SaveZipData( this );
 			}
 		}
 	}

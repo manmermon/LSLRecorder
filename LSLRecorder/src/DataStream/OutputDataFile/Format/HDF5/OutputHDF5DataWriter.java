@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import Auxiliar.Extra.ConvertTo;
+import Auxiliar.Tasks.ITaskMonitor;
+import DataStream.OutputDataFile.IOutputDataFileWriter;
 import DataStream.OutputDataFile.DataBlock.ByteBlock;
 import DataStream.OutputDataFile.DataBlock.CharBlock;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
@@ -17,31 +19,29 @@ import DataStream.OutputDataFile.DataBlock.IntegerBlock;
 import DataStream.OutputDataFile.DataBlock.LongBlock;
 import DataStream.OutputDataFile.DataBlock.ShortBlock;
 import DataStream.OutputDataFile.DataBlock.StringBlock;
-import DataStream.OutputDataFile.Format.OutputFileWriterTemplate;
+import DataStream.OutputDataFile.Format.Parallelize.OutputParallelizableFileWriterTemplate;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 
-public class OutputHDF5DataWriter extends OutputFileWriterTemplate 
+public class OutputHDF5DataWriter implements IOutputDataFileWriter 
 {
-	private ConcurrentLinkedDeque< DataBlock > dataBlockList = null;
-	
-	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( true );
-	
 	private IHDF5Writer writer = null;
 	private Map< String, HDF5Data> dataWriters = null;
 		
 	private List< String > header = null ;
 	
-	public OutputHDF5DataWriter( String file ) throws Exception 
+	private String fileName = null;
+	
+	private AtomicBoolean savedDataBlock = new AtomicBoolean( true );
+	
+	public OutputHDF5DataWriter( String file, ITaskMonitor monitor ) throws Exception 
 	{
-		super( file, false );
-		
-		super.setName( this.getClass().getSimpleName() + "-" + this.fileName );
-		
-		this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
+		this.fileName = file;
 				
 		this.dataWriters = new HashMap< String, HDF5Data >();		
+		
+		this.taskMonitor( monitor );
 		
 		this.writer = HDF5Factory.open( file );
 				
@@ -49,7 +49,7 @@ public class OutputHDF5DataWriter extends OutputFileWriterTemplate
 	}
 
 	@Override
-	public void addHeader( String id, String text ) throws Exception 
+	public void addMetadata( String id, String text ) throws Exception 
 	{
 		id = id.replace("\n", "").replace("\r", "");
 		text = text.replace("\n", "").replace("\r", "");
@@ -60,51 +60,17 @@ public class OutputHDF5DataWriter extends OutputFileWriterTemplate
 	@Override
 	public boolean finished() 
 	{
-		return this.dataBlockList.isEmpty() && this.dataBlockProcessed.get();
+		return this.savedDataBlock.get();
 	}
 
 	@Override
-	protected int getMaxNumThreads() 
-	{
-		return 1;
-	}
-
-	@Override
-	protected boolean DataBlockManager( DataBlock dataBlock ) throws Exception 
-	{
-		boolean added = false;
+	public boolean saveData( DataBlock dataBlock ) throws Exception
+	{	
+		this.savedDataBlock.set( false );
 		
 		if( dataBlock != null )
-		{
-			added = this.dataBlockList.isEmpty();
-		
-			if( added )
-			{
-				this.dataBlockList.add( dataBlock );
-			}
-		}
-		
-		return added;
-	}
-
-	@Override
-	protected boolean DataBlockAvailable() 
-	{
-		return !this.dataBlockList.isEmpty();
-	}
-
-	@Override
-	protected void ProcessDataBlock() throws Exception
-	{	
-		if( !this.dataBlockList.isEmpty() )
 		{			
-			/* KEEP */
-			this.dataBlockProcessed.set( false );
-			
-			DataBlock dataBlock = this.dataBlockList.poll();
-			
-			/* */
-			
+					
 			HDF5Data wr = this.dataWriters.get( dataBlock.getName() );
 			
 			if( wr == null )
@@ -174,18 +140,16 @@ public class OutputHDF5DataWriter extends OutputFileWriterTemplate
 				throw new Exception( "Data block type unknown." );
 			}
 			
-			this.dataBlockProcessed.set( true );
 		}
+		
+		this.savedDataBlock.set( true );
+		
+		return true;
 	}
 
-	@Override
-	protected boolean wasDataBlockProcessed() 
-	{
-		return this.dataBlockProcessed.get();
-	}
 
 	@Override
-	protected void CloseWriterActions() throws Exception 
+	public void close() throws Exception 
 	{
 		this.writer.writeStringArray( "header", this.header.toArray( new String[0] ) );
 		
@@ -198,8 +162,13 @@ public class OutputHDF5DataWriter extends OutputFileWriterTemplate
 	}
 
 	@Override
-	protected void preStopThread(int friendliness) throws Exception 
-	{		
+	public void taskMonitor(ITaskMonitor monitor) 
+	{
 	}
 
+	@Override
+	public String getFileName() 
+	{
+		return this.fileName;
+	}
 }

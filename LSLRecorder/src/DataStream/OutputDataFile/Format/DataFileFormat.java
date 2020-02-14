@@ -25,6 +25,8 @@ package DataStream.OutputDataFile.Format;
 import java.util.HashMap;
 import java.util.Map;
 
+import Auxiliar.Tasks.ITaskMonitor;
+import DataStream.OutputDataFile.IOutputDataFileWriter;
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.Format.Clis.OutputCLISDataWriter;
 import DataStream.OutputDataFile.Format.Clis.Parallel.OutputCLISDataParallelWriter;
@@ -127,9 +129,9 @@ public class DataFileFormat
 		return ok;
 	}
 
-	public static OutputFileWriterTemplate getDataFileWriter(String format, String file, OutputFileFormatParameters p ) throws Exception
+	public static IOutputDataFileWriter getDataFileWriter(String format, String file, OutputFileFormatParameters p, ITaskMonitor monitor ) throws Exception
 	{
-		OutputFileWriterTemplate writer = null;
+		IOutputDataFileWriter writer = null;
 		
 		if ( isSupportedFileFormat( format ) )
 		{	
@@ -137,15 +139,15 @@ public class DataFileFormat
 			
 			if ( format.equals(CLIS_GZIP) || format.equals( CLIS_BZIP2 ) )
 			{				
-				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
+				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset(), monitor );
 			}
 			else if( format.equals( PCLIS_GZIP ) || format.equals( PCLIS_BZIP2 ) ) 
 			{
-				writer = new OutputCLISDataParallelWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset() );
+				writer = new OutputCLISDataParallelWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset(), monitor );
 			}
 			else if( format.equals( HDF5 ) )
 			{
-				writer = new OutputHDF5DataWriter( file );
+				writer = new OutputHDF5DataWriter( file, monitor );
 			}
 			/*
 			else if (format.equals(MATLAB))

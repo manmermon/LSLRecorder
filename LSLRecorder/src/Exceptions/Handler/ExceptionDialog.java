@@ -127,6 +127,8 @@ public class ExceptionDialog
 			@Override
 			public void run() 
 			{
+				super.setName( "ExceptionDialog-showMessage-" + super.getId() );
+				
 				if( dialog != null )
 				{
 					if( !concatMsg )

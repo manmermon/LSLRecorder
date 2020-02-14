@@ -58,7 +58,6 @@ import DataStream.OutputDataFile.DataBlock.DataBlock;
 import DataStream.OutputDataFile.DataBlock.DataBlockFactory;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.OutputDataFile.Format.OutputFileFormatParameters;
-import DataStream.OutputDataFile.Format.OutputFileWriterTemplate;
 import DataStream.Sync.SyncMarker;
 import DataStream.Sync.SyncMarkerBinFileReader;
 import StoppableThread.AbstractStoppableThread;
@@ -81,7 +80,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	private TemporalBinData DATA;
 	private SyncMarkerBinFileReader syncReader;
 	
-	private OutputFileWriterTemplate writer;
+	private IOutputDataFileWriter writer;
 	private ITaskMonitor monitor;
 	
 	private NotificationTask notifTask = null;
@@ -120,7 +119,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			throw new IllegalArgumentException( "Data input null." );
 		}
 		
-		super.setName( this.getClass().getSimpleName() + "-" + DAT.getStreamingName() );
+		super.setName( this.getClass().getSimpleName() + "-" + DAT.getOutputFileName() );
 		
 		this.DATA = DAT;
 				
@@ -132,26 +131,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		}		
 		
 		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
-
-		/*
-		this.maxNumElements = ( this.BLOCK_SIZE / this.DATA.getTypeDataBytes() ); 
 				
-		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / ( this.DATA.getNumberOfChannels() + 1 ) ) ) * ( this.DATA.getNumberOfChannels() + 1 ) );
-		
-		if( this.maxNumElements < this.DATA.getNumberOfChannels() )
-		{
-			this.maxNumElements = this.DATA.getNumberOfChannels();
-		}
-		*/
-		
 		this.setMaxNumElements( this.DATA.getTypeDataBytes(), this.DATA.getNumberOfChannels() + 1 ); 
 		
 		this.syncReader = syncReader;		
 
 		this.totalBlock = 2 + ( DAT.getDataBinaryFileSize() / ( this.maxNumElements * this.DATA.getTypeDataBytes() ) );
-		
-		
-		//this.events = new ArrayList< EventInfo >();	
+			
 	}
 	
 	private void setMaxNumElements( int dataTypeBytes, int channels )
@@ -209,12 +195,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			pars.setHeaderSize( headerSize );
 			pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
 			
-			OutputFileWriterTemplate wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars );
+			IOutputDataFileWriter wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars, this );
 					
 			this.writer = wr;
-					
-			this.writer.taskMonitor( this );
-			this.writer.startThread();
 		}
 	}
 
@@ -258,7 +241,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 													, LSLConfigParameters.ID_RECORDED_SAMPLES_BY_CHANNELS
 													, (long)( this.totalSampleByChannels / ( nChannel + 2 ) )); // nChannel + 2: channels + marker column + time ;			
 			
-			this.writer.addHeader( info + "_" + lslName, lslXML ); // output file header
+			this.writer.addMetadata( info + "_" + lslName, lslXML ); // output file header
 		}
 		else
 		{
@@ -664,21 +647,25 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	{
 		super.targetDone();
 
-		this.stopThread = true;
+		super.stopThread = true;
 		
-		this.writer.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		//this.writer.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		this.writer.close();
 		
 		synchronized ( this )
 		{
 			while( !this.writer.finished() )
 			{
-				if( this.writer.getState().equals( Thread.State.TIMED_WAITING ) 
-						|| this.writer.getState().equals( Thread.State.WAITING ) )
+				if( this.writer instanceof Thread )
 				{
-					synchronized ( this.writer ) 
+					if( ((Thread)this.writer).getState().equals( Thread.State.TIMED_WAITING ) 
+							|| ((Thread)this.writer).getState().equals( Thread.State.WAITING ) )
 					{
-						this.writer.notify();
-					} 
+						synchronized ( this.writer ) 
+						{
+							this.writer.notify();
+						} 
+					}
 				}
 				
 				try
@@ -778,7 +765,16 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 		}
 		
-		this.writer.stopThread( IStoppableThread.FORCE_STOP );
+		if( !this.writer.finished() )
+		{
+			this.writer.close();
+			
+			if( this.writer instanceof IStoppableThread )
+			{
+				((IStoppableThread)this.writer).stopThread( IStoppableThread.FORCE_STOP );
+			}
+		}
+				
 		this.writer = null;
 			
 		this.DATA.closeTempBinaryFile();

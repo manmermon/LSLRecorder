@@ -21,5 +21,5 @@ package DataStream.OutputDataFile.Format.Clis.Parallel;
 
 public interface ICompressDataCollector 
 {
-	public void SaveCompressedData( ZipThread zpThread )  throws Exception;
+	public void SaveZipData( ZipThread zpThread )  throws Exception;
 }
