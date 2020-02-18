@@ -5,11 +5,12 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.crypto.Cipher;
 
 import DataStream.OutputDataFile.IOutputDataFileWriter;
 import edu.ucsd.sccn.LSLUtils;
@@ -118,12 +119,30 @@ public class CLISCompressorWriter
 			throw new IllegalStateException( "Number of columns changed for the same variable." );
 		}
 		
+		compressData = this.getEncryptData( compressData );		
+		this.metadata.updateCheckSum( compressData );
 		this.blockSizes.add( compressData.length );
 		
 		if( this.fStream != null )
 		{
 			this.fStream.write( compressData );		
 		}
+	}
+	
+	private byte[] getEncryptData( byte[] decryptData ) throws Exception
+	{
+		byte[] encryptData = decryptData;
+		
+		if( decryptData != null && decryptData.length > 0 )
+		{
+			Cipher cipher = this.metadata.getEncrypt();
+			if( cipher != null )
+			{    
+		        encryptData = cipher.doFinal( decryptData );		        
+			}
+		}
+		
+		return encryptData;
 	}
 	
 	public void saveMetadata() throws Exception
@@ -144,9 +163,9 @@ public class CLISCompressorWriter
 			this.fStream.seek( 0 );
 			this.fStream.write( bytes );
 	
-			if ( this.metadata.hasHeader() )
+			if ( this.metadata.getDataStreamInfoLength() > 0 )
 			{
-				charBuffer = CharBuffer.wrap( this.metadata.getHeader() );
+				charBuffer = CharBuffer.wrap( this.metadata.getDataStreamInfo() );
 				byteBuffer = this.metadata.getCharCode().encode(charBuffer);
 				bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 				this.fStream.write( bytes );

@@ -785,7 +785,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 
 								super.event = new EventInfo( event.getIdSource(), EventType.PROBLEM, "Save process error: " + ex.getMessage() );
-								super.supervisor.eventNotification( this, event );
+								super.supervisor.eventNotification( this, super.event );
 							}
 						}
 					}

@@ -19,7 +19,6 @@
  */
 package DataStream.OutputDataFile.Format.Clis.Parallel;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -31,6 +30,7 @@ import DataStream.OutputDataFile.Compress.IOutZip;
 import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
 import DataStream.OutputDataFile.DataBlock.DataInByteFormatBlock;
+import DataStream.OutputDataFile.Format.OutputFileFormatParameters;
 import DataStream.OutputDataFile.Format.Clis.CLISCompressorWriter;
 import DataStream.OutputDataFile.Format.Clis.CLISMetadata;
 import DataStream.OutputDataFile.Format.Parallelize.OutputParallelizableFileWriterTemplate;
@@ -52,11 +52,14 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	
 	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
 	
-	public OutputCLISDataParallelWriter( String file, long headersize, int zip, Charset coding, ITaskMonitor monitor ) throws Exception 
+	public OutputCLISDataParallelWriter( String file, OutputFileFormatParameters pars, ITaskMonitor monitor ) throws Exception 
 	{
 		super();
 		
-		IOutZip zp = OutputZipDataFactory.createOuputZipStream( zip );
+		this.metadata = new CLISMetadata( pars );
+		this.zipType = this.metadata.getZipID();
+		
+		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
 		
 		if( zp == null )
 		{
@@ -65,10 +68,9 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		
 		super.taskMonitor( monitor );
 		
-		this.metadata = new CLISMetadata( headersize, zp.getZipID(), coding );
+		
 		this.clisWriter = new CLISCompressorWriter( file, this.metadata );
 		
-		this.zipType = zip;
 		
 		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
 		this.zpThreadList = new ArrayList< ZipThread >();

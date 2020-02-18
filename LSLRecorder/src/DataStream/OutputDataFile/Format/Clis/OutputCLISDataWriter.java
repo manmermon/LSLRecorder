@@ -38,6 +38,7 @@ import DataStream.OutputDataFile.DataBlock.IntegerBlock;
 import DataStream.OutputDataFile.DataBlock.LongBlock;
 import DataStream.OutputDataFile.DataBlock.ShortBlock;
 import DataStream.OutputDataFile.DataBlock.StringBlock;
+import DataStream.OutputDataFile.Format.OutputFileFormatParameters;
 
 public class OutputCLISDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
 {	
@@ -45,9 +46,16 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		
 	private CLISCompressorWriter clisWriter = null;
 	
-	public OutputCLISDataWriter( String file, long headersize, int zip, Charset coding, ITaskMonitor monitor ) throws Exception
+	public OutputCLISDataWriter( String file, OutputFileFormatParameters pars, ITaskMonitor monitor ) throws Exception
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
+		
+		Integer zip = pars.getCompressType();
+		
+		if( zip == null )
+		{
+			zip = OutputZipDataFactory.UNDEFINED;
+		}
 		
 		this.zipProcess = OutputZipDataFactory.createOuputZipStream( zip );
 		
@@ -57,8 +65,8 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		}
 		
 		this.taskMonitor( monitor );
-		
-		CLISMetadata metadata = new CLISMetadata( headersize, this.zipProcess.getZipID(), coding );		
+				
+		CLISMetadata metadata = new CLISMetadata( pars );		
 		this.clisWriter = new CLISCompressorWriter( file, metadata );		
 	}
 

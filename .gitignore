@@ -4,3 +4,4 @@ LSLRecorder/src/testing/
 LSLRecorder_test.jar
 liblsl64_2016.dll
 *.clis
+*.temp2

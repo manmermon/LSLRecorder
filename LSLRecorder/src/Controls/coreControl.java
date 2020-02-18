@@ -41,6 +41,7 @@ import Exceptions.Handler.ExceptionDialog;
 import Exceptions.Handler.ExceptionDictionary;
 import Exceptions.Handler.ExceptionMessage;
 import Controls.Messages.EventType;
+import GUI.PasswordDialog;
 import GUI.guiManager;
 import GUI.DataPlot.CanvasLSLDataPlot;
 import Sockets.Info.StreamInputMessage;
@@ -548,7 +549,35 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
 		
+		String encryptKey = null;
+		if( (Boolean)ConfigApp.getProperty( ConfigApp.LSL_ENCRYPT_DATA ) )
+		{
+			PasswordDialog pass = new PasswordDialog( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+			pass.setVisible( true );
+			
+			while( pass.getState() == PasswordDialog.PASSWORD_INCORRECT )
+			{
+				pass.setMessage( pass.getPasswordError()  + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");				
+			}
+			
+			if( pass.getState() != PasswordDialog.PASSWORD_OK )
+			{
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
+										, WarningMessage.ERROR_MESSAGE );
+			}
+			
+			encryptKey = pass.getPassword();
+		}
+		
 		HashSet< LSLConfigParameters > lslPars = (HashSet< LSLConfigParameters >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		
+		for( LSLConfigParameters lslCfg : lslPars )
+		{
+			if( lslCfg.isSelected() )
+			{
+				lslCfg.setEncryptKey( encryptKey );
+			}
+		}
 		
 		LSL.StreamInfo[] results = LSL.resolve_streams();
 				
@@ -562,7 +591,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				selected = lslcfg.isSelected();
 
 				if( selected )
-				{
+				{	
 					selected = false;
 					for( int i = 0; i < results.length && !selected; i++ )
 					{
@@ -728,7 +757,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	/**
 	 * Register and processing the notification.
 	 */
-	public void eventNotification( IHandlerMinion subordinate, final EventInfo event)
+	public synchronized void eventNotification( IHandlerMinion subordinate, final EventInfo event)
 	{
 		/*
 		Thread t = new Thread()

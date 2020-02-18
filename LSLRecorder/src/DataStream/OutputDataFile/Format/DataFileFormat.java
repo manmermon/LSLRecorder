@@ -139,11 +139,11 @@ public class DataFileFormat
 			
 			if ( format.equals(CLIS_GZIP) || format.equals( CLIS_BZIP2 ) )
 			{				
-				writer = new OutputCLISDataWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset(), monitor );
+				writer = new OutputCLISDataWriter( file, p, monitor );
 			}
 			else if( format.equals( PCLIS_GZIP ) || format.equals( PCLIS_BZIP2 ) ) 
 			{
-				writer = new OutputCLISDataParallelWriter( file, p.getHeaderSize(), p.getCompressType(), p.getCharset(), monitor );
+				writer = new OutputCLISDataParallelWriter( file, p, monitor );
 			}
 			else if( format.equals( HDF5 ) )
 			{

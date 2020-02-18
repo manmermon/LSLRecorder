@@ -91,7 +91,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 	private long totalBlock = 0;
 	
-	private double totalSampleByChannels = 0; 
+	private double totalSampleByChannels = 0;
+	
+	private String encrypt_key = null;
 	
 	/**
 	 *  Save output data file
@@ -120,6 +122,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		}
 		
 		super.setName( this.getClass().getSimpleName() + "-" + DAT.getOutputFileName() );
+		
+		this.encrypt_key = DAT.getEncryptKey();
 		
 		this.DATA = DAT;
 				
@@ -166,34 +170,30 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				this.notifTask.startThread(); 
 			}
 			
-			// Header size stimation
-			long binFileSize = this.DATA.getDataBinaryFileSize();
-			binFileSize = (long) Math.ceil( 1.0D * binFileSize / this.BLOCK_SIZE );
-			
-			long timeBlocks = 0;
-			
-			if( this.syncReader != null )
-			{
-				timeBlocks = this.syncReader.getFileSize();
-				timeBlocks = (long)Math.ceil(  1.0D * timeBlocks / this.BLOCK_SIZE );
-			}
-	
-			int blockSizeStrLen = Integer.toString( this.BLOCK_SIZE ).length() + 1;
-	
-			long headerSize = binFileSize * blockSizeStrLen + timeBlocks * blockSizeStrLen;
-	
-			String xml = this.DATA.getLslXml();						
-	
-			headerSize += xml.toCharArray().length;
-			headerSize += ( this.DATA.getStreamingName().length() + 10 ) * 4 ; // device info, binary and time data; 10 -> length of data type in string
-			headerSize += Integer.toString( this.DATA.getNumberOfChannels() + 1 ).length() * 2; // channel numbers 
-	
 			// Setting		
 			String outFormat = this.DATA.getOutputFileFormat();
 			OutputFileFormatParameters pars = new OutputFileFormatParameters();
-			pars.setCharset( Charset.forName( "UTF-8") );
-			pars.setHeaderSize( headerSize );
+			pars.setCharset( Charset.forName( "UTF-8") );			
 			pars.setCompressType( DataFileFormat.getCompressTech( outFormat ) );
+			pars.setEncryptKey( this.encrypt_key );
+			pars.setBlockDataLength( this.BLOCK_SIZE );
+			
+			// Header size stimation
+			long binFileSizeLen = this.DATA.getDataBinaryFileSize();
+			binFileSizeLen = (long) Math.ceil( 1.0D * binFileSizeLen / this.BLOCK_SIZE );
+			
+			long syncBlockLen = 0;
+			
+			if( this.syncReader != null )
+			{
+				syncBlockLen = this.syncReader.getFileSize();
+				syncBlockLen = (long)Math.ceil(  1.0D * syncBlockLen / this.BLOCK_SIZE );
+			}
+	
+			pars.setNumerOfBlock( syncBlockLen + binFileSizeLen  );
+			pars.setDataInfo( this.DATA.getLslXml() );
+			pars.setDataNames( this.DATA.getStreamingName() );
+			pars.setChannels( this.DATA.getNumberOfChannels() );
 			
 			IOutputDataFileWriter wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars, this );
 					

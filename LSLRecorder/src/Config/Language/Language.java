@@ -141,6 +141,7 @@ public class Language {
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
 	public static final String DELETE_TEXT = "DELETE_TEXT";
+	public static final String PROCESS_TEXT = "PROCESS_TEXT";
 
 	public static final String DIALOG_SAVE = "DIALOG_SAVE";
 	public static final String DIALOG_ERROR = "DIALOG_ERROR";
@@ -183,13 +184,16 @@ public class Language {
 	public static final String SELECT_TEXT = "SELECT_TEXT";
 	public static final String UP_TEXT = "UP_TEXT";
 	public static final String DOWN_TEXT = "DOWN_TEXT";
+	public static final String REPEAT_TEXT = "REPEAT_TEXT";
 
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
 	public static final String MSG_TEXT = "MSG_TEXT";
 	public static final String CONTINUE_TEXT = "CONTINUE_TEXT";
 	public static final String DESCRIPTION_TEXT = "DESCRIPTION_TEXT";
-	
+	public static final String ENCRYPT_KEY_TEXT = "ENCRYPT_KEY";
+	public static final String PASSWORD_TEXT = "PASSWORD_TEXT";
+		
 	public static final String SORT_TEXT = "SORT_TEXT";
 
 	public static final String PROBLEM_TEXT = "PROBLEM_TEXT";
@@ -334,6 +338,7 @@ public class Language {
 		captions.put(MSG_TEXT, new Caption(MSG_TEXT, defaultLanguage, "Message"));
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
 		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
+		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt key" ) );
 
 		captions.put(AUTOSCROLL, new Caption(AUTOSCROLL, defaultLanguage, "Autoscroll"));
 
@@ -388,6 +393,9 @@ public class Language {
 		captions.put(CONTINUE_TEXT, new Caption(CONTINUE_TEXT, defaultLanguage, "Continue"));
 		captions.put(FILE_NOT_FOUND, new Caption(FILE_NOT_FOUND, defaultLanguage, "File(s) not found"));
 		captions.put(LANGUAGE_TEXT, new Caption(LANGUAGE_TEXT, defaultLanguage, "Language"));
+		captions.put( REPEAT_TEXT, new Caption( REPEAT_TEXT, defaultLanguage, "Repeat" ) );
+		captions.put( PASSWORD_TEXT, new Caption( PASSWORD_TEXT, defaultLanguage, "Password" ) );
+		captions.put( PROCESS_TEXT,  new Caption( PROCESS_TEXT, defaultLanguage, "Process" ) );
 
 		captions.put(CHECK_LSL_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_LSL_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));

@@ -66,7 +66,7 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 2 - 1, 14 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 2 - 1, 18 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -123,6 +123,8 @@ public class ConfigApp
 	
 	public static final String LSL_OUTPUT_FILE_DESCR = "LSL_OUTPUT_FILE_DESCR";
 	
+	public static final String LSL_ENCRYPT_DATA = "LSL_ENCRYPT_DATA"; 
+	
 	////////////////////////
 	
 	private static boolean test = false;
@@ -177,6 +179,8 @@ public class ConfigApp
 		list_Key_Type.put( LSL_OUTPUT_FILE_FORMAT, String.class);
 		list_Key_Type.put( LSL_OUTPUT_FILE_NAME, String.class);
 		list_Key_Type.put( LSL_OUTPUT_FILE_DESCR, String.class );
+		
+		list_Key_Type.put( LSL_ENCRYPT_DATA, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -798,6 +802,11 @@ public class ConfigApp
 				loadDefaultLSLOutputFileName();
 				break;
 			}
+			case LSL_ENCRYPT_DATA:
+			{
+				loadDefaultLSLEncryptData();
+				break;
+			}
 		}
 	}
 
@@ -816,6 +825,8 @@ public class ConfigApp
 
 		loadDefaultLSLOutputFileFormat();
 		loadDefaultLSLOutputFileDescr();		
+		
+		loadDefaultLSLEncryptData();
 	}
 
 	private static void loadDefaultLanguage()
@@ -922,5 +933,10 @@ public class ConfigApp
 	private static void loadDefaultLSLOutputFileDescr()
 	{
 		listConfig.put( LSL_OUTPUT_FILE_DESCR, "" );
+	}
+	
+	private static void loadDefaultLSLEncryptData()
+	{
+		listConfig.put( LSL_ENCRYPT_DATA,  false );
 	}
 }

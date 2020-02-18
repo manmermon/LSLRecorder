@@ -37,6 +37,8 @@ public class StreamHeader
 	private String outFolder;
 	private boolean deleteBin = false;
 	
+	private String encryptKey = null;
+	
 	public StreamHeader( String path, String streamName
 							, int dataType, int timeType
 							, int channels, int chunksize
@@ -155,5 +157,15 @@ public class StreamHeader
 		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + HEADER_END;
 		
 		return binHeader;
+	}
+	
+	public void setEncryptKey( String key )
+	{
+		this.encryptKey = key; 
+	}
+	
+	public String getEncryptKey()
+	{
+		return this.encryptKey;
 	}
 }

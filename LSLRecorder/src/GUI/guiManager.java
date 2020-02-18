@@ -263,6 +263,7 @@ public class guiManager
 				String outFormat = DataFileFormat.CLIS_GZIP;
 				boolean del = false;
 				String desc = "";
+				String encryptKey = null;
 				
 				if( dat != null )
 				{
@@ -273,6 +274,7 @@ public class guiManager
 					name = dat.getName();
 					interleave = dat.isInterleave();				
 					timeType = dat.getTimeType();
+					encryptKey = dat.getEncryptKey();
 					
 					folder = dat.getOutputFolder();
 					
@@ -338,6 +340,7 @@ public class guiManager
 															+ "data" 
 															+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
 															, outFormat
+															, encryptKey
 															, del );
 
 				SyncMarkerBinFileReader reader = null;

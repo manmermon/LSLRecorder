@@ -31,7 +31,6 @@ import DataStream.OutputDataFile.Format.DataFileFormat;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
-import edu.ucsd.sccn.LSLUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -54,6 +53,8 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	private String outFileName = "";
 	private String outFileFormat = DataFileFormat.CLIS_GZIP;
 	
+	private String encryptKey = null;
+	
 	//private int dataTypeByteLength = 1;
 	//private int timeTypeByteLength = 1;	
 		
@@ -67,6 +68,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		this.outFileName = filePath;
 		
 		super.setName( info.name() + "(" + info.uid() + ")");
+		this.encryptKey = lslCfg.getEncryptKey();
 
 		this.file = FileUtils.CreateTemporalBinFile( filePath + "_" + date + "_" + info.name() +  this.ext + Number );
 		
@@ -204,6 +206,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 												, super.lslXML
 												, this.outFileName
 												, this.outFileFormat
+												, this.encryptKey
 												, !ConfigApp.isTesting() );
 		return data;
 	}

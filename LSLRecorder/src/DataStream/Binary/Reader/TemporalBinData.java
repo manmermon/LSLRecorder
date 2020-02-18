@@ -55,6 +55,8 @@ public class TemporalBinData
 	private int dataTypeBytes;
 	private List< BinaryDataFormat > formats;
 	
+	private String encryptKey = null;
+	
 	public TemporalBinData( File dataBin
 						, int typeData
 						, int nChannels
@@ -65,6 +67,7 @@ public class TemporalBinData
 						, String xml
 						, String outName
 						, String outputFormat
+						, String encrypy_Key
 						, boolean delBinaries ) throws Exception
 	{	
 		this.deleteBinaries = delBinaries;
@@ -81,6 +84,8 @@ public class TemporalBinData
 		this.streamName = name;
 		this.lslXML = xml;
 		this.outFileName = outName;
+		
+		this.encryptKey = encrypy_Key;
 		
 		this.dataTypeBytes = LSLUtils.getDataTypeBytes( this.dataType );
 		
@@ -158,6 +163,11 @@ public class TemporalBinData
 		List< ByteBlock > data = this.reader.readDataFromBinaryFile();		
 		
 		return data;
+	}
+	
+	public String getEncryptKey()
+	{
+		return this.encryptKey;
 	}
 		
 	public void reset() throws Exception

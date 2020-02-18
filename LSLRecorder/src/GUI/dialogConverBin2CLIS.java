@@ -61,6 +61,8 @@ import java.awt.Dimension;
 
 import javax.swing.JTable;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
@@ -79,6 +81,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -160,10 +164,11 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	// Checkbox
 	private JCheckBox chckbxDeleteBinaries;
+	private JCheckBox chbxEncrypt;
 	
 	// JToggleButton
 	private JToggleButton jtgBtnSortSyncFile;
-	private JToggleButton jtgBtnInterleaved;
+	//private JToggleButton jtgBtnInterleaved;
 	
 	
 	// Others variables	
@@ -203,7 +208,43 @@ public class dialogConverBin2CLIS extends JDialog
 				
 		super.setContentPane( this.getMainPanel( ) );
 	}
-
+	
+	private void checkEncryptKey()
+	{
+		if( getChckboxEncrypt().isSelected() && !binaryDataFiles.isEmpty() )
+		{	
+			PasswordDialog dg = new PasswordDialog( guiManager.getInstance().getAppUI()
+												, Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );
+			
+			dg.setLocation( super.getLocation() );
+			
+			dg.setVisible( true );
+			
+			while( dg.getState() == PasswordDialog.PASSWORD_INCORRECT )
+			{
+				dg.setMessage( dg.getPasswordError() + Language.getLocalCaption( Language.REPEAT_TEXT ) + "." );
+				dg.setVisible( true );
+			}
+			
+			if( dg.getState() != PasswordDialog.PASSWORD_OK )
+			{	
+				binaryDataFiles.clear();
+				
+				JOptionPane.showMessageDialog( super.getOwner(), Language.getLocalCaption( Language.PROCESS_TEXT ) 
+													+ " " + Language.getLocalCaption( Language.CANCEL_TEXT ) );
+			}
+			else
+			{
+				String key = dg.getPassword();
+				
+				for( StreamHeader bh : binaryDataFiles )
+				{
+					bh.setEncryptKey( key );
+				}
+			}
+		}
+	}
+	
 	public JPanel getMainPanel( )	
 	{
 		if( this.contentPanel == null )	
@@ -224,7 +265,8 @@ public class dialogConverBin2CLIS extends JDialog
 		{
 			this.buttonPane = new JPanel( );
 			this.buttonPane.setLayout( new FlowLayout( FlowLayout.RIGHT ) );
-			this.buttonPane.add(getChckbxDeleteBinaries());
+			this.buttonPane.add( this.getChckbxDeleteBinaries() );
+			this.buttonPane.add( this.getChckboxEncrypt() );
 			
 			this.buttonPane.add( this.getBtnDone( ) );
 			this.buttonPane.add( this.getBtnCancel( ) );
@@ -234,14 +276,16 @@ public class dialogConverBin2CLIS extends JDialog
 	}
 	
 	public List< Tuple< StreamHeader, StreamHeader > > getBinaryFiles( ) throws Exception
-	{
-		List< Tuple<StreamHeader, StreamHeader> > binFiles = new ArrayList< Tuple<StreamHeader, StreamHeader> >( );
-		
+	{	
 		if( this.clearBinaryFiles )
 	 	{
 	 		this.binaryDataFiles.clear( );
 	 		//this.binaryTimeFiles.clear( );
 	 	}
+		
+		this.checkEncryptKey();
+		
+		List< Tuple<StreamHeader, StreamHeader> > binFiles = new ArrayList< Tuple<StreamHeader, StreamHeader> >( );
 		
 		Iterator< StreamHeader > dataIT = binaryDataFiles.iterator( );
 		//Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
@@ -1814,4 +1858,14 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 		return chckbxDeleteBinaries;
 	}		
+	
+	private JCheckBox getChckboxEncrypt() 
+	{
+		if ( this.chbxEncrypt == null ) 
+		{
+			this.chbxEncrypt = new JCheckBox( Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+		}
+		
+		return chbxEncrypt;
+	}
 }

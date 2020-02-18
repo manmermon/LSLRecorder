@@ -149,6 +149,9 @@ public class settingMenu_labStreamingLayer extends JPanel
 	private JTextField fileName;
 	private JTextField generalDescrOutFile;
 
+	// JCHECKBOX
+	private JCheckBox encryptKeyActive;
+	
 	//JBUTTON	
 	private JButton jButtonSelectOutFile;
 
@@ -525,6 +528,9 @@ public class settingMenu_labStreamingLayer extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
 			
+			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
+			this.jPanelGeneralAddInfoOutFile.add( this.getEncryptKey() );
+			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
 		}
 		
@@ -565,6 +571,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 					{
 						String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
 						ConfigApp.setProperty( ID, desc );
+						
+						generalDescrOutFile.setToolTipText( desc );
 					}
 					catch (BadLocationException e1) 
 					{
@@ -579,6 +587,42 @@ public class settingMenu_labStreamingLayer extends JPanel
 		return this.generalDescrOutFile;
 	}
 
+	private JCheckBox getEncryptKey()
+	{
+		if( this.encryptKeyActive == null )
+		{
+			final String ID = ConfigApp.LSL_ENCRYPT_DATA;
+			
+			this.encryptKeyActive = new JCheckBox();
+			this.encryptKeyActive.setText( Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );
+			
+			this.encryptKeyActive.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JCheckBox ch = (JCheckBox)e.getSource();
+					
+					if( !ch.isSelected() )
+					{
+						HashSet< LSLConfigParameters > lslPars = (HashSet< LSLConfigParameters >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+						
+						for( LSLConfigParameters lslcfg : lslPars )
+						{
+							lslcfg.setEncryptKey( null );
+						}
+					}
+				}
+			});
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
+			this.parameters.put( ID, this.encryptKeyActive );
+									
+		}
+		
+		return this.encryptKeyActive;
+	}
+	
 	private JPanel getJPanelOutFileFormat()
 	{
 		if( this.jOutFileFormat == null )
@@ -686,6 +730,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 					{
 						String name = e.getDocument().getText( 0, e.getDocument().getLength() );
 						ConfigApp.setProperty( ID, name );
+						
+						fileName.setToolTipText( name );
 					}
 					catch (BadLocationException e1) 
 					{

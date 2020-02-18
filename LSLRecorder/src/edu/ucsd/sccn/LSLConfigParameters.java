@@ -55,6 +55,8 @@ public class LSLConfigParameters
 	private boolean isSyncStream = false;
 	private double samplingRate;
 	
+	private String encryptKey = null;
+	
 	/**
 	 * 
 	 * @param uid
@@ -308,6 +310,24 @@ public class LSLConfigParameters
 	public int getChunckSize()
 	{
 		return this.chunckSize;
+	}
+	
+	/**
+	 * 
+	 * @return encrypt key or null. 
+	 */
+	public String getEncryptKey()
+	{
+		return this.encryptKey;
+	}
+	
+	/**
+	 * 
+	 * @param key: new encrypt key or null.
+	 */
+	public void setEncryptKey( String key )
+	{
+		this.encryptKey = key;
 	}
 	
 	/**
