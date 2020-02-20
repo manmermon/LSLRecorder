@@ -10,6 +10,7 @@ import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import Config.ConfigApp;
@@ -21,7 +22,7 @@ import DataStream.OutputDataFile.Format.OutputFileFormatParameters;
 public class CLISMetadata 
 {
 	private final String ENCRYPT_ALGORITHM = "AES";
-    private final String ENCRYPT_TRANSFORMATION = "AES";
+    private final String ENCRYPT_TRANSFORMATION = "AES/CBC/PKCS5Padding";
 	
     private final int ENCRYPT_KEY_LEN = 16;
     private final String ENCRYPT_PASSWORD_PADDING = "_";
@@ -31,8 +32,11 @@ public class CLISMetadata
 	private final String ID_LABEL_HEADERSIZE = "headerByteSize";
 	private final String ID_LABEL_CHECKSUM = "checksum";
 	private final String ID_LABEL_ENCRYPT = "encrypt";
+	private final String ID_LABEL_HEADER = "header";
 	
 	private final String HEADER_ASSIG_SYMBOL = "=";
+
+	private final boolean MEDATADATA_EXTENSION = true;
 	
 	private String headerInfo = "";
 	private String headerStreamInfo = "";
@@ -60,9 +64,14 @@ public class CLISMetadata
 	
 	private final String checkSumAlg_ID = "MD5";
 	private MessageDigest checkSum = null;	
-	private boolean checkSumGenerated = false;
+	private boolean generatedChecksum = false;
+	
+	private String checkSumValue = "";
 	
 	private Cipher cipher = null;
+	private IvParameterSpec cipherPars =  new IvParameterSpec( new byte[16] );
+	
+	private byte[] encrpytKeyMetadata = null;
 	
 	public CLISMetadata( OutputFileFormatParameters pars  ) throws Exception 
 	{	
@@ -90,22 +99,26 @@ public class CLISMetadata
 		
 		String encryptKey = pars.getEncryptKey();
 		
-		String encrpytMetadata = "";
+		int encryptBlockSize = 1;
+		int cipherBlockSize  = 0;	
 		
 		if( encryptKey != null && !encryptKey.isEmpty() )
 		{
 			String password = encryptKey;
 			
 			while( password.length() < ENCRYPT_KEY_LEN )
-			{
+			{			
 				password += ENCRYPT_PASSWORD_PADDING;
 			}
 			
-			Key secretKey = new SecretKeySpec( password.getBytes() , this.getEncryptID() );
-	        this.cipher = Cipher.getInstance( this.getEncryptTransform() );	        	        
-	        this.cipher.init( Cipher.ENCRYPT_MODE, secretKey );		        
+			Key secretKey = new SecretKeySpec( password.getBytes( this.charCode ) , this.getEncryptID() );
+	        this.cipher = Cipher.getInstance( this.getEncryptTransform() );
+	        this.cipher.init( Cipher.ENCRYPT_MODE, secretKey, this.cipherPars );		        
 	        
-	        encrpytMetadata = new String( cipher.doFinal( encryptKey.getBytes() ) );		
+	        cipherBlockSize = this.cipher.getBlockSize();	        
+	        encryptBlockSize = this.cipher.getBlockSize();
+	        
+	        this.encrpytKeyMetadata = this.cipher.doFinal( encryptKey.getBytes( this.charCode ) );		
 		}
 		
 		Long numBlocks = pars.getNumerOfBlocks();
@@ -132,15 +145,6 @@ public class CLISMetadata
 			names = "";
 		}
 
-		int encryptBlockSize = 1;
-		String encryptID = pars.getEncryptID();	
-		if( encryptID != null )
-		{
-	        Cipher cipher = Cipher.getInstance( encryptID );
-	        
-	        encryptBlockSize = cipher.getBlockSize();
-		}		
-
 		Integer BLOCK_SIZE = pars.getBlockDataLength();
 		
 		if( BLOCK_SIZE == null )
@@ -155,7 +159,7 @@ public class CLISMetadata
 		
 		this.headerSize = numBlocks * blockSizeStrLen;		
 			
-		this.headerSize += xml.toCharArray().length + cipher.getBlockSize();
+		this.headerSize += xml.toCharArray().length + cipherBlockSize;
 		this.headerSize += ( names.length() + 10 ) * 4 ; // device info, binary and time data; 10 -> length of data type in string
 		this.headerSize += Integer.toString( chs + 1 ).length() * 2; // channel numbers 
 		
@@ -171,8 +175,15 @@ public class CLISMetadata
 								+ this.zip_text_id + this.GrpSep
 							+ this.ID_LABEL_HEADERSIZE + this.HEADER_ASSIG_SYMBOL;
 		
+		int encByteLen = 0;
+		
+		if( this.encrpytKeyMetadata != null )
+		{
+			encByteLen = this.encrpytKeyMetadata.length; 
+		}
+		
 		this.headerInfoExtension = this.ID_LABEL_ENCRYPT + this.HEADER_ASSIG_SYMBOL 
-										+ encrpytMetadata + this.GrpSep
+										+ encByteLen + this.GrpSep
 										+ this.ID_LABEL_CHECKSUM + this.HEADER_ASSIG_SYMBOL;
 							
 		this.checkSum = MessageDigest.getInstance( this.checkSumAlg_ID );
@@ -180,7 +191,7 @@ public class CLISMetadata
 		int checkSumLen = this.checkSum.getDigestLength();
 		
 		
-		this.headerSize += ( this.headerInfo.length() + this.headerInfoExtension.length() + checkSumLen ) * 2;
+		this.headerSize += ( this.headerInfo.length() + this.headerInfoExtension.length() + checkSumLen + encByteLen ) * 2;
 				
 		//byte[] padding = new byte[ Character.BYTES ];
 		int charByteSize = this.headerInfo.getBytes( this.charCode ).length / this.headerInfo.length(); 
@@ -199,7 +210,7 @@ public class CLISMetadata
 		return this.headerSize;
 	}
 	
-	public Cipher getEncrypt() 
+	public Cipher getEncryptor() 
 	{
 		return this.cipher;
 	}
@@ -241,7 +252,7 @@ public class CLISMetadata
 	
 	public void addMetadataHeader( String id, String text ) throws IllegalStateException
 	{
-		if( this.checkSumGenerated )
+		if( this.generatedChecksum )
 		{
 			throw new IllegalStateException( "Checksum was generated." );
 		}
@@ -264,20 +275,20 @@ public class CLISMetadata
 		return this.zip_id;
 	}
 	
-	public int getDataStreamInfoLength()
+	private int getDataStreamInfoLength()
 	{
-		return this.getDataStreamInfo().length();
+		return this.getDataStreamInfo().length;
 	}
 	
-	public String getDataStreamInfo()
+	private byte[] getDataStreamInfo()
 	{	
-		String aux = this.header.trim();
+		byte[] aux = ( this.header.trim() + this.endLine ).getBytes( this.charCode );
 		
-		if( !aux.isEmpty() && this.cipher != null )
+		if( aux.length > 0 && this.cipher != null )
 		{
 			try 
 			{
-				aux = new String( this.cipher.doFinal( aux.getBytes() ) );
+				aux = this.cipher.doFinal( aux );
 			}
 			catch (IllegalBlockSizeException | BadPaddingException e)
 			{
@@ -285,18 +296,18 @@ public class CLISMetadata
 			}
 		}
 		
-		return aux + this.endLine;
+		return aux;
 	}
 	
-	private void generateCheckSum()
+	private byte[] getMetadataProtocolInfoExtension( boolean doChecksum )
 	{
-		if( !this.checkSumGenerated )
+		if( !this.generatedChecksum && doChecksum )
 		{
 			byte[] bytes = this.checkSum.digest();
 		
-			this.checkSumGenerated = ( bytes != null && bytes.length > 0 );
+			this.generatedChecksum = ( bytes != null && bytes.length > 0 );
 			
-			if( this.checkSumGenerated )
+			if( this.generatedChecksum )
 			{
 				StringBuilder sb = new StringBuilder();
 				for(int i=0; i< bytes.length ;i++)
@@ -304,46 +315,75 @@ public class CLISMetadata
 			        sb.append( Integer.toString( (bytes[i] & 0xff ) + 0x100, 16 ).substring(1));
 			    }
 				
-				this.headerInfoExtension += sb.toString() + this.GrpSep;
+				this.checkSumValue = sb.toString();
 			}
 		}
+		
+		byte[] aux = ( this.headerInfoExtension + this.checkSumValue + this.GrpSep + this.endLine ).getBytes( this.charCode );
+		
+		int metaExtLen = aux.length;
+		
+		if( this.encrpytKeyMetadata != null )
+		{
+			metaExtLen += this.encrpytKeyMetadata.length;
+		}
+		
+		byte[] out = new byte[ metaExtLen ];
+		
+		System.arraycopy( aux, 0, out, 0, aux.length );
+		
+		if( this.encrpytKeyMetadata != null)
+		{
+			System.arraycopy( this.encrpytKeyMetadata, 0, out, aux.length, this.encrpytKeyMetadata.length );
+		}
+		
+		return  out;
+				
 	}
 	
-	public String getMetaDataProtocol()
+	public byte[] getMetaDataProtocol()
 	{
-		if( !this.checkSumGenerated )
-		{
-			String aux = this.headerInfo + this.headerInfoExtension +  this.headerStreamInfo 
-							+ "header,"
-							//+  this.addedStreamDataInfo
-							+ this.getDataStreamInfoLength()
-							+ this.GrpSep + this.endLine;
-			
-			String aux2 = this.getDataStreamInfo();
-						
-			aux += aux2;
-			
+		byte[] metaExtension = this.getMetadataProtocolInfoExtension( false );
+		
+		byte[] aux1 = ( this.headerInfo + this.headerStreamInfo 
+						+ this.ID_LABEL_HEADER + this.fieldSep
+						+ this.getDataStreamInfoLength()							
+						+ this.GrpSep + this.MEDATADATA_EXTENSION + this.GrpSep  
+						+ this.endLine ).getBytes( this.charCode );
+		
+		byte[] aux2 = this.getDataStreamInfo();
+		
+		byte[] aux3 = new byte[ metaExtension.length + aux1.length + aux2.length ];
+		
+		System.arraycopy( aux1, 0, aux3, 0, aux1.length );
+		System.arraycopy( metaExtension, 0, aux3, aux1.length, metaExtension.length );
+		System.arraycopy( aux2, 0, aux3, aux1.length + metaExtension.length, aux2.length );
+		
+		if( !this.generatedChecksum )
+		{	
 			try 
 			{
-				this.updateCheckSum( aux.getBytes() );
+				this.updateCheckSum( aux3 );
 			} 
 			catch (Exception e) 
 			{
 			}
-		
-			this.generateCheckSum();
+			
+			metaExtension = this.getMetadataProtocolInfoExtension( true );
+			
+			aux3 = new byte[ metaExtension.length + aux1.length + aux2.length ];
+			
+			System.arraycopy( aux1, 0, aux3, 0, aux1.length );
+			System.arraycopy( metaExtension, 0, aux3, aux1.length, metaExtension.length );
+			System.arraycopy( aux2, 0, aux3, aux1.length + metaExtension.length, aux2.length );
 		}
 		
-		return this.headerInfo + this.headerInfoExtension +  this.headerStreamInfo 
-				+ "header," 
-				//+ this.addedStreamDataInfo
-				+ this.getDataStreamInfoLength()
-				+ this.GrpSep + this.endLine;
+		return aux3;
 	}
 	
 	public void updateCheckSum( byte[] bytes ) throws Exception
 	{
-		if( this.checkSumGenerated )
+		if( this.generatedChecksum )
 		{
 			throw new IllegalStateException( "Check sum was generated" ); 
 		}

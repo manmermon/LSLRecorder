@@ -2,12 +2,9 @@ package DataStream.OutputDataFile.Format.Clis;
 
 import java.io.File;
 import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -135,7 +132,7 @@ public class CLISCompressorWriter
 		
 		if( decryptData != null && decryptData.length > 0 )
 		{
-			Cipher cipher = this.metadata.getEncrypt();
+			Cipher cipher = this.metadata.getEncryptor();
 			if( cipher != null )
 			{    
 		        encryptData = cipher.doFinal( decryptData );		        
@@ -154,15 +151,19 @@ public class CLISCompressorWriter
 												, LSLUtils.getDataTypeBytes( this.currentType ) // this.getBytesCurrentDataType( this.currentType )
 												, this.currentNumCols, this.blockSizes );
 			
+			/*
 			String head = this.metadata.getMetaDataProtocol();
 	
 			CharBuffer charBuffer = CharBuffer.wrap( head.toCharArray() );
 			ByteBuffer byteBuffer = this.metadata.getCharCode().encode( charBuffer );
 			byte[] bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
+			*/
+			byte[] bytes = this.metadata.getMetaDataProtocol();
 	
 			this.fStream.seek( 0 );
 			this.fStream.write( bytes );
 	
+			/*
 			if ( this.metadata.getDataStreamInfoLength() > 0 )
 			{
 				charBuffer = CharBuffer.wrap( this.metadata.getDataStreamInfo() );
@@ -170,6 +171,7 @@ public class CLISCompressorWriter
 				bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 				this.fStream.write( bytes );
 			}
+			*/
 		}
 	}
 	

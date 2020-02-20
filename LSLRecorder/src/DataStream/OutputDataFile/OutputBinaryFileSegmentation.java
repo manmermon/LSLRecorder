@@ -75,7 +75,11 @@ import edu.ucsd.sccn.LSLUtils;
 public class OutputBinaryFileSegmentation extends AbstractStoppableThread implements ITaskMonitor, ITaskIdentity, IMonitoredTask
 {
 	private int BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE; 
-	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 5 MB  
+	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 5 MB
+	
+	private final String prefixData = "data_";
+	private final String prefixTime = "time_";
+	private final String prefixDeviceInfo = "deviceInfo_";
 	
 	private TemporalBinData DATA;
 	private SyncMarkerBinFileReader syncReader;
@@ -192,7 +196,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 			pars.setNumerOfBlock( syncBlockLen + binFileSizeLen  );
 			pars.setDataInfo( this.DATA.getLslXml() );
-			pars.setDataNames( this.DATA.getStreamingName() );
+			String streamName = this.DATA.getStreamingName();
+			
+			pars.setDataNames( this.prefixData + streamName + ";" 
+								+ this.prefixTime + streamName + ";"
+								+ this.prefixDeviceInfo + streamName );
 			pars.setChannels( this.DATA.getNumberOfChannels() );
 			
 			IOutputDataFileWriter wr = DataFileFormat.getDataFileWriter( outFormat, this.DATA.getOutputFileName(), pars, this );
@@ -215,20 +223,20 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			String lslName = this.DATA.getStreamingName(); // LSL streaming name
 			String lslXML = this.DATA.getLslXml(); // LSL description
 
-			String variableName = "data"; // data variable name
-			String timeVarName = "time"; // time variable name
-			String info = "deviceInfo"; // LSL description variable name
+			String variableName = this.prefixData; // data variable name
+			String timeVarName = this.prefixTime; // time variable name
+			String info = this.prefixDeviceInfo; // LSL description variable name
 			
 			int counterDataBlock = 0;
 									
 			// Save data
-			String varName = variableName + "_" + lslName;
+			String varName = variableName + lslName;
 			
 			this.setMaxNumElements( this.DATA.getDataType(), nChannel + 1 );			
 			counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );
 			
 			// Save time stamps			
-			String timeName = timeVarName + "_" + lslName;
+			String timeName = timeVarName + lslName;
 			 
 			
 			this.DATA.reset();
@@ -241,7 +249,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 													, LSLConfigParameters.ID_RECORDED_SAMPLES_BY_CHANNELS
 													, (long)( this.totalSampleByChannels / ( nChannel + 2 ) )); // nChannel + 2: channels + marker column + time ;			
 			
-			this.writer.addMetadata( info + "_" + lslName, lslXML ); // output file header
+			this.writer.addMetadata( info + lslName, lslXML ); // output file header
 		}
 		else
 		{

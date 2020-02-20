@@ -48,7 +48,8 @@ function [data, info] = importCLISData( filename, opts )
     %%                   {'selVarNames', {'var1'} } -> Select the variable whose name is 'var1'.
     %%                   {'selVarNames', {'var1', 'var3'} } -> Select the variables whose names are 'var1' and 'var3'.
     %%                   {'selVarNames', {'var1', '', 'var3', ''} } -> Select the variables whose names are 'var1' and 'var3'.
-    %%    %%
+	%%
+    %%   
     %%   The options 'selVarIndexes' and 'selVarNames' are incompatible.
     %%                  
     %% OUTPUTS
@@ -214,6 +215,10 @@ function [data, info] = importCLISData( filename, opts )
                 case 2
 
                     [data, info] = importCLISDataV2( fields, fid, length( header ), rank, selVarIndexes );
+					
+				case 2.1
+				
+					[data, info] = importCLISDataV2_1( fields, fid, length( header ), rank, selVarIndexes );
 
                 otherwise
 
@@ -222,21 +227,27 @@ function [data, info] = importCLISData( filename, opts )
             end
         end
 
-    catch ex
+    catch ME
 
         try
 
             fclose( fid );
-        catch
+        catch 
         end
-
-        rethrow( ex );
-
+        
+        clearvars -except ME
+        clearvars -GLOBAL
+        
+        rethrow( ME )
+        
     end
 end
 
 function errorManager( type, fid )
 
+    clear
+    clearvars -GLOBAL
+    
     fclose( fid );
 
     switch type
@@ -258,6 +269,9 @@ function errorManager( type, fid )
             
         case 5
             error( 'Header size is smaller than its text' );
+            
+        case 6
+            error( 'Incorrect decrypt key' );
             
         otherwise
             error( 'Unknow error' );
@@ -472,6 +486,156 @@ function data = checkHeaderV2( headerFields, fid )
     end
 
     data.variables = variables;
+end
+
+function data = checkHeaderV2_1( headerFields, fid )
+
+    headerV2 = headerFields( 1 : ( end - 2 ) );
+    headerV2{ end + 1 } = 'header,false';
+        
+    data = checkHeaderV2(  headerV2, fid ); 
+    
+    data.version = 2.1;
+    data.header = 0;  % data header length
+	
+    %
+    % Extensions
+    %
+    
+    data.extension = 0;
+    
+    if strcmpi( headerFields{ end }, 'true' )
+        
+        data.extension = 1;
+        
+    end
+    
+    if data.extension
+        
+        headerExtension = fgetl( fid );
+        
+        if ~isempty( headerExtension )
+
+            extensions = strsplit( headerExtension, ';' );
+            
+            encryptHeaderInfo = strsplit( extensions{ 1 }, '=' );
+            checksumHeaderInfo = strsplit( extensions{ 2 }, '=' );
+            
+            %
+            % Checksum
+            %
+            
+            if length( checksumHeaderInfo ) ~= 2
+                
+                errorManager( 0, fid );
+                
+            elseif ~strcmpi( 'checksum', checksumHeaderInfo{ 1 } )
+                
+                errorManager( 0, fid );
+                
+            else
+                
+                data.checksum = checksumHeaderInfo{ 2 };                
+                
+            end
+            
+            %
+            % Encrypt
+            %
+            
+            if length( encryptHeaderInfo ) ~= 2
+                
+                errorManager( 0, fid );
+                
+            elseif ~strcmpi( 'encrypt', encryptHeaderInfo{ 1 } )
+                
+                errorManager( 0, fid );
+                
+            else
+                
+                data.encrypt = str2double( encryptHeaderInfo{ 2 } );                
+                
+            end
+            
+            if data.encrypt > 0 
+               
+                aes = ClisDecryptAES( );
+                
+                encryptLen = data.encrypt;
+                
+                encryptedKey = fread( fid, encryptLen, 'int8' );
+                
+                if ~aes.checkEncryptPassword( encryptedKey )
+                    
+                    errorManager( 6, fid );
+                    
+                end
+                
+                data.AES = aes;
+                
+                clear encryptedKey aes
+                
+            end
+        end
+    
+    end
+        
+    %
+    % Header
+    %
+	
+	headerLength = headerFields{ end - 1};
+	
+    hInfo = strsplit( headerLength, ',' );
+
+    if length( hInfo ) ~= 2
+
+        errorManager( 0, fid );
+
+    elseif ~strcmpi( 'header', hInfo{ 1 } )
+
+        errorManager( 0, fid );
+
+    else
+		
+        data.header = str2double( hInfo{ 2 } );
+		
+		if isnan( data.header ) || isinf( data.header )
+		
+			errorManager( 0, fid );
+		
+		end
+
+    end
+    
+    if data.header > 0
+
+        headerLen = data.header;
+        
+        if isfield( data, 'AES' )
+        
+            h = fread( fid, headerLen, 'int8' );        
+            
+            h = data.AES.decrypt( h );
+            
+            data.header = sprintf( '%s', h );
+            
+        else
+            
+            h = fread( fid, headerLen, 'char' );        
+            data.header = sprintf( '%s', h );
+            
+        end
+        
+    else
+        
+        data.header = [];
+        
+    end
+    
+    skip = data.headerByteSize - ftell( fid );
+    fseek( fid, skip, 0 ); % Header padding
+    
 end
 
 function value = convertStr2Integer( str, fid )
@@ -825,9 +989,275 @@ function [data, infoClis] = importCLISDataV2( headerFields, fid, headerLength, r
         
     fclose( fid );
 
- end 
+end 
 
- function d = decodeData( idTech, data, fid )
+function [data, infoClis] = importCLISDataV2_1( headerFields, fid, headerLength, rank, selVarIndexes )
+
+    infoClis = struct();
+    
+    info = checkHeaderV2_1( headerFields, fid );
+    
+    infoClis.varNames =  info.variables( :,1 );
+    
+    if iscell( selVarIndexes )
+       
+        aux =  infoClis.varNames;
+        
+        aux = strrep( aux, '-', '_' );
+                
+        aux2 = selVarIndexes( ~ismember( selVarIndexes, aux ) );
+        
+        if ~isempty( aux2 )
+           
+            unknknowVars = '';
+            vars = '';
+            
+            for i = 1 : length( aux2 )
+               
+                unknknowVars = sprintf( '%s%s', unknknowVars, aux2{ i } );
+                
+                if i < length( aux2 )
+                    
+                    unknknowVars = sprintf( '%s%s', unknknowVars, ', ' );
+                end
+                
+            end
+            
+            for i = 1 : length( aux )
+               
+                vars = sprintf( '%s%s', vars, aux{ i } );
+                
+                if i < length( aux )
+                    
+                    vars = sprintf( '%s%s', vars, ', ' );
+                end
+                
+            end
+            
+            error( 'File variables are %s. Input selected name(s) %s unknown.', vars, unknknowVars );
+            
+        end
+                
+        selVarIndexes = findStrInCell( aux, selVarIndexes, 1, 1, 1 );
+        
+    end
+    
+    if isfield( info, 'header' )
+
+        data.header = info.header;
+        
+    end
+
+    %skip = info.headerByteSize - headerLength - 2; % 2 correspond to \n
+    %fseek( fid, skip, 0 ); % Header padding
+    %clear skip;
+    
+    AES = [];
+    
+    readDataType = 'uint8';
+    
+    if isfield( info, 'AES' );
+        
+        AES = info.AES;
+        readDataType = 'int8';
+    end
+    
+    vars = info.variables;
+    
+    infoClis.varDims = zeros( length( infoClis.varNames ), 2 );
+    d = cell2mat( vars( :, 4 ) );
+    infoClis.varDims( :, 2 ) = d( : );
+        
+    for iVars = 1 : size( vars, 1 )
+
+        nonIgnoredVar = true;
+        
+        if isscalar( selVarIndexes ) && selVarIndexes > 0
+            
+            nonIgnoredVar = any( ismember( selVarIndexes, iVars ) );
+            
+        end
+        
+        varName = vars{ iVars, 1 };
+        varTypeBytes = vars{ iVars, 3 };
+        varType = convertType2MatlabType( vars{ iVars, 2 }, varTypeBytes );
+        varCols = double( vars{ iVars, 4 } );
+        varBytes = vars( iVars, 5 : end );
+        
+        iVar = length( varBytes );
+        while iVar > 0 && varBytes{ iVar } == 0
+           
+            varBytes( iVar ) = [];
+            iVar = iVar - 1;
+        end
+        clear iVar;
+        
+        if varCols < 1
+            
+            varCols = 1;
+            
+        end
+                
+        firstElement = 1;
+        lastSelElement = +Inf;
+        if ~isempty( rank )
+           
+            firstElement = ( rank( 1 ) - 1 ) * varCols + 1;
+            
+        end
+        
+        if length( rank ) > 1
+           
+            lastSelElement = rank( 2 ) * varCols;
+            
+        end
+                
+        maxArraySize = diff( rank ) + 1;
+        
+        dataSize = +Inf;
+        
+        if ~isempty( maxArraySize )
+            
+            dataSize = maxArraySize * varCols;
+                        
+        end
+        
+        userMemory = memory;
+        maxArraySize = (( userMemory.MemAvailableAllArrays - userMemory.MemUsedMATLAB )/ varTypeBytes);
+        
+        if dataSize > maxArraySize 
+        
+            dataSize = length( varBytes ) * ( 5 * 2^20) / varTypeBytes;
+            dataSize = ( dataSize - firstElement + 1 ) * varCols;
+            
+            if dataSize > maxArraySize 
+                
+                dataSize = maxArraySize;
+                
+            end
+        
+        end
+        
+        clear userMemory maxArraySize;
+        
+        if nonIgnoredVar
+        
+            DATA = allocationArray( [ dataSize 1], varType );
+            
+        end
+        
+        indDATA = 1;
+        countElements = 0;                
+        for iVBytes = 1 : length( varBytes )
+            
+            bytes = varBytes{ iVBytes };
+            
+            if bytes > 0
+                
+                if countElements < lastSelElement && nonIgnoredVar
+                
+                    compressDATA = fread( fid, bytes, readDataType );
+                    
+                    compressDATA = feval( readDataType, compressDATA );
+                    
+                    compressDATA = decrypt( compressDATA, AES );
+                    
+                    D =  castTo( varType, varTypeBytes, decodeData( info.compress, compressDATA ), 1 );
+                                            
+                    nElementsInD = length( D ); % / varCols;
+                    
+                    selElement1 = nElementsInD + 1;
+                    selElement2 = nElementsInD;
+                    
+                    if ceil( countElements + nElementsInD ) >= firstElement
+                        
+                        selElement1 = firstElement - countElements;                        
+                        
+                        if selElement1 <= 0
+                            
+                            selElement1 = 1;
+                        end
+                        
+                    end
+                    
+                    if ceil( countElements + nElementsInD ) >= lastSelElement
+                        
+                        selElement2 = lastSelElement - countElements;
+                        if selElement2 > nElementsInD
+                            
+                            selElement2 = nElementsInD;
+                            
+                        end                        
+                        
+                    end
+                                        
+                    if selElement1 <= selElement2
+                        
+                        %selRow1 = ( selRow1 - 1 ) * varCols + 1;                        
+                        %selRow2 = selRow2 * varCols;
+                        
+                        %selRow1 = fix( selRow1 );
+                        %selRow2 = ceil( selRow2 );
+                        %DATA( indDATA : ( indDATA + length( D ) -1 ) ) = D(:);
+                        %indDATA = indDATA + length( D );
+                        %[ (selRow2 - selRow1 + 1 ) length( D ) ]
+                        DATA( indDATA : ( indDATA + ( selElement2 - selElement1 ) ) ) = D( selElement1 : selElement2 );
+                        indDATA = indDATA + (selElement2 - selElement1 + 1);
+                    
+                    end
+                    
+                    countElements = countElements + nElementsInD;
+                
+                else
+                    
+                    fseek( fid, bytes, 0 );
+                    
+                end
+                
+                clear D compressDATA;
+                
+            end
+        end
+        
+        if nonIgnoredVar
+        
+            DATA = DATA( 1 : ( indDATA - 1 ) ); 
+            % DO NOT USE: DATA( indDATA : end ) = [] 
+            % MEMORY PROBLEMS
+
+            if ~isempty( DATA )
+
+                if varCols > 1
+
+                    varRows = length( DATA ) / varCols;            
+
+                    DATA = reshape( DATA, varCols, varRows )';
+                    
+                    infoClis.varDims( iVars, 1 ) = varRows;
+
+                end
+
+                if ~strcmpi( varType, 'char' )
+
+                    data.( strrep( varName, '-', '_' ) ) = DATA;
+
+                else
+
+                    data.( strrep( varName, '-', '_' ) ) = strcat( DATA )';
+
+                end
+
+            end
+            
+        end
+
+    end
+        
+    fclose( fid );
+
+ end 
+ 
+function d = decodeData( idTech, data, fid )
 
     if strcmpi( idTech, 'gzip' )
 
@@ -1052,3 +1482,14 @@ function pos = findStrInCell( stringCell, strs, type, insentiviceCase, exact )
     
 end
 
+function decryptArray = decrypt( encrypArray, AES )
+
+    decryptArray = encrypArray;
+    
+    if ~isempty( AES )
+        
+        decryptArray = AES.decrypt( encrypArray );
+        
+    end
+
+end

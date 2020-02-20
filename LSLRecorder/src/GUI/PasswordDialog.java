@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -69,7 +70,7 @@ public class PasswordDialog extends JDialog
 		
 		super.setSize( new Dimension( 250, 150 ) );
 		super.setResizable( false );
-		
+				
 		super.setModalityType( JDialog.DEFAULT_MODALITY_TYPE );
 
 		JPanel passwordPanel = new JPanel( new GridBagLayout() );
@@ -110,7 +111,7 @@ public class PasswordDialog extends JDialog
 		passwordPanel.add( this.getConfirmPassworField(), gbc);
 
 		this.setMessage( message );
-
+		
 		this.add( this.getMessageLabel(), BorderLayout.NORTH );
 		this.add( passwordPanel, BorderLayout.CENTER );
 		this.add( buttonPanel, BorderLayout.SOUTH );
@@ -306,7 +307,7 @@ public class PasswordDialog extends JDialog
 	
 	public void setMessage( String msg )
 	{
-		this.getMessageLabel().setText( msg );
+		this.getMessageLabel().setText( "  " + msg );
 	}
 	
 	public int getState()
