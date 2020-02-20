@@ -54,6 +54,8 @@ import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
+import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -553,6 +555,17 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.LSL_ENCRYPT_DATA ) )
 		{
 			PasswordDialog pass = new PasswordDialog( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+			
+			Dimension d = this.managerGUI.getAppUI().getSize();
+			Point l = this.managerGUI.getAppUI().getLocation();
+			
+			Dimension dPass = pass.getSize();
+			
+			Point loc = pass.getLocation();
+			loc.x = l.x + ( d.width - dPass.width ) / 2;
+			loc.y = l.y + ( d.height- dPass.height ) / 2;
+			pass.setLocation( loc );
+			
 			pass.setVisible( true );
 			
 			while( pass.getState() == PasswordDialog.PASSWORD_INCORRECT )

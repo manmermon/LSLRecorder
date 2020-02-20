@@ -216,7 +216,15 @@ public class dialogConverBin2CLIS extends JDialog
 			PasswordDialog dg = new PasswordDialog( guiManager.getInstance().getAppUI()
 												, Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );
 			
-			dg.setLocation( super.getLocation() );
+			Dimension d = guiManager.getInstance().getAppUI().getSize();
+			Point l = guiManager.getInstance().getAppUI().getLocation();
+			
+			Dimension dPass = dg.getSize();
+			
+			Point loc = dg.getLocation();
+			loc.x = l.x + ( d.width - dPass.width ) / 2;
+			loc.y = l.y + ( d.height- dPass.height ) / 2;
+			dg.setLocation( loc );
 			
 			dg.setVisible( true );
 			

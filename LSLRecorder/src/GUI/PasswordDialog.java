@@ -3,12 +3,20 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -19,8 +27,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.CharUtils;
+
 
 import Config.Language.Language;
 
@@ -50,6 +61,7 @@ public class PasswordDialog extends JDialog
 	private JButton cancelButton = null;
 	
 	private JLabel msglab = null;
+	private JLabel warningLab = null;
 	
 	private String password = null;
 	
@@ -67,8 +79,8 @@ public class PasswordDialog extends JDialog
 		}
 		
 		this.setTitle( Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );
-		
-		super.setSize( new Dimension( 250, 150 ) );
+				
+		super.setSize( new Dimension( 250, 175 ) );
 		super.setResizable( false );
 				
 		super.setModalityType( JDialog.DEFAULT_MODALITY_TYPE );
@@ -82,8 +94,7 @@ public class PasswordDialog extends JDialog
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		gbc.insets = new Insets(4, 4, 4, 4);
-		
-		
+				
 		JLabel PasswordLabel1 = new JLabel( Language.getLocalCaption( Language.PASSWORD_TEXT ) );
 		
 		gbc.gridx = 0;
@@ -109,6 +120,14 @@ public class PasswordDialog extends JDialog
 		gbc.gridy = 1;
 		gbc.weightx = 1;
 		passwordPanel.add( this.getConfirmPassworField(), gbc);
+		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.gridwidth = 2;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 1;
+		passwordPanel.add( this.getWarningLabel(), gbc);		
 
 		this.setMessage( message );
 		
@@ -126,11 +145,41 @@ public class PasswordDialog extends JDialog
 		});
 	}
 
+	private void checkCapsLock()
+	{
+		boolean isOn = Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
+		
+		this.getWarningLabel().setText( " " );
+		
+		if( isOn )
+		{
+			this.getWarningLabel().setText( "<html><span color='orange'>Caps lock on.</span></html>");
+		}
+	}
+	
 	private JPasswordField getConfirmPassworField()
 	{
 		if( this.confirmPassworField == null )
 		{
 			this.confirmPassworField = new JPasswordField( 16 );
+			
+			this.confirmPassworField.addKeyListener( new KeyAdapter()
+			{	
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					checkCapsLock();
+				}
+			});
+			
+			this.confirmPassworField.addFocusListener( new FocusAdapter() 
+			{	
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					checkCapsLock();
+				}
+			});			
 		}
 		
 		return this.confirmPassworField;
@@ -141,11 +190,39 @@ public class PasswordDialog extends JDialog
 		if( this.passwordField == null )
 		{
 			this.passwordField = new JPasswordField( 16 );			
+			
+			this.passwordField.addFocusListener( new FocusAdapter() 
+			{	
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					checkCapsLock();
+				}
+			});
+			
+			this.passwordField.addKeyListener( new KeyAdapter()
+			{	
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					checkCapsLock();
+				}
+			});
 		}
 		
 		return this.passwordField;
 	}
 
+	private JLabel getWarningLabel()
+	{
+		if( this.warningLab == null )
+		{
+			this.warningLab = new JLabel( " " );
+		}
+		
+		return this.warningLab;
+	}
+	
 	private JButton getOkButton()
 	{
 		if( this.okButton == null )
@@ -300,6 +377,11 @@ public class PasswordDialog extends JDialog
 		if( this.msglab == null )
 		{
 			this.msglab = new JLabel( );
+			FontMetrics fm = this.msglab.getFontMetrics( this.msglab.getFont() );
+			
+			Dimension d = this.msglab.getPreferredSize( );
+			d.height = fm.getHeight() * 2;
+			this.msglab.setPreferredSize( d );
 		}
 		
 		return this.msglab;
