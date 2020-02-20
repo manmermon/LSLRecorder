@@ -612,6 +612,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 							lslcfg.setEncryptKey( null );
 						}
 					}
+					
+					ConfigApp.setProperty( ID, ch.isSelected() );
 				}
 			});
 			
