@@ -245,11 +245,11 @@ end
 
 function errorManager( type, fid )
 
-    clear
+    clearvars -except fid type
     clearvars -GLOBAL
     
     fclose( fid );
-
+        
     switch type
 
         case 0
@@ -565,7 +565,15 @@ function data = checkHeaderV2_1( headerFields, fid )
                 
                 encryptedKey = fread( fid, encryptLen, 'int8' );
                 
-                if ~aes.checkEncryptPassword( encryptedKey )
+                try
+                    
+                    if ~aes.checkEncryptPassword( encryptedKey )
+
+                        errorManager( 6, fid );
+
+                    end
+                    
+                catch
                     
                     errorManager( 6, fid );
                     
