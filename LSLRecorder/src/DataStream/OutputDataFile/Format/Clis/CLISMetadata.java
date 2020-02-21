@@ -1,8 +1,8 @@
 package DataStream.OutputDataFile.Format.Clis;
 
 import java.nio.charset.Charset;
-import java.security.Key;
 import java.security.MessageDigest;
+import java.security.spec.KeySpec;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
@@ -10,7 +10,10 @@ import java.util.List;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import Config.ConfigApp;
@@ -23,10 +26,7 @@ public class CLISMetadata
 {
 	private final String ENCRYPT_ALGORITHM = "AES";
     private final String ENCRYPT_TRANSFORMATION = "AES/CBC/PKCS5Padding";
-	
-    private final int ENCRYPT_KEY_LEN = 16;
-    private final String ENCRYPT_PASSWORD_PADDING = "_";
-	
+		
 	private final String ID_LABEL_VER = "ver";
 	private final String ID_LABEL_COMPRESS = "compress";
 	private final String ID_LABEL_HEADERSIZE = "headerByteSize";
@@ -103,17 +103,14 @@ public class CLISMetadata
 		int cipherBlockSize  = 0;	
 		
 		if( encryptKey != null && !encryptKey.isEmpty() )
-		{
-			String password = encryptKey;
+		{			
+			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			KeySpec spec = new PBEKeySpec( encryptKey.toCharArray(), new byte[ 8 ], 10000, 128 );
+			SecretKey tmp = skf.generateSecret( spec );
+			SecretKeySpec skey = new SecretKeySpec(tmp.getEncoded(), this.getEncryptID() );
 			
-			while( password.length() < ENCRYPT_KEY_LEN )
-			{			
-				password += ENCRYPT_PASSWORD_PADDING;
-			}
-			
-			Key secretKey = new SecretKeySpec( password.getBytes( this.charCode ) , this.getEncryptID() );
-	        this.cipher = Cipher.getInstance( this.getEncryptTransform() );
-	        this.cipher.init( Cipher.ENCRYPT_MODE, secretKey, this.cipherPars );		        
+			this.cipher = Cipher.getInstance( this.getEncryptTransform() );
+	        this.cipher.init( Cipher.ENCRYPT_MODE, skey, this.cipherPars );		        
 	        
 	        cipherBlockSize = this.cipher.getBlockSize();	        
 	        encryptBlockSize = this.cipher.getBlockSize();

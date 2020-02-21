@@ -19,21 +19,29 @@ classdef ClisDecryptAES < handle
             import javax.crypto.Cipher;
             import javax.crypto.spec.IvParameterSpec;
             import javax.crypto.spec.SecretKeySpec;
+            import javax.crypto.SecretKey;
+            import javax.crypto.SecretKeyFactory;
+            import javax.crypto.spec.PBEKeySpec;
             
-            keyEncrypt = passcode;      
-            obj.password = keyEncrypt;
-            
-            while( length( keyEncrypt ) < 16 )
+            keyEncrypt = passwordEntryDialog( 'PasswordLengthMin', 1, 'PasswordLengthMax', Inf );      
+            if isempty( keyEncrypt )
                 
-                keyEncrypt = sprintf( '%s_', keyEncrypt );
-                
+                ME = MException( 'MyComponent:noSuchVariable', 'Password incorrect' );
+                throw(ME)
             end
             
-            keyBytes = String( keyEncrypt ).getBytes( 'UTF-8' );
+            obj.password = keyEncrypt;
             
-            obj.secretKey = SecretKeySpec( keyBytes ,'AES' );
+            %skf = SecretKeyFactory.getInstance( 'PBKDF2WithHmacSHA256' );
+            skf = SecretKeyFactory.getInstance( 'PBKDF2WithHmacSHA1' );
+            
+            stat = java.util.Arrays.copyOf( int8( zeros( 8,1 ) ), 8) ;
+			spec = PBEKeySpec( String( keyEncrypt ) .toCharArray(), stat, 10000, 128 );
+			tmp = skf.generateSecret( spec );
+                        
+            obj.secretKey = SecretKeySpec( tmp.getEncoded(), 'AES' );
             obj.cipher = Cipher.getInstance( 'AES/CBC/PKCS5Padding');
-            
+         
             buf = java.util.Arrays.copyOf( int8( zeros( 16,1 ) ), 16) ;
             ivpar = IvParameterSpec( buf );
             
@@ -44,16 +52,17 @@ classdef ClisDecryptAES < handle
         
         function eq = checkEncryptPassword( obj, encryptKey )
 
+            import java.lang.String;
+            
             decryptKey = decrypt( obj, encryptKey );
             
-            eq = strcmp( obj.password, sprintf( '%s', decryptKey ) );
+            eq = strcmp( obj.password, char( String( decryptKey, 'UTF-8' ) ) );
             
         end
         
         function decryptData = decrypt( obj, encryptData )
             %DECRYPT Summary of this method goes here
-            %   Detailed explanation goes here
-            
+            %   Detailed explanation goes here            
             import java.security.Key;
             import java.util.Arrays;
             import java.lang.String;

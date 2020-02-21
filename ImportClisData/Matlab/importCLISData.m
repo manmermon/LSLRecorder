@@ -565,7 +565,7 @@ function data = checkHeaderV2_1( headerFields, fid )
                 
                 encryptedKey = fread( fid, encryptLen, 'int8' );
                 
-                try
+                %try
                     
                     if ~aes.checkEncryptPassword( encryptedKey )
 
@@ -573,11 +573,11 @@ function data = checkHeaderV2_1( headerFields, fid )
 
                     end
                     
-                catch
+                %catch
                     
-                    errorManager( 6, fid );
+                 %   errorManager( 6, fid );
                     
-                end
+                %end
                 
                 data.AES = aes;
                 
