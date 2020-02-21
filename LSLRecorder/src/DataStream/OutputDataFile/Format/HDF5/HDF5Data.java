@@ -1,8 +1,7 @@
 package DataStream.OutputDataFile.Format.HDF5;
 
-import javax.activation.UnsupportedDataTypeException;
-
 import Auxiliar.Extra.ConvertTo;
+import Exceptions.UnsupportedDataTypeException;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 
 import edu.ucsd.sccn.LSL;

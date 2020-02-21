@@ -47,7 +47,6 @@ import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
-import javafx.util.Pair;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

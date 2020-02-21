@@ -33,6 +33,7 @@ import Controls.Messages.RegisterSyncMessages;
 import DataStream.StreamHeader;
 import Exceptions.ReadInputDataException;
 import Exceptions.SettingException;
+import Exceptions.UnsupportedDataTypeException;
 import Controls.Messages.EventType;
 import StoppableThread.AbstractStoppableThread;
 import StoppableThread.IStoppableThread;
@@ -44,24 +45,20 @@ import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.activation.UnsupportedDataTypeException;
 import javax.security.auth.DestroyFailedException;
 import javax.swing.Timer;
 
-import com.sun.management.OperatingSystemMXBean;
 
 public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
 {
