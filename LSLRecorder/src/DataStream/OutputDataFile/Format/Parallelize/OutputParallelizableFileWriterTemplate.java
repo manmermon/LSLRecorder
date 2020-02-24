@@ -247,7 +247,14 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			this.isOpen.set( false );
 		}
 		
-		super.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		if( this.DataBlockAvailable() )
+		{
+			super.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+		}
+		else
+		{
+			super.stopThread( IStoppableThread.FORCE_STOP );
+		}
 	}
 
 	private void Notifier()

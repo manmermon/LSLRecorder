@@ -278,9 +278,10 @@ public class guiManager
 					
 					folder = dat.getOutputFolder();
 					
-					if( !folder.endsWith( "\\") && !folder.endsWith( "/" ) )
+					if( !folder.endsWith( File.separator ) 
+							&& !folder.endsWith( "/" )  )
 					{
-						folder += "\\";
+						folder += File.separator;
 					}
 					
 					desc = dat.getXMLDescription();

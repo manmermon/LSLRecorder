@@ -338,7 +338,7 @@ public class Language {
 		captions.put(MSG_TEXT, new Caption(MSG_TEXT, defaultLanguage, "Message"));
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
 		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
-		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt key" ) );
+		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt" ) );
 
 		captions.put(AUTOSCROLL, new Caption(AUTOSCROLL, defaultLanguage, "Autoscroll"));
 

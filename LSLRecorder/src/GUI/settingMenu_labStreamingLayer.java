@@ -528,9 +528,6 @@ public class settingMenu_labStreamingLayer extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
 			
-			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-			this.jPanelGeneralAddInfoOutFile.add( this.getEncryptKey() );
-			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
 		}
 		
@@ -587,7 +584,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 		return this.generalDescrOutFile;
 	}
 
-	private JCheckBox getEncryptKey()
+	private JCheckBox getEncryptKeyActive()
 	{
 		if( this.encryptKeyActive == null )
 		{
@@ -595,6 +592,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 			
 			this.encryptKeyActive = new JCheckBox();
 			this.encryptKeyActive.setText( Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );
+			this.encryptKeyActive.setHorizontalTextPosition( JCheckBox.LEFT );
 			
 			this.encryptKeyActive.addActionListener( new ActionListener() 
 			{	
@@ -806,6 +804,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 			separator.setBorder( BorderFactory.createBevelBorder(BevelBorder.RAISED ) );
 			Dimension d = this.getJComboxFileFormat().getPreferredSize();			
 			separator.setPreferredSize( new Dimension( 1, d.height ) );
+			
+			this.panelOutFileOption.add( this.getEncryptKeyActive() );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lb );
 		}
