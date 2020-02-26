@@ -45,6 +45,8 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 	private AtomicInteger counterProcessingDataBlocks = null;
 	
 	private AtomicBoolean isOpen = null;
+	
+	private AtomicBoolean isProcessing = null;
 		
 	public OutputParallelizableFileWriterTemplate( ) throws Exception 
 	{			
@@ -58,6 +60,8 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 		this.counterProcessingDataBlocks = new AtomicInteger( this.maxNumProcessors );	
 		
 		this.isOpen = new AtomicBoolean( true );
+
+		this.isProcessing = new AtomicBoolean( false );
 		
 		super.setName( this.getClass().getSimpleName() + "-" + super.getId()  );
 	}
@@ -150,13 +154,34 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 				}
 			}		
 		}
-						
+		
+		synchronized ( this.isProcessing )
+		{
+			this.isProcessing.set( true );
+		}
+		
 		this.ProcessDataBlock();
+		
+		synchronized ( this.isProcessing )
+		{
+			this.isProcessing.set( false );
+		}
 	}
 	
 	@Override
-	final protected void postStopThread(int friendliness) throws Exception 
-	{	
+	protected void postStopThread(int friendliness) throws Exception 
+	{
+		if( friendliness == IStoppableThread.STOP_WITH_TASKDONE )
+		{
+			synchronized ( this )
+			{
+				if( super.getState().equals( Thread.State.WAITING )
+						|| super.getState().equals( Thread.State.TIMED_WAITING ) )
+				{
+					super.notify();
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -247,7 +272,15 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			this.isOpen.set( false );
 		}
 		
-		if( this.DataBlockAvailable() )
+		boolean processing = false;
+		
+		synchronized ( this.isProcessing )
+		{
+			processing = this.isProcessing.get();
+		}
+		
+		if( this.DataBlockAvailable()
+				|| !processing )
 		{
 			super.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 		}
@@ -256,7 +289,7 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			super.stopThread( IStoppableThread.FORCE_STOP );
 		}
 	}
-
+	
 	private void Notifier()
 	{
 		Thread t = new Thread()

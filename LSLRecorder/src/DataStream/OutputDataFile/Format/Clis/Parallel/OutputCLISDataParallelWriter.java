@@ -151,14 +151,6 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		return available;  
 	}
 	
-	/*
-	@Override
-	protected boolean DataBlockAvailable()
-	{
-		return !this.dataBlockList.isEmpty();
-	}
-	*/
-	
 	@Override
 	protected void ProcessDataBlock() throws Exception 
 	{
