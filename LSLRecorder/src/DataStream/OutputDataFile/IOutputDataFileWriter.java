@@ -23,7 +23,6 @@
 package DataStream.OutputDataFile;
 
 import Auxiliar.Tasks.IMonitoredTask;
-import Auxiliar.Tasks.ITaskMonitor;
 import DataStream.OutputDataFile.DataBlock.DataBlock;
 import edu.ucsd.sccn.LSL;
 
@@ -36,7 +35,7 @@ public abstract interface IOutputDataFileWriter extends IMonitoredTask //extends
 	public final static int FLOAT_TYPE = LSL.ChannelFormat.float32;
 	public final static int DOUBLE_TYPE = LSL.ChannelFormat.double64;
 	public final static int STRING_TYPE = LSL.ChannelFormat.string;
-		
+			
 	/**
 	 * 
 	 * @param id

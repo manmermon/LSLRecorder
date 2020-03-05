@@ -163,4 +163,22 @@ public class DataFileFormat
 
 		return writer;
 	}
+	
+	public static boolean isSupportedEncryption( String format ) 
+	{
+		boolean supported = false;
+		
+		if ( isSupportedFileFormat( format ) )
+		{	
+			format = format.toUpperCase();
+			
+			if ( format.equals(CLIS_GZIP) || format.equals( CLIS_BZIP2 ) 
+				|| format.equals( PCLIS_GZIP ) || format.equals( PCLIS_BZIP2 ) ) 
+			{
+				supported = true;
+			}
+		}
+		
+		return supported;
+	}
 }

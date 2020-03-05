@@ -234,5 +234,5 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{	
-	}	
+	}
 }

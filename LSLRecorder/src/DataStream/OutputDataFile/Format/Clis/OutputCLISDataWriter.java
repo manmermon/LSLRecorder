@@ -22,8 +22,6 @@
 
 package DataStream.OutputDataFile.Format.Clis;
 
-import java.nio.charset.Charset;
-
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.ITaskMonitor;
 import DataStream.OutputDataFile.IOutputDataFileWriter;
@@ -236,6 +234,5 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 	@Override
 	public void taskMonitor(ITaskMonitor monitor) 
 	{	
-	}	
-	
+	}
 }

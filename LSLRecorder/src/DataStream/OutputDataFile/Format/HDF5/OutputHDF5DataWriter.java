@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import Auxiliar.Extra.ConvertTo;
@@ -19,10 +18,8 @@ import DataStream.OutputDataFile.DataBlock.IntegerBlock;
 import DataStream.OutputDataFile.DataBlock.LongBlock;
 import DataStream.OutputDataFile.DataBlock.ShortBlock;
 import DataStream.OutputDataFile.DataBlock.StringBlock;
-import DataStream.OutputDataFile.Format.Parallelize.OutputParallelizableFileWriterTemplate;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
-
 
 public class OutputHDF5DataWriter implements IOutputDataFileWriter 
 {

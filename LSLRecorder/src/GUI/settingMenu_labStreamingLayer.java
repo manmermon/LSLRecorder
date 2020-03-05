@@ -64,6 +64,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -611,7 +613,27 @@ public class settingMenu_labStreamingLayer extends JPanel
 						}
 					}
 					
-					ConfigApp.setProperty( ID, ch.isSelected() );
+					ConfigApp.setProperty( ID, ch.isSelected() );				
+				}
+			});
+			
+			this.encryptKeyActive.addPropertyChangeListener( new PropertyChangeListener() 
+			{				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) 
+				{
+					if( evt.getPropertyName().equals( "enabled" ) )
+					{
+						JCheckBox chb = (JCheckBox)evt.getSource();
+						boolean ena = (Boolean)evt.getNewValue();
+						
+						ConfigApp.setProperty( ID, ena );
+						
+						if( ena )
+						{
+							ConfigApp.setProperty( ID, chb.isSelected() );
+						}
+					}
 				}
 			});
 			
@@ -850,7 +872,17 @@ public class settingMenu_labStreamingLayer extends JPanel
 					
 					nameFile += ext;
 					
-					getJTextFileName().setText( nameFile );					
+					getJTextFileName().setText( nameFile );			
+					
+					if( !DataFileFormat.isSupportedEncryption( format ) )
+					{
+						getEncryptKeyActive().setEnabled( false );
+					}
+					else
+					{
+						getEncryptKeyActive().setEnabled( true );
+					}
+					
 				}
 			});
 
