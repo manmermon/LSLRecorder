@@ -256,8 +256,8 @@ public class CLISMetadata
 		
 		//this.addedStreamDataInfo = true;
 
-		id = id.replace( "\n", "" ).replace( "\r", "" );
-		text = text.replace( "\n", "" ).replace( "\r", "" );
+		id = id.replace( "\n", "" ).replace( "\r", "" ).replaceAll( "\\s+", "");
+		//text = text.replace( "\n", "" ).replace( "\r", "" );
 
 		this.header += "<"+id +">" + text + "</" + id + ">";
 	}

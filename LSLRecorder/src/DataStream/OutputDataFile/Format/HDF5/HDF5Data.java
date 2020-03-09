@@ -2,8 +2,8 @@ package DataStream.OutputDataFile.Format.HDF5;
 
 import Auxiliar.Extra.ConvertTo;
 import Exceptions.UnsupportedDataTypeException;
+//import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
-
 import edu.ucsd.sccn.LSL;
 
 public class HDF5Data 

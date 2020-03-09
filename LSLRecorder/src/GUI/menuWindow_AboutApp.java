@@ -55,6 +55,7 @@ import javax.swing.SwingConstants;
 
 import Config.ConfigApp;
 import Config.Language.Language;
+import edu.ucsd.sccn.LSL;
 
 public class menuWindow_AboutApp extends JDialog
 {
@@ -78,7 +79,7 @@ public class menuWindow_AboutApp extends JDialog
 	private JLabel jLabelUniversidad = null;
 	private JLabel jLabelAutor = null;
 	private JLabel jLabelVersion = null;
-	private JLabel jLabelSourceURL = null;
+	private JLabel jLabelSourceURL = null;	
 
 	//TEXTAREAS
 	private JTextArea jTextAreaGPL;
@@ -272,6 +273,7 @@ public class menuWindow_AboutApp extends JDialog
 			DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() );			
 			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.shortNameApp + " " + ConfigApp.version 
 										+ "</b><br/></font><font size='2' face='serif'>" + df.format( ConfigApp.buildDate.getTime() ) 
+										+"</font><font size='2' face='serif'> Library version: "  + LSL.library_version() 
 										+"</font></p></html>" );
 			
 			this.jLabelVersion.setIcon(new ImageIcon(appUI.getInstance().getIconImage().getScaledInstance(32, 32, Image.SCALE_FAST )));
@@ -279,6 +281,7 @@ public class menuWindow_AboutApp extends JDialog
 			this.jLabelVersion.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 			this.jLabelVersion.setHorizontalAlignment( SwingConstants.CENTER );
 			//this.jLabelVersion.setFont(new Font( Font.SERIF, Font.BOLD, 18));
+		
 			
 			this.jContentPaneAcercaDe.add( this.jLabelVersion );
 			this.jContentPaneAcercaDe.add( this.jLabelAutor );

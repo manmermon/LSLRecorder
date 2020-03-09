@@ -2,13 +2,14 @@
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="LSLRecorder/src"/>
-	<classpathentry kind="lib" path="./lib/jcommon-1.0.23.jar"/>
-	<classpathentry kind="lib" path="./lib/jfreechart-1.0.19.jar"/>
-	<classpathentry kind="lib" path="./lib/jna-5.3.1.jar"/>
-	<classpathentry kind="lib" path="./lib/jna-platform-5.5.0.jar"/>
-	<classpathentry kind="lib" path="./lib/commons-compress-1.19.jar"/>
-	<classpathentry kind="lib" path="./lib/icmp4j_all_mod.jar"/>
-	<classpathentry kind="lib" path="./lib/commons-lang3-3.7.jar"/>
-	<classpathentry kind="lib" path="./lib/sis-jhdf5-19.04.0.jar"/>
+	<classpathentry kind="lib" path="lib/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="lib/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="lib/jna-5.3.1.jar"/>
+	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/commons-compress-1.19.jar"/>
+	<classpathentry kind="lib" path="lib/icmp4j_all_mod.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/GitHub/LSLRecorder/lib/jarhdf5-1.12.0.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/GitHub/LSLRecorder/lib/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="G:/Sync_datos/WorkSpace/GitHub/LSLRecorder/lib/commons-lang3-3.7.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
