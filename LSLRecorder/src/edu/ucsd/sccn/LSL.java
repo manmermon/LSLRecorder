@@ -4,6 +4,8 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
+import Config.ConfigApp;
+
 import java.io.IOException;
 
 
@@ -1097,23 +1099,39 @@ public class LSL {
     static {
         System.setProperty("jna.debug_load", "true");
         System.setProperty("jna.debug_load.jna", "true");
-        switch (Platform.getOSType()) {
+        
+        String path = ConfigApp.SYSTEM_LIB_PATH;
+        
+        switch ( Platform.getOSType() ) 
+        {
             case Platform.WINDOWS:
-                inst = (dll)Native.loadLibrary((Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll"),dll.class);
+            {
+            	path += ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
                 break;
+            }
             case Platform.MAC:
-                inst = (dll)Native.loadLibrary((Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib"),dll.class);
+            {
+                path += ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
                 break;
+            }
             case Platform.ANDROID:
+            {
                 // For JNA <= 5.1.0
                 System.setProperty("jna.nosys", "false");
-                inst = (dll)Native.loadLibrary("lsl", dll.class);
+                path += "lsl";                
                 break;
+            }
             default:
-                inst = (dll)Native.loadLibrary((Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so"),dll.class);
-                if (inst == null)
-                    inst = (dll)Native.loadLibrary("liblsl.so",dll.class);
+            {
+                path += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );                
                 break;
+            }
+        }
+        System.out.println("LSL.enclosing_method() " + path);
+        inst = (dll)Native.loadLibrary( path, dll.class);        
+        if (inst == null)
+        {
+            inst = (dll)Native.loadLibrary( ConfigApp.SYSTEM_LIB_PATH  + "liblsl.so", dll.class );
         }
     }
     /*static dll inst;

@@ -37,6 +37,8 @@ import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.io.File;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 import javax.swing.UIManager;
 
@@ -50,10 +52,30 @@ public class mainLSLRecorder
 	 */
 	public static void main(String[] args)
 	{
+		String p = System.getProperty( "user.dir" ) + "/systemLib/";
 		try 
 		{
-			UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
-			//UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+			addLibraryPath( p );
+		} 
+		catch (Exception e) 
+		{
+			showError( e, false );
+		}
+		
+		try 
+		{
+			String OS = System.getProperty("os.name").toLowerCase();
+			
+			if( OS.indexOf("nix") < 0 
+				&& OS.indexOf("nux") < 0 
+				&& OS.indexOf("aix") < 0 )
+			{
+				UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+			}
+			else
+			{
+				UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+			}
 		} 
 		catch (Exception e) 
 		{
@@ -117,6 +139,24 @@ public class mainLSLRecorder
 		}		
 	}
 
+
+	public static void addLibraryPath(String pathToAdd) throws Exception 
+	{
+		Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
+		usrPathsField.setAccessible(true);
+		String[] paths = (String[]) usrPathsField.get(null);
+		for (String path : paths)
+		{
+			if (path.equals(pathToAdd))
+			{
+				return;
+			}
+		}
+
+		String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
+		newPaths[newPaths.length - 1] = pathToAdd;
+		usrPathsField.set(null, newPaths);
+	}
 
 	public static void createApplication() throws Throwable
 	{	

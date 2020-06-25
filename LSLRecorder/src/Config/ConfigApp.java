@@ -66,7 +66,7 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 3 - 1, 26 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 6 - 1, 25 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -91,6 +91,8 @@ public class ConfigApp
 	public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 10 * ( Math.pow( 2, 20 ) ) );
 	
 	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
+	
+	public static final String SYSTEM_LIB_PATH = "systemLib/";
 
 	/**********************
 	 * 
