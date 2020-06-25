@@ -34,7 +34,7 @@ LSLRecorder
 The output file format of LSL Recorder is the version 2.1 from [CLIS](https://github.com/manmermon/CLIS). The import data files are available in the folder [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData). The next <a href="#file_format">figure</a> shows its struct. This is split in two parts: data block (binary values) and header (text in UTF-8 format). 
 
 <div align="center" id="file_format">
-    <img src="./Readme/clis_file_format_complete.png", width="400">
+    <img src="./Readme/clis_file_format_complete.png", width="800">
 </div>
 
 ### Header
