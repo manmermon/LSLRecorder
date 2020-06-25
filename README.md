@@ -45,13 +45,13 @@ Header contains all information to restore original data. This is split in 3 par
 
 #### Restoration Fields
 
-Block of restoration fields is a single text line ending with the special character ``end of line'' ($\backslash n$). This contain all information to restore original data. Each field is split by a semicolon. The three firsts identify version, compression technique, and byte size of header, and the last one indicates if data information block is present. The other middle fields are referenced to data blocks. In these, the different subfields are separated by a comma, such that, the meaning (in order) is: 
+Block of restoration fields is a single text line ending with the special character *end of line* (*\n*). This contain all information to restore original data. Each field is split by a semicolon. The three firsts identify version, compression technique, and byte size of header, and the last one indicates if data information block is present. The other middle fields are referenced to data blocks. In these, the different subfields are separated by a comma, such that, the meaning (in order) is: 
 
 - varName: name of data stream. 
 - dataType: data type. Three exclusive options: int (integer), float, and char (character). 
 - typeBytes: number of bytes of data type. This way, a double value and a 32-bit integer are identified as "float,8", and "int,4". 
 - nCols: data streaming are structured as a NxM matrix. The number of columns is identified in this subfiled. 
-- block1ByteLen,...,blockNByteLen: number of bytes of each input 5MiB-data segments after compression algorithm.
+- block1ByteLen,...,blockNByteLen: number of bytes of each input 10MiB-data segments after compression algorithm.
 
 The order in which each data-block field appears indicates their order in the file.
 
@@ -59,17 +59,16 @@ The last field of the first text line of restoration information shows whether t
 
 #### Data Information
 
-Data information block includes comments about data, and it is optional. This must be a single text line ending with the special character "end of line" (\n). In LSL Recorder, this contains LSL streaming information in XML format. This text is encrypted if the user sets an encrypt key.
+Data information block includes comments about data, and it is optional. This must be a single text line ending with the special character *end of line* (*\n*). In LSL Recorder, this contains LSL streaming information in XML format. This text is encrypted if the user sets an encrypt key.
 
 #### Padding
 
-Numbers of compressed blocks and the length of each one are unknown at the beginning of convert processing. This fact causes that the number of characters of <i>restoration fields</i> is initially unknown. The target of the padding is to reserve enough memory space to insert the two previous header blocks at the beginning of output file, after data compression process is finished, without overwriting compressed data blocks. The header byte size is estimated based on the worst of case (uncompressed data for each 5MiB segment), and the special character "carriage return" (\r) is inserted until the estimation is reached.
+Numbers of compressed blocks and the length of each one are unknown at the beginning of convert processing. This fact causes that the number of characters of *restoration fields* is initially unknown. The target of the padding is to reserve enough memory space to insert the two previous header blocks at the beginning of output file, after data compression process is finished, without overwriting compressed data blocks. The header byte size is estimated based on the worst of case (uncompressed data for each 5MiB segment), and the special character *carriage return* (*\r*) is inserted until the estimation is reached.
 
 The process to convert the temporal input binary file data to output data file are split in 3 parts: 1) insert the padding to reserve the bytes for the header, 2) compress and save the input data files (in our case, the data file and the time stamp file), and 3) write the header file at the beginning.
 
-
 ### Data Block 
 
-The data block consists of a sequence of compressed 10-MiB-data segments. LSLRecorder currently supports two compression techniques: GZIP (default) and BZIP2. Each compressed block is encrypted if the user sets an encrypt key. 
+The data block consists of a sequence of compressed 10MiB-data segments. LSLRecorder currently supports two compression techniques: GZIP (default) and BZIP2. Each compressed block is encrypted if the user sets an encrypt key. 
 
 The process to convert the temporary input binary file data to the output data file is split into 3 parts: 1) insert the padding to reserve the header, 2) compress, encrypt and save the input binary data file, and 3) write the header file at the beginning. 
