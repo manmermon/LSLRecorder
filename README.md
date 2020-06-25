@@ -6,14 +6,27 @@ LSL Recorder is a multi-thread, cross-platform software developed using Java tec
     <img src="./Readme/LSLRecorderGui.png", width="500">
 </div>
 
-LSL Recorder employs the next Java libraries:
+The project's struct:
 
-- [jcommon-1.0.23.jar](https://sourceforge.net/projects/jfreechart/files/3.%20JCommon/1.0.23/) (graphic; License LGPL).
-- [jfreechart-1.0.19.jar](https://sourceforge.net/projects/jfreechart/files/1.%20JFreeChart/1.0.19/) (graphic; License LGPL).
-- [jna-5.3.1.jar](repo1.maven.org/maven2/net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar) (LSL requirement; Licenses LGPL 2.1 or later and 
-Apache License 2.0).
-<!-- - [jgt-jgrassgears-0.7.6.jar](https://mvnrepository.com/artifact/org.jgrasstools/jgt-jgrassgears/0.7.6)-->
-<!-- - [jts-1.12.jar](https://mvnrepository.com/artifact/com.vividsolutions/jts/1.12)--> 
+LSLRecorder
+|
+|-- [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData): To import data from CLIS format.
+|   |
+|   |-- Java
+|   |-- Matlab
+|   |-- Python
+|
+|-- [LSLRecorder/src](https://github.com/manmermon/LSLRecorder/tree/master/LSLRecorder/src): source code.
+|
+|-- [Lang](https://github.com/manmermon/LSLRecorder/tree/master/Lang): language files.
+|
+|-- [Readme](https://github.com/manmermon/LSLRecorder/tree/master/Readme): used images in this readme file.
+|
+|-- [lib](https://github.com/manmermon/LSLRecorder/tree/master/lib): project's libraries.
+|
+|-- [systemLib](https://github.com/manmermon/LSLRecorder/tree/master/systemLib): library of functions dependent on the operating system.
+|
+|-- LSLRecorder.zip: zip file with *LSLRecorder.jar* (runnable) and the folder *systemLib*.
 
 
 ## File Format
