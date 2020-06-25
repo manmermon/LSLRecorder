@@ -7,7 +7,7 @@ LSL Recorder is a multi-thread, cross-platform software developed using Java tec
 </div>
 
 The project's struct:
-
+```
 LSLRecorder
 |
 |-- [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData): To import data from CLIS format.
@@ -27,7 +27,7 @@ LSLRecorder
 |-- [systemLib](https://github.com/manmermon/LSLRecorder/tree/master/systemLib): library of functions dependent on the operating system.
 |
 |-- LSLRecorder.zip: zip file with *LSLRecorder.jar* (runnable) and the folder *systemLib*.
-
+```
 
 ## File Format
 
