@@ -31,23 +31,16 @@ LSLRecorder
 
 ## File Format
 
-The output file format of LSL Recorder is the version 2 from [CLIS](https://github.com/manmermon/CLIS). The import data files are available in the folder [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData). The next <a href="#file_format">figure</a> shows its struct. This is split in two parts: data block (binary values) and header (text in UTF-8 format). 
+The output file format of LSL Recorder is the version 2.1 from [CLIS](https://github.com/manmermon/CLIS). The import data files are available in the folder [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData). The next <a href="#file_format">figure</a> shows its struct. This is split in two parts: data block (binary values) and header (text in UTF-8 format). 
 
 <div align="center" id="file_format">
-    <img src="./Readme/clis_file_format.png", width="400">
+    <img src="./Readme/clis_file_format_complete.png", width="400">
 </div>
-
-### Data Block 
-
-Sequence of compress block. Each block is the output of GZip compression technique applies to data segments of 5 MiB.
 
 ### Header
 
-Header contains all information to restore original data. This is split in 3 parts: restoration fields, data information, and padding. The next <a href="header_file">figure</a> shows this scheme. 
+Header contains all information to restore original data. This is split in 3 parts: restoration fields, data information, and padding. The <a href="file_format">previous figure</a> shows this scheme. 
 
-<div align="center" id="header_file">
-    <img src="./Readme/clis_header_file.png", width="400">
-</div>
 
 
 #### Restoration Fields
@@ -60,12 +53,23 @@ Block of restoration fields is a single text line ending with the special charac
 - nCols: data streaming are structured as a NxM matrix. The number of columns is identified in this subfiled. 
 - block1ByteLen,...,blockNByteLen: number of bytes of each input 5MiB-data segments after compression algorithm.
 
+The order in which each data-block field appears indicates their order in the file.
+
+The last field of the first text line of restoration information shows whether the extension is available. A value equal to *true* indicates complementary information to restore data blocks is contained in the next text line. Version 2.1 of *CLIS* format is compounded by 2 fields separated by a semicolon. The first one indicates the length (in bytes) of the saved symmetric-encryption key after the next *\n*. This is encrypted, so it is advisable to check that the decryption key is the same (in the <a href="file_format">previous figure</a>, the encryption key is indicated by the string *ENCRYPTED-PASSWORD*). The second field contains an MD5-checksum code of encrypted-compressed data. The steps to generate it are: firstly data block (one by one), and then, CLIS header without the checksum code and padding (in the <a href="file_format">previous figure</a>, the checksum code is indicated by the string *MD5-text*).
+
 #### Data Information
 
-Data information block includes comments about data, and it is optional. This must be a single text line ending with the special character "end of line" (\n). In LSL Recorder, this contains LSL streaming information in XML format.
+Data information block includes comments about data, and it is optional. This must be a single text line ending with the special character "end of line" (\n). In LSL Recorder, this contains LSL streaming information in XML format. This text is encrypted if the user sets an encrypt key.
 
 #### Padding
 
 Numbers of compressed blocks and the length of each one are unknown at the beginning of convert processing. This fact causes that the number of characters of <i>restoration fields</i> is initially unknown. The target of the padding is to reserve enough memory space to insert the two previous header blocks at the beginning of output file, after data compression process is finished, without overwriting compressed data blocks. The header byte size is estimated based on the worst of case (uncompressed data for each 5MiB segment), and the special character "carriage return" (\r) is inserted until the estimation is reached.
 
 The process to convert the temporal input binary file data to output data file are split in 3 parts: 1) insert the padding to reserve the bytes for the header, 2) compress and save the input data files (in our case, the data file and the time stamp file), and 3) write the header file at the beginning.
+
+
+### Data Block 
+
+The data block consists of a sequence of compressed 10-MiB-data segments. LSLRecorder currently supports two compression techniques: GZIP (default) and BZIP2. Each compressed block is encrypted if the user sets an encrypt key. 
+
+The process to convert the temporary input binary file data to the output data file is split into 3 parts: 1) insert the padding to reserve the header, 2) compress, encrypt and save the input binary data file, and 3) write the header file at the beginning. 
