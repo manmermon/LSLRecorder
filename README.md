@@ -22,7 +22,7 @@ LSLRecorder
 |
 |-- Readme: used images in this readme file.
 |
-|-- lib: project's libraries.
+|-- lib: .jar libraries.
 |
 |-- systemLib: library of functions dependent on the operating system.
 |
