@@ -26,7 +26,7 @@ LSLRecorder
 |
 |-- systemLib: library of functions dependent on the operating system.
 |
-|-- LSLRecorder.zip: zip file with *LSLRecorder.jar* (runnable) and the folder *systemLib*.
+|-- LSLRecorder.zip: zip file with LSLRecorder.jar (runnable) and the folder systemLib.
 ```
 
 ## File Format
