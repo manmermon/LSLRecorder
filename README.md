@@ -10,21 +10,21 @@ The project's struct:
 ```
 LSLRecorder
 |
-|-- [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData): To import data from CLIS format.
+|-- ImportClisData: To import data from CLIS format.
 |   |
 |   |-- Java
 |   |-- Matlab
 |   |-- Python
 |
-|-- [LSLRecorder/src](https://github.com/manmermon/LSLRecorder/tree/master/LSLRecorder/src): source code.
+|-- LSLRecorder/src: source code.
 |
-|-- [Lang](https://github.com/manmermon/LSLRecorder/tree/master/Lang): language files.
+|-- Lang: language files.
 |
-|-- [Readme](https://github.com/manmermon/LSLRecorder/tree/master/Readme): used images in this readme file.
+|-- Readme: used images in this readme file.
 |
-|-- [lib](https://github.com/manmermon/LSLRecorder/tree/master/lib): project's libraries.
+|-- lib: project's libraries.
 |
-|-- [systemLib](https://github.com/manmermon/LSLRecorder/tree/master/systemLib): library of functions dependent on the operating system.
+|-- systemLib: library of functions dependent on the operating system.
 |
 |-- LSLRecorder.zip: zip file with *LSLRecorder.jar* (runnable) and the folder *systemLib*.
 ```
