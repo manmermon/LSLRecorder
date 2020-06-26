@@ -1,19 +1,38 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package DataStream.OutputDataFile.Format.HDF5;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import Auxiliar.Extra.ConvertTo;
+import Auxiliar.Extra.Tuple;
 import Exceptions.UnsupportedDataTypeException;
+import ch.systemsx.cisd.base.mdarray.MDArray;
 //import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import edu.ucsd.sccn.LSL;
 
 public class HDF5Data 
 {	
-	private Number[] values = null;
-	
 	private IHDF5Writer writer = null;
-			
-	private int colIndex = 0;
-	
+				
 	private int maxCol = 0;
 	
 	private int blockIndex = 0;
@@ -21,6 +40,9 @@ public class HDF5Data
 	private int dataType = LSL.ChannelFormat.float32;
 	
 	private String name = "";
+	
+	private Number[] remainingData = new Number[0];
+	private String[] remainingStringData = new String[0];
 				
 	public HDF5Data( IHDF5Writer wr, String varName, int dataformat, int numChannels ) throws Exception 
 	{
@@ -33,8 +55,6 @@ public class HDF5Data
 		
 		this.maxCol = numChannels;
 		
-		this.values = new Number[ this.maxCol ];
-		
 		this.dataType = dataformat;
 		
 		this.writer = wr;
@@ -44,144 +64,154 @@ public class HDF5Data
 			throw new UnsupportedDataTypeException( );
 		}
 		
-		this.createMatrix();
+		this.createMatrix( this.name );
 	}
 	
-	private void createMatrix()
+	private void createMatrix( String name )
 	{
 		switch ( this.dataType ) 
 		{
 			case LSL.ChannelFormat.double64:
 			{
-				this.writer.float64().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.float64().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.float32:
 			{
-				this.writer.float32().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.float32().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.int8:
 			{
-				this.writer.int8().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.int8().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.int16:
 			{
-				this.writer.int16().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.int16().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.int32:
 			{
-				this.writer.int32().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.int32().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.int64:
 			{
-				this.writer.int64().createMatrix( this.name, this.maxCol,  1 );
+				this.writer.int64().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
 			case LSL.ChannelFormat.string:
 			{
-				this.writer.int8().createMatrix( this.name, this.maxCol,  1 );
+				//this.writer.int8().createMatrix( this.name, 1, 1, 1, 1 );
+				this.writer.string().createMDArray( name, 1, new long[] { 1 }, new int[] { 1 } );
 				break;
 			}
 		}
 	}
 		
-	public void addData( Number value )
-	{		
-		this.values[ this.colIndex ] = value;
-		
-		this.colIndex++;
-		
-		if( this.colIndex >= this.maxCol )
-		{
-			this.colIndex = 0;
-			
-			this.writeData();
-		}
-	}
-	
 	public void addData( Number[] values )
 	{		
-		if( values != null )
-		{
-			for( Number val : values )
-			{
-				this.addData( val );
-			}
-		}
+		values = ArrayUtils.addAll( this.remainingData, values );
+		Tuple< Number[][], Number[] > data = ConvertTo.Array2Matrix( values, this.maxCol );
+		
+		this.writeData( this.name, data.x, this.blockIndex );
+		
+		this.blockIndex += data.x.length;
+		
+		this.remainingData = data.y;
 	}
-	
-	public void addData( String str )
-	{
-		if( str != null )
-		{
-			for( byte b : str.getBytes() )
-			{
-				this.addData( b );
-			}
-		}
-	}
-	
+			
 	public void addData( String[] values )
 	{		
-		if( values != null )
-		{
-			for( String str : values )
-			{
-				this.addData( str );
-			}
+		values = ArrayUtils.addAll( this.remainingStringData, values );
+		Tuple< String[][], String[] > data = ConvertTo.StringArray2Matrix( values, this.maxCol );
+		
+		if( data.x.length > 0 )
+		{	
+			this.writeStringData( this.name, this.StringMatrix2MDStringArray( data.x ), this.blockIndex );
+			
+			this.blockIndex += data.x.length;
 		}
+		
+		this.remainingStringData = data.y;
 	}
 	
-	private void writeData()
+	private MDArray< String > StringMatrix2MDStringArray( String[][] data )
+	{
+		MDArray< String > strMatrix = new MDArray<String>( String.class , new int[] { data.length, this.maxCol } );
+		for( int r = 0; r < data.length; r++ )
+		{
+			for( int c = 0; c < data[ 0 ].length; c++ )
+			{
+				strMatrix.set( data[ r ][ c ], r, c );
+			}						
+		}
+		
+		return strMatrix;
+	}
+	
+	private void writeData( String name, Number[][] values, long blockIndex )
 	{
 		switch ( this.dataType ) 
 		{
 			case LSL.ChannelFormat.double64:
 			{
-				this.writer.float64().writeMatrixBlockWithOffset( this.name, new double[][] { ConvertTo.NumberArray2DoubleArray( this.values ) }, 0, blockIndex );
+				this.writer.float64().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2doubleMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSL.ChannelFormat.float32:
 			{
-				this.writer.float32().writeMatrixBlockWithOffset( this.name, new float[][] { ConvertTo.NumberArray2FloatArray( this.values ) }, 0, blockIndex );
+				this.writer.float32().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2floatMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSL.ChannelFormat.int8:
 			{
-				this.writer.int8().writeMatrixBlockWithOffset( this.name, new byte[][] { ConvertTo.NumberArray2ByteArray( this.values ) }, 0, blockIndex );
+				this.writer.int8().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2byteMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSL.ChannelFormat.int16:
 			{
-				this.writer.int16().writeMatrixBlockWithOffset( this.name, new short[][] { ConvertTo.NumberArray2ShortArray( this.values ) }, 0, blockIndex );
+				this.writer.int16().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2shortMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSL.ChannelFormat.int32:
 			{
-				this.writer.int32().writeMatrixBlockWithOffset( this.name, new int[][] { ConvertTo.NumberArray2IntegerArray( this.values ) }, 0, blockIndex );
+				this.writer.int32().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2integerMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSL.ChannelFormat.int64:
 			{
-				this.writer.int64().writeMatrixBlockWithOffset( this.name, new long[][] { ConvertTo.NumberArray2LongArray( this.values ) }, 0, blockIndex );
-				break;
-			}
-			case LSL.ChannelFormat.string:
-			{
-				this.writer.int8().writeMatrixBlockWithOffset( this.name, new byte[][] { ConvertTo.NumberArray2ByteArray( this.values ) }, 0, blockIndex );
+				this.writer.int64().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2longMatrix( values ), blockIndex, 0 );
 				break;
 			}
 		}
-		
-		this.blockIndex++;
+	}
+	
+	private void writeStringData( String name, MDArray< String > values, long blockIndex )
+	{
+		this.writer.string().writeMDArrayBlockWithOffset( name, values, new long[] { blockIndex } );				
 	}
 	
 	public void close() 
 	{
+		if( this.remainingData != null && this.remainingData.length > 0 )
+		{
+			String newName = this.name + "Remaining";
+			this.createMatrix( newName );
+			Number[][] d = ConvertTo.Array2Matrix( this.remainingData, this.remainingData.length ).x;
+			this.writeData( newName, d, 0L );
+		}
+		
+		if( this.remainingStringData != null && this.remainingStringData.length > 0 )
+		{
+			String newName = this.name + "Remaining";
+			this.createMatrix( newName );
+			String[][] d = ConvertTo.StringArray2Matrix( this.remainingStringData, this.remainingStringData.length ).x;
+			this.writeStringData( newName, StringMatrix2MDStringArray( d ), 0 );
+			
+		}
+			
 		this.writer.close();
 	}
 }
