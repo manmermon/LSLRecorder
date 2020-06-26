@@ -29,6 +29,11 @@ LSLRecorder
 |-- LSLRecorder.zip: zip file with LSLRecorder.jar (runnable) and the folder systemLib.
 ```
 
+To use LSLRecorder, you have to download and unzip LSLRecorder.zip. This contains two file: *LSLRecorder.jar* and the folder *systemLib*. They both must be the same directory. The sentence to run LSLRecorder is: 
+
+**java -jar LSLRecorder.jar** 
+
+
 ## File Format
 
 The output file format of LSL Recorder is the version 2.1 from [CLIS](https://github.com/manmermon/CLIS). The import data files are available in the folder [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData). The next <a href="#file_format">figure</a> shows its struct. This is split in two parts: data block (binary values) and header (text in UTF-8 format). 
