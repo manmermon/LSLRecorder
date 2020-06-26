@@ -30,8 +30,9 @@ LSLRecorder
 ```
 
 To use LSLRecorder, you have to download and unzip LSLRecorder.zip. This contains two file: *LSLRecorder.jar* and the folder *systemLib*. They both must be the same directory. The sentence to run LSLRecorder is: 
-
-**java -jar LSLRecorder.jar** 
+```
+>> java -jar LSLRecorder.jar
+```
 
 
 ## File Format
