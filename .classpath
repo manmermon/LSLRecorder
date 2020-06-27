@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="lib/icmp4j_all_mod.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.7.jar"/>
 	<classpathentry kind="lib" path="lib/sis-jhdf5-19.04.0.jar"/>
+	<classpathentry kind="lib" path="lib/mfl-core-0.5.7-SNAPSHOT.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
