@@ -32,6 +32,436 @@ import edu.ucsd.sccn.LSL;
 
 public class ConvertTo 
 {
+	public static double[][] NumberMatrix2doubleMatrix( Number[][] matrix )
+	{
+		double[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new double[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].doubleValue();
+					}
+				}
+			}
+			else
+			{
+				res = new double[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Double[][] NumberMatrix2DoubleMatrix( Number[][] matrix )
+	{
+		Double[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Double[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].doubleValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Double[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static float[][] NumberMatrix2floatMatrix( Number[][] matrix )
+	{
+		float[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new float[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].floatValue();
+					}
+				}
+			}
+			else
+			{
+				res = new float[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Float[][] NumberMatrix2FloatMatrix( Number[][] matrix )
+	{
+		Float[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Float[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].floatValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Float[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static long[][] NumberMatrix2longMatrix( Number[][] matrix )
+	{
+		long[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new long[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].longValue();
+					}
+				}
+			}
+			else
+			{
+				res = new long[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Long[][] NumberMatrix2LongMatrix( Number[][] matrix )
+	{
+		Long[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Long[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].longValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Long[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static int[][] NumberMatrix2integerMatrix( Number[][] matrix )
+	{
+		int[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new int[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].intValue();
+					}
+				}
+			}
+			else
+			{
+				res = new int[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+
+	public static Integer[][] NumberMatrix2IntegerMatrix( Number[][] matrix )
+	{
+		Integer[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Integer[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].intValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Integer[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+
+	public static short[][] NumberMatrix2shortMatrix( Number[][] matrix )
+	{
+		short[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new short[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].shortValue();
+					}
+				}
+			}
+			else
+			{
+				res = new short[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Short[][] NumberMatrix2ShortMatrix( Number[][] matrix )
+	{
+		Short[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Short[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].shortValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Short[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static byte[][] NumberMatrix2byteMatrix( Number[][] matrix )
+	{
+		byte[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new byte[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].byteValue();
+					}
+				}
+			}
+			else
+			{
+				res = new byte[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Byte[][] NumberMatrix2ByteMatrix( Number[][] matrix )
+	{
+		Byte[][] res = null;
+		
+		if( matrix != null )
+		{
+			if( matrix.length > 0 )
+			{
+				res = new Byte[ matrix.length ][ matrix[ 0 ].length ];
+				
+				for( int r = 0; r < matrix.length; r++ )
+				{
+					for( int c = 0; c < matrix[ 0 ].length; c++ )
+					{
+						res[ r ][ c ] = matrix[ r ][ c ].byteValue();
+					}
+				}
+			}
+			else
+			{
+				res = new Byte[ 0 ][ 0 ];
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Tuple< Number[][], Number[] > Array2Matrix( Number[] array, int numCols )
+	{
+		Tuple< Number[][], Number[] > res = new Tuple<Number[][], Number[]>( new Number[0][0], new Number[0] );
+		if( array != null )
+		{
+			if( numCols == 0 )
+			{
+				numCols = -1;
+			}
+			
+			int L = array.length;
+			int rows = L / numCols;
+			
+			if( rows <= 0 )
+			{
+				res = new Tuple<Number[][], Number[]>( new Number[0][0], array );
+			}
+			else
+			{
+				Number[][] matrix = new Number[ rows ][ numCols ];
+				
+				int iAr = 0;
+				int r = 0;
+				int c = 0;
+				for( ; r < rows; iAr++ )
+				{
+					Number val = array[ iAr ];
+					
+					matrix[ r ][ c ] = val;
+					
+					c++;
+					if( c >= numCols )
+					{
+						c = 0;
+						r++;
+					}
+				}
+				
+				Number[] rest = new Number[ L - iAr ];
+				int i = 0;
+				for( ; iAr < L; iAr++ )
+				{
+					rest[ i ] = array[ iAr ];
+					i++;
+				}
+				
+				res = new Tuple<Number[][], Number[]>( matrix, rest );
+			}
+		}
+		
+		return res;
+	}
+	
+	public static Tuple< String[][], String[] > StringArray2Matrix( String[] array, int numCols )
+	{
+		Tuple< String[][], String[] > res = new Tuple<String[][], String[]>( new String[0][0], new String[0] );
+		if( array != null )
+		{
+			if( numCols == 0 )
+			{
+				numCols = -1;
+			}
+			
+			int L = array.length;
+			int rows = L / numCols;
+			
+			if( rows <= 0 )
+			{
+				res = new Tuple<String[][], String[]>( new String[0][0], array );
+			}
+			else
+			{
+				String[][] matrix = new String[ rows ][ numCols ];
+				
+				int iAr = 0;
+				int r = 0;
+				int c = 0;
+				for( ; r < rows; iAr++ )
+				{
+					String val = array[ iAr ];
+					
+					matrix[ r ][ c ] = val;
+					
+					c++;
+					if( c >= numCols )
+					{
+						c = 0;
+						r++;
+					}
+				}
+				
+				String[] rest = new String[ L - iAr ];
+				int i = 0;
+				for( ; iAr < L; iAr++ )
+				{
+					rest[ i ] = array[ iAr ];
+					i++;
+				}
+				
+				res = new Tuple<String[][], String[]>( matrix, rest );
+			}
+		}
+		
+		return res;
+	}
+	
 	public static char[] CharacterArray2charArray( Character[] d )
 	{
 		char[] out = new char[ d.length ];

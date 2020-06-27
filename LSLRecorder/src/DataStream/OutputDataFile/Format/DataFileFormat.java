@@ -31,10 +31,11 @@ import DataStream.OutputDataFile.Compress.OutputZipDataFactory;
 import DataStream.OutputDataFile.Format.Clis.OutputCLISDataWriter;
 import DataStream.OutputDataFile.Format.Clis.Parallel.OutputCLISDataParallelWriter;
 import DataStream.OutputDataFile.Format.HDF5.OutputHDF5DataWriter;
+import DataStream.OutputDataFile.Format.Matlab.OutputMatDataWriter;
 
 public class DataFileFormat
 {
-	//public static String MATLAB = "Matlab";
+	public static String MATLAB = "MATLAB";
 	//public static String CSV = "CSV";
 	public static final String CLIS_GZIP = "CLIS-GZIP";
 	public static final String PCLIS_GZIP = "PCLIS-GZIP";
@@ -44,7 +45,7 @@ public class DataFileFormat
 
 	public static String[] getSupportedFileFormat()
 	{
-		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2, HDF5 };//, MATLAB, CSV };
+		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2, HDF5, MATLAB };//, CSV };
 		//return new String[] { CLIS, PCLIS };//, MATLAB, CSV };
 	}
 
@@ -56,9 +57,9 @@ public class DataFileFormat
 		exts.put( CLIS_GZIP, ".clis" );
 		exts.put( PCLIS_BZIP2, ".clis" );
 		exts.put( CLIS_BZIP2, ".clis" );
-		exts.put( HDF5, ".h5" );
+		exts.put( HDF5, ".h5" );		
+		exts.put( MATLAB, ".mat" );
 		
-		//exts.put( MATLAB, ".mat" );
 		//exts.put( CSV, ".csv" );		
 		
 		return exts;
@@ -149,11 +150,11 @@ public class DataFileFormat
 			{
 				writer = new OutputHDF5DataWriter( file, monitor );
 			}
-			/*
 			else if (format.equals(MATLAB))
 			{
-				writer = new MatlabFile(file);
+				writer = new OutputMatDataWriter( file, monitor );
 			}
+			/*
 			else if (format.equals(CSV))
 			{
 				writer = new CSVFile(file);

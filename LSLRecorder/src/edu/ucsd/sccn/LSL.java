@@ -1127,7 +1127,7 @@ public class LSL {
                 break;
             }
         }
-        System.out.println("LSL.enclosing_method() " + path);
+        
         inst = (dll)Native.loadLibrary( path, dll.class);        
         if (inst == null)
         {
