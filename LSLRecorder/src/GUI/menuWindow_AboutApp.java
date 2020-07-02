@@ -166,7 +166,7 @@ public class menuWindow_AboutApp extends JDialog
 			this.jLabelUniversidad.setText("Universidad de Sevilla");
 
 			this.jLabelOrganizacion = new JLabel();
-			this.jLabelOrganizacion.setText("Departamento de Tecnología Electrónica,");
+			this.jLabelOrganizacion.setText("Departamento de Tecnolog\u00EDa Electr\u00F3nica,");
 			this.jLabelOrganizacion.setAlignmentX( Component.CENTER_ALIGNMENT );
 			this.jLabelOrganizacion.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 

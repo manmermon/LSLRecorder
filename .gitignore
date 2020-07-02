@@ -13,3 +13,8 @@ liblsl64_2016.dll
 *.temp0
 *.h5
 *.mat
+/nbproject/private/
+/build/
+*.xml
+*.mf
+*.properties

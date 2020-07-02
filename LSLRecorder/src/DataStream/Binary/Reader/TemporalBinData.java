@@ -108,7 +108,7 @@ public class TemporalBinData
 		}
 		else
 		{
-			BinaryDataFormat strLenFormat = new BinaryDataFormat( typeOfStrLen, LSLUtils.getDataTypeBytes( typeData ), this.ChunckSize );
+			BinaryDataFormat strLenFormat = new BinaryDataFormat( typeOfStrLen, LSLUtils.getDataTypeBytes( typeOfStrLen ), this.CountChannels * this.ChunckSize );
 			this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, strLenFormat ) );
 		}
 		

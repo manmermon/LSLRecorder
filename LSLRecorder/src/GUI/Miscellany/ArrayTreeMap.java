@@ -10,7 +10,7 @@ import java.util.TreeMap;
 
 public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements Cloneable 
 {
-	private TreeMap< X, List< Y > > tree;
+	private final TreeMap< X, List< Y > > tree;
 	
 	/**
 	 * Constructs a new, empty tree map, using the natural ordering of its keys. 
@@ -56,7 +56,7 @@ public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements
 			{
 				for( Y val : vals )
 				{
-					this.put( key, val );
+					this.putElement(key, val );
 				}
 			}
 		}
@@ -95,6 +95,13 @@ public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements
 	 * (non-Javadoc)
 	 * @see java.util.AbstractMap#clone()
 	 */
+
+    /**
+     *
+     * @return
+     * @throws CloneNotSupportedException
+     */
+
 	@Override
 	protected Object clone() throws CloneNotSupportedException 
 	{
@@ -118,6 +125,14 @@ public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements
 	 * (non-Javadoc)
 	 * @see java.util.AbstractMap#put(java.lang.Object, java.lang.Object)
 	 */
+
+    /**
+     *
+     * @param key
+     * @param values
+     * @return
+     */
+
 	@Override
 	public List< Y > put( X key, List< Y > values ) 
 	{
@@ -128,6 +143,7 @@ public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements
 		return VALS;
 	}
 
+        
 	/**
 	 * Associates the specified value with the specified key in this map. 
 	 * If the map previously contained a mapping for the key, 
@@ -143,7 +159,7 @@ public class ArrayTreeMap< X, Y > extends AbstractMap< X, List< Y > > implements
      *									map uses natural ordering, or its 
      *									comparator does not permit null keys
 	 */
-	public List< Y > put( X key, Y value )
+	public List< Y > putElement( X key, Y value )
 	{
 		List< Y > VALS = this.createValuesList( key );
 		

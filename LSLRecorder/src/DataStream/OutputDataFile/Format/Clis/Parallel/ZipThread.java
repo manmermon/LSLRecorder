@@ -161,6 +161,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 				{
 					long[] aux = new long[data.length];
 					int i = 0;
+					
 					for( Object value : data )
 					{
 						aux[ i ] = (long)value;

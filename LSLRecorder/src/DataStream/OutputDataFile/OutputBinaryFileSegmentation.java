@@ -25,6 +25,7 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -94,7 +95,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 	//private List< EventInfo > events;
 	
-	private long totalBlock = 0;
+	private long totalReadedBlock = 0;
 	
 	private double totalSampleByChannels = 0;
 	
@@ -128,6 +129,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		super.setName( this.getClass().getSimpleName() + "-" + DAT.getOutputFileName() );
 		
+		this.syncReader = syncReader;
+		
 		this.encrypt_key = DAT.getEncryptKey();
 		
 		this.DATA = DAT;
@@ -139,13 +142,18 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			bufLen = (byte)10;
 		}		
 		
-		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );
-				
-		this.setMaxNumElements( this.DATA.getTypeDataBytes(), this.DATA.getNumberOfChannels() + 1 ); 
+		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );		
 		
-		this.syncReader = syncReader;		
+		this.setMaxNumElements( this.DATA.getTypeDataBytes(), this.DATA.getNumberOfChannels() + 1 );		
 
+		/*
 		this.totalBlock = 2 + ( DAT.getDataBinaryFileSize() / ( this.maxNumElements * this.DATA.getTypeDataBytes() ) );
+		
+		if( this.DATA.getDataType() == LSL.ChannelFormat.string )
+		{
+			this.totalBlock = 2 + ( DAT.getDataBinaryFileSize() / ( this.maxNumElements * this.DATA.getTypeDataBytes() ) );
+		}
+		*/
 			
 	}
 	
@@ -235,7 +243,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			// Save data
 			String varName = variableName + lslName;
 			
-			this.setMaxNumElements( this.DATA.getDataType(), nChannel + 1 );
+			this.setMaxNumElements( LSLUtils.getDataTypeBytes( this.DATA.getDataType() ), nChannel + 1 );
 			
 			if( this.DATA.getDataType() != LSL.ChannelFormat.string )
 			{			
@@ -243,14 +251,16 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 			else
 			{
-				this.setMaxNumElements( this.DATA.getDataType(), 1 );
-				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, true );
+				Number NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getStringLengthDataType() );
+				
+				this.setMaxNumElements( LSLUtils.getDataTypeBytes( this.DATA.getDataType() ), 1 );
+				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, NonSyncMarker, true );
 				
 				this.DATA.reset();
 				
-				this.setMaxNumElements( this.DATA.getStringLengthDataType(), nChannel + 1 );
-				variableName = this.prefixStringLen + lslName;
-				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, false );				
+				this.setMaxNumElements( LSLUtils.getDataTypeBytes( this.DATA.getStringLengthDataType() ), nChannel + 1 );
+				varName = this.prefixStringLen + lslName;
+				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, NonSyncMarker, false );				
 			}
 			
 			// Save time stamps			
@@ -258,7 +268,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			 
 			
 			this.DATA.reset();
-			this.setMaxNumElements( this.DATA.getTimeDataType(), 1 );
+			this.setMaxNumElements( LSLUtils.getDataTypeBytes( this.DATA.getTimeDataType() ), 1 );
 			counterDataBlock = this.ProcessTimeStream(  this.DATA, this.DATA.getTimeDataType(), counterDataBlock, timeName );
 			
 			// Header info
@@ -494,13 +504,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		return seqNum;
 	}
 	
-	private int ProcessStringDataAndSync( int seqNum,  String name, boolean saveString ) throws Exception
+	private int ProcessStringDataAndSync( int seqNum,  String name, Number NonSyncMarker, boolean saveString ) throws Exception
 	{
 		try
 		{
 			List< Object > dataBuffer = new ArrayList< Object >();
 						
-			Number NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
+			//Number NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataType() );
 									
 			SyncMarker marker = null;
 			
@@ -547,13 +557,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 								cc++;
 								if( cc >= this.DATA.getNumberOfChannels() )
 								{
-									Data[ index ] = (Number)NonSyncMarker;
+									Data[ index ] = NonSyncMarker;
 
 									index++;
 									cc = 0;
 								}
 							}
-	
+								
 							index = 0;
 							while( timeData != null && index < timeData.length && marker != null)
 							{
@@ -571,7 +581,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 								if( time.doubleValue() > marker.getTimeMarkValue() )
 								{
-									Data[ ( index + 1 ) * ( this.DATA.getNumberOfChannels() + 1 ) - 1] = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataType() );
+									Number m = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getStringLengthDataType() );
+									Data[ ( index + 1 ) * ( this.DATA.getNumberOfChannels() + 1 ) - 1] = m;
 
 									marker = null;
 									if( aux != null  )
@@ -585,6 +596,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 							for( Number datVal : Data )
 							{
+								if( datVal == null )
+								{
+									System.out.println("OutputBinaryFileSegmentation.ProcessStringDataAndSync()");
+								}
+								
 								dataBuffer.add( datVal );
 							}
 	
@@ -653,7 +669,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		}
 			
 		DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, Nchannels, dataBuffer.subList( from, to ).toArray() );
-				
+		
+		this.totalReadedBlock += ( to - from ) * LSLUtils.getDataTypeBytes( dataType );
+		
 		/*
 		synchronized ( this )
 		{
@@ -719,7 +737,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		if( this.notifTask != null )
 		{
-			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * seqNum ) / totalBlock ) );
+			//EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * seqNum ) / totalBlock ) );
+			
+			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * this.totalReadedBlock) / this.DATA.getDataBinaryFileSize() ) );
 			
 			this.notifTask.addEvent( ev );
 			synchronized ( this.notifTask )

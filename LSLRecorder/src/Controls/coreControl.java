@@ -347,6 +347,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg = new WarningMessage(); // To check setting
 			
 			this.disposeLSLDataPlot(); // Delete plots.
+                        this.disposeLSLDataStringPlot();
 			
 			this.managerGUI.setAppState( AppState.PREPARING, 0, false );
 			
@@ -465,7 +466,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					if( !folder.exists() )
 					{
 						File fpath = folder.getParentFile();
-						if( !fpath.exists() &&!fpath.mkdirs() )
+						if( fpath == null || ( !fpath.exists() &&!fpath.mkdirs() ) )
 						{
 							throw new FileSystemException( "Folder " + folder + " not created." );
 						}

@@ -1390,6 +1390,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						while( j < timestamp_buffer.length && timestamp_buffer[ j ] > 0.0D )
 						{
 							this.tempTimeMark.add( timestamp_buffer[ j ] );
+							j++;
 						}
 					}
 		

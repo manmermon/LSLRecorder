@@ -357,8 +357,8 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 
 								if( inserted )
 								{
-									nonSave.put( blockCounter, marker );
-									toShift.put( i, marker );
+									nonSave.putElement(blockCounter, marker );
+									toShift.putElement(i, marker );
 								}
 							}
 							
