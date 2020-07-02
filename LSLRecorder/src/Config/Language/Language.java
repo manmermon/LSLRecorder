@@ -38,7 +38,7 @@ import java.util.Properties;
 import Config.ConfigApp;
 
 public class Language {
-	public static final String DefaultFolder = "./Lang/";
+	public static final String DefaultFolder = System.getProperty( "user.dir" ) + "/Lang/";
 
 	public static final String defaultLanguage = "default";
 

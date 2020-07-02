@@ -52,7 +52,7 @@ public class mainLSLRecorder
 	 */
 	public static void main(String[] args)
 	{
-		String p = System.getProperty( "user.dir" ) + "/systemLib/";
+		String p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_PATH;
 		try 
 		{
 			addLibraryPath( p );
