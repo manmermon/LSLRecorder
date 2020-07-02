@@ -127,6 +127,7 @@ public class Language {
 	public static final String LSL_BIN_TIME_FILES = "LSL_BIN_TIME_FILES";
 	public static final String LSL_DATA_TYPE = "LSL_DATA_TYPE";
 	public static final String LSL_CHANNELS = "LSL_CHANNELS";
+	public static final String LSL_CHANNEL = "LSL_CHANNEL";
 	public static final String LSL_XML_DESCRIPTION = "LSL_XML_DESCRIPTION";
 	public static final String LSL_DEL_BINS = "LSL_DEL_BINS";
 
@@ -369,6 +370,7 @@ public class Language {
 		captions.put(LSL_BIN_TIME_FILES, new Caption(LSL_BIN_TIME_FILES, defaultLanguage, "Binary time files"));
 		captions.put(LSL_DATA_TYPE, new Caption(LSL_DATA_TYPE, defaultLanguage, "Data type"));
 		captions.put(LSL_CHANNELS, new Caption(LSL_CHANNELS, defaultLanguage, "Channels"));
+		captions.put(LSL_CHANNEL, new Caption(LSL_CHANNEL, defaultLanguage, "Channel"));
 		captions.put(LSL_XML_DESCRIPTION, new Caption(LSL_XML_DESCRIPTION, defaultLanguage, "XML description"));
 		captions.put(LSL_DEL_BINS, new Caption(LSL_DEL_BINS, defaultLanguage, "Delete binaries"));
 

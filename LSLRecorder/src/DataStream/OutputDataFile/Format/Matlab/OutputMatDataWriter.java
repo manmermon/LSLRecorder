@@ -69,7 +69,7 @@ public class OutputMatDataWriter implements IOutputDataFileWriter
 		boolean res = true;
 		
 		String varName = data.getName();
-		int numCols = data.getNumCols();
+		long numCols = data.getNumCols();
 				
 		StreamingMatrix2D stream = this.matStreams.get( varName );
 		

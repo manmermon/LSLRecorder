@@ -20,7 +20,7 @@ public class CLISCompressorWriter
 	
 	private String currentVarName = "";
 	private int currentType = IOutputDataFileWriter.FLOAT_TYPE;	
-	private int currentNumCols = 0;
+	private long currentNumCols = 0;
 
 	private List< Integer > blockSizes = null;
 	
@@ -89,7 +89,7 @@ public class CLISCompressorWriter
 		return simpleFileName;
 	}
 	
-	public void saveCompressedData( byte[] compressData, String varName, int dataType, int nCols ) throws Exception
+	public void saveCompressedData( byte[] compressData, String varName, int dataType, long nCols ) throws Exception
 	{
 		if( !this.currentVarName.equals( varName ) )
 		{

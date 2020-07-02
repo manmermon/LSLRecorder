@@ -29,6 +29,7 @@ public class StreamHeader
 	private String name;
 	private int type;
 	private int timeType;
+	private int strLenType;
 	private int nChs;
 	private int chunckSize;
 	private boolean interleave = false;
@@ -41,6 +42,7 @@ public class StreamHeader
 	
 	public StreamHeader( String path, String streamName
 							, int dataType, int timeType
+							, int strLenType
 							, int channels, int chunksize
 							, boolean interLeave, String desc
 							, String outputFormat, String outputFolder
@@ -50,6 +52,7 @@ public class StreamHeader
 		this.name = streamName;
 		this.type = dataType;
 		this.timeType = timeType;
+		this.strLenType = strLenType;
 		this.nChs = channels;
 		this.chunckSize = chunksize;
 		this.interleave = interLeave;
@@ -144,6 +147,16 @@ public class StreamHeader
 		this.deleteBin = del;
 	}
 	
+	public int getStringLengthType() 
+	{
+		return this.strLenType;
+	}
+	
+	public void setStringLengthType( int type ) 
+	{
+		this.strLenType = type;
+	}
+	
 	public String getStreamBinHeader()
 	{
 		String binHeader = this.name + HEADER_BINARY_SEPARATOR
@@ -151,6 +164,7 @@ public class StreamHeader
 							+ this.nChs + HEADER_BINARY_SEPARATOR
 							+ this.chunckSize + HEADER_BINARY_SEPARATOR
 							+ this.timeType + HEADER_BINARY_SEPARATOR
+							+ this.strLenType + HEADER_BINARY_SEPARATOR
 							+ this.interleave + HEADER_BINARY_SEPARATOR
 							+ this.xml;
 

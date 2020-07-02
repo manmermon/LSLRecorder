@@ -21,19 +21,40 @@ package DataStream.Binary;
 
 public class BinaryDataFormat 
 {
+	public static int UNKNOW_CHUCKSIZE = -1;
+	
 	private int dType = 1;
 	private int bytes = 1;
-	private int samples = 1;	
+	private long samples = 1;	
+	
+	private BinaryDataFormat lenFormat = null;
 	
 	public BinaryDataFormat()
 	{		
 	}
 	
-	public BinaryDataFormat( int dataType, int byteLength, int chunckSize )
+	public BinaryDataFormat( int dataType, int byteLength, long chunckSize )
 	{
 		this.dType = dataType;
 		this.bytes = byteLength;
 		this.samples = chunckSize;
+	}
+	
+	public BinaryDataFormat( int dataType, int byteLength, BinaryDataFormat len )
+	{
+		this( dataType, byteLength, UNKNOW_CHUCKSIZE );
+		
+		if( len == null )
+		{
+			throw new  IllegalArgumentException( "Binary format of length of data is null" ); 
+		}
+		
+		if( len.getChunckSize() == UNKNOW_CHUCKSIZE )
+		{
+			throw new  IllegalArgumentException( "Chunk size of Length format cannot be unknown." );
+		}
+		
+		this.lenFormat = len;
 	}
 	
 	public int getDataType() 
@@ -46,8 +67,13 @@ public class BinaryDataFormat
 		return this.bytes;
 	}
 	
-	public int getChunckSize() 
+	public long getChunckSize() 
 	{
 		return this.samples;
+	}
+	
+	public BinaryDataFormat getLengthFormat() 
+	{
+		return this.lenFormat;
 	}
 }

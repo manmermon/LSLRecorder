@@ -57,7 +57,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 	private String varName;
 	
-	private int numChannels;
+	private long numChannels;
 	
 	private int order = -1;
 	
@@ -66,7 +66,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 	private DataInByteFormatBlock compressedData = null;
 	
-	public ZipThread( String varName, int dataType, int nChannels, IOutZip zp, ICompressDataCollector col, Charset coding ) throws NullPointerException 
+	public ZipThread( String varName, int dataType, long nChannels, IOutZip zp, ICompressDataCollector col, Charset coding ) throws NullPointerException 
 	{
 		if( zp == null || col == null )
 		{

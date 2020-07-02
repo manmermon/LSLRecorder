@@ -21,7 +21,7 @@ package DataStream.OutputDataFile.DataBlock;
 
 public class DataInByteFormatBlock extends DataBlock< Byte >
 {
-	public DataInByteFormatBlock(int seqNum, String name, int dataType, int nCols, Byte[] data) 
+	public DataInByteFormatBlock(int seqNum, String name, int dataType, long nCols, Byte[] data) 
 	{
 		super(seqNum, name, dataType, nCols, data);
 	}

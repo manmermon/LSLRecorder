@@ -130,7 +130,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 	
 	// Tabs
 	private JTabbedPane tabDevice;
-	private CanvasLSLDataPlot LSLplot;
+	//private CanvasLSLDataPlot LSLplot;
 
 	//JPANEL
 	private JPanel contentPanel;
@@ -142,6 +142,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 	private JPanel panelOutFileOption;
 	private JPanel panelOutFileName;
 	private JPanel panelDeviceAndSetting;
+	private JPanel panelDataPlotter;
 
 	//JCOMBOX
 	private JComboBox< String > fileFormat;
@@ -1312,7 +1313,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 						{
 							tabDevice.setSelectedIndex( 1 );
 	
-							coreControl.getInstance().createLSLDataPlot( getLSLPlot(), dev );
+							coreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
 						}
 						catch (Exception e1) 
 						{
@@ -1772,7 +1773,8 @@ public class settingMenu_labStreamingLayer extends JPanel
 			Component c = this.tabDevice.getComponentAt( 0 );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, c );
 			
-			this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getLSLPlot() );
+			//this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getLSLPlot() );
+			this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
 			c = this.tabDevice.getComponentAt( 1 );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_PLOT, c );
 		}
@@ -1780,6 +1782,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 		return this.tabDevice;
 	}
 
+	/*
 	private CanvasLSLDataPlot getLSLPlot()
 	{
 		if( this.LSLplot == null )
@@ -1788,6 +1791,17 @@ public class settingMenu_labStreamingLayer extends JPanel
 		}
 
 		return this.LSLplot;
+	}
+	*/
+	
+	private JPanel getPanelPlot()
+	{
+		if( this.panelDataPlotter == null )
+		{
+			this.panelDataPlotter = new JPanel( new BorderLayout() );
+		}
+
+		return this.panelDataPlotter;
 	}
 
 	private SelectedButtonGroup getRadioButtonGroup()

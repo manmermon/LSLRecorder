@@ -28,7 +28,6 @@ import Controls.Messages.EventType;
 import DataStream.StreamHeader;
 import DataStream.Binary.Reader.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
-import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
@@ -101,6 +100,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 												, super.LSLName
 												, super.LSLFormatData
 												, super.timeType
+												, super.strLenType
 												, super.lslChannelCounts
 												, super.chunckLength
 												, super.interleavedData
@@ -172,12 +172,16 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 
 
 			super.notifTask.addEvent( event );
+			
+			super.closeNotifierThread();
+			/*
 			super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 			synchronized ( super.notifTask )
 			{
 				super.notifTask.notify();
 			}
 			super.notifTask = null;
+			*/
 		}
 	}
 	
@@ -202,12 +206,14 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 												, super.chunckLength
 												, super.interleavedData
 												, super.timeType
+												, super.strLenType
 												, super.LSLName
 												, super.lslXML
 												, this.outFileName
 												, this.outFileFormat
 												, this.encryptKey
 												, !ConfigApp.isTesting() );
+		
 		return data;
 	}
 

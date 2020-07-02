@@ -10,3 +10,6 @@ liblsl64_2016.dll
 *.log
 *.cfg
 .fuse_hidden0002432900000721
+*.temp0
+*.h5
+*.mat

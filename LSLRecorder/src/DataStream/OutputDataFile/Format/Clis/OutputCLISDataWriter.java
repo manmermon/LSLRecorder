@@ -73,42 +73,42 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		this.clisWriter.addMetadata( id, text );
 	}
 		
-	private void storeData( String text, byte[] data, int nCols ) throws Exception
+	private void storeData( String text, byte[] data, long nCols ) throws Exception
 	{
 		byte[] compressData = this.zipProcess.zipData( data );
 				
 		this.clisWriter.saveCompressedData(  compressData, text, BYTE_TYPE, nCols );
 	}
 	
-	private void storeData( String text, short[] data, int nCols ) throws Exception
+	private void storeData( String text, short[] data, long nCols ) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
 		this.clisWriter.saveCompressedData(  compressData, text, SHORT_TYPE, nCols );
 	}
 	
-	private void storeData( String text, int[] data, int nCols ) throws Exception
+	private void storeData( String text, int[] data, long nCols ) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
 		this.clisWriter.saveCompressedData( compressData, text, INT_TYPE, nCols );
 	}
 
-	private void storeData(String text, long[] data, int nCols) throws Exception
+	private void storeData(String text, long[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
 		this.clisWriter.saveCompressedData( compressData, text, LONG_TYPE, nCols );
 	}
 
-	private void storeData(String text, double[] data, int nCols) throws Exception
+	private void storeData(String text, double[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
 		this.clisWriter.saveCompressedData( compressData, text, DOUBLE_TYPE, nCols );
 	}
 
-	private void storeData(String text, float[] data, int nCols) throws Exception
+	private void storeData(String text, float[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		

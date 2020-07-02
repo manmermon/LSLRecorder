@@ -125,7 +125,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	}
 	*/
 		
-	private void Zip( String varName, int dataType, int nChannels, int ordered, Object[] data ) throws Exception
+	private void Zip( String varName, int dataType, long nChannels, int ordered, Object[] data ) throws Exception
 	{
 		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
 		
