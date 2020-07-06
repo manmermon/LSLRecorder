@@ -528,7 +528,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							out[ iS ] = (Byte)this.tempSampleBytes.get( iS );							
 						}
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}
@@ -592,7 +592,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						ShortBuffer fBuf = data.asShortBuffer();
 						fBuf.put( aux );
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}
@@ -649,7 +649,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							aux[ iS ] = (Integer)this.tempSampleBytes.get( iS );
 						}						
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}	
@@ -713,7 +713,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							aux[ iS ] = (Float)this.tempSampleBytes.get( iS );
 						}
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}
@@ -776,7 +776,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							aux[ iS ] = (Double)this.tempSampleBytes.get( iS );
 						}	
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}	
@@ -851,7 +851,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						
 						out = ArrayUtils.addAll( out, txt.toString().getBytes() );												
 						
-						for( int iS = 0; iS < this.tempTimeMark.size(); iS++ )
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
 						{							
 							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
 						}	
