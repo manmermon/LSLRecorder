@@ -33,7 +33,7 @@ public class HDF5Data
 {	
 	private IHDF5Writer writer = null;
 				
-	private int maxCol = 0;
+	private long maxCol = 0;
 	
 	private int blockIndex = 0;
 	
@@ -44,7 +44,7 @@ public class HDF5Data
 	private Number[] remainingData = new Number[0];
 	private String[] remainingStringData = new String[0];
 				
-	public HDF5Data( IHDF5Writer wr, String varName, int dataformat, int numChannels ) throws Exception 
+	public HDF5Data( IHDF5Writer wr, String varName, int dataformat, long numChannels ) throws Exception 
 	{
 		if( wr == null || varName == null )
 		{
@@ -139,7 +139,7 @@ public class HDF5Data
 	
 	private MDArray< String > StringMatrix2MDStringArray( String[][] data )
 	{
-		MDArray< String > strMatrix = new MDArray<String>( String.class , new int[] { data.length, this.maxCol } );
+		MDArray< String > strMatrix = new MDArray<String>( String.class , new long[] { data.length, this.maxCol } );
 		for( int r = 0; r < data.length; r++ )
 		{
 			for( int c = 0; c < data[ 0 ].length; c++ )

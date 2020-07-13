@@ -1435,7 +1435,9 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			String[] parts = binHeader.split( binSplitChar );
 					
-			String name = "", type = "", timeType = "", chs = "", chunck = "", xml = "", interleave = "";
+			String name = "", type = "", timeType = ""
+					, chs = "", chunck = "", xml = ""
+					, interleave = "", strLenType = "";
 						
 			for( int i = 0; i < parts.length; i++ )
 			{
@@ -1461,6 +1463,10 @@ public class dialogConverBin2CLIS extends JDialog
 				}
 				else if( i == 5 )
 				{
+					strLenType = parts[ i ];
+				}
+				else if( i == 6 )
+				{
 					interleave = parts[ i ];
 				}
 				else
@@ -1479,6 +1485,7 @@ public class dialogConverBin2CLIS extends JDialog
 			bH = new StreamHeader( file, name
 									, new Integer( type )
 									, new Integer( timeType )
+									, new Integer( strLenType )
 									, new Integer( chs )
 									, new Integer( chunck )
 									, new Boolean( interleave )

@@ -356,7 +356,7 @@ public class ConvertTo
 		return res;
 	}
 	
-	public static Tuple< Number[][], Number[] > Array2Matrix( Number[] array, int numCols )
+	public static Tuple< Number[][], Number[] > Array2Matrix( Number[] array, long numCols )
 	{
 		Tuple< Number[][], Number[] > res = new Tuple<Number[][], Number[]>( new Number[0][0], new Number[0] );
 		if( array != null )
@@ -366,8 +366,8 @@ public class ConvertTo
 				numCols = -1;
 			}
 			
-			int L = array.length;
-			int rows = L / numCols;
+			long L = array.length;
+			long rows = L / numCols;
 			
 			if( rows <= 0 )
 			{
@@ -375,7 +375,7 @@ public class ConvertTo
 			}
 			else
 			{
-				Number[][] matrix = new Number[ rows ][ numCols ];
+				Number[][] matrix = new Number[ (int)rows ][ (int)numCols ];
 				
 				int iAr = 0;
 				int r = 0;
@@ -394,7 +394,7 @@ public class ConvertTo
 					}
 				}
 				
-				Number[] rest = new Number[ L - iAr ];
+				Number[] rest = new Number[ (int)( L - iAr ) ];
 				int i = 0;
 				for( ; iAr < L; iAr++ )
 				{
@@ -409,7 +409,7 @@ public class ConvertTo
 		return res;
 	}
 	
-	public static Tuple< String[][], String[] > StringArray2Matrix( String[] array, int numCols )
+	public static Tuple< String[][], String[] > StringArray2Matrix( String[] array, long numCols )
 	{
 		Tuple< String[][], String[] > res = new Tuple<String[][], String[]>( new String[0][0], new String[0] );
 		if( array != null )
@@ -419,8 +419,8 @@ public class ConvertTo
 				numCols = -1;
 			}
 			
-			int L = array.length;
-			int rows = L / numCols;
+			long L = array.length;
+			long rows = L / numCols;
 			
 			if( rows <= 0 )
 			{
@@ -428,7 +428,7 @@ public class ConvertTo
 			}
 			else
 			{
-				String[][] matrix = new String[ rows ][ numCols ];
+				String[][] matrix = new String[ (int)rows ][ (int)numCols ];
 				
 				int iAr = 0;
 				int r = 0;
@@ -447,7 +447,7 @@ public class ConvertTo
 					}
 				}
 				
-				String[] rest = new String[ L - iAr ];
+				String[] rest = new String[ (int)( L - iAr ) ];
 				int i = 0;
 				for( ; iAr < L; iAr++ )
 				{
@@ -669,6 +669,18 @@ public class ConvertTo
 		if( bytes != null && bytes.length == Double.BYTES )
 		{
 			val = ByteBuffer.wrap( bytes ).getDouble();
+		}
+		
+		return val;
+	}
+	
+	public static Long ByteArrayLong( byte[] bytes )
+	{
+		Long val = null;
+		
+		if( bytes != null && bytes.length == Double.BYTES )
+		{
+			val = ByteBuffer.wrap( bytes ).getLong();
 		}
 		
 		return val;
@@ -1024,6 +1036,80 @@ public class ConvertTo
 					}
 					
 					Number[] aux = Interleaved( Arrays.copyOfRange( array, from, to), chunkSize );
+					
+					for( int i = 0; i < aux.length && index < inter.length; i++)
+					{
+						inter[ index ] = aux[ i ];
+						
+						index++;
+					}
+					
+					from = to;
+				}
+			}
+		}
+		
+		return inter;
+	}
+	
+	public static Object[] Interleaved( Object[] array, int chunkSize )
+	{
+		Object[] inter = null;
+		
+		if( array != null )
+		{
+			if( array.length <= chunkSize )
+			{
+				inter = array;
+			}
+			else
+			{
+				inter = new Object[ array.length ];
+				
+				int index = 0;
+				for( int i = 0; i < chunkSize; i++ )
+				{
+					for( int j = i; j < array.length; j = j + chunkSize )
+					{
+						inter[ index ] = array[ j ];
+						 
+						index++;
+					}
+				}
+			}
+		}
+		
+		return inter;
+	}
+	
+	public static Object[] Interleaved( Object[] array, int channels, int chunkSize )
+	{
+		Object[] inter = null;
+		
+		if( array != null )
+		{
+			if( array.length <= channels )
+			{
+				inter = array;
+			}
+			else
+			{
+				int from = 0;
+				int step = chunkSize * channels;		
+				int index = 0;
+				
+				inter = new Object[ array.length ];
+				
+				while( from < array.length && index < array.length )
+				{
+					int to = from + step;
+					
+					if( to > array.length )
+					{
+						to = array.length;
+					}
+					
+					Object[] aux = Interleaved( Arrays.copyOfRange( array, from, to), chunkSize );
 					
 					for( int i = 0; i < aux.length && index < inter.length; i++)
 					{

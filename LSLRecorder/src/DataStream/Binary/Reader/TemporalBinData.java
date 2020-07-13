@@ -29,6 +29,7 @@ import java.util.List;
 import DataStream.Binary.BinaryDataFormat;
 import DataStream.OutputDataFile.DataBlock.ByteBlock;
 import DataStream.OutputDataFile.Format.DataFileFormat;
+import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLUtils;
 
 public class TemporalBinData
@@ -44,7 +45,7 @@ public class TemporalBinData
 	private String outFileName = "./data" + DataFileFormat.getSupportedFileExtension( DataFileFormat.CLIS_GZIP );
 	private String outFileFormat = DataFileFormat.CLIS_GZIP;
 	
-	private ReadBinaryFile reader = null;
+	private ReaderBinaryFile reader = null;
 	
 	private File binFile = null;
 	
@@ -57,12 +58,15 @@ public class TemporalBinData
 	
 	private String encryptKey = null;
 	
+	private int strLenType;
+	
 	public TemporalBinData( File dataBin
 						, int typeData
 						, int nChannels
 						, int chunckSize
 						, boolean interleave
 						, int typeTime
+						, int typeOfStrLen
 						, String name
 						, String xml
 						, String outName
@@ -87,6 +91,8 @@ public class TemporalBinData
 		
 		this.encryptKey = encrypy_Key;
 		
+		this.strLenType = typeOfStrLen;
+		
 		this.dataTypeBytes = LSLUtils.getDataTypeBytes( this.dataType );
 		
 		if( this.dataTypeBytes < 1 )
@@ -95,10 +101,21 @@ public class TemporalBinData
 		}
 		
 		this.formats = new ArrayList<BinaryDataFormat>();
-		this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, this.CountChannels * this.ChunckSize ) );
+		
+		if( this.dataType != LSL.ChannelFormat.string )
+		{
+			this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, this.CountChannels * this.ChunckSize ) );
+		}
+		else
+		{
+			BinaryDataFormat strLenFormat = new BinaryDataFormat( typeOfStrLen, LSLUtils.getDataTypeBytes( typeOfStrLen ), this.CountChannels * this.ChunckSize );
+			this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, strLenFormat ) );
+		}
+		
+		
 		this.formats.add( new BinaryDataFormat( typeTime, LSLUtils.getDataTypeBytes( typeTime ), this.ChunckSize ) );
 		
-		this.reader = new ReadBinaryFile( dataBin, this.formats, '\n' );
+		this.reader = new ReaderBinaryFile( dataBin, this.formats, '\n' );
 		
 		this.dataInterleave = interleave;
 	}
@@ -156,6 +173,11 @@ public class TemporalBinData
 	public String getLslXml()
 	{
 		return this.lslXML;
+	}
+	
+	public int getStringLengthDataType() 
+	{
+		return this.strLenType;
 	}
 	
 	public List< ByteBlock > getDataBlocks(  ) throws Exception

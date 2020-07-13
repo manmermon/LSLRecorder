@@ -30,6 +30,7 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.StreamHeader;
+import DataStream.Binary.BinaryDataFormat;
 import DataStream.Binary.Reader.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import DataStream.Sync.SyncMarker;
@@ -254,7 +255,8 @@ public class guiManager
 				}
 				
 				int type = 0;
-				int timeType = LSLUtils.getTimeMarkType();								
+				int timeType = LSLUtils.getTimeMarkType();	
+				int strLenType = BinaryDataFormat.UNKNOW_CHUCKSIZE;
 				int nc = 1;
 				int chunckSize = 1;
 				boolean interleave = false;
@@ -269,6 +271,7 @@ public class guiManager
 				{
 					type = dat.getType();
 					timeType = dat.getTimeType();
+					strLenType = dat.getStringLengthType();
 					nc = dat.getNumberOfChannels();
 					chunckSize = dat.getChunckSize();
 					name = dat.getName();
@@ -335,6 +338,7 @@ public class guiManager
 															, chunckSize
 															, interleave 
 															, timeType
+															, strLenType
 															, name
 															, desc
 															, folder 

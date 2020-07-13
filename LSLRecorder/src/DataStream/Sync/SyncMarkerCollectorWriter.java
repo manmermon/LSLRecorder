@@ -86,6 +86,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 										, super.getClass().getSimpleName()
 										, SyncMarker.MARK_DATA_TYPE
 										, SyncMarker.MARK_TIME_TYPE
+										, -1
 										, 1
 										, 1
 										, false
@@ -356,8 +357,8 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 
 								if( inserted )
 								{
-									nonSave.put( blockCounter, marker );
-									toShift.put( i, marker );
+									nonSave.putElement(blockCounter, marker );
+									toShift.putElement(i, marker );
 								}
 							}
 							

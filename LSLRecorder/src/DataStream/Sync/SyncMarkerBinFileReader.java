@@ -26,7 +26,7 @@ import java.util.List;
 
 import Auxiliar.Extra.ConvertTo;
 import DataStream.Binary.BinaryDataFormat;
-import DataStream.Binary.Reader.ReadBinaryFile;
+import DataStream.Binary.Reader.ReaderBinaryFile;
 import DataStream.OutputDataFile.DataBlock.ByteBlock;
 import edu.ucsd.sccn.LSLUtils;
 
@@ -41,7 +41,7 @@ public class SyncMarkerBinFileReader
 	private int markType;
 	private int timeType;
 	
-	private ReadBinaryFile reader = null;
+	private ReaderBinaryFile reader = null;
 	
 	public SyncMarkerBinFileReader( File syncFile, int markDataType, int timeDataType, char headerEnd, boolean delBinaries ) throws Exception 
 	{	
@@ -60,7 +60,7 @@ public class SyncMarkerBinFileReader
 		BinaryDataFormat timeFormat = new BinaryDataFormat( timeDataType, LSLUtils.getDataTypeBytes( timeDataType ), 1 );
 		formats.add( timeFormat );
 				
-		this.reader = new ReadBinaryFile( this.file, formats, headerEnd );
+		this.reader = new ReaderBinaryFile( this.file, formats, headerEnd );
 		
 	}
 	

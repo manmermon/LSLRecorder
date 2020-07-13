@@ -27,11 +27,11 @@ public abstract class DataBlock<T>
 	
 	private String name;
 	
-	private int numCols;
+	private long numCols;
 	
 	private T[] Data;
 		
-	public DataBlock( int seqNumber, String name, int dataType, int nCols , T[] data) 
+	public DataBlock( int seqNumber, String name, int dataType, long nCols , T[] data) 
 	{
 		this.seqNum = seqNumber;
 		this.name = name;
@@ -50,7 +50,7 @@ public abstract class DataBlock<T>
 		return type;
 	}
 	
-	public int getNumCols() 
+	public long getNumCols() 
 	{
 		return numCols;
 	}

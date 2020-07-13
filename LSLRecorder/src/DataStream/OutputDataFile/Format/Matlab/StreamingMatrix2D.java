@@ -78,14 +78,14 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 	private final String name;
 
 	
-	public static StreamingMatrix2D createRowMajor(File folder, String matrixName, int numCols, MatlabType datatype ) throws Exception 
+	public static StreamingMatrix2D createRowMajor(File folder, String matrixName, long numCols, MatlabType datatype ) throws Exception 
 	{
 		return new StreamingMatrix2D(folder, matrixName, numCols, datatype );
 	}
 
-	protected StreamingMatrix2D(File folder, String name, int numCols, MatlabType dataType ) throws Exception 
+	protected StreamingMatrix2D(File folder, String name, long numCols, MatlabType dataType ) throws Exception 
 	{
-		super( Mat5.dims(0, numCols));
+		super( Mat5.dims(0, (int)numCols));
 		this.mattype = dataType;		
 		
 		this.name = name;
@@ -94,8 +94,8 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 
 		// Create a temporary file for each column. The MAT file needs to be stored in column-major
 		// order, so we would otherwise have to iterate through the entire file N times.
-		tmpFiles = new File[numCols];
-		columnSinks = new Sink[numCols];
+		tmpFiles = new File[(int)numCols ];
+		columnSinks = new Sink[ (int)numCols ];
 		
 		for (int col = 0; col < numCols; col++) 
 		{

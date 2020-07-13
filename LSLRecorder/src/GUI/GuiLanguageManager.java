@@ -55,7 +55,7 @@ public class GuiLanguageManager
 			components.put( cateogry, cs );
 		}
 		
-		cs.put( idTranslateToken, c );		
+		cs.putElement(idTranslateToken, c );		
 	}
 	
 	public static void clear()

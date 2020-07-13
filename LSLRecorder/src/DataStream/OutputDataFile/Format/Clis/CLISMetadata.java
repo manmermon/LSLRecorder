@@ -227,7 +227,7 @@ public class CLISMetadata
 		return this.padding;
 	}
 	
-	public void addMetadataProtocolInfo(String name, String type, int typeBytes, int col, List< Integer > blockSizes )
+	public void addMetadataProtocolInfo(String name, String type, int typeBytes, long col, List< Integer > blockSizes )
 	{
 		this.headerStreamInfo = this.headerStreamInfo + name + this.fieldSep + type + this.fieldSep + typeBytes 
 							+ this.fieldSep + col;

@@ -34,7 +34,8 @@ import Controls.Messages.AppState;
 import Controls.Messages.EventInfo;
 import Controls.Messages.RegisterSyncMessages;
 import Controls.Messages.SocketInformations;
-import DataStream.Binary.Plotter.outputDataPlot;
+import DataStream.Binary.Plotter.DataPlotter;
+import DataStream.Binary.Plotter.StringPlotter;
 import DataStream.Sync.SyncMarker;
 import Exceptions.SettingException;
 import Exceptions.Handler.ExceptionDialog;
@@ -54,6 +55,7 @@ import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -70,6 +72,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 
@@ -80,7 +85,8 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	private SocketHandler ctrSocket = null;
 
 	private OutputDataFileHandler ctrlOutputFile = null;
-	private outputDataPlot ctrLSLDataPlot = null;
+	private DataPlotter ctrLSLDataPlot = null;
+	private StringPlotter ctrLSLDataStringPlot = null;
 
 	private NotifiedEventHandler notifiedEventHandler = null;
 
@@ -203,22 +209,53 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.ctrLSLDataPlot = null;
 		}
 	}
+	
+	/**
+	 * Delete string plot thread.
+	 */
+	public void disposeLSLDataStringPlot()
+	{
+		if (this.ctrLSLDataStringPlot != null)
+		{
+			try
+			{
+				this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
+			}
+			catch (Exception e) 
+			{
+				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
+				{
+					this.ctrLSLDataStringPlot.stop();
+				}
+			}
+			catch ( Error e)
+			{
+				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
+				{
+					this.ctrLSLDataStringPlot.stop();
+				}
+			}
+			
+			this.ctrLSLDataStringPlot = null;
+		}
+	}
 
 	/**
 	 * Create a plot.
 	 *  
-	 * @param LSLDataPlot 	-> plot.
+	 * @param PlotPanel 	-> plot panel.
 	 * @param lslSetting	-> LSL setting to plot data.
 	 */
-	public void createLSLDataPlot( CanvasLSLDataPlot LSLDataPlot, LSLConfigParameters lslSetting )
+	public void createLSLDataPlot( JPanel PlotPanel, LSLConfigParameters lslSetting )
 	{
 		try
 		{
-			if (this.ctrLSLDataPlot != null)
-			{
-				this.disposeLSLDataPlot(); // Delete previous plot
-			}
+			this.disposeLSLDataStringPlot();
+			this.disposeLSLDataPlot(); // Delete previous plot
 			
+			PlotPanel.setVisible( false );
+			PlotPanel.removeAll();
+						
 			// Get alive LSL streaming
 			LSL.StreamInfo[] results = LSL.resolve_streams();
 
@@ -246,13 +283,31 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					queueLength = 100;
 				}
 
-				LSLDataPlot.setDataLength( queueLength );
-				LSLDataPlot.clearData();
-				LSLDataPlot.clearFilters();
-
-				// Plot data
-				this.ctrLSLDataPlot = new outputDataPlot( LSLDataPlot, inletInfo, lslSetting );
-				this.ctrLSLDataPlot.startThread();
+				if( inletInfo.channel_format() != LSL.ChannelFormat.string )
+				{	
+					CanvasLSLDataPlot LSLCanvaPlot = new CanvasLSLDataPlot( queueLength ); 
+					//PlotPanel.setDataLength( queueLength );
+					LSLCanvaPlot.clearData();
+					LSLCanvaPlot.clearFilters();
+	
+					PlotPanel.add( LSLCanvaPlot, BorderLayout.CENTER );
+					
+					// Plot data
+					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, inletInfo, lslSetting );
+					this.ctrLSLDataPlot.startThread();
+				}
+				else
+				{
+					JTextPane log = new JTextPane();
+					
+					PlotPanel.add( new JScrollPane( log ), BorderLayout.CENTER );
+					
+					// String data plot
+					this.ctrLSLDataStringPlot = new StringPlotter( log, inletInfo, lslSetting );
+					this.ctrLSLDataStringPlot.startThread();
+				}
+				
+				PlotPanel.setVisible( true );
 			}
 			else
 			{
@@ -292,6 +347,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg = new WarningMessage(); // To check setting
 			
 			this.disposeLSLDataPlot(); // Delete plots.
+                        this.disposeLSLDataStringPlot();
 			
 			this.managerGUI.setAppState( AppState.PREPARING, 0, false );
 			
@@ -410,7 +466,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 					if( !folder.exists() )
 					{
 						File fpath = folder.getParentFile();
-						if( !fpath.exists() &&!fpath.mkdirs() )
+						if( fpath == null || ( !fpath.exists() &&!fpath.mkdirs() ) )
 						{
 							throw new FileSystemException( "Folder " + folder + " not created." );
 						}
@@ -733,7 +789,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 	 * 
 	 * @throws Exception
 	 */
-	public synchronized void stopWorking( ) throws Exception
+	public void stopWorking( ) throws Exception
 	{	
 		synchronized ( this )
 		{
@@ -752,6 +808,11 @@ public class coreControl extends Thread implements IHandlerSupervisor
 		{
 			if( this.stopThread != null )
 			{
+				if( !this.stopThread.getState().equals( Thread.State.TERMINATED ) )
+				{
+					this.stopThread.stopThread( IStoppableThread.FORCE_STOP );
+				}
+				
 				this.stopThread = null;
 			}
 		}
@@ -1297,7 +1358,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 
-		public synchronized void treatEvent()
+		public void treatEvent()
 		{
 			/*
 			if ( super.getState().equals( Thread.State.WAITING ) )
