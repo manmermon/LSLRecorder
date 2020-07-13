@@ -55,12 +55,108 @@ class ClisData():
 
                     return self.__importData21(metadataRest)
 
+                elif v == 2.0:
+
+                    return self.__importData2(metadataRest)
+
         except Exception as ex:
             print( ex )
         finally:
 
             if file:
                 file.close()
+
+    def __importData2(self, metadataRest):
+
+        info = self.__checkMetadata2(metadataRest)
+        vars = info[ "vars" ]
+
+        data = {}
+        data["header"] = info["header"]
+
+        for var in vars:
+            if len(var) < 5:
+                self.__ErrorManager(0)
+
+            v = var.split(",")
+            varName = v[0]
+            varType = (v[1], int(v[2]))
+            if varType[0] != 'int' \
+                    and varType[0] != 'float' \
+                    and varType[0] != 'char':
+                self.__ErrorManager(0)
+
+            varCh = int(v[3])
+            varCompressDataBlockSize = v[4:]
+            for i in range(0, len(varCompressDataBlockSize)):
+                varCompressDataBlockSize[i] = int(varCompressDataBlockSize[i])
+
+            D = np.empty(0, 'b')
+            for dataBlock in varCompressDataBlockSize:
+                block = self.file.read( dataBlock)
+                decompressed_data = self.__decompress( block, info[ "compress" ] )
+                d = self.__convertByteArrayTo(decompressed_data, varType)
+                D = np.append(D, d)
+
+            rows = len(D) / varCh
+            if int( rows ) - rows != 0:
+                self.__ErrorManager( 1 )
+
+            data[ varName ] = np.reshape( D, ( int( rows ), varCh))
+            del D
+
+        return data
+
+    def __checkMetadata2(self, metadataRest):
+
+        info = {}
+
+        file = self.file
+
+        compress = metadataRest[0]
+        headerSize = metadataRest[1]
+
+        dataHeader = metadataRest[-1]
+        dataVars = metadataRest[2:-1]
+
+        info[ "vars" ] = dataVars
+
+        compress = compress.split("=")
+        self.__CheckMetadataFieldLen(compress)
+
+        if compress[0] != "compress":
+            self.__ErrorManager(0)
+
+        else:
+            info[compress[0]] = compress[1]
+
+        headerSize = headerSize.split("=")
+        self.__CheckMetadataFieldLen(headerSize)
+
+        if headerSize[0] != "headerByteSize":
+            self.__ErrorManager(0)
+
+        else:
+            info[headerSize[0]] = int(headerSize[1])
+
+        dataHeader = dataHeader.split(",")
+        self.__CheckMetadataFieldLen(dataHeader)
+
+        if dataHeader[0] != "header":
+            self.__ErrorManager(0)
+        else:
+            if dataHeader[1].lower() == "true":
+                info[dataHeader[0]] = dataHeader[1].lower()
+
+            elif extension.lower() != "false":
+                self.__ErrorManager(0)
+
+        if info[ dataHeader[ 0 ] ] == "true":
+            info[ dataHeader[ 0 ] ] = str( file.readline(), self.stringEncoding ).rstrip()
+
+        file.seek( info["headerByteSize"] )
+
+        return info
 
     def __importData21(self, metadataRest):
 
