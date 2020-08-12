@@ -984,7 +984,7 @@ public class ConvertTo
 		
 		if( array != null )
 		{
-			if( array.length <= chunkSize )
+			if( array.length <= chunkSize || chunkSize <= 0 )
 			{
 				inter = array;
 			}
@@ -1014,7 +1014,7 @@ public class ConvertTo
 		
 		if( array != null )
 		{
-			if( array.length <= channels )
+			if( array.length <= channels || channels <= 0 || chunkSize <= 0 )
 			{
 				inter = array;
 			}
@@ -1058,7 +1058,7 @@ public class ConvertTo
 		
 		if( array != null )
 		{
-			if( array.length <= chunkSize )
+			if( array.length <= chunkSize || chunkSize <= 0 )
 			{
 				inter = array;
 			}
@@ -1088,7 +1088,7 @@ public class ConvertTo
 		
 		if( array != null )
 		{
-			if( array.length <= channels )
+			if( array.length <= channels || channels <= 0 || chunkSize <= 0 )
 			{
 				inter = array;
 			}
