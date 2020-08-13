@@ -20,12 +20,13 @@
  *   
  */
 
-package DataStream.Binary.Writer;
+package DataStream.Binary.Input.Writer;
 
 import Config.ConfigApp;
 import Controls.Messages.EventInfo;
 import Controls.Messages.EventType;
 import DataStream.StreamHeader;
+import DataStream.Binary.Input.LSLInStreamDataReceiverTemplate;
 import DataStream.Binary.Reader.TemporalBinData;
 import DataStream.OutputDataFile.Format.DataFileFormat;
 import edu.ucsd.sccn.LSL;
