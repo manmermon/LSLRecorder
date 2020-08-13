@@ -20,7 +20,7 @@
  *   
  */
 
-package DataStream.Binary.Writer;
+package DataStream.Binary.Input;
 
 import Auxiliar.Extra.ConvertTo;
 import Auxiliar.Tasks.IMonitoredTask;

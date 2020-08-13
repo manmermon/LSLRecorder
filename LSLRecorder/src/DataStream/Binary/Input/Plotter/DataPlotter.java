@@ -20,7 +20,7 @@
  *   
  */
 
-package DataStream.Binary.Plotter;
+package DataStream.Binary.Input.Plotter;
 
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import Auxiliar.Extra.ConvertTo;
-import DataStream.Binary.Writer.LSLInStreamDataReceiverTemplate;
+import DataStream.Binary.Input.LSLInStreamDataReceiverTemplate;
 import GUI.DataPlot.CanvasLSLDataPlot;
 
 public class DataPlotter extends LSLInStreamDataReceiverTemplate

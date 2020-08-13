@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package DataStream.Binary.Plotter;
+package DataStream.Binary.Input.Plotter;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import javax.swing.text.StyledDocument;
 
 import Auxiliar.Extra.ConvertTo;
 import Config.Language.Language;
-import DataStream.Binary.Writer.LSLInStreamDataReceiverTemplate;
+import DataStream.Binary.Input.LSLInStreamDataReceiverTemplate;
 import Exceptions.ReadInputDataException;
 import StoppableThread.IStoppableThread;
 import edu.ucsd.sccn.LSL;
