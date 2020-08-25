@@ -80,7 +80,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private List< TemporalOutDataFileWriter > temps;
 	private List< InputSyncData > syncInputData;
 	private SyncMarkerCollectorWriter syncCollector = null;
-	
+		
 	private boolean inputSyncLauched = false;
 	private boolean isRecorderThreadOn = false;
 	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
@@ -976,6 +976,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				throw new IllegalArgumentException( "SyncMarkerCollectorWriter null" );
 			}
 			
+			super.setName( this.getClass().getSimpleName() + "-" + data.getStreamingName() );
+			
 			this.syncCollector = syncCol;
 			this.dat = data;
 			this.m = monitor;
@@ -1028,6 +1030,44 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			super.targetDone();
 			
 			super.stopThread = true;
+		}
+		
+		@Override
+		protected void runExceptionManager(Throwable e) 
+		{		
+			super.stopThread = true;
+			
+			if( !( e instanceof InterruptedException ) )
+			{
+				if( !this.saveOutFileThread.getState().equals( Thread.State.NEW ) )
+				{
+					this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
+				}
+				else if( this.m != null )
+				{
+					NotificationTask notif = new NotificationTask( false );
+					notif.taskMonitor( this.m );
+					
+					notif.addEvent( new EventInfo( this.getName(), EventType.PROBLEM, e ) );
+					
+					try 
+					{
+						notif.startThread();
+					}
+					catch (Exception e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		@Override
+		protected void cleanUp() throws Exception 
+		{
+			super.cleanUp();
+			
+			this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
 		}
 		
 		public void StopOutBinFileSegmentation( int  friendliness )
