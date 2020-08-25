@@ -1032,6 +1032,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			super.stopThread = true;
 		}
 		
+		/*
 		@Override
 		protected void runExceptionManager(Throwable e) 
 		{		
@@ -1069,6 +1070,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
 		}
+		*/
 		
 		public void StopOutBinFileSegmentation( int  friendliness )
 		{
