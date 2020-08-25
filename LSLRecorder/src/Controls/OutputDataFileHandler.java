@@ -1024,6 +1024,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			}
 		}
 		
+		/*
 		@Override
 		protected void targetDone() throws Exception 
 		{
@@ -1031,10 +1032,20 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			super.stopThread = true;
 		}
+		*/
 		
 		@Override
+		protected void finallyManager() 
+		{
+			super.finallyManager();
+			
+			super.stopThread = true;
+		}
+		
+		/*
+		@Override
 		protected void runExceptionManager(Throwable e) 
-		{		
+		{	
 			super.stopThread = true;
 			
 			if( !( e instanceof InterruptedException ) )
@@ -1061,6 +1072,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				}
 			}
 		}
+		*/
 		
 		@Override
 		protected void cleanUp() throws Exception 
