@@ -1894,7 +1894,7 @@ public class coreControl extends Thread implements IHandlerSupervisor
 				isWaitingForStartCommand = false;
 				isActiveSpecialInputMsg = false;
 
-				managerGUI.setAppState( AppState.STOP, 0, false );
+				managerGUI.setAppState( AppState.STOPPING, 0, false );
 				//managerGUI.enablePlayButton( false );
 
 				notifiedEventHandler.interruptProcess();
@@ -1949,6 +1949,10 @@ public class coreControl extends Thread implements IHandlerSupervisor
 						if( ctrlOutputFile.isSavingData() )
 						{
 							managerGUI.setAppState( AppState.SAVING, 0, true );
+						}
+						else
+						{
+							managerGUI.setAppState( AppState.STOP, 0, true );
 						}
 					}
 					catch (Exception localException) 
