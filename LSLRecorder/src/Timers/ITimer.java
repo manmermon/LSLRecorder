@@ -19,7 +19,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Timers;
+package timers;
 
 public interface ITimer 
 {	

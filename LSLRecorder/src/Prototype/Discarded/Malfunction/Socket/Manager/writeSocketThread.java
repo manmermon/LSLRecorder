@@ -20,7 +20,7 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket.Manager;
+package prototype.discarded.malfunction.socket.manager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -31,10 +31,10 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.LinkedList;
 import java.util.List;
 
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.Info.SocketSetting;
-import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.SocketSetting;
+import prototype.discarded.malfunction.socket.streamingOutputMessage;
 
 public class writeSocketThread extends TemplateReadWriteSocketThread
 {	

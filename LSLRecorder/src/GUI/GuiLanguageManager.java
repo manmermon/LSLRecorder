@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package GUI;
+package gui;
 
 import java.awt.Component;
 import java.util.HashMap;
@@ -34,8 +34,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import Config.Language.Language;
-import GUI.Miscellany.ArrayTreeMap;
+import config.language.Language;
+import gui.miscellany.ArrayTreeMap;
 
 public class GuiLanguageManager 
 {

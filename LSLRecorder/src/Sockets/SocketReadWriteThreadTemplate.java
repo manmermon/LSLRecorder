@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Sockets;
+package sockets;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -28,14 +28,14 @@ import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.Info.StreamSocketProblem;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.BridgeNotifierThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.StreamSocketProblem;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public abstract class SocketReadWriteThreadTemplate extends AbstractStoppableThread implements INotificationTask 
 {

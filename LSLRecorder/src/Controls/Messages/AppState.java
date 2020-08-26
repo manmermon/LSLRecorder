@@ -18,7 +18,7 @@
  *   
  */
 
-package Controls.Messages;
+package controls.messages;
 
 public class AppState 
 {

@@ -4,7 +4,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
-import Config.ConfigApp;
+import config.ConfigApp;
 
 import java.io.IOException;
 

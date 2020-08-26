@@ -20,7 +20,7 @@
  *   
  */
 
-package Sockets.Info;
+package sockets.info;
 
 import java.net.InetSocketAddress;
 

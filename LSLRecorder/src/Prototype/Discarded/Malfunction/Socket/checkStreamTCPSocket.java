@@ -20,13 +20,13 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket;
+package prototype.discarded.malfunction.socket;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 
-import StoppableThread.AbstractStoppableThread;
+import stoppableThread.AbstractStoppableThread;
 
 public class checkStreamTCPSocket extends AbstractStoppableThread 
 {

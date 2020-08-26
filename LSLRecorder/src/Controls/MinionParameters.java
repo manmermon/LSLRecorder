@@ -18,12 +18,12 @@
  *   
  */
 
-package Controls;
+package controls;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import Config.ParameterList;
+import config.ParameterList;
 
 /**
  * 

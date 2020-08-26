@@ -21,21 +21,19 @@
  *   
  */
 
-package Controls;
+package controls;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Config.Parameter;
-import Config.ParameterList;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Auxiliar.WarningMessage;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.StreamSocketProblem;
-import Sockets.SocketReaderThread;
-import Sockets.TCP_UDPServer;
-import Sockets.Info.SocketParameters;
-import StoppableThread.IStoppableThread;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.SocketSetting;
+import sockets.info.StreamSocketProblem;
+import sockets.SocketReaderThread;
+import sockets.TCP_UDPServer;
+import sockets.info.SocketParameters;
+import stoppableThread.IStoppableThread;
+import auxiliar.WarningMessage;
+import config.Parameter;
+import config.ParameterList;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -45,6 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
 
 public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 {

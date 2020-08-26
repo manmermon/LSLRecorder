@@ -20,7 +20,7 @@
  *   
  */
 
-package GUI.Miscellany;
+package gui.miscellany;
 
 import java.awt.Color;
 import java.awt.Font;

@@ -31,7 +31,7 @@
  * argument of the constructor of the class.
  **/
 
-package GUI.Miscellany;
+package gui.miscellany;
 
 import java.awt.Color;
 import java.io.*;

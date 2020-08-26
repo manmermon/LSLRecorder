@@ -20,14 +20,14 @@
  *   
  */
 
-import Controls.coreControl;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.appUI;
-import GUI.guiManager;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.OpeningDialog;
+import exceptions.handler.ExceptionDialog;
+import exceptions.handler.ExceptionDictionary;
+import exceptions.handler.ExceptionMessage;
+import gui.appUI;
+import gui.guiManager;
+import gui.miscellany.GeneralAppIcon;
+import gui.miscellany.OpeningDialog;
+import config.ConfigApp;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -42,8 +42,8 @@ import java.util.Arrays;
 
 import javax.swing.UIManager;
 
-import Config.ConfigApp;
-import Config.Language.Language;
+import config.language.Language;
+import controls.CoreControl;
 
 public class mainLSLRecorder
 {
@@ -168,7 +168,7 @@ public class mainLSLRecorder
 	{
 		try
 		{
-			coreControl ctrl = coreControl.getInstance();
+			CoreControl ctrl = CoreControl.getInstance();
 			ctrl.start();
 		}
 		catch (Exception e)

@@ -21,30 +21,30 @@
  *   
  */
 
-package Controls;
+package controls;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.NotificationTask;
-import Auxiliar.Thread.LaunchThread;
-import Config.Parameter;
-import Config.ParameterList;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import DataStream.Binary.Input.Writer.TemporalOutDataFileWriter;
-import DataStream.Binary.Reader.TemporalBinData;
-import DataStream.OutputDataFile.OutputBinaryFileSegmentation;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import DataStream.Sync.SyncMarker;
-import DataStream.Sync.SyncMarkerBinFileReader;
-import DataStream.Sync.SyncMarkerCollectorWriter;
-import DataStream.Sync.LSL.InputSyncData;
-import DataStream.WritingSystemTester.WritingTest;
-import Auxiliar.WarningMessage;
-import Auxiliar.Extra.FileUtils;
-import Auxiliar.Extra.Tuple;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.thread.LaunchThread;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import dataStream.binary.input.writer.TemporalOutDataFileWriter;
+import dataStream.binary.reader.TemporalBinData;
+import dataStream.outputDataFile.OutputBinaryFileSegmentation;
+import dataStream.outputDataFile.format.DataFileFormat;
+import dataStream.sync.SyncMarker;
+import dataStream.sync.SyncMarkerBinFileReader;
+import dataStream.sync.SyncMarkerCollectorWriter;
+import dataStream.sync.lsl.InputSyncData;
+import dataStream.writingSystemTester.WritingTest;
+import auxiliar.extra.FileUtils;
+import auxiliar.extra.Tuple;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import auxiliar.tasks.NotificationTask;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
+import auxiliar.WarningMessage;
+import config.Parameter;
+import config.ParameterList;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 
@@ -969,6 +969,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		
 		private OutputBinaryFileSegmentation saveOutFileThread = null;
 		
+		private boolean error = false;
+		
 		public LaunchOutBinFileSegmentation( SyncMarkerCollectorWriter syncCol, TemporalBinData data, ITaskMonitor monitor,  Map< String, OutputBinaryFileSegmentation > wrList ) throws Exception 
 		{
 			if( syncCol == null )
@@ -1042,14 +1044,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			super.stopThread = true;
 		}
 		
-		/*
 		@Override
 		protected void runExceptionManager(Throwable e) 
 		{	
-			super.stopThread = true;
-			
 			if( !( e instanceof InterruptedException ) )
-			{
+			{				
+				this.error = true;
+				
 				if( !this.saveOutFileThread.getState().equals( Thread.State.NEW ) )
 				{
 					this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
@@ -1072,14 +1073,16 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				}
 			}
 		}
-		*/
 		
 		@Override
 		protected void cleanUp() throws Exception 
 		{
 			super.cleanUp();
 			
-			this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
+			if( this.error )
+			{
+				this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
+			}
 		}
 		
 		public void StopOutBinFileSegmentation( int  friendliness )

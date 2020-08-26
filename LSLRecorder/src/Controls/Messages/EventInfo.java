@@ -20,7 +20,7 @@
  *   
  */
 
-package Controls.Messages;
+package controls.messages;
 
 /**
  * 

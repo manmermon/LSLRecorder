@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Prototype.Socket;
+package prototype.socket;
 
 public interface ISocketAction extends Cloneable
 {

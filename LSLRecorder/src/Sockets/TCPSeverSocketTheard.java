@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Sockets;
+package sockets;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -29,13 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.BridgeNotifierThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class TCPSeverSocketTheard extends AbstractStoppableThread implements INotificationTask
 {

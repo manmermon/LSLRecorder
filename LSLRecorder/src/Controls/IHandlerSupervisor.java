@@ -20,9 +20,9 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Controls;
+package controls;
 
-import Controls.Messages.EventInfo;
+import controls.messages.EventInfo;
 
 /**
  * A handler leader has to coordinate minion actions.  

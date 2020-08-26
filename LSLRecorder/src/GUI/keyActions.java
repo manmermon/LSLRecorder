@@ -20,7 +20,7 @@
  *   
  */
 
-package GUI;
+package gui;
 
 import java.awt.Window;
 import java.awt.event.ActionEvent;

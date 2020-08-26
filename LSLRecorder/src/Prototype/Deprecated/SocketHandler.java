@@ -21,26 +21,27 @@
  *   
  */
 
-package Prototype.Deprecated;
+package prototype.deprecated;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Config.Parameter;
-import Config.ParameterList;
-import Controls.HandlerMinionTemplate;
-import Controls.MinionParameters;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Prototype.Discarded.Malfunction.Socket.streamClientSocket;
-import Prototype.Discarded.Malfunction.Socket.streamServerSocket;
-import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
-import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
-import Auxiliar.WarningMessage;
-import Auxiliar.Extra.Tuple;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.StreamSocketProblem;
-import Sockets.Info.SocketParameters;
-import StoppableThread.IStoppableThread;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import prototype.discarded.malfunction.socket.streamClientSocket;
+import prototype.discarded.malfunction.socket.streamServerSocket;
+import prototype.discarded.malfunction.socket.streamingOutputMessage;
+import prototype.discarded.malfunction.socket.manager.ManagerInOutStreamSocket;
+import auxiliar.extra.Tuple;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import sockets.info.SocketSetting;
+import sockets.info.StreamSocketProblem;
+import sockets.info.SocketParameters;
+import stoppableThread.IStoppableThread;
+import auxiliar.WarningMessage;
+import config.Parameter;
+import config.ParameterList;
+import controls.HandlerMinionTemplate;
+import controls.MinionParameters;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -117,7 +118,7 @@ public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 		catch (InterruptedException localInterruptedException) 
 		{}
 
-		Tuple< String, List< streamingOutputMessage > > in = (Auxiliar.Extra.Tuple< String, List< streamingOutputMessage > > )info;
+		Tuple< String, List< streamingOutputMessage > > in = (Auxiliar.extra.Tuple< String, List< streamingOutputMessage > > )info;
 		if( in.x.equals( CLIENT_SOCKET_STREAMING ) )
 		{	
 			for( streamingOutputMessage msg : in.y )

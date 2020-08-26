@@ -20,7 +20,7 @@
  *   
  */
 
-package Auxiliar;
+package auxiliar;
 
 public class WarningMessage
 {

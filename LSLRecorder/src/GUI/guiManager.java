@@ -20,27 +20,27 @@
  *   
  */
 
-package GUI;
+package gui;
 
-import Config.ConfigApp;
-import Config.Language.Language;
-import Controls.OutputDataFileHandler;
-import Controls.coreControl;
-import Controls.Messages.AppState;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import DataStream.StreamHeader;
-import DataStream.Binary.BinaryDataFormat;
-import DataStream.Binary.Reader.TemporalBinData;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import DataStream.Sync.SyncMarker;
-import DataStream.Sync.SyncMarkerBinFileReader;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.Miscellany.LevelIndicator;
-import GUI.Miscellany.basicPainter2D;
-import StoppableThread.IStoppableThread;
+import config.language.Language;
+import controls.messages.AppState;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import dataStream.binary.BinaryDataFormat;
+import dataStream.binary.reader.TemporalBinData;
+import dataStream.outputDataFile.format.DataFileFormat;
+import dataStream.sync.SyncMarker;
+import dataStream.sync.SyncMarkerBinFileReader;
+import exceptions.handler.ExceptionDialog;
+import exceptions.handler.ExceptionDictionary;
+import exceptions.handler.ExceptionMessage;
+import gui.miscellany.LevelIndicator;
+import gui.miscellany.basicPainter2D;
+import stoppableThread.IStoppableThread;
+import config.ConfigApp;
+import controls.CoreControl;
+import controls.OutputDataFileHandler;
+import dataStream.StreamHeader;
 import edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
@@ -65,8 +65,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import Auxiliar.Extra.Tuple;
-import Auxiliar.Tasks.NotificationTask;
+import auxiliar.extra.Tuple;
+import auxiliar.tasks.NotificationTask;
 
 public class guiManager
 {
@@ -609,7 +609,7 @@ public class guiManager
 					
 					enableGUI( false );
 															
-					coreControl.getInstance().startWorking( test );
+					CoreControl.getInstance().startWorking( test );
 					
 				} 
 				catch ( Exception e) 
@@ -672,7 +672,7 @@ public class guiManager
 		
 		try
 		{
-			coreControl.getInstance().stopWorking( );
+			CoreControl.getInstance().stopWorking( );
 		}
 		catch (Exception e)
 		{

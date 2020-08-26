@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Sockets;
+package sockets;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -30,14 +30,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.Info.StreamInputMessage;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.BridgeNotifierThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.StreamInputMessage;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class UDPSeverSocketThread extends AbstractStoppableThread implements INotificationTask
 {

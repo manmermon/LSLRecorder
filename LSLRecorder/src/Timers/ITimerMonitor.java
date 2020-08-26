@@ -20,7 +20,7 @@
  *   
  */
 
-package Timers;
+package timers;
 
 public interface ITimerMonitor 
 {

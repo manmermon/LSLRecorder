@@ -20,7 +20,7 @@
  *   
  */
 
-package GUI;
+package gui;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -91,18 +91,18 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import Config.ConfigApp;
-import Config.Language.Language;
-import Controls.coreControl;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.DataPlot.CanvasLSLDataPlot;
-import GUI.Miscellany.DisabledPanel;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.SelectedButtonGroup;
-import GUI.Miscellany.VerticalFlowLayout;
+import config.language.Language;
+import controls.CoreControl;
+import dataStream.outputDataFile.format.DataFileFormat;
+import exceptions.handler.ExceptionDialog;
+import exceptions.handler.ExceptionDictionary;
+import exceptions.handler.ExceptionMessage;
+import gui.dataPlot.CanvasLSLDataPlot;
+import gui.miscellany.DisabledPanel;
+import gui.miscellany.GeneralAppIcon;
+import gui.miscellany.SelectedButtonGroup;
+import gui.miscellany.VerticalFlowLayout;
+import config.ConfigApp;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -112,7 +112,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import Auxiliar.Extra.Tuple;
+import auxiliar.extra.Tuple;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
@@ -1313,7 +1313,7 @@ public class settingMenu_labStreamingLayer extends JPanel
 						{
 							tabDevice.setSelectedIndex( 1 );
 	
-							coreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
+							CoreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
 						}
 						catch (Exception e1) 
 						{

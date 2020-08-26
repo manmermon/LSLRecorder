@@ -20,12 +20,12 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket;
+package prototype.discarded.malfunction.socket;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Sockets.Info.SocketSetting;
+import sockets.Info.SocketSetting;
 
 public class streamingOutputMessage 
 {

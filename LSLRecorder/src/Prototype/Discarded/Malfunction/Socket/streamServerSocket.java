@@ -20,7 +20,7 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket;
+package prototype.discarded.malfunction.socket;
 
 import java.net.BindException;
 import java.nio.channels.DatagramChannel;
@@ -30,16 +30,16 @@ import java.util.ArrayList;
 import java.util.List;
 //import java.util.concurrent.Semaphore;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.SocketParameters;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.BridgeNotifierThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import prototype.discarded.malfunction.socket.manager.ManagerInOutStreamSocket;
+import sockets.info.SocketSetting;
+import sockets.info.SocketParameters;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class streamServerSocket extends AbstractStoppableThread implements INotificationTask 
 {

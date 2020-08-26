@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Prototype.Socket;
+package prototype.socket;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import StoppableThread.AbstractStoppableThread;
+import stoppableThread.AbstractStoppableThread;
 
 public class UDPClientSocketThread extends AbstractStoppableThread 
 {

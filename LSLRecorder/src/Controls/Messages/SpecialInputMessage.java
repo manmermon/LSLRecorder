@@ -17,11 +17,11 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Controls.Messages;
+package controls.messages;
 
 import java.util.Comparator;
 
-import Config.Language.Language;
+import config.language.Language;
 
 public class SpecialInputMessage implements Comparable< SpecialInputMessage >, Comparator< SpecialInputMessage > 
 {

@@ -19,7 +19,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package GUI;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -67,13 +67,13 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
-import Config.ConfigApp;
-import Config.Language.Language;
-import Controls.Messages.RegisterSyncMessages;
-import GUI.Miscellany.DisabledPanel;
-import GUI.Miscellany.IPAddressCellEditor;
-import GUI.Miscellany.SpinnerNumberCellEditor;
-import Sockets.Info.SocketSetting;
+import config.language.Language;
+import controls.messages.RegisterSyncMessages;
+import gui.miscellany.DisabledPanel;
+import gui.miscellany.IPAddressCellEditor;
+import gui.miscellany.SpinnerNumberCellEditor;
+import sockets.info.SocketSetting;
+import config.ConfigApp;
 
 public class settingMenu_SocketSetting extends JPanel
 {	

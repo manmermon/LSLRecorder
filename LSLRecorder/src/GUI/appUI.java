@@ -20,21 +20,21 @@
  *   
  */
 
-package GUI;
+package gui;
 
-import Config.ConfigApp;
-import Config.Language.Language;
-import Controls.coreControl;
-import Controls.Messages.AppState;
-import Controls.Messages.RegisterSyncMessages;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.Miscellany.DisabledGlassPane;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.InfoDialog;
-import GUI.Miscellany.MenuScroller;
-import GUI.Miscellany.LevelIndicator;
+import config.language.Language;
+import controls.CoreControl;
+import controls.messages.AppState;
+import controls.messages.RegisterSyncMessages;
+import exceptions.handler.ExceptionDialog;
+import exceptions.handler.ExceptionDictionary;
+import exceptions.handler.ExceptionMessage;
+import gui.miscellany.DisabledGlassPane;
+import gui.miscellany.GeneralAppIcon;
+import gui.miscellany.InfoDialog;
+import gui.miscellany.MenuScroller;
+import config.ConfigApp;
+import gui.miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -251,7 +251,7 @@ public class appUI extends JFrame
 		{					 
 			if(  !getGlassPane().isVisible( ) )
 			{
-				if( coreControl.getInstance().isDoingSomething() )
+				if( CoreControl.getInstance().isDoingSomething() )
 				{						 
 					String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 							UIManager.getString( "OptionPane.noButtonText" ) };
@@ -267,14 +267,14 @@ public class appUI extends JFrame
 
 					if ( actionDialog == JOptionPane.YES_OPTION )
 					{								 
-						if( coreControl.getInstance().isRecording() )
+						if( CoreControl.getInstance().isRecording() )
 						{
-							coreControl.getInstance().stopWorking( );
+							CoreControl.getInstance().stopWorking( );
 						}
 
 						getGlassPane().setVisible( true );
 
-						coreControl.getInstance().closeWhenDoingNothing( );
+						CoreControl.getInstance().closeWhenDoingNothing( );
 					}
 				}
 				else
@@ -282,7 +282,7 @@ public class appUI extends JFrame
 					System.exit( 0 );
 				}
 			}
-			else if( coreControl.getInstance().isClosing() )
+			else if( CoreControl.getInstance().isClosing() )
 			{
 				String[] opts = { Language.getLocalCaption( Language.FORCE_QUIT ),
 						Language.getLocalCaption( Language.WAIT ) };

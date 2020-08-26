@@ -21,17 +21,14 @@
  */
 
 
-package Config;
+package config;
 
-import Auxiliar.Extra.NumberRange;
-import Auxiliar.Extra.Tuple;
-import Config.Language.Language;
-import Controls.Messages.RegisterSyncMessages;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import Exceptions.DefaultValueException;
-import GUI.Miscellany.IPAddressValidator;
-import Sockets.SocketMessageDelayCalculator;
-import Sockets.Info.SocketSetting;
+import controls.messages.RegisterSyncMessages;
+import dataStream.outputDataFile.format.DataFileFormat;
+import exceptions.DefaultValueException;
+import gui.miscellany.IPAddressValidator;
+import sockets.SocketMessageDelayCalculator;
+import sockets.info.SocketSetting;
 import edu.ucsd.sccn.LSL;
 import edu.ucsd.sccn.LSLConfigParameters;
 import edu.ucsd.sccn.LSL.StreamInfo;
@@ -55,6 +52,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+
+import auxiliar.extra.NumberRange;
+import auxiliar.extra.Tuple;
+import config.language.Language;
 
 public class ConfigApp
 {

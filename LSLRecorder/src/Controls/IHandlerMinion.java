@@ -21,9 +21,9 @@
  *   
  */
 
-package Controls;
+package controls;
 
-import Auxiliar.WarningMessage;
+import auxiliar.WarningMessage;
 
 /**
  * A hand

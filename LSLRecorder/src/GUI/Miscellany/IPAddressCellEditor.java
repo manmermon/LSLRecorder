@@ -1,4 +1,4 @@
-package GUI.Miscellany;
+package gui.miscellany;
 
 import java.awt.Component;
 import java.net.Inet4Address;

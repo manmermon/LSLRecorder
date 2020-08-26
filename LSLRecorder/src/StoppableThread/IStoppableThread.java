@@ -20,7 +20,7 @@
  *   
  */
 
-package StoppableThread;
+package stoppableThread;
 
 public interface IStoppableThread 
 {

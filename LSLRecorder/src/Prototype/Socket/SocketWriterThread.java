@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Prototype.Socket;
+package prototype.socket;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import Auxiliar.Tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.SocketReadWriteThreadTemplate;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.SocketReadWriteThreadTemplate;
+import stoppableThread.IStoppableThread;
 
 public class SocketWriterThread extends SocketReadWriteThreadTemplate
 {

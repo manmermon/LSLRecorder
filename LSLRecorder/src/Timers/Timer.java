@@ -20,11 +20,11 @@
  *   
  */
 
-package Timers;
+package timers;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import StoppableThread.AbstractStoppableThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import stoppableThread.AbstractStoppableThread;
 
 public class Timer extends AbstractStoppableThread implements ITimer, ITaskMonitor
 {

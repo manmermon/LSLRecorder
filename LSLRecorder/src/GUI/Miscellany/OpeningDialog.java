@@ -16,7 +16,9 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
- */package GUI.Miscellany;
+ */
+
+package gui.miscellany;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;

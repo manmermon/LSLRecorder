@@ -21,14 +21,14 @@
  *   
  */
 
-package Controls.Messages;
+package controls.messages;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import Config.Language.Language;
+import config.language.Language;
 
 public class RegisterSyncMessages 
 {

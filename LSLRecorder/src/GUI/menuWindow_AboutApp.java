@@ -20,7 +20,7 @@
  *   
  */
 
-package GUI;
+package gui;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -53,8 +53,8 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-import Config.ConfigApp;
-import Config.Language.Language;
+import config.language.Language;
+import config.ConfigApp;
 import edu.ucsd.sccn.LSL;
 
 public class menuWindow_AboutApp extends JDialog

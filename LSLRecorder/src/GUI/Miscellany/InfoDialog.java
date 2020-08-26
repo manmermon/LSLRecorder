@@ -20,7 +20,7 @@
  *   
  */
 
-package GUI.Miscellany;
+package gui.miscellany;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -43,7 +43,7 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
-import GUI.keyActions;
+import gui.keyActions;
 
 public class InfoDialog extends JDialog 
 {

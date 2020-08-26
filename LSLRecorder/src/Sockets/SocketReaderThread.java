@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Sockets;
+package sockets;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,11 +25,11 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import Auxiliar.Tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.Info.StreamInputMessage;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.StreamInputMessage;
+import stoppableThread.IStoppableThread;
 
 public class SocketReaderThread extends SocketReadWriteThreadTemplate 
 {	

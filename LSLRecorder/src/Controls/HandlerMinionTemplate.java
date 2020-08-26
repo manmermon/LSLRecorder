@@ -21,14 +21,14 @@
  *   
  */
 
-package Controls;
+package controls;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Controls.Messages.EventInfo;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import controls.messages.EventInfo;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public abstract class HandlerMinionTemplate extends AbstractStoppableThread implements IHandlerMinion
 {	

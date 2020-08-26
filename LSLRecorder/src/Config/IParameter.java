@@ -21,7 +21,7 @@
  */
 
 
-package Config;
+package config;
 
 public abstract interface IParameter
 {

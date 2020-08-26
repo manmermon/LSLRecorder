@@ -18,7 +18,7 @@
  *   
  */
 
-package Config;
+package config;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package GUI;
+package gui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -47,13 +47,13 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
-import Auxiliar.Extra.Tuple;
-import Config.Language.Language;
-import DataStream.StreamHeader;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import DataStream.Sync.SyncMarkerCollectorWriter;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.basicPainter2D;
+import auxiliar.extra.Tuple;
+import config.language.Language;
+import dataStream.outputDataFile.format.DataFileFormat;
+import dataStream.sync.SyncMarkerCollectorWriter;
+import gui.miscellany.GeneralAppIcon;
+import gui.miscellany.basicPainter2D;
+import dataStream.StreamHeader;
 import edu.ucsd.sccn.LSL;
 
 import java.awt.Color;

@@ -20,15 +20,15 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket;
+package prototype.discarded.malfunction.socket;
 
 import java.nio.channels.DatagramChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.spi.AbstractSelectableChannel;
 
-import Prototype.Discarded.Malfunction.Socket.Manager.ManagerInOutStreamSocket;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.SocketParameters;
+import prototype.discarded.malfunction.socket.manager.ManagerInOutStreamSocket;
+import sockets.info.SocketSetting;
+import sockets.info.SocketParameters;
 
 public class streamClientSocket   
 {

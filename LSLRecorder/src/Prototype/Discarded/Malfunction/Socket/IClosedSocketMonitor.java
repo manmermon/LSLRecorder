@@ -20,7 +20,7 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket;
+package prototype.discarded.malfunction.socket;
 
 public interface IClosedSocketMonitor 
 {

@@ -2,7 +2,7 @@
  * @(#)SwingUtils.java	1.02 11/15/08
  *
  */
-package GUI.Miscellany;
+package gui.miscellany;
 
 import java.awt.Component;
 import java.awt.Container;

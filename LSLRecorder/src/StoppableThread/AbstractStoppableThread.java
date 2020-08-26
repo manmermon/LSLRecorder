@@ -20,7 +20,7 @@
  *   
  */
 
-package StoppableThread;
+package stoppableThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

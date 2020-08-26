@@ -20,22 +20,22 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket.Manager;
+package prototype.discarded.malfunction.socket.manager;
 
 import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.Extra.Tuple;
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Prototype.Discarded.Malfunction.Socket.streamingOutputMessage;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.SocketParameters;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.extra.Tuple;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import prototype.discarded.malfunction.socket.streamingOutputMessage;
+import sockets.info.SocketSetting;
+import sockets.info.SocketParameters;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class ManagerInOutStreamSocket extends AbstractStoppableThread implements INotificationTask, ITaskMonitor 
 {

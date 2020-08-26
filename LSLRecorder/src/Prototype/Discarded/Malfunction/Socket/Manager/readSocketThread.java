@@ -20,7 +20,7 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket.Manager;
+package prototype.discarded.malfunction.socket.manager;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -31,9 +31,9 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.Info.StreamInputMessage;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.info.StreamInputMessage;
 
 public class readSocketThread extends TemplateReadWriteSocketThread
 {	

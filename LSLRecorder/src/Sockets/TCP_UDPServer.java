@@ -17,17 +17,17 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Sockets;
+package sockets;
 
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Sockets.Info.SocketSetting;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import sockets.info.SocketSetting;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class TCP_UDPServer extends AbstractStoppableThread implements INotificationTask
 {	

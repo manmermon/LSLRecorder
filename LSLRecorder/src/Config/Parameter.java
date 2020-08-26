@@ -20,7 +20,7 @@
  *   
  */
 
-package Config;
+package config;
 
 public class Parameter implements IParameter
 {

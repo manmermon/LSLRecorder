@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package Prototype.Socket;
+package prototype.socket;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.SocketReaderThread;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import sockets.SocketReaderThread;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public class SocketActionManager extends AbstractStoppableThread implements ITaskMonitor, INotificationTask, Cloneable
 {	

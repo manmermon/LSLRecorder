@@ -20,7 +20,7 @@
  *   
  */
 
-package Prototype.Discarded.Malfunction.Socket.Manager;
+package prototype.discarded.malfunction.socket.manager;
 
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.DatagramChannel;
@@ -29,17 +29,17 @@ import java.nio.channels.spi.AbstractSelectableChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.Tasks.INotificationTask;
-import Auxiliar.Tasks.ITaskMonitor;
-import Auxiliar.Tasks.BridgeNotifierThread;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Prototype.Discarded.Malfunction.Socket.IClosedSocketMonitor;
-import Prototype.Discarded.Malfunction.Socket.checkStreamTCPSocket;
-import Sockets.Info.SocketSetting;
-import Sockets.Info.StreamSocketProblem;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import auxiliar.tasks.BridgeNotifierThread;
+import auxiliar.tasks.INotificationTask;
+import auxiliar.tasks.ITaskMonitor;
+import controls.messages.EventInfo;
+import controls.messages.EventType;
+import prototype.discarded.malfunction.socket.IClosedSocketMonitor;
+import prototype.discarded.malfunction.socket.checkStreamTCPSocket;
+import sockets.info.SocketSetting;
+import sockets.info.StreamSocketProblem;
+import stoppableThread.AbstractStoppableThread;
+import stoppableThread.IStoppableThread;
 
 public abstract class TemplateReadWriteSocketThread  extends AbstractStoppableThread implements INotificationTask, IClosedSocketMonitor
 {
