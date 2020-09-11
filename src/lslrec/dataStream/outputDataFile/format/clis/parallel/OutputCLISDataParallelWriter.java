@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -34,11 +35,12 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.CLISCompressorWriter;
 import lslrec.dataStream.outputDataFile.format.clis.CLISMetadata;
 import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableFileWriterTemplate;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
 {
-	private int zipType = OutputZipDataFactory.GZIP;
+	private String zipType = OutputZipDataFactory.GZIP;
 	
 	private ConcurrentSkipListMap< Integer, DataInByteFormatBlock > compressDataList = null;
 	
@@ -52,11 +54,11 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	
 	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
 	
-	public OutputCLISDataParallelWriter( String file, OutputFileFormatParameters pars, ITaskMonitor monitor ) throws Exception 
+	public OutputCLISDataParallelWriter( OutputFileFormatParameters formatPars, DataStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
 	{
 		super();
 		
-		this.metadata = new CLISMetadata( pars );
+		this.metadata = new CLISMetadata( formatPars, streamSettings );
 		this.zipType = this.metadata.getZipID();
 		
 		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
@@ -69,7 +71,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		super.taskMonitor( monitor );
 		
 		
-		this.clisWriter = new CLISCompressorWriter( file, this.metadata );
+		this.clisWriter = new CLISCompressorWriter( formatPars.getOutputFileName(), this.metadata );
 		
 		
 		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
@@ -234,5 +236,10 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{	
+	}
+
+	public static List< SettingOptions > getSettingOptions()
+	{	
+		return OutputCLISDataParallelWriter.getSettingOptions();
 	}
 }

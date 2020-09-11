@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="output" path="bin"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
-		<attributes>
-			<attribute name="module" value="true"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	
 	<classpathentry kind="lib" path="lib/jcommon-1.0.23.jar"/>
 	<classpathentry kind="lib" path="lib/jfreechart-1.0.19.jar"/>
 	<classpathentry kind="lib" path="lib/jna-5.3.1.jar"/>
@@ -15,5 +13,5 @@
 	<classpathentry kind="lib" path="lib/commons-lang3-3.7.jar"/>
 	<classpathentry kind="lib" path="lib/mfl-core-0.5.7-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/sis-jhdf5-19.04.0.jar"/>	
-	<classpathentry kind="output" path="bin"/>
+	
 </classpath>

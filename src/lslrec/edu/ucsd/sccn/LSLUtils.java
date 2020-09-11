@@ -20,6 +20,17 @@
 package lslrec.edu.ucsd.sccn;
 
 import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
+
+import lslrec.auxiliar.extra.StringTuple;
+import lslrec.auxiliar.extra.Tuple;
+import lslrec.config.ConfigApp;
+import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
+import lslrec.edu.ucsd.sccn.LSL.XMLElement;
 
 public class LSLUtils 
 {
@@ -112,5 +123,72 @@ public class LSLUtils
 	public static int getTimeMarkType( )
 	{
 		return double64;
+	}
+	
+	public static int numberOfRepeatedtNodoName( XMLElement child , String label )
+	{		
+		int countEq = 0;
+		while( child != null && !child.name().isEmpty() )
+		{
+			String name = child.name().toLowerCase();
+			if( name.equals( label ) )
+			{
+				countEq++;
+			}
+			
+			child = child.next_sibling();
+		}					
+		
+		return countEq;
+	}
+	
+	public static XMLElement findFirstXMLNode( XMLElement desc, String NodeName )
+	{		
+		XMLElement child = desc.first_child();
+		if( child != null )
+		{
+			String name = child.name().toLowerCase();
+			
+			if( !name.isEmpty() )
+			{
+				if( !name.equals( NodeName.toLowerCase() ) )
+				{
+					child = findFirstXMLNode( child.next_sibling(), NodeName );
+				}
+			}
+		}
+		
+		return child;
+	}
+	
+	public static void removeNode( StreamInfo stream, String childNode )
+	{
+		if( stream != null )
+		{
+			XMLElement parent = stream.desc();
+										
+			parent.remove_child( childNode );
+		}
+	}
+	
+	public static void addNode( StreamInfo stream, StringTuple child )
+	{
+		if( child != null && stream != null )
+		{
+			XMLElement parent = stream.desc();
+
+			parent.append_child_value( child.x, child.y );
+		}
+	}
+	
+	public static void addNodes( StreamInfo stream, List< StringTuple > childNodes )
+	{
+		if( childNodes != null && stream != null )
+		{
+			for( StringTuple child : childNodes )
+			{
+				addNode( stream, child );
+			}
+		}
 	}
 }

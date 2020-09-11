@@ -32,17 +32,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.tasks.INotificationTask;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
-import lslrec.gui.miscellany.ArrayTreeMap;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
-import lslrec.dataStream.StreamHeader;
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
+import lslrec.edu.ucsd.sccn.LSL;
+import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 public class SyncMarkerCollectorWriter extends AbstractStoppableThread implements INotificationTask
 {	
@@ -64,7 +67,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	
 	private String ext = ".sync";
 	
-	private StreamHeader header = null;
+	private String header = null;
 	
 	public SyncMarkerCollectorWriter( String file ) throws Exception 
 	{
@@ -82,32 +85,25 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		
 		this.events = new ArrayList< EventInfo >();
 		
-		this.header = new StreamHeader( file
-										, super.getClass().getSimpleName()
-										, SyncMarker.MARK_DATA_TYPE
-										, SyncMarker.MARK_TIME_TYPE
-										, -1
-										, 1
-										, 1
-										, false
-										, ""
-										, ""
-										, ""
-										, !ConfigApp.isTesting() );	
-				
-		//this.syncInputData = new ArrayList< InputSyncData >();
+		StreamInfo stInfo = new StreamInfo( super.getClass().getSimpleName()
+											, ""
+											, 1
+											, LSL.IRREGULAR_RATE
+											, SyncMarker.MARK_DATA_TYPE
+											, "" );
+		
+		DataStreamSetting streamSettings = new DataStreamSetting( stInfo
+																, SyncMarker.MARK_TIME_TYPE
+																, -1
+																, ""
+																, 1
+																, false
+																, false
+																); 
+		
+		this.header = StreamBinaryHeader.getStreamBinHeader( streamSettings );
 	}
 	
-	/*
-	public void SetLSLInStream( List< Tuple< LSL.StreamInfo, LSLConfigParameters > > inLets )
-	{
-		if( super.getState().equals(Thread.State.NEW ) )
-		{
-			this.inStreams = inLets;
-		}
-	}
-	*/
-
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{	
@@ -128,59 +124,10 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		}
 	}
 	
-	/*
-	@Override
-	protected void preStart() throws Exception 
-	{
-		if( this.inStreams != null && !this.inStreams.isEmpty() )
-		{	
-			for ( int indexInlets = 0; indexInlets < this.inStreams.size(); indexInlets++)
-			{
-				Tuple< LSL.StreamInfo, LSLConfigParameters > t = this.inStreams.get( indexInlets );
-				
-				LSL.StreamInfo inletInfo = t.x;
-				
-				if( t.y.isSynchronationStream() )
-				{
-					InputSyncData sync = new InputSyncData( inletInfo, t.y );
-										
-					this.syncInputData.add( sync );
-				}
-			}
-		}
-		
-		this.outDisorderedStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( this.syncFileDisordered ) ) );
-	}
-	*/
-	
-	/*
-	@Override
-	protected void startUp() throws Exception 
-	{
-		super.startUp();
-		
-		if( this.syncInputData != null  )
-		{			
-			synchronized ( this.syncInputData )
-			{			
-				for( InputSyncData sync : this.syncInputData )
-				{	
-					sync.taskMonitor( this );
-					
-					LaunchThread tLaunch = new LaunchThread( sync );
-					tLaunch.taskMonitor( this );
-					
-					tLaunch.startThread();	
-				}
-			}	
-		}
-	}
-	*/
-	
 	@Override
 	protected void startUp() throws Exception 
 	{	
-		this.outDisorderedStream.write( this.header.getStreamBinHeader().getBytes() );
+		this.outDisorderedStream.write( this.header.getBytes() );
 		
 		super.startUp();
 	}
@@ -254,7 +201,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			this.outDisorderedStream.close();			
 		}
 		
-		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header.getStreamBinHeader(), !ConfigApp.isTesting() );
+		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header, !ConfigApp.isTesting() );
 		
 		/*
 		EventInfo event = new EventInfo( GetFinalOutEventID(), syncReader );
@@ -273,15 +220,24 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		SyncMarkerBinFileReader reader =  null;
 		
 		if( super.getState().equals( Thread.State.TERMINATED ) )
-		{		
-			reader = new SyncMarkerBinFileReader( new File( this.outFileName )
-													, LSLUtils.int32
-													, LSLUtils.double64
-													, StreamHeader.HEADER_END
-													, !ConfigApp.isTesting() );			
+		{
+			reader = getSyncMarkerBinFileReader( this.outFileName );
 		}
-		
+			
 		return reader;
+	}
+	
+	private static SyncMarkerBinFileReader getSyncMarkerBinFileReader( String file ) throws Exception
+	{
+		StreamInfo str = new StreamInfo( "sync", "value", 1, LSL.IRREGULAR_RATE, SyncMarker.MARK_DATA_TYPE, "" );
+
+		MutableDataStreamSetting stream = new MutableDataStreamSetting( str );
+		stream.setTimeDataType( SyncMarker.MARK_TIME_TYPE );
+
+		return new SyncMarkerBinFileReader( new File( file )
+				, stream
+				, StreamBinaryHeader.HEADER_END
+				, !ConfigApp.isTesting() );		
 	}
 	
 	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader, boolean delInSyncFile ) throws Exception
@@ -290,11 +246,8 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 				
 		DataOutputStream outStream = new DataOutputStream( new BufferedOutputStream( new FileOutputStream( FileUtils.CreateTemporalBinFile( outSynFileName ) ) ) );
 		
-		SyncMarkerBinFileReader syncReader = new SyncMarkerBinFileReader( new File( inSyncFileName )
-																			, LSLUtils.int32
-																			, LSLUtils.double64	
-																			, StreamHeader.HEADER_END
-																			, delInSyncFile );
+		SyncMarkerBinFileReader syncReader = getSyncMarkerBinFileReader( inSyncFileName );
+		
 		try 
 		{
 			String header = syncReader.getHeader();			

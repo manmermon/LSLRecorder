@@ -28,6 +28,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class SyncMarkerBinFileReader
@@ -38,26 +39,26 @@ public class SyncMarkerBinFileReader
 	
 	private boolean CloseStream = false;
 	
-	private int markType;
-	private int timeType;
+	private int markDataType;
+	private int timeDataType;
 	
 	private ReaderBinaryFile reader = null;
 	
-	public SyncMarkerBinFileReader( File syncFile, int markDataType, int timeDataType, char headerEnd, boolean delBinaries ) throws Exception 
+	public SyncMarkerBinFileReader( File syncFile, DataStreamSetting streamSetting, char headerEnd, boolean delBinaries ) throws Exception 
 	{	
 		this.deleteBinFile = delBinaries;
 		
 		this.file = syncFile;
 		
-		this.markType = markDataType;
-		this.timeType = timeDataType;
+		this.markDataType = streamSetting.getDataType();
+		this.timeDataType = streamSetting.getTimeDataType();
 		
 		List< BinaryDataFormat > formats = new ArrayList< BinaryDataFormat >();
 		
-		BinaryDataFormat markFormat = new BinaryDataFormat( markDataType, LSLUtils.getDataTypeBytes( markDataType ), 1 );
+		BinaryDataFormat markFormat = new BinaryDataFormat( this.markDataType, LSLUtils.getDataTypeBytes( this.markDataType ), 1 );
 		formats.add( markFormat );
 		
-		BinaryDataFormat timeFormat = new BinaryDataFormat( timeDataType, LSLUtils.getDataTypeBytes( timeDataType ), 1 );
+		BinaryDataFormat timeFormat = new BinaryDataFormat( this.timeDataType, LSLUtils.getDataTypeBytes( this.timeDataType ), 1 );
 		formats.add( timeFormat );
 				
 		this.reader = new ReaderBinaryFile( this.file, formats, headerEnd );
@@ -102,11 +103,11 @@ public class SyncMarkerBinFileReader
 					
 					if( i == 0 )
 					{						
-						markValue = ( ConvertTo.ByteArrayTo( val.getData(), this.markType )[0] );
+						markValue = ( ConvertTo.ByteArrayTo( val.getData(), this.markDataType )[0] );
 					}
 					else if( i == 1 )
 					{
-						timeValue = ( ConvertTo.ByteArrayTo( val.getData(), this.timeType )[0] );
+						timeValue = ( ConvertTo.ByteArrayTo( val.getData(), this.timeDataType )[0] );
 					}						
 				}
 				

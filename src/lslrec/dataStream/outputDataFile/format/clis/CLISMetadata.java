@@ -19,6 +19,7 @@ import javax.crypto.spec.SecretKeySpec;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.config.ConfigApp;
 
 
@@ -50,7 +51,7 @@ public class CLISMetadata
 	private final String fieldSep = "," ;
  
 	private String zip_text_id = "GZIP";
-	private Integer zip_id = OutputZipDataFactory.GZIP;
+	private String zip_id = OutputZipDataFactory.GZIP;
 
 	//private boolean addedStreamDataInfo = false;
 	
@@ -73,7 +74,7 @@ public class CLISMetadata
 	
 	private byte[] encrpytKeyMetadata = null;
 	
-	public CLISMetadata( OutputFileFormatParameters pars  ) throws Exception 
+	public CLISMetadata( OutputFileFormatParameters pars, DataStreamSetting settings  ) throws Exception 
 	{	
 		this.zip_id = pars.getCompressType();
 		
@@ -89,7 +90,7 @@ public class CLISMetadata
 			throw new IllegalArgumentException( "Compress technique unknown." );
 		}
 		
-		this.zip_text_id = zipProcess.getZipID();
+		this.zip_text_id = zipProcess.getID();
 				
 		this.charCode = pars.getCharset();
 		if( this.charCode == null )
@@ -124,14 +125,14 @@ public class CLISMetadata
 			numBlocks = 2L;
 		}
 
-		String xml = pars.getDataInfo( );
+		String xml = settings.getStreamInfo().as_xml();
 		if( xml == null )
 		{
 			xml = "";
 		}
 		
-		Integer chs = pars.getChannels();
-		if( chs == null )
+		int chs = settings.getStreamInfo().channel_count();
+		if( chs < 1 )
 		{
 			chs = 1;
 		}
@@ -267,7 +268,7 @@ public class CLISMetadata
 		return this.charCode;
 	}
 	
-	public int getZipID()
+	public String getZipID()
 	{
 		return this.zip_id;
 	}

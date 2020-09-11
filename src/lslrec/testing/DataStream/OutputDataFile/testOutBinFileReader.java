@@ -90,7 +90,7 @@ public class testOutBinFileReader {
 								
 				System.out.println( "Test reader file: " + file );
 				
-				ReaderBinaryFile reader = new ReaderBinaryFile( new File( file ), formats, StreamHeader.HEADER_END );
+				ReaderBinaryFile reader = new ReaderBinaryFile( new File( file ), formats, StreamBinaryHeader.HEADER_END );
 				
 				List< ByteBlock > byteList = new ArrayList< ByteBlock >();
 				

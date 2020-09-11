@@ -43,7 +43,7 @@ public class OutputGZipData extends OutZipDataTemplate
 	}
 
 	@Override
-	public String getZipID() 
+	public String getID() 
 	{
 		return "GZIP";
 	}

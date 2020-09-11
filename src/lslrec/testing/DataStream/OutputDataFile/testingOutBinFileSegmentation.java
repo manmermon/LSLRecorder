@@ -157,7 +157,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				
 			}
 			
-			List< Tuple< StreamInfo, LSLConfigParameters > > LSLthreadList = new ArrayList< Tuple< StreamInfo, LSLConfigParameters > >();
+			List< Tuple< StreamInfo, MutableDataStreamSetting > > LSLthreadList = new ArrayList< Tuple< StreamInfo, MutableDataStreamSetting > >();
 			
 			LSL.StreamInfo[] results = LSL.resolve_streams();
 			
@@ -183,7 +183,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						i++;
 					}
 					
-					LSLConfigParameters par = new LSLConfigParameters( info.uid()
+					MutableDataStreamSetting par = new MutableDataStreamSetting( info.uid()
 																		, info.name()
 																		, info.type()
 																		, info.source_id()
@@ -194,7 +194,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 																		, false
 																		, info.nominal_srate() );	
 					
-					LSLthreadList.add( new Tuple<LSL.StreamInfo, LSLConfigParameters>( info, par ) );					
+					LSLthreadList.add( new Tuple<LSL.StreamInfo, MutableDataStreamSetting>( info, par ) );					
 				}
 			}
 			
@@ -203,7 +203,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 			
 			for( int i = 0; i < LSLthreadList.size(); i++ )
 			{
-				Tuple< LSL.StreamInfo, LSLConfigParameters > cfg = LSLthreadList.get( i );
+				Tuple< LSL.StreamInfo, MutableDataStreamSetting > cfg = LSLthreadList.get( i );
 				
 				if( cfg.x.channel_count() == 1 && cfg.x.channel_format() ==LSL.ChannelFormat.int32 )
 				{				

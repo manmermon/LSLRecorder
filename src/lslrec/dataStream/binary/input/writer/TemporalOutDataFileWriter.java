@@ -26,11 +26,9 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.reader.TemporalBinData;
-import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.config.ConfigApp;
-import lslrec.dataStream.StreamHeader;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -50,29 +48,25 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 
 	private String ext = ".temp";
 	
-	private String outFileName = "";
-	private String outFileFormat = DataFileFormat.CLIS_GZIP;
-	
-	private String encryptKey = null;
-	
-	//private int dataTypeByteLength = 1;
-	//private int timeTypeByteLength = 1;	
+	private OutputFileFormatParameters outputFormat;
 		
-	public TemporalOutDataFileWriter( String filePath, LSL.StreamInfo info
-										, LSLConfigParameters lslCfg, int Number ) throws Exception
+	public TemporalOutDataFileWriter( DataStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
-		super( info, lslCfg );
+		super( lslCfg );
 		
 		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
 
-		this.outFileName = filePath;
+		if( outFormat == null )
+		{
+			throw new IllegalArgumentException( "Output file format null" );
+		}
 		
-		super.setName( info.name() + "(" + info.uid() + ")");
-		this.encryptKey = lslCfg.getEncryptKey();
-
-		this.file = FileUtils.CreateTemporalBinFile( filePath + "_" + date + "_" + info.name() +  this.ext + Number );
+		this.outputFormat = outFormat;
 		
-		//this.timeTypeByteLength = LSLUtils.getTimeMarkBytes();
+		super.setName( super.streamSetting.getStreamName() + "(" + super.streamSetting.getStreamInfo().uid() + ")");
+		
+		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getOutputFileName() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
+		
 	}
 	
 	protected void preStart() throws Exception
@@ -89,28 +83,13 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			throw new FilerException(this.file.getAbsolutePath() + " is not a file or is only read mode");
 		}
 
-		//this.dataTypeByteLength = LSLUtils.getDataTypeBytes( super.LSLFormatData );
-		
 		this.out = new BufferedOutputStream( new FileOutputStream( this.file ) );
 	}
 	
 	@Override
 	protected void startUp() throws Exception 
 	{
-		StreamHeader header = new StreamHeader( this.file.getAbsolutePath()
-												, super.LSLName
-												, super.LSLFormatData
-												, super.timeType
-												, super.strLenType
-												, super.lslChannelCounts
-												, super.chunckLength
-												, super.interleavedData
-												, super.lslXML
-												, this.outFileFormat
-												, this.outFileName
-												, !ConfigApp.isTesting() );
-		
-		String binHeader = header.getStreamBinHeader();
+		String binHeader = StreamBinaryHeader.getStreamBinHeader( super.streamSetting );
 		
 		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + "\n";
 		
@@ -162,27 +141,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		{
 			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
 
-			/*		
-			this.events.add(event);
-	
-			if (this.monitor != null)
-			{
-				this.monitor.taskDone(this);
-			}
-			 */
-
-
 			super.notifTask.addEvent( event );
 			
 			super.closeNotifierThread();
-			/*
-			super.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-			synchronized ( super.notifTask )
-			{
-				super.notifTask.notify();
-			}
-			super.notifTask = null;
-			*/
 		}
 	}
 	
@@ -190,30 +151,12 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	{
 		return EventType.SAVED_OUTPUT_TEMPORAL_FILE;
 	}
-	
-	
-	public void setOutputFileFormat( String fileFormat )
-	{
-		this.outFileFormat = fileFormat;
-	}
-		
+				
 	private TemporalBinData getTemporalFileData() throws Exception
 	{		
-				
 		TemporalBinData data = new TemporalBinData( this.file
-												//, this.timeStampFile
-												, super.LSLFormatData
-												, super.lslChannelCounts //+ 1
-												, super.chunckLength
-												, super.interleavedData
-												, super.timeType
-												, super.strLenType
-												, super.LSLName
-												, super.lslXML
-												, this.outFileName
-												, this.outFileFormat
-												, this.encryptKey
-												, !ConfigApp.isTesting() );
+													, this.streamSetting
+													, this.outputFormat );
 		
 		return data;
 	}

@@ -170,7 +170,7 @@ public class appUI extends JFrame
 
 	// Settings
 	private settingMenu_SocketSetting SocketSetting;
-	private settingMenu_labStreamingLayer lslSetting;
+	private settingMenu_StreamingSettings lslSetting;
 
 	// JCombox
 	private JComboBox< String > jComboxSyncMethod;
@@ -655,11 +655,11 @@ public class appUI extends JFrame
 		return this.SocketSetting;
 	}
 
-	protected settingMenu_labStreamingLayer getLSLSetting() throws Exception
+	protected settingMenu_StreamingSettings getLSLSetting() throws Exception
 	{
 		if( this.lslSetting == null )
 		{
-			this.lslSetting = new settingMenu_labStreamingLayer( this );
+			this.lslSetting = new settingMenu_StreamingSettings( this );
 		}
 
 		return this.lslSetting;

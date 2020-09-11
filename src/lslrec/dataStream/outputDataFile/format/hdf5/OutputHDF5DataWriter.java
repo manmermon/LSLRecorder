@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.dataStream.outputDataFile.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -37,6 +36,7 @@ import lslrec.dataStream.outputDataFile.dataBlock.IntegerBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.LongBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
+import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import ch.systemsx.cisd.hdf5.HDF5Factory;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
 

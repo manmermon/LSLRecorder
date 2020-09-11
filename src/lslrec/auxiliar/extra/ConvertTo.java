@@ -19,6 +19,7 @@
  */
 package lslrec.auxiliar.extra;
 
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.DoubleBuffer;
@@ -27,6 +28,12 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.Arrays;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
@@ -1126,4 +1133,31 @@ public class ConvertTo
 		return inter;
 	}
 	
+	public static Document xmlStringToXMLDocument(String xmlString) 
+    {
+		Document doc = null;
+		
+		if( xmlString != null && xmlString.length() > 0 )
+		{
+	        //Parser that produces DOM object trees from XML content
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	         
+	        //API to obtain DOM Document instance
+	        DocumentBuilder builder = null;
+	        try
+	        {
+	            //Create DocumentBuilder with default configuration
+	            builder = factory.newDocumentBuilder();
+	             
+	            //Parse the content to Document object
+	           doc = builder.parse(new InputSource(new StringReader( xmlString ) ) );
+	        } 
+	        catch (Exception e) 
+	        {
+	            e.printStackTrace();
+	        }
+		}
+		
+		return doc;
+    }
 }

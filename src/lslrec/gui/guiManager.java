@@ -26,10 +26,11 @@ import lslrec.config.language.Language;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
-import lslrec.dataStream.binary.BinaryDataFormat;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
-import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -37,15 +38,13 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.basicPainter2D;
 import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPluginInterface.ILslrecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.controls.CoreControl;
 import lslrec.controls.OutputDataFileHandler;
-import lslrec.dataStream.StreamHeader;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,7 +61,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.UIManager;
@@ -215,7 +213,7 @@ public class guiManager
 		
 		diag.setVisible( true );
 				
-		List< Tuple< StreamHeader, StreamHeader> > binFiles;
+		List< Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > > binFiles;
 		
 		try 
 		{
@@ -227,7 +225,7 @@ public class guiManager
 			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionDictionary.ERROR_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, true );
 			
-			binFiles = new ArrayList< Tuple< StreamHeader, StreamHeader > >();
+			binFiles = new ArrayList< Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >  >();
 		}
 				
 		OutputDataFileHandler outCtr = OutputDataFileHandler.getInstance();
@@ -242,126 +240,53 @@ public class guiManager
 		try 
 		{
 			List< Tuple< TemporalBinData, SyncMarkerBinFileReader > > STREAMS = new ArrayList<Tuple< TemporalBinData, SyncMarkerBinFileReader >>();
-			for( Tuple< StreamHeader, StreamHeader > files : binFiles )
+			for( Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > files : binFiles )
 			{
-				StreamHeader dat = files.x;
-				StreamHeader sync = files.y;
+				Tuple< BinaryFileStreamSetting, OutputFileFormatParameters> dat = files.x;
+			
+				//
+				// Data binary files
+				//
+				
+				BinaryFileStreamSetting binSetting = dat.x;
+				OutputFileFormatParameters format = dat.y;
+				
+				String folder = format.getOutputFileName();
+				if( !folder.endsWith( File.separator ) )
+				{
+					folder += File.separator;
+				}
+					
+				format.setOutputFileName( folder + "data" + DataFileFormat.getSupportedFileExtension().get( format.getOutputFileFormat() ) );
 				
 				File dataFile = null;
 				if( dat != null )
 				{
-					dataFile = new File( dat.getFilePath() );
+					dataFile = new File( binSetting.getStreamBinFile() );
 				}
-								
+
+				TemporalBinData binData = new TemporalBinData( dataFile, binSetting, format );
+
+				
+				// 
+				// Sync markers
+				//
+				
+				BinaryFileStreamSetting sync = files.y;
 				File syncFile = null;
 				if( sync != null )
 				{
-					syncFile = new File( sync.getFilePath() );
+					syncFile = new File( sync.getStreamBinFile() );
 				}
 				
-				int type = 0;
-				int timeType = LSLUtils.getTimeMarkType();	
-				int strLenType = BinaryDataFormat.UNKNOW_CHUCKSIZE;
-				int nc = 1;
-				int chunckSize = 1;
-				boolean interleave = false;
-				String name = "stream";
-				String folder = "./";
-				String outFormat = DataFileFormat.CLIS_GZIP;
-				boolean del = false;
-				String desc = "";
-				String encryptKey = null;
-				
-				if( dat != null )
-				{
-					type = dat.getType();
-					timeType = dat.getTimeType();
-					strLenType = dat.getStringLengthType();
-					nc = dat.getNumberOfChannels();
-					chunckSize = dat.getChunckSize();
-					name = dat.getName();
-					interleave = dat.isInterleave();				
-					timeType = dat.getTimeType();
-					encryptKey = dat.getEncryptKey();
-					
-					folder = dat.getOutputFolder();
-					
-					if( !folder.endsWith( File.separator ) 
-							&& !folder.endsWith( "/" )  )
-					{
-						folder += File.separator;
-					}
-					
-					desc = dat.getXMLDescription();
-					
-					if( sync != null )
-					{
-						desc += " " + sync.getXMLDescription(); // xml
-					}
-					
-					outFormat = dat.getOutputFormat();
-					del = dat.deleteBinary();
-				}
-				
-				int markType = SyncMarker.MARK_DATA_TYPE;
-				int markTimeType = SyncMarker.MARK_TIME_TYPE;								
-				int markChannels = 1;
-				int markChunks = 1;
-				boolean markInterleave = false;
-				String makrName = "stream";
-				String markDesc = "";
-				
-				if( sync != null )
-				{ 
-					markType = sync.getType();
-					markTimeType = sync.getTimeType();
-					markChannels = sync.getNumberOfChannels();
-					markChunks = sync.getChunckSize();					
-					makrName = sync.getName();
-					markInterleave = sync.isInterleave();
-										
-					markDesc = sync.getXMLDescription();
-				}
-				
-				/*
-				TemporalData binData = new TemporalData( dataFile //dataBin
-														, timeFile //timeBin
-														, type //type
-														, nc //nChannels
-														, name //name
-														, desc
-														, folder 
-															+ "data" 
-															+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
-														, outFormat
-														, del ); //outputFormat
-				*/
-				
-				TemporalBinData binData = new TemporalBinData( dataFile
-															, type
-															, nc
-															, chunckSize
-															, interleave 
-															, timeType
-															, strLenType
-															, name
-															, desc
-															, folder 
-															+ "data" 
-															+ DataFileFormat.getSupportedFileExtension( dat.getOutputFormat() ) //outName
-															, outFormat
-															, encryptKey
-															, del );
-
 				SyncMarkerBinFileReader reader = null;
 
 				if( syncFile != null )
 				{
 					reader = new SyncMarkerBinFileReader( syncFile
-														, markType
-														, markTimeType
-														, StreamHeader.HEADER_END
-														, del );
+														, sync
+														, StreamBinaryHeader.HEADER_END
+														, format.getDeleteBin() );
 				}
 
 				STREAMS.add( new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );
@@ -791,19 +716,16 @@ public class guiManager
 	
 	public void LoadPluginSetting( ) throws Exception 
 	{
-		List< ILslrecPlugin > plugins = PluginLoader.getPlugins();
+		List< ILSLRecPlugin > plugins = PluginLoader.getPlugins();
 		
-		for( ILslrecPlugin plg : plugins )
+		for( ILSLRecPlugin plg : plugins )
 		{
 			String id = plg.getID();
 			JPanel p = plg.getSettingPanel();
 			
-			if( p != null )
+			if( plg instanceof ILSLRecPluginEncoder )
 			{
-				JPanel pAux = new JPanel( new BorderLayout() );
-				pAux.add( new JScrollPane( p ), BorderLayout.CENTER );
-				
-				this.getAppUI().getLSLSetting().addPluginSettingTab( pAux, id );
+				DataFileFormat.addEncoder( (ILSLRecPluginEncoder)plg );
 			}
 		}
 	}

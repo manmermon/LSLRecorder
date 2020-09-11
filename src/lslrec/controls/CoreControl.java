@@ -34,6 +34,10 @@ import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.controls.messages.SocketInformations;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
@@ -53,7 +57,6 @@ import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.awt.BorderLayout;
@@ -115,6 +118,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private StopWorkingThread stopThread = null;
 	
 	private int savingDataProgress = 0;
+	
+	private volatile String encryptKey;
 		
 	/**
 	 * Create main control unit.
@@ -247,7 +252,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * @param PlotPanel 	-> plot panel.
 	 * @param lslSetting	-> LSL setting to plot data.
 	 */
-	public void createLSLDataPlot( JPanel PlotPanel, LSLConfigParameters lslSetting )
+	public void createLSLDataPlot( JPanel PlotPanel, DataStreamSetting lslSetting )
 	{
 		try
 		{
@@ -278,7 +283,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				double frq = inletInfo.nominal_srate();
 
 				// Data plot queue length								
-				int queueLength = ((int)(5.0D * frq)) * lslSetting.getChunckSize();
+				int queueLength = ((int)(5.0D * frq)) * lslSetting.getChunkSize();
 				if (queueLength < 10)
 				{
 					queueLength = 100;
@@ -287,14 +292,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( inletInfo.channel_format() != LSLUtils.string )
 				{	
 					CanvasLSLDataPlot LSLCanvaPlot = new CanvasLSLDataPlot( queueLength ); 
-					//PlotPanel.setDataLength( queueLength );
+					
 					LSLCanvaPlot.clearData();
 					LSLCanvaPlot.clearFilters();
 	
 					PlotPanel.add( LSLCanvaPlot, BorderLayout.CENTER );
 					
 					// Plot data
-					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, inletInfo, lslSetting );
+					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, lslSetting );
 					this.ctrLSLDataPlot.startThread();
 				}
 				else
@@ -304,7 +309,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PlotPanel.add( new JScrollPane( log ), BorderLayout.CENTER );
 					
 					// String data plot
-					this.ctrLSLDataStringPlot = new StringPlotter( log, inletInfo, lslSetting );
+					this.ctrLSLDataStringPlot = new StringPlotter( log, lslSetting );
 					this.ctrLSLDataStringPlot.startThread();
 				}
 				
@@ -391,13 +396,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.streamPars = this.getSocketStreamingInformations();
 			ParameterList socketParameters = new ParameterList();
 			
-			/*
-			if ( !this.streamPars.getInputSocketInformation().isEmpty() )
-			{
-				Parameter par = new Parameter( SocketHandler.CLIENT_SOCKET_STREAMING, this.streamPars.getInputSocketInformation() );
-				socketParameters.addParameter( par );
-			}
-
 			if ( this.streamPars.getOuputSocketInformation() != null)
 			{
 				List< SocketParameters > server = new ArrayList< SocketParameters >();
@@ -405,21 +403,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				Parameter par = new Parameter( SocketHandler.SERVER_SOCKET_STREAMING, server );
 				socketParameters.addParameter( par );
-			}
-			*/
-
-			if ( this.streamPars.getOuputSocketInformation() != null)
-			{
-				List< SocketParameters > server = new ArrayList< SocketParameters >();
-				server.add( this.streamPars.getOuputSocketInformation() );
-
-				Parameter par = new Parameter( SocketHandler.SERVER_SOCKET_STREAMING, server );
-				socketParameters.addParameter( par );
-				
-				/*
-				par = new Parameter( SocketHandler.INPUT_MSG, this.streamPars.getInputCommands() );
-				socketParameters.addParameter( par );
-				*/
 			}
 			
 			MinionParameters minionPars = new MinionParameters();
@@ -439,12 +422,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if (this.ctrlOutputFile != null )
 			{						
-				String file = ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_NAME ).toString();
+				String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
 
-				HashSet< LSLConfigParameters > deviceIDs = (HashSet< LSLConfigParameters >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+				HashSet< MutableDataStreamSetting > deviceIDs = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 
-				HashSet< LSLConfigParameters > DEV_ID = new HashSet< LSLConfigParameters >();
-				for( LSLConfigParameters dev : deviceIDs )
+				HashSet< MutableDataStreamSetting > DEV_ID = new HashSet< MutableDataStreamSetting >();
+				for( MutableDataStreamSetting dev : deviceIDs )
 				{
 					if( dev.isSelected() )
 					{
@@ -475,14 +458,41 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 					ParameterList LSLPars = new ParameterList();
 
-					Parameter filePar = new Parameter( this.ctrlOutputFile.PARAMETER_FILE_PATH, file );
-					LSLPars.addParameter( filePar );
-
 					Parameter lslSetting = new Parameter( this.ctrlOutputFile.PARAMETER_LSL_SETTING, DEV_ID );
 					LSLPars.addParameter( lslSetting );
 					
 					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
-					LSLPars.addParameter( writingTest );					
+					LSLPars.addParameter( writingTest );
+					
+					OutputFileFormatParameters outFormat = new OutputFileFormatParameters();
+					outFormat.setOutputFileName( file );
+					outFormat.setCompressType( ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
+					outFormat.setOutputFileFormat( (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );					
+					outFormat.setParallelize( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
+					outFormat.setEncryptKey(  this.encryptKey );
+					this.encryptKey = null;
+					
+					
+					String nodeId = DataStreamSetting.ID_SOCKET_MARK_INFO_LABEL;
+					String nodeText = "";
+					
+					Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
+					
+					for( String idMark : MARKS.keySet() )
+					{
+						Integer v = MARKS.get( idMark );
+						nodeText += idMark + "=" + v + StreamBinaryHeader.HEADER_BINARY_SEPARATOR;
+					}		
+					
+					outFormat.addRecordingInfo( nodeId, nodeText );
+										
+					nodeId = DataStreamSetting.ID_RECORD_GENERAL_DESCRIPTION;
+					nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
+					outFormat.addRecordingInfo( nodeId, nodeText );					
+										
+					
+					Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
+					LSLPars.addParameter( outFileFormat );;
 
 					minionPars.setMinionParameters( this.ctrlOutputFile.ID, LSLPars );
 
@@ -549,27 +559,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						
 			try 
 			{
-				/*
-				String msg = e.getMessage() + "\n";
-				
-				if( !( e instanceof SettingException ) )
-				{
-					for( StackTraceElement t : e.getStackTrace() )
-					{
-						msg += t.toString() + "\n";
-					}
-				}
-				
-				if( !ConfigApp.isTesting() )
-				{			
-					JOptionPane.showMessageDialog( appUI.getInstance(), msg, Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
-				}
-				else
-				{
-					this.managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + msg );
-				}
-				*/
-				
 				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( ex, true, true );
 				
@@ -581,7 +570,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}			
 		}
 	}
-
+	
 	/**
 	 * 
 	 * Check Settings.
@@ -609,7 +598,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		String encryptKey = null;
-		if( (Boolean)ConfigApp.getProperty( ConfigApp.LSL_ENCRYPT_DATA ) )
+		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
 		{
 			PasswordDialog pass = new PasswordDialog( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
 			
@@ -627,7 +616,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			while( pass.getState() == PasswordDialog.PASSWORD_INCORRECT )
 			{
-				pass.setMessage( pass.getPasswordError()  + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");				
+				pass.setMessage( pass.getPasswordError()  + " " + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");
+				pass.setVisible( true );
 			}
 			
 			if( pass.getState() != PasswordDialog.PASSWORD_OK )
@@ -636,19 +626,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 										, WarningMessage.ERROR_MESSAGE );
 			}
 			
-			encryptKey = pass.getPassword();
+			this.encryptKey = pass.getPassword();
 		}
 		
-		HashSet< LSLConfigParameters > lslPars = (HashSet< LSLConfigParameters >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
-		
-		for( LSLConfigParameters lslCfg : lslPars )
-		{
-			if( lslCfg.isSelected() )
-			{
-				lslCfg.setEncryptKey( encryptKey );
-			}
-		}
-		
+		HashSet< MutableDataStreamSetting > lslPars = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+				
 		LSL.StreamInfo[] results = LSL.resolve_streams();
 				
 		boolean existSelectedSyncLSL = false;
@@ -656,7 +638,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		if( results.length >= 0 )
 		{
 			boolean selected = false;
-			for( LSLConfigParameters lslcfg : lslPars )
+			for( MutableDataStreamSetting lslcfg : lslPars )
 			{
 				selected = lslcfg.isSelected();
 
@@ -675,7 +657,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 									
-			for( LSLConfigParameters lslcfg : lslPars )
+			for( MutableDataStreamSetting lslcfg : lslPars )
 			{
 				existSelectedSyncLSL = lslcfg.isSynchronationStream();
 
@@ -709,7 +691,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				{
 					LSL.StreamInfo stream = results[ i ];
 					
-					for( LSLConfigParameters lslcfg : lslPars )
+					for( MutableDataStreamSetting lslcfg : lslPars )
 					{
 						change = !stream.uid().equals( lslcfg.getUID() );
 						
@@ -744,7 +726,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{			
 			this.managerGUI.setAppState( AppState.WAIT, 0, false );
 			
-			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.PARAMETER_START_SYNC, "" ) );
+			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.ACTION_START_SYNC, "" ) );
 			this.ctrSocket.toWorkSubordinates( null );
 		}
 		else
@@ -767,9 +749,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		this.managerGUI.setAppState( AppState.RUN, 0, false );
 		
 		this.isRecording = true;
-		
-		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, String >( OutputDataFileHandler.PARAMETER_FILE_FORMAT 
-												, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT ).toString() ) );
+				
+		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, OutputFileFormatParameters >( OutputDataFileHandler.ACTION_START_RECORD 
+																								,  null) );
 		
 		this.ctrlOutputFile.setEnableSaveSyncMark( true );
 		
@@ -779,7 +761,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 												, System.nanoTime() / 1e9D );
 		}
 
-		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker >( OutputDataFileHandler.PARAMETER_SET_MARK 
+		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker >( OutputDataFileHandler.ACTION_SET_MARK 
 												, this.SpecialMarker ) );
 		
 		this.SpecialMarker = null;
@@ -1833,29 +1815,44 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				acumSD = Math.sqrt( acumSD );
 				
-				String[] timeUnits = new String[] { "seconds", "milliseconds", "microseconds", "nanoseconds" };
+				String[] timeUnits = new String[] { "seconds"	, "milliseconds", "microseconds", "nanoseconds" };
+				String[] freqUnits = new String[] { "Hz"		, "kHz"			, "MHz"			, "GHz" };
 				acumM /= 1e9D; // seconds
 				acumSD /= 1e9D;
 				
 				double freq = 1 / acumM;
 				
-				int unitIndex = 0;
-				while( acumM < 1 && unitIndex < timeUnits.length )
+				int timeUnitIndex = 0;
+				while( acumM < 1 && timeUnitIndex < timeUnits.length )
 				{
-					unitIndex++;
-					acumM *= 1000;
-					acumSD *= 1000;
+					timeUnitIndex++;
+					acumM *= 1_000;
+					acumSD *= 1_000;
+					
+					freq /= 1_000;
+				}
+				
+
+				int freqUnitIndex = timeUnitIndex;
+				if( freqUnitIndex > 0 )
+				{
+					if( freq < 1 )
+					{
+						freqUnitIndex--;
+						freq *= 1_000;
+					}
 				}
 				
 				DecimalFormat df = new DecimalFormat("#.00"); 
-				//managerGUI.addInputMessageLog( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) + " " + timeUnits[ unitIndex ] + "" +" (Freq = " + df.format( freq )+ ")\n");
-				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) + " " + timeUnits[ unitIndex ] + "" +" (Freq = " + df.format( freq )+ ")" );
+				
+				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) 
+															+ " " + timeUnits[ timeUnitIndex ] + "" +" (Freq = " + df.format( freq )+ " " + freqUnits[ freqUnitIndex ] + ")" );
+				
 				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 			else
 			{
-				//managerGUI.addInputMessageLog( this.ID + " -> non data available.\n" );
 				Exception ex = new Exception( this.ID + " -> non data available." );
 				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );				
@@ -1937,7 +1934,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						}
 
 						// TODO
-						ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.PARAMETER_SET_MARK, SpecialMarker ) );
+						ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.ACTION_SET_MARK, SpecialMarker ) );
 
 						Thread.sleep( 10L );
 
@@ -1965,22 +1962,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					{}
 				}
 
-				/*
-						if ( !this.isWaitingForStartCommand )
-						{
-							try
-							{
-								this.ctrSocket.setBlockingStartWorking( true );
-								this.ctrSocket.toWorkSubordinates( this.getOutputMessage( stopTriggeredEvent ) );
-								this.ctrSocket.setBlockingStartWorking(false);
-							}
-							catch (Exception localException1)
-							{}
-						}
-				 */					
-
-				//managerGUI.enablePlayButton( false );
-
 				SpecialMarker = null;
 
 				System.gc();
@@ -1999,19 +1980,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			if( !( e instanceof InterruptedException ) )
 			{
 				e.printStackTrace();
-								
-				/*
-				if( !ConfigApp.isTesting() )
-				{				
-					JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
-							"Exception in " + getClass().getSimpleName(), 
-							JOptionPane.ERROR_MESSAGE);
-				}
-				else
-				{
-					managerGUI.addInputMessageLog( Language.getLocalCaption( Language.DIALOG_ERROR ) + ": " + e.getMessage() );
-				}
-				*/
 				
 				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );

@@ -20,13 +20,13 @@
  *   
  */
 
-package lslrec.dataStream.outputDataFile;
+package lslrec.dataStream.outputDataFile.format;
 
 import lslrec.auxiliar.tasks.IMonitoredTask;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
-public abstract interface IOutputDataFileWriter extends IMonitoredTask //extends IStoppableThread //, IStoppableThreadEventControl
+public abstract interface IOutputDataFileWriter extends IMonitoredTask 
 {
 	public final static int BYTE_TYPE = LSLUtils.int8;
 	public final static int SHORT_TYPE = LSLUtils.int16;
@@ -35,7 +35,7 @@ public abstract interface IOutputDataFileWriter extends IMonitoredTask //extends
 	public final static int FLOAT_TYPE = LSLUtils.float32;
 	public final static int DOUBLE_TYPE = LSLUtils.double64;
 	public final static int STRING_TYPE = LSLUtils.string;
-			
+		
 	/**
 	 * 
 	 * @param id
@@ -43,7 +43,7 @@ public abstract interface IOutputDataFileWriter extends IMonitoredTask //extends
 	 * @throws Exception
 	 */
 	public void addMetadata(String id, String text) throws Exception;
-	
+		
 	/**
 	 * Save data block
 	 * 

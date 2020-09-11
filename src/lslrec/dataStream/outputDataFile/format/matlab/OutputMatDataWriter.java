@@ -10,10 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
 
 import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.dataStream.outputDataFile.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
+import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
@@ -182,9 +182,9 @@ public class OutputMatDataWriter implements IOutputDataFileWriter
 		
 		for( String varName : this.matStreams.keySet() )
         {
-       	 StreamingMatrix2D matrix = this.matStreams.get( varName );
+			StreamingMatrix2D matrix = this.matStreams.get( varName );
        	 
-             matFile.addArray( varName, matrix ); // add content
+			matFile.addArray( varName, matrix ); // add content
         }
 		
         // Write to disk
@@ -197,5 +197,4 @@ public class OutputMatDataWriter implements IOutputDataFileWriter
                     .writeMat( mat );
         }        
 	}
-
 }

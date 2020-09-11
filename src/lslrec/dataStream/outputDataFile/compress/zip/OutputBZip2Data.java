@@ -8,7 +8,7 @@ import lslrec.dataStream.outputDataFile.compress.OutZipDataTemplate;
 public class OutputBZip2Data extends OutZipDataTemplate 
 {
 	@Override
-	public String getZipID() 
+	public String getID() 
 	{	
 		return "BZIP2";
 	}

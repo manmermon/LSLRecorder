@@ -24,13 +24,14 @@
 package lslrec.config;
 
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 import java.io.File;
@@ -67,12 +68,12 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 8 - 1, 25 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 9 - 1, 10 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
 	
-	public static final String version = "Version 2" 
+	public static final String version = "Version 3" 
 											//+ "." + buildNum
 											+ "." + ( buildDate.get( Calendar.YEAR ) % 100 )											
 											+ "." + ( buildDate.get( Calendar.DAY_OF_YEAR ) ) 
@@ -122,13 +123,25 @@ public class ConfigApp
 
 	public static final String LSL_ID_DEVICES = "LSL_ID_DEVICES";
 
-	public static final String LSL_OUTPUT_FILE_NAME = "LSL_OUT_FILE_NAME";
 	
-	public static final String LSL_OUTPUT_FILE_FORMAT = "LSL_OUT_FILE_FORMAT";
+	/****
+	 * 
+	 * 
+	 * Output format
+	 * 
+	 */
 	
-	public static final String LSL_OUTPUT_FILE_DESCR = "LSL_OUTPUT_FILE_DESCR";
+	public static final String OUTPUT_FILE_NAME = "OUTPUT_FILE_NAME";
 	
-	public static final String LSL_ENCRYPT_DATA = "LSL_ENCRYPT_DATA"; 
+	public static final String OUTPUT_FILE_FORMAT = "OUTPUT_FILE_FORMAT";
+	
+	public static final String OUTPUT_COMPRESSOR = "OUTPUT_COMPRESSOR";
+	
+	public static final String OUTPUT_FILE_DESCR = "OUTPUT_FILE_DESCR";
+	
+	public static final String OUTPUT_ENCRYPT_DATA = "OUTPUT_ENCRYPT_DATA";
+	
+	public static final String OUTPUT_PARALLELIZE = "OUTPUT_PARALLELIZE";
 	
 	////////////////////////
 	
@@ -181,11 +194,14 @@ public class ConfigApp
 
 		list_Key_Type.put( LSL_ID_DEVICES, HashSet.class);
 
-		list_Key_Type.put( LSL_OUTPUT_FILE_FORMAT, String.class);
-		list_Key_Type.put( LSL_OUTPUT_FILE_NAME, String.class);
-		list_Key_Type.put( LSL_OUTPUT_FILE_DESCR, String.class );
+		list_Key_Type.put( OUTPUT_FILE_FORMAT, String.class);
+		list_Key_Type.put( OUTPUT_FILE_NAME, String.class);
+		list_Key_Type.put( OUTPUT_FILE_DESCR, String.class );
 		
-		list_Key_Type.put( LSL_ENCRYPT_DATA, Boolean.class );
+		list_Key_Type.put( OUTPUT_ENCRYPT_DATA, Boolean.class );
+		
+		list_Key_Type.put( OUTPUT_COMPRESSOR, String.class );
+		list_Key_Type.put( OUTPUT_PARALLELIZE, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -244,10 +260,10 @@ public class ConfigApp
 			}
 			else if( key.equals( LSL_ID_DEVICES ) )
 			{
-				HashSet< LSLConfigParameters > lsl = (HashSet< LSLConfigParameters >)listConfig.get( key );
-				HashSet< LSLConfigParameters > toSave = new HashSet< LSLConfigParameters >();
+				HashSet< MutableDataStreamSetting > lsl = (HashSet< MutableDataStreamSetting >)listConfig.get( key );
+				HashSet< MutableDataStreamSetting > toSave = new HashSet< MutableDataStreamSetting >();
 				
-				for( LSLConfigParameters setting : lsl )
+				for( MutableDataStreamSetting setting : lsl )
 				{
 					if( setting.isSelected() || setting.isSynchronationStream() )
 					{
@@ -539,7 +555,7 @@ public class ConfigApp
 					{
 						loadDefaultLSLDeviceInfo();
 						
-						HashSet< LSLConfigParameters > lslDevs = (HashSet< LSLConfigParameters >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+						HashSet< MutableDataStreamSetting > lslDevs = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 						
 						p = p.replace("[",  "").replace("]", "");
 						if( !p.isEmpty() )
@@ -553,62 +569,66 @@ public class ConfigApp
 							
 							for( String dev : devices )
 							{
-								dev = dev.replace( " ", "").replace( "<", "" ).replace( ">", "" );
+								//dev = dev.replace( " ", "").replace( "<", "" ).replace( ">", "" );
+								dev = dev.replace( "<", "" ).replace( ">", "" );
 								String[] devInfo = dev.split( "," );
 								if( devInfo.length == 8 )
 								{
-									String sourceID = devInfo[ 0 ];
-									String name = devInfo[ 1 ];
-									String type = devInfo[ 2 ];
-									String info = devInfo[ 3 ];
-																		
-									boolean select = false;
+									String sourceID = devInfo[ 0 ].replace( " ", "" );
+									String name = devInfo[ 1 ].replace( " ", "" );
+									String type = devInfo[ 2 ].replace( " ", "" );
+									String info = devInfo[ 3 ].trim();
+															
 									
+									boolean select = false;									
 									try 
 									{
-										select = new Boolean( devInfo[ 4 ] );
+										select = new Boolean( devInfo[ 4 ].replace( " ", "" ) );
 									}
 									catch (Exception e) 
 									{
 									}
 									
-									boolean interleaved = false;
-									
-									try 
-									{
-										interleaved = new Boolean( devInfo[ 6 ] );
-									}
-									catch (Exception e) 
-									{
-									}
-									
-									boolean isSync = false;
-									
-									try
-									{
-										isSync = new Boolean( devInfo[ 7 ] );
-									}
-									catch (Exception e) 
-									{
-									}
 									
 									int chunckSize = 1; 
 									try
 									{
-										chunckSize = new Integer( devInfo[ 5 ] );
+										chunckSize = new Integer( devInfo[ 5 ].replace( " ", "" ) );
 									}
 									catch( Exception e)
 									{}
 									
+									
+									boolean interleaved = false;
+									try 
+									{
+										interleaved = new Boolean( devInfo[ 6 ].replace( " ", "" )  );
+									}
+									catch (Exception e) 
+									{
+									}
+									
+									
+									boolean isSync = false;									
+									try
+									{
+										isSync = new Boolean( devInfo[ 7 ].replace( " ", "" ) );
+									}
+									catch (Exception e) 
+									{
+									}
+									
+									
+									
 									boolean found = false;
 									
-									for( LSLConfigParameters lslCfg : lslDevs )
+									for( MutableDataStreamSetting lslCfg : lslDevs )
 									{
 										found = lslCfg.getSourceID().equals( sourceID );
 										
 										if( !found )
 										{	
-											found = lslCfg.getDeviceType().equals( type ) && lslCfg.getDeviceName().equals( name );
+											found = lslCfg.getDeviceType().equals( type ) && lslCfg.getStreamName().equals( name );
 										}
 										
 										if( found )
@@ -782,9 +802,14 @@ public class ConfigApp
 				loadDefaultLSLDeviceInfo();
 				break;
 			}
-			case LSL_OUTPUT_FILE_FORMAT:
+			case OUTPUT_FILE_FORMAT:
 			{
 				loadDefaultLSLOutputFileFormat();
+				break;
+			}
+			case OUTPUT_COMPRESSOR:
+			{
+				loadDefaultOutputCompressor();
 				break;
 			}
 			case SELECTED_SYNC_METHOD:
@@ -797,19 +822,24 @@ public class ConfigApp
 				loadDefaultValueIsServerSocketActiveInputSpecialMsg();
 				break;
 			}
-			case LSL_OUTPUT_FILE_DESCR:
+			case OUTPUT_FILE_DESCR:
 			{
 				loadDefaultLSLOutputFileDescr();
 				break;
 			}
-			case LSL_OUTPUT_FILE_NAME:
+			case OUTPUT_FILE_NAME:
 			{
 				loadDefaultLSLOutputFileName();
 				break;
 			}
-			case LSL_ENCRYPT_DATA:
+			case OUTPUT_ENCRYPT_DATA:
 			{
 				loadDefaultLSLEncryptData();
+				break;
+			}
+			case OUTPUT_PARALLELIZE:
+			{
+				loadDefaultLSLOutputParallelize();
 				break;
 			}
 		}
@@ -832,6 +862,8 @@ public class ConfigApp
 		loadDefaultLSLOutputFileDescr();		
 		
 		loadDefaultLSLEncryptData();
+		loadDefaultOutputCompressor();
+		loadDefaultLSLOutputParallelize();
 	}
 
 	private static void loadDefaultLanguage()
@@ -909,15 +941,11 @@ public class ConfigApp
 
 		LSL.StreamInfo[] deviceInfo = lsl.resolve_streams( );
 		
-		HashSet< LSLConfigParameters > settings = new HashSet< LSLConfigParameters >();
+		HashSet< MutableDataStreamSetting > settings = new HashSet< MutableDataStreamSetting >();
 		
 		for( StreamInfo info : deviceInfo )
 		{
-			LSLConfigParameters cfg = new LSLConfigParameters( info.uid()
-																, info.name()
-																, info.type()
-																, info.source_id() );
-			cfg.setSamplingRate( info.nominal_srate() );
+			MutableDataStreamSetting cfg = new MutableDataStreamSetting( info );
 			settings.add( cfg );
 		}
 		
@@ -926,22 +954,32 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileName()
 	{
-		listConfig.put( LSL_OUTPUT_FILE_NAME, defaultPathFile + defaultNameOutputDataFile );
+		listConfig.put( OUTPUT_FILE_NAME, defaultPathFile + defaultNameOutputDataFile );
 	}
 
 	private static void loadDefaultLSLOutputFileFormat()
 	{
-		listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.PCLIS_GZIP );
+		listConfig.put( OUTPUT_FILE_FORMAT, DataFileFormat.CLIS );
 		//listConfig.put( LSL_OUTPUT_FILE_FORMAT, DataFileFormat.CLIS );
+	}
+	
+	private static void loadDefaultOutputCompressor()
+	{
+		listConfig.put( OUTPUT_COMPRESSOR, OutputZipDataFactory.GZIP );
 	}
 	
 	private static void loadDefaultLSLOutputFileDescr()
 	{
-		listConfig.put( LSL_OUTPUT_FILE_DESCR, "" );
+		listConfig.put( OUTPUT_FILE_DESCR, "" );
 	}
 	
 	private static void loadDefaultLSLEncryptData()
 	{
-		listConfig.put( LSL_ENCRYPT_DATA,  false );
+		listConfig.put( OUTPUT_ENCRYPT_DATA,  false );
+	}
+	
+	private static void loadDefaultLSLOutputParallelize()
+	{
+		listConfig.put( OUTPUT_PARALLELIZE, true );
 	}
 }

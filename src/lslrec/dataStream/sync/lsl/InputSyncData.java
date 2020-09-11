@@ -28,9 +28,9 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.edu.ucsd.sccn.LSLUtils;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
@@ -40,9 +40,11 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	/*
 	 * 
 	 */
-	public InputSyncData( StreamInfo info, LSLConfigParameters lslCfg ) throws Exception 
+	public InputSyncData( DataStreamSetting lslCfg ) throws Exception 
 	{
-		super( info, lslCfg );		
+		super( lslCfg );		
+		
+		StreamInfo info = lslCfg.getStreamInfo();
 						
 		super.setName( info.name() + "(" + info.uid() + ")");
 		

@@ -34,10 +34,9 @@ import javax.swing.text.StyledDocument;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.stoppableThread.IStoppableThread;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class StringPlotter extends LSLInStreamDataReceiverTemplate 
@@ -49,11 +48,11 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 	
 	private int maxNumLines = 100; 
 
-	public StringPlotter( JTextPane Plot, LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception 
+	public StringPlotter( JTextPane Plot, DataStreamSetting lslCfg ) throws Exception 
 	{
-		super( info, lslCfg );
+		super( lslCfg );
 		
-		if( info.channel_format() != LSLUtils.string )
+		if( super.streamSetting.getDataType() != LSLUtils.string )
 		{
 			throw new ReadInputDataException( "Data stream must be a string type" );
 		}
@@ -65,22 +64,22 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 		
 		this.dataBuffer = new ArrayList<String>();
 		
-		this.strLenBytes = new byte[ info.channel_count() * LSLUtils.getDataTypeBytes( super.strLenType ) ];
+		this.strLenBytes = new byte[ super.streamSetting.getStreamInfo().channel_count() * LSLUtils.getDataTypeBytes( super.streamSetting.getStringLegthType() ) ];
 		
 		this.plot = Plot;
 		
-		super.setName( this.getClass().getSimpleName() + "-" + info.name() );
+		super.setName( this.getClass().getSimpleName() + "-" + super.streamSetting.getStreamName() );
 		
 		this.plot.setVisible(true);
 		
-		this.minDataLengthToDraw = (int)( lslCfg.getSamplingRate() * lslCfg.getChunckSize() * super.lslChannelCounts * 0.400D ); // 400 ms
+		this.minDataLengthToDraw = (int)( lslCfg.getSamplingRate() * lslCfg.getChunkSize() * super.streamSetting.getStreamInfo().channel_count() * 0.400D ); // 400 ms
 		
 		if( this.minDataLengthToDraw <= 0 )
 		{
 			this.minDataLengthToDraw = 1;
 		}
 		
-		this.maxNumLines = ((int)( 5.0D * lslCfg.getSamplingRate() ) ) * lslCfg.getChunckSize();
+		this.maxNumLines = ((int)( 5.0D * lslCfg.getSamplingRate() ) ) * lslCfg.getChunkSize();
 		if ( this.maxNumLines < 10)
 		{
 			this.maxNumLines = 100;
@@ -111,7 +110,7 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 	{
 		System.arraycopy( dataArrayOfBytes, 0, this.strLenBytes, 0, this.strLenBytes.length );
 		
-		Number[] lens = ConvertTo.ByteArray2ArrayOf( this.strLenBytes, super.strLenType );
+		Number[] lens = ConvertTo.ByteArray2ArrayOf( this.strLenBytes, super.streamSetting.getStringLegthType() );
 		
 		int init = strLenBytes.length;
 			
@@ -132,9 +131,9 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 		}
 		
 		Object[] dat = strs.toArray();
-		if( super.interleavedData )
+		if( super.streamSetting.isInterleavedData() )
 		{
-			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.lslChannelCounts );
+			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
 		}
 		
 		if( dat != null )
@@ -155,7 +154,7 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 					this.appendTextLog( Color.BLACK, str, null, ch );
 					
 					ch++;
-					if( ch >= super.lslChannelCounts )
+					if( ch >= super.streamSetting.getStreamInfo().channel_count() )
 					{
 						ch = 0;
 					}

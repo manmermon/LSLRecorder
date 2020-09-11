@@ -22,8 +22,6 @@
 
 package lslrec.dataStream.binary.input.plotter;
 
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.gui.dataPlot.CanvasLSLDataPlot;
 
 public class DataPlotter extends LSLInStreamDataReceiverTemplate
@@ -40,9 +39,9 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 	private int minDataLengthToDraw = 1;
 	private final List< List< Double > > dataBuffer = new ArrayList< List< Double > >();
 	
-	public DataPlotter( CanvasLSLDataPlot Plot, LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
+	public DataPlotter( CanvasLSLDataPlot Plot, DataStreamSetting lslCfg ) throws Exception
 	{
-		super( info, lslCfg );
+		super( lslCfg );
 
 		if (Plot == null)
 		{
@@ -50,13 +49,13 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 		}
 
 		this.plot = Plot;
-		this.plot.setPlotName( info.name() );
+		this.plot.setPlotName( lslCfg.getStreamName() );
 		
-		super.setName( this.getClass().getSimpleName() + "-" + info.name() );
+		super.setName( this.getClass().getSimpleName() + "-" + lslCfg.getStreamName() );
 
 		this.plot.setVisible(true);
 		
-		this.minDataLengthToDraw = (int)( lslCfg.getSamplingRate() * lslCfg.getChunckSize() * 0.400D ); // 400 ms
+		this.minDataLengthToDraw = (int)( lslCfg.getSamplingRate() * lslCfg.getChunkSize() * 0.400D ); // 400 ms
 		
 		if( this.minDataLengthToDraw <= 0 )
 		{
@@ -75,25 +74,25 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 	{	
 		Number[] dat = null;
 		
-		if( super.LSLFormatData != LSLUtils.string )
+		if( super.streamSetting.getDataType() != LSLUtils.string )
 		{
-			dat = ConvertTo.ByteArrayTo( ConvertTo.byteArray2ByteArray( data ), super.LSLFormatData );
+			dat = ConvertTo.ByteArrayTo( ConvertTo.byteArray2ByteArray( data ), super.streamSetting.getDataType() );
 		}
 		else
 		{
 			dat = ConvertTo.byteArray2ByteArray( data );
 		}
 		
-		if( super.interleavedData )
+		if( super.streamSetting.isInterleavedData() )
 		{
-			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.lslChannelCounts );
+			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
 		}
 
 		if( dat != null )
 		{
 			for( int index = 0; index < dat.length; index++ )
 			{	
-				int c = ( ( index / super.chunckLength ) % super.lslChannelCounts );
+				int c = ( ( index / super.chunckLength ) % super.streamSetting.getStreamInfo().channel_count() );
 	
 				if( c >= this.dataBuffer.size() )
 				{

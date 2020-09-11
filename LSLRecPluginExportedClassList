@@ -1,0 +1,51 @@
+Lista de clases que exportar para el plugin:
+
+lslrec
+	.auxiliar
+			.extra.*
+			.tasks.*
+			
+	.config
+			.IParameter.java
+			.Parameter.java
+			.ParameterList.java
+			
+	.controls
+			.messages
+					.EventInfo.java
+					.EventType.java
+					
+	.dataStream
+				.outputDataFile
+								.IOuputDataFileWrite.java
+								
+								.compress										
+										.IOutZip.java
+										.OutputZipDataTemplate.java
+										.zip.*
+										
+								.dataBlock.* (menos DataBlockFactory.java)								
+								
+								.format
+										.OuputFileFormatParameters.java
+										.parallelize.*
+								
+								
+	.edu
+		.ucsd
+			.sccn
+				.LSLUtils.java
+				
+	.exceptions
+				.*.java
+				
+	.plugin
+			.lslrecPlugionInterface.*
+												
+	.stoppableThread
+					.*.java
+					
+	
+								
+					
+					

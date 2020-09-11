@@ -31,14 +31,14 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
-import lslrec.exceptions.UnsupportedDataTypeException;
+import lslrec.exceptions.UnsupportedTypeException;
 import lslrec.controls.messages.EventType;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
-import lslrec.dataStream.StreamHeader;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 import lslrec.edu.ucsd.sccn.LSL.StreamInlet;
 import lslrec.edu.ucsd.sccn.LSLUtils;
@@ -62,7 +62,6 @@ import javax.swing.Timer;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-
 public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
 {
 	protected ITaskMonitor monitor = null;
@@ -81,7 +80,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 	private float[] floatData;
 	private double[] doubleData;
-	//private long[] longData;
+	private long[] longData;
 	private String[] stringData;
 
 	private List tempSampleBytes;
@@ -89,15 +88,15 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 	private double timeCorrection;
 	private double[] timeMark;	
-	protected int LSLFormatData = LSLUtils.float32;
+	//protected int LSLFormatData = LSLUtils.float32;
 
 	//protected Semaphore syncMarkSem = null;
 
-	protected String LSLName = "";
+	//protected String LSLName = "";
 
-	protected String lslXML = "";
+	//protected String lslXML = "";
 
-	protected int lslChannelCounts = 0;
+	//protected int lslChannelCounts = 0;
 
 	//protected List< EventInfo > events;
 	protected NotificationTask notifTask = null;
@@ -105,56 +104,56 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	//protected int LSLFormatData = LSLUtils.float32;
 	
 	protected int chunckLength = 1;
+	protected int arrayLen = 1; 
 	
-	protected boolean interleavedData = false;
+	//protected boolean interleavedData = false;
 	
-	protected int timeType = LSLUtils.double64;
-	protected int strLenType = LSLUtils.int64;
+	//protected int timeType = LSLUtils.double64;
+	//protected int strLenType = LSLUtils.int64;
 	
-	protected double samplingRate = LSL.IRREGULAR_RATE;
+	//protected double samplingRate = LSL.IRREGULAR_RATE;
 	
 	private AtomicBoolean isStreamClosed = new AtomicBoolean( false );
 	private AtomicBoolean isRecording = new AtomicBoolean( false );
 	
 	private AtomicBoolean postCleanDone = new AtomicBoolean( false );
+
+	protected DataStreamSetting streamSetting = null;
+	
 		
-	public LSLInStreamDataReceiverTemplate( LSL.StreamInfo info, LSLConfigParameters lslCfg ) throws Exception
-	{
-		if ( info == null )
-		{
-			throw new IllegalArgumentException("LSL.StreamInlet is null");
-		}
-		
+	public LSLInStreamDataReceiverTemplate( DataStreamSetting lslCfg ) throws Exception
+	{		
 		if( lslCfg == null )
 		{
 			throw new IllegalArgumentException( "LSL parameters is null" );
 		}
-			
-		this.chunckLength = lslCfg.getChunckSize();
-		this.interleavedData = lslCfg.isInterleavedData();
 		
-		this.lslChannelCounts = info.channel_count();
+		this.streamSetting = lslCfg;
+		
+		StreamInfo stInfo = this.streamSetting.getStreamInfo();
+		
+		this.chunckLength = lslCfg.getChunkSize();
+		if( this.chunckLength < 1 )
+		{
+			this.chunckLength = 1;
+		}
 				
-		this.LSLFormatData = info.channel_format();
-
-		this.LSLName = info.name();
-		
-		this.samplingRate = info.nominal_srate();
-		
-		int nBytes = LSLUtils.getDataTypeBytes( this.LSLFormatData );
+		int nBytes = LSLUtils.getDataTypeBytes( this.streamSetting.getDataType() );
 		
 		long maxMem = Runtime.getRuntime().maxMemory() / 2;
 		maxMem /= nBytes;
 		
 		int bufSize = 1000_000;
 		
-		if( this.samplingRate != LSL.IRREGULAR_RATE )
+		double samplingRate = this.streamSetting.getSamplingRate();
+		
+		if( samplingRate != LSL.IRREGULAR_RATE )
 		{
 			bufSize = 360; // 360 s
 			
-			if( bufSize * this.samplingRate * this.lslChannelCounts * this.chunckLength > maxMem )
+			if( bufSize * samplingRate * stInfo.channel_count() * this.streamSetting.getChunkSize() > maxMem )
 			{
-				bufSize = (int)( maxMem / ( this.samplingRate * this.lslChannelCounts * this.chunckLength ) ) ;
+				bufSize = (int)( maxMem / ( samplingRate * stInfo.channel_count() * this.streamSetting.getChunkSize() ) ) ;
 				
 				if( bufSize < 1 )
 				{
@@ -171,88 +170,18 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			}
 			*/
 		}
-		
-		//bufSize *= this.lslChannelCounts * this.chunckLength;
-		
-		
+				
 		int chunk = 0;
 		
-		if( this.chunckLength > 1 )
+		if( this.streamSetting.getChunkSize() > 1 )
 		{
-			chunk = this.chunckLength;
+			chunk = this.streamSetting.getChunkSize();
 		}
 		
-		this.inLet = new StreamInlet( info, bufSize, chunk, false );
-		
-		
-		//info = str.info();
-		
-		//this.LSLFormatData = info.channel_format();
-		
+		this.inLet = new StreamInlet( stInfo, bufSize, chunk, false );
 
-		Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
-		String markInfoText = "";
-		for( String idMark : MARKS.keySet() )
-		{
-			Integer v = MARKS.get( idMark );
-			markInfoText += idMark + "=" + v + StreamHeader.HEADER_BINARY_SEPARATOR;
-		}		
-					
-		StreamInfo infoAux = this.inLet.info();
-				
-		String idLab = LSLConfigParameters.ID_SOCKET_MARK_INFO_LABEL;
-		int countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );		
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}		
-		infoAux.desc().remove_child( idLab );
-		infoAux.desc().append_child_value( idLab, markInfoText );
-		
-		idLab = LSLConfigParameters.ID_GENERAL_DESCRIPTION_LABEL;
-		countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}			
-		infoAux.desc().remove_child( idLab );
-		infoAux.desc().append_child_value( idLab, ConfigApp.getProperty( ConfigApp.LSL_OUTPUT_FILE_DESCR ).toString() );
-		
-		idLab = LSLConfigParameters.ID_LSLREC_SETTING_LABEL;
-		countEq = LSLConfigParameters.existNodoName( this.inLet.info().desc().first_child(), idLab );
-		
-		if( countEq > 0 )
-		{
-			idLab += "_" + countEq;
-		}			
-		infoAux.desc().remove_child( idLab );
-		
-		String setting = LSLConfigParameters.ID_CHUNKSIZE_LABEL + "=" + this.chunckLength + StreamHeader.HEADER_BINARY_SEPARATOR;
-		setting += LSLConfigParameters.ID_INTERLEAVED_LABEL + "=" + this.interleavedData;
-		infoAux.desc().append_child_value( idLab, setting );		
-		
-		infoAux.desc().remove_child( lslCfg.getExtraInfoLabel() );
-		infoAux.desc().append_child_value( lslCfg.getExtraInfoLabel(), lslCfg.getAdditionalInfo() );
-				
-		this.lslXML = infoAux.as_xml();
-				
-		//this.events = new ArrayList< EventInfo >();
-		
 		try
-		{	
-			/*
-			double waitTime = 3 / info.nominal_srate();
-			
-			if( waitTime < 3 )
-			{
-				waitTime = 3;
-			}			
-			
-			this.timeCorrection = this.inLet.time_correction( waitTime );
-			*/
-			
+		{			
 			this.timeCorrection = this.inLet.time_correction( );
 		}
 		catch( Exception | Error e )
@@ -266,14 +195,17 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		this.inLet.close_stream();
 	}
 
-	protected int createArrayData() throws Exception
+	protected int createArrayData( ) throws Exception
 	{
 		int nBytes = 1;
-		switch (this.LSLFormatData)
+		
+		this.arrayLen = this.inLet.info().channel_count() *  this.chunckLength;
+		
+		switch ( this.inLet.info().channel_format() )
 		{
 			case( LSLUtils.int8 ):
 			{
-				this.byteData = new byte[ this.inLet.info().channel_count() * this.chunckLength ];			
+				this.byteData = new byte[ this.arrayLen ];			
 				break;
 	
 			}
@@ -281,50 +213,48 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			{
 				nBytes = Short.BYTES;
 	
-				this.shortData = new short[this.inLet.info().channel_count() * this.chunckLength ];
+				this.shortData = new short[ this.arrayLen ];
 				break;
 			}
 			case( LSLUtils.int32 ):
 			{
 				nBytes = Integer.BYTES;
 	
-				this.intData = new int[this.inLet.info().channel_count() * this.chunckLength ];
+				this.intData = new int[ this.arrayLen ];
 				break;
 			}
-			/*
 			case( LSLUtils.int64 ):
 			{
 				nBytes = Long.BYTES;
 	
-				this.longData = new long[ inLet.info().channel_count() ];
+				this.longData = new long[ this.arrayLen ];
 				break;
-			}
-			 */	
+			}	
 			case( LSLUtils.float32 ):
 			{
 				nBytes = Float.BYTES;
 	
-				this.floatData = new float[ this.inLet.info().channel_count() * this.chunckLength ];
+				this.floatData = new float[ this.arrayLen ];
 				break;
 			}
 			case( LSLUtils.double64 ):
 			{
 				nBytes = Double.BYTES;
 	
-				this.doubleData = new double[ this.inLet.info().channel_count() * this.chunckLength ];
+				this.doubleData = new double[ this.arrayLen ];
 				break;
 			}
 			case( LSLUtils.string ):
 			{
 				nBytes = Character.BYTES;
 	
-				this.stringData = new String[ this.inLet.info().channel_count() * this.chunckLength ];
+				this.stringData = new String[ this.arrayLen ];
 				break;
 			}
 			default:
 			{
-				String msg = "Data type (" + this.LSLFormatData + ") of stream input " + this.LSLName + " unsupported.";
-				throw new UnsupportedDataTypeException( msg );
+				String msg = "Data type (" + this.inLet.info().channel_format() + ") of stream input " + this.inLet.info().name() + " unsupported.";
+				throw new UnsupportedTypeException( msg );
 			}
 		}
 
@@ -417,7 +347,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected void preStopThread(int friendliness) throws Exception
 	{		
 		if( friendliness == IStoppableThread.FORCE_STOP 
-				|| ( this.samplingRate == LSL.IRREGULAR_RATE ))
+				|| ( this.streamSetting.getSamplingRate() == LSL.IRREGULAR_RATE ))
 		{
 			if( this.timer != null )
 			{
@@ -493,9 +423,8 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				
 		double timestamp_buffer[] = new double[ this.chunckLength ];
 		int nReadData = 0;
-		int chunckSize = this.chunckLength * this.lslChannelCounts;
 		
-		switch (this.LSLFormatData)
+		switch (this.streamSetting.getStreamInfo().channel_format() )
 		{
 			case( LSLUtils.int8 ):
 			{				
@@ -505,7 +434,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{
 					int i = 0;					
 					while( i < nReadData  
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.byteData[ i ] );						
 						i++;
@@ -520,7 +449,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						j++;
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{
 						out = new byte[ this.tempSampleBytes.size() ];						
 						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -538,7 +467,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.byteData[ i ] );
 						i++;
@@ -562,7 +491,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{
 					int i = 0;					
 					while( i < nReadData  
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.shortData[ i ] );
 						i++;
@@ -577,7 +506,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						j++;
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{			
 						short[] aux = new short[ this.tempSampleBytes.size() ];
 						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -602,7 +531,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.shortData[ i ] );
 						i++;
@@ -626,7 +555,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{					
 					int i = 0;					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.intData[ i ] );
 						i++;
@@ -641,7 +570,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						j++;
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{			
 						int[] aux = new int[ this.tempSampleBytes.size() ];
 						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -666,7 +595,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.intData[ i ] );
 						i++;
@@ -690,7 +619,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{	
 					int i = 0;					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.floatData[ i ] );
 						i++;
@@ -705,7 +634,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						j++;
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{			
 						float[] aux = new float[ this.tempSampleBytes.size() ];
 						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -730,7 +659,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.floatData[ i ] );
 						i++;
@@ -753,7 +682,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{	
 					int i = 0;					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.doubleData[ i ] );
 						i++;
@@ -768,7 +697,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						j++;
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{			
 						double[] aux = new double[ this.tempSampleBytes.size() ];
 						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -793,7 +722,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.doubleData[ i ] );
 						i++;
@@ -816,7 +745,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{	
 					int i = 0;					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.stringData[ i ] );
 						i++;
@@ -830,7 +759,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						this.tempTimeMark.add( timestamp_buffer[ j ] );
 					}
 					
-					if( this.tempSampleBytes.size() >= chunckSize )
+					if( this.tempSampleBytes.size() >= this.arrayLen )
 					{			
 						StringBuilder txt = new StringBuilder();
 						long[] strLeng = new long[ this.tempSampleBytes.size() ];
@@ -861,7 +790,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					}
 					
 					while( i < nReadData 
-							&& this.tempSampleBytes.size() < chunckSize )
+							&& this.tempSampleBytes.size() < this.arrayLen )
 					{
 						this.tempSampleBytes.add( this.stringData[ i ] );
 						i++;
@@ -878,7 +807,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			}
 			default:
 			{
-				throw new UnsupportedDataTypeException();
+				throw new UnsupportedTypeException();
 			}
 		}
 		
@@ -992,8 +921,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	private void readRemainingData() throws Exception
 	{						
 		double timestamp_buffer[] = new double[ this.chunckLength ];
-		int nReadData = 0;
-		int chunckSize = this.chunckLength * this.lslChannelCounts;		
+		int nReadData = 0;		
 		
 		double timeout = 0.0D;
 				
@@ -1011,7 +939,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			ByteBuffer data = null;
 			byte[] out = null;			
 			
-			switch ( this.LSLFormatData )
+			switch ( this.streamSetting.getStreamInfo().channel_format() )
 			{
 				case( LSLUtils.int8 ):
 				{
@@ -1021,7 +949,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					{
 						int i = 0;					
 						while( i < nReadData  
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.byteData[ i ] );						
 							i++;
@@ -1036,7 +964,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							j++;
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{
 							out = new byte[ this.tempSampleBytes.size() ];						
 							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -1054,7 +982,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.byteData[ i ] );
 							i++;
@@ -1078,7 +1006,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					{
 						int i = 0;					
 						while( i < nReadData  
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.shortData[ i ] );
 							i++;
@@ -1093,7 +1021,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							j++;
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{			
 							short[] aux = new short[ this.tempSampleBytes.size() ];
 							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -1118,7 +1046,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.byteData[ i ] );
 							i++;
@@ -1142,7 +1070,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					{
 						int i = 0;					
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.intData[ i ] );
 							i++;
@@ -1157,7 +1085,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							j++;
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{			
 							int[] aux = new int[ this.tempSampleBytes.size() ];
 							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -1182,7 +1110,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.byteData[ i ] );
 							i++;
@@ -1206,7 +1134,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					{						
 						int i = 0;					
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.floatData[ i ] );
 							i++;
@@ -1221,7 +1149,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							j++;
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{			
 							float[] aux = new float[ this.tempSampleBytes.size() ];
 							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -1246,7 +1174,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.floatData[ i ] );
 							i++;
@@ -1269,7 +1197,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 					{																			
 						int i = 0;					
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.doubleData[ i ] );
 							i++;
@@ -1284,7 +1212,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							j++;
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{			
 							double[] aux = new double[ this.tempSampleBytes.size() ];
 							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
@@ -1309,7 +1237,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.doubleData[ i ] );
 							i++;
@@ -1335,7 +1263,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						
 						int i = 0;					
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.stringData[ i ] );
 							i++;
@@ -1349,7 +1277,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 							this.tempTimeMark.add( timestamp_buffer[ j ] );
 						}
 						
-						if( this.tempSampleBytes.size() >= chunckSize )
+						if( this.tempSampleBytes.size() >= this.arrayLen )
 						{			
 							StringBuilder txt = new StringBuilder();
 							long[] strLeng = new long[ this.tempSampleBytes.size() ];
@@ -1381,7 +1309,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 						}
 						
 						while( i < nReadData 
-								&& this.tempSampleBytes.size() < chunckSize )
+								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.stringData[ i ] );
 							i++;
@@ -1398,7 +1326,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				}
 				default:
 				{
-					throw new UnsupportedDataTypeException();
+					throw new UnsupportedTypeException();
 				}
 			}
 			
@@ -1536,7 +1464,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			}
 		}		
 		
-		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.LSLName + "> was exceeded." ) );		
+		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.streamSetting.getStreamName() + "> was exceeded." ) );		
 	}
 	
 	private void timeOver2( )
@@ -1566,7 +1494,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				}
 				finally 
 				{
-					notifyProblem( new DestroyFailedException( "The input stream " + LSLName 
+					notifyProblem( new DestroyFailedException( "The input stream " + streamSetting.getStreamName() 
 																+ " is blocked. It is not possible released/closed. "
 																+ "Quit " + ConfigApp.shortNameApp + " is recommended.") );
 				}

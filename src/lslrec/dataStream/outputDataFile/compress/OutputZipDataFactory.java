@@ -25,17 +25,17 @@ import lslrec.dataStream.outputDataFile.compress.zip.OutputGZipData;
 
 public class OutputZipDataFactory 
 {
-	public static final int UNDEFINED = -1;
-	public static final int GZIP = 0;
-	public static final int BZIP2 = 1;
+	public static final String UNDEFINED = "UNDEFINED";
+	public static final String GZIP = "GZIP";
+	public static final String BZIP2 = "BZIP2";
 	
 	/**
 	 * 
-	 * @param type: Compress algorithm ID: 0 -> GZip, 1 -> BZIP2
+	 * @param type: Compress algorithm ID
 	 * @return Temporal output to compress data
 	 * @throws IllegalArgumentException: if type value is not supported.
 	 */
-	public static IOutZip createOuputZipStream( int type ) throws IllegalArgumentException
+	public static IOutZip createOuputZipStream( String type ) throws IllegalArgumentException
 	{
 		IOutZip zip =  null;
 		

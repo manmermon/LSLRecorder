@@ -187,6 +187,7 @@ public class Language
 	public static final String UP_TEXT = "UP_TEXT";
 	public static final String DOWN_TEXT = "DOWN_TEXT";
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
+	public static final String OPTIONS_TEXT = "OPTIONS_TEXT";
 
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
@@ -194,6 +195,7 @@ public class Language
 	public static final String CONTINUE_TEXT = "CONTINUE_TEXT";
 	public static final String DESCRIPTION_TEXT = "DESCRIPTION_TEXT";
 	public static final String ENCRYPT_KEY_TEXT = "ENCRYPT_KEY";
+	public static final String PARALLELIZE_TEXT = "PARALLELIZE_TEXT";
 	public static final String PASSWORD_TEXT = "PASSWORD_TEXT";
 		
 	public static final String SORT_TEXT = "SORT_TEXT";
@@ -341,6 +343,7 @@ public class Language
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
 		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
 		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt" ) );
+		captions.put( PARALLELIZE_TEXT, new Caption( PARALLELIZE_TEXT, defaultLanguage, "Parallelize" ) );
 
 		captions.put(AUTOSCROLL, new Caption(AUTOSCROLL, defaultLanguage, "Autoscroll"));
 
@@ -397,6 +400,7 @@ public class Language
 		captions.put(FILE_NOT_FOUND, new Caption(FILE_NOT_FOUND, defaultLanguage, "File(s) not found"));
 		captions.put(LANGUAGE_TEXT, new Caption(LANGUAGE_TEXT, defaultLanguage, "Language"));
 		captions.put( REPEAT_TEXT, new Caption( REPEAT_TEXT, defaultLanguage, "Repeat" ) );
+		captions.put( OPTIONS_TEXT, new Caption( OPTIONS_TEXT, defaultLanguage, "Options" ) );
 		captions.put( PASSWORD_TEXT, new Caption( PASSWORD_TEXT, defaultLanguage, "Password" ) );
 		captions.put( PROCESS_TEXT,  new Caption( PROCESS_TEXT, defaultLanguage, "Process" ) );
 
@@ -497,7 +501,8 @@ public class Language
 
 		Caption cap = captions.get(captionID);
 
-		if (cap != null) {
+		if (cap != null) 
+		{
 			txt = cap.getCaption(lang.toLowerCase());
 
 			if (txt == null) {

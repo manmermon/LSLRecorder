@@ -23,7 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.exceptions.UnsupportedDataTypeException;
+import lslrec.exceptions.UnsupportedTypeException;
 import ch.systemsx.cisd.base.mdarray.MDArray;
 //import ch.systemsx.cisd.hdf5.IHDF5Writer;
 import ch.systemsx.cisd.hdf5.IHDF5Writer;
@@ -61,7 +61,7 @@ public class HDF5Data
 				
 		if( this.dataType == LSLUtils.undefined )
 		{
-			throw new UnsupportedDataTypeException( );
+			throw new UnsupportedTypeException( );
 		}
 		
 		this.createMatrix( this.name );

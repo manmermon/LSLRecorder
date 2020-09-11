@@ -63,7 +63,7 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 														, LSL.ChannelFormat.int32
 														, super.getClass().getSimpleName() + "-" + id ) ;
 
-			lslInfo.desc().append_child_value( LSLConfigParameters.ID_GENERAL_DESCRIPTION_LABEL, "test" );
+			lslInfo.desc().append_child_value( MutableDataStreamSetting.ID_GENERAL_DESCRIPTION_LABEL, "test" );
 			out = new LSL.StreamOutlet( lslInfo );
 			
 			LSL.StreamInfo lslInfo_time = new LSL.StreamInfo( PREFIX + "Tiempos-" + id
@@ -74,7 +74,7 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 															, super.getClass().getSimpleName() ) ;
 			lslInfo_time.desc().append_child_value( "details", "ch1-time; ch2-mark");
 
-			lslInfo_time.desc().append_child_value( LSLConfigParameters.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
+			lslInfo_time.desc().append_child_value( MutableDataStreamSetting.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
 			out_time = new LSL.StreamOutlet( lslInfo_time );
 			
 			_softClose = softClose; 

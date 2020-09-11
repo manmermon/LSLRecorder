@@ -34,7 +34,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -47,13 +46,25 @@ import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.PlainDocument;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.outputDataFile.format.CreatorEncoderSettingPanel;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.gui.miscellany.basicPainter2D;
-import lslrec.dataStream.StreamHeader;
+import lslrec.edu.ucsd.sccn.LSL;
+import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
+import lslrec.edu.ucsd.sccn.LSL.XMLElement;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.awt.Color;
@@ -64,8 +75,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
@@ -78,19 +91,17 @@ import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 import javax.swing.JCheckBox;
@@ -147,49 +158,46 @@ public class dialogConverBin2CLIS extends JDialog
 	private JButton btnDone;
 	private JButton btnCancel;
 	private JButton buttonAddData;
-	//private JButton buttonAddTime;
-	private JButton btnMoveUpDataFile;
-	private JButton buttonMoveDownDataFile;
-	//private JButton btnMoveUpTimeFile;
-	//private JButton buttonMoveDownTimeFile;
 	private JButton btnOutFolder;
 	private JButton btnSelectSyncFile;
+	private JButton btnOutFormatOptions;
 	
 	// Combox
 	private JComboBox< String > fileFormat;
 	
 	// ScrollPanel
 	private JScrollPane scrollTableData;
-	//private JScrollPane scrollTableTime;
 	
 	// Checkbox
 	private JCheckBox chckbxDeleteBinaries;
 	private JCheckBox chbxEncrypt;
+	private JCheckBox chbParallelize;
 	
 	// JToggleButton
 	private JToggleButton jtgBtnSortSyncFile;
-	//private JToggleButton jtgBtnInterleaved;
 	
 	
-	// Others variables	
-	private List< StreamHeader > binaryDataFiles;
-	//private List< StreamHeader > binaryTimeFiles;
-	
-	private boolean clearBinaryFiles = true;
-	private StreamHeader currentBinFile = null;
-	
+	// Others variables
 	private String currentFolderPath = System.getProperty( "user.dir" );
 	
+	private boolean clearBinaryFiles = true;
+	
+	private Map< String, MutableDataStreamSetting > binaryDataFiles;	
+	private MutableDataStreamSetting currentBinFile = null;
+		
+	private OutputFileFormatParameters outFormat;
+	
+	private int FileTableColumn = 0;
 	
 	/**
 	 * Create the dialog.
 	 */
-	public dialogConverBin2CLIS( Frame owner, boolean modal ) 	
+ 	public dialogConverBin2CLIS( Frame owner, boolean modal ) 	
 	{
 		super( owner, modal );
 		
-		this.binaryDataFiles = new ArrayList< StreamHeader>( );
-		//this.binaryTimeFiles = new ArrayList< StreamHeader>( );
+		this.binaryDataFiles = new HashMap< String, MutableDataStreamSetting >( );
+		this.outFormat = new OutputFileFormatParameters();
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
@@ -245,10 +253,7 @@ public class dialogConverBin2CLIS extends JDialog
 			{
 				String key = dg.getPassword();
 				
-				for( StreamHeader bh : binaryDataFiles )
-				{
-					bh.setEncryptKey( key );
-				}
+				this.outFormat.setEncryptKey( key );
 			}
 		}
 	}
@@ -283,43 +288,39 @@ public class dialogConverBin2CLIS extends JDialog
 		return this.buttonPane;
 	}
 	
-	public List< Tuple< StreamHeader, StreamHeader > > getBinaryFiles( ) throws Exception
+	public List< Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > > getBinaryFiles( ) throws Exception
 	{	
 		if( this.clearBinaryFiles )
 	 	{
 	 		this.binaryDataFiles.clear( );
-	 		//this.binaryTimeFiles.clear( );
 	 	}
 		
 		this.checkEncryptKey();
 		
-		List< Tuple<StreamHeader, StreamHeader> > binFiles = new ArrayList< Tuple<StreamHeader, StreamHeader> >( );
+		List<  Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > > binFiles = new ArrayList<  Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > >( );
 		
-		Iterator< StreamHeader > dataIT = binaryDataFiles.iterator( );
-		//Iterator< StreamHeader > timeIT = binaryTimeFiles.iterator( );
-		
-		String syncFile = this.getTxtSyncFilePath().getText();		
-		if( this.getJtgBtSyncFile().isSelected() && !syncFile.isEmpty() )
-		{
-			String outFile = syncFile + "_sort.sync"; 
-			SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+		BinaryFileStreamSetting syncHeader = null;
+		String syncFile = this.getTxtSyncFilePath().getText();
+		if( !syncFile.isEmpty() )
+		{			
+			if( this.getJtgBtSyncFile().isSelected() )
+			{
+				String outFile = syncFile + "_sort.sync"; 
+				SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+				
+				syncFile = outFile;
+			}
 			
-			syncFile = outFile;
-		}
-		
-		StreamHeader syncHeader = this.getBinaryFileInfo( syncFile );
-		
-		while( dataIT.hasNext( ) )
+			syncHeader = new BinaryFileStreamSetting( this.getBinaryFileInfo( syncFile ), syncFile );
+		}		
+				
+		for( String file : this.binaryDataFiles.keySet() )
 		{
-			binFiles.add( new Tuple<StreamHeader, StreamHeader>( dataIT.next( ), syncHeader ) );
+			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), file );
+			OutputFileFormatParameters format = this.outFormat.clone();
+						
+			binFiles.add( new Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >( new Tuple< BinaryFileStreamSetting, OutputFileFormatParameters >( datBin, format ), syncHeader ) );
 		}
-		
-		/*
-		while( timeIT.hasNext( ) )
-		{
-			binFiles.add( new Tuple<StreamHeader, StreamHeader>( timeIT.next( ), null ) );
-		}
-		*/
 		
 		return binFiles;
 	}
@@ -338,18 +339,6 @@ public class dialogConverBin2CLIS extends JDialog
 				{
 					clearBinaryFiles = false;
 						
-					/*
-					try 
-					{
-						Robot r = new Robot( );
-						r.keyPress( KeyEvent.VK_ESCAPE );
-						r.keyRelease( KeyEvent.VK_ESCAPE );
-					} 
-					catch ( AWTException e1 ) 
-					{
-					}
-					*/
-					
 					dispose();
 				}
 			} );
@@ -371,18 +360,6 @@ public class dialogConverBin2CLIS extends JDialog
 				public void actionPerformed( ActionEvent e ) 
 				{
 					clearBinaryFiles = true;
-					
-					/*
-					try 
-					{
-						Robot r = new Robot( );
-						r.keyPress( KeyEvent.VK_ESCAPE );
-						r.keyRelease( KeyEvent.VK_ESCAPE );
-					} 
-					catch ( AWTException e1 ) 
-					{
-					}
-					*/
 					
 					dispose();
 				}
@@ -545,35 +522,6 @@ public class dialogConverBin2CLIS extends JDialog
 		return this.scrollTableData;
 	}
 	
-	/*
-	private JPanel getTimeStampPanel( ) 
-	{
-		if ( timeStampPanel == null )
-		{
-			timeStampPanel = new JPanel( );
-			timeStampPanel.setForeground( Color.BLACK );
-			timeStampPanel.setBorder( new EmptyBorder( 0, 2, 0, 0 ) );
-			timeStampPanel.setLayout( new BorderLayout( 0, 0 ) );
-			timeStampPanel.add( getPanelBtnAddTime( ), BorderLayout.NORTH );
-			timeStampPanel.add( getScrollTableTime( ), BorderLayout.CENTER );
-		}
-
-		return timeStampPanel;
-	}
-	*/
-	
-	/*
-	private JScrollPane getScrollTableTime()
-	{
-		if( this.scrollTableTime == null )
-		{
-			this.scrollTableTime = new JScrollPane( this.getTableFileTime( ) );
-		}
-		
-		return this.scrollTableTime;
-	}
-	*/
-
 	private JPanel getPanelBtnAddData( ) 
 	{
 		if ( panelBtnAddData == null )
@@ -581,32 +529,14 @@ public class dialogConverBin2CLIS extends JDialog
 			panelBtnAddData = new JPanel( );
 			FlowLayout flowLayout = ( FlowLayout ) panelBtnAddData.getLayout( );
 			flowLayout.setAlignment( FlowLayout.LEFT );
-			panelBtnAddData.add( getBtnMoveUpDataFile( ) );
-			panelBtnAddData.add( getButtonMoveDownDataFile( ) );
+			//panelBtnAddData.add( getBtnMoveUpDataFile( ) );
+			//panelBtnAddData.add( getButtonMoveDownDataFile( ) );
 			panelBtnAddData.add( getLblBinaryDataFiles( ) );
 			panelBtnAddData.add( getButtonAddData( ) );
 		}
 
 		return panelBtnAddData;
 	}
-
-	/*
-	private JPanel getPanelBtnAddTime( ) 
-	{
-		if ( panelBtnAddTime == null )
-		{
-			panelBtnAddTime = new JPanel( );
-			FlowLayout flowLayout = ( FlowLayout ) panelBtnAddTime.getLayout( );
-			flowLayout.setAlignment( FlowLayout.LEFT );
-			panelBtnAddTime.add( this.getBtnMoveUpTimeFile( ) );
-			panelBtnAddTime.add( this.getButtonMoveDownTimeFile( ) );
-			panelBtnAddTime.add( getLblBinaryTimeFiles( ) );
-			panelBtnAddTime.add( getButtonAddTime( ) );
-		}
-
-		return panelBtnAddTime;
-	}
-	*/
 
 	private JButton getButtonAddData( ) 
 	{
@@ -634,11 +564,12 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						for( String file : FILES )
 						{	
-							StreamHeader bh = getBinaryFileInfo( file );
+							MutableDataStreamSetting bh = getBinaryFileInfo( file );
 							if( bh != null )
-							{
-								insertBinaryFiles( getTableFileData( ), bh );
-								binaryDataFiles.add( bh );
+							{								
+								insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
+									
+								binaryDataFiles.put( file, bh );
 							}
 						}
 						
@@ -654,53 +585,8 @@ public class dialogConverBin2CLIS extends JDialog
 		return buttonAddData;
 	}
 
-	/*
-	private JButton getButtonAddTime( ) 
-	{
-		if ( buttonAddTime == null )
-		{
-			buttonAddTime = new JButton( );
-			
-			try
-			{
-				buttonAddTime.setIcon( GeneralAppIcon.Folder( 20, 16, Color.BLACK, Color.ORANGE ) );
-			}
-			catch ( Exception e ) 
-			{
-				buttonAddTime.setText(  Language.getLocalCaption( Language.SELECT_TEXT ) );
-			}
-			
-			buttonAddTime.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
-			buttonAddTime.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
-			
-			buttonAddTime.addActionListener( new ActionListener( ) 
-			{
-				public void actionPerformed( ActionEvent e ) 
-				{
-					clearBinaryFiles( getTableFileTime( ), binaryTimeFiles );
-					
-					String[] FILES = guiManager.getInstance( ).selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null );
-					if( FILES != null )
-					{
-						for( String file : FILES )
-						{
-							insertBinaryFiles( getTableFileTime( ), file );
-							StreamHeader bh = getBinaryFileInfo( file );
-							if( bh != null )
-							{
-								binaryTimeFiles.add( bh );
-							}
-						}
-					}
-				}
-			} );
-		}
-
-		return buttonAddTime;
-	}
-	*/
-
-	private void clearBinaryFiles( JTable t, List< StreamHeader > binaryFiles )	
+	
+	private void clearBinaryFiles( JTable t, Map< String, MutableDataStreamSetting > binaryFiles )	
 	{
 		this.clearInfoLabels( );
 			
@@ -713,67 +599,6 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 	}
 	
-	/*
-	private JTable getTableFileTime( ) 
-	{
-		if ( tableFileTime == null ) 
-		{
-			this.tableFileTime = this.getCreateJTable( );
-			this.tableFileTime.setModel( this.createBinFileTable( ) );
-			
-			this.tableFileTime.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-			
-			this.tableFileTime.setPreferredScrollableViewportSize( this.tableFileTime.getPreferredSize( ) );
-			this.tableFileTime.setFillsViewportHeight( true );
-			
-			this.tableFileTime.addFocusListener( new FocusListener( ) 
-			{				
-				@Override
-				public void focusLost( FocusEvent e ) 
-				{	
-				}
-				
-				@Override
-				public void focusGained( FocusEvent e ) 
-				{
-					JTable t = getTableFileData( );
-					t.clearSelection( );
-					clearInfoLabels( );
-				}
-			} );
-			
-			this.tableFileTime.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
-			{				
-				@Override
-				public void valueChanged( ListSelectionEvent e ) 
-				{
-					// TODO Auto-generated method stub
-					ListSelectionModel md = ( ListSelectionModel )e.getSource( );
-					if( !md.isSelectionEmpty( ) && !e.getValueIsAdjusting( ) )
-					{
-						//int c = tableFileTime.getSelectedColumn( );
-						int r = tableFileTime.getSelectedRow( );
-						
-						if( r < binaryTimeFiles.size( ) )
-						{
-							currentBinFile = binaryTimeFiles.get( r );
-							showBinaryFileInfo( currentBinFile );
-						}
-						
-						//if( c >= 0 && r >= 0 )
-						//{
-						//	String file = tableFileTime.getValueAt( r, c ).toString( );
-						//	getBinaryFileInfo( file );
-						//}
-					}
-				}
-			} );		
-		}
-
-		return tableFileTime;
-	}
-	*/
-
 	private JLabel getLblBinaryDataFiles( ) 
 	{
 		if ( lblBinaryDataFiles == null )
@@ -783,18 +608,6 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return lblBinaryDataFiles;
 	}
-
-	/*
-	private JLabel getLblBinaryTimeFiles( ) 
-	{
-		if ( lblBinaryTimeFiles == null )
-		{
-			lblBinaryTimeFiles = new JLabel(  Language.getLocalCaption( Language.LSL_BIN_TIME_FILES )  );
-		}
-
-		return lblBinaryTimeFiles;
-	}
-	*/
 
 	private JPanel getPanelFilesInfo( ) 
 	{
@@ -813,6 +626,8 @@ public class dialogConverBin2CLIS extends JDialog
 	{
 		if ( panelBinInfo == null )
 		{
+			final int COLS = 2;
+			
 			panelBinInfo = new JPanel( );
 			panelBinInfo.setBorder( new EmptyBorder( 4, 0, 0, 0 ) );
 			
@@ -823,121 +638,173 @@ public class dialogConverBin2CLIS extends JDialog
 			gbl_panelBinInfo.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
 			panelBinInfo.setLayout( gbl_panelBinInfo );
 			
-			GridBagConstraints gbc_lblFile = new GridBagConstraints( );
-			gbc_lblFile.anchor = GridBagConstraints.EAST;
-			gbc_lblFile.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblFile.gridx = 0;
-			gbc_lblFile.gridy = 0;
-			panelBinInfo.add( getLblFile( ), gbc_lblFile );
+			int colPadding = 0;
 			
-			GridBagConstraints gbc_txtFilePath = new GridBagConstraints( );
-			gbc_txtFilePath.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtFilePath.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtFilePath.gridx = 1;
-			gbc_txtFilePath.gridy = 0;
-			panelBinInfo.add( getTxtFilePath( ), gbc_txtFilePath );
+			GridBagConstraints gbc = new GridBagConstraints( );
+			gbc.anchor = GridBagConstraints.EAST;
+			gbc.insets = new Insets( 0, 0, 5, 5 );
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblFile( ), gbc );
 			
-			GridBagConstraints gbc_lblStreamName = new GridBagConstraints( );
-			gbc_lblStreamName.anchor = GridBagConstraints.EAST;
-			gbc_lblStreamName.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblStreamName.gridx = 0;
-			gbc_lblStreamName.gridy = 1;
-			panelBinInfo.add( getLblStreamName( ), gbc_lblStreamName );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtFilePath( ), gbc );
+
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblStreamName( ), gbc );
 			
-			GridBagConstraints gbc_txtStreamName = new GridBagConstraints( );
-			gbc_txtStreamName.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtStreamName.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtStreamName.gridx = 1;
-			gbc_txtStreamName.gridy = 1;
-			panelBinInfo.add( getTxtStreamName( ), gbc_txtStreamName );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtStreamName( ), gbc );
 			
-			GridBagConstraints gbc_lblDataType = new GridBagConstraints( );
-			gbc_lblDataType.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblDataType.anchor = GridBagConstraints.EAST;
-			gbc_lblDataType.gridx = 0;
-			gbc_lblDataType.gridy = 2;
-			panelBinInfo.add( getLblDataType( ), gbc_lblDataType );
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblDataType( ), gbc );
 			
-			GridBagConstraints gbc_txtDataType = new GridBagConstraints( );
-			gbc_txtDataType.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtDataType.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtDataType.gridx = 1;
-			gbc_txtDataType.gridy = 2;
-			panelBinInfo.add( getTxtDataType( ), gbc_txtDataType );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtDataType( ), gbc );
 			
-			GridBagConstraints gbc_lblNoChannels = new GridBagConstraints( );
-			gbc_lblNoChannels.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblNoChannels.anchor = GridBagConstraints.EAST;
-			gbc_lblNoChannels.gridx = 0;
-			gbc_lblNoChannels.gridy = 3;
-			panelBinInfo.add( getLblNoChannels( ), gbc_lblNoChannels );
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblNoChannels( ), gbc );
 			
-			GridBagConstraints gbc_txtNumChannels = new GridBagConstraints( );
-			gbc_txtNumChannels.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtNumChannels.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtNumChannels.gridx = 1;
-			gbc_txtNumChannels.gridy = 3;
-			panelBinInfo.add( getTxtNumChannels( ), gbc_txtNumChannels );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtNumChannels( ), gbc );
 			
-			GridBagConstraints gbc_lblChuckSize = new GridBagConstraints( );
-			gbc_lblChuckSize.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblChuckSize.anchor = GridBagConstraints.EAST;
-			gbc_lblChuckSize.gridx = 0;
-			gbc_lblChuckSize.gridy = 4;
-			panelBinInfo.add( getLblChunkSize(), gbc_lblChuckSize );
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblChunkSize(), gbc );
 			
-			GridBagConstraints gbc_txtChunkSize = new GridBagConstraints( );
-			gbc_txtChunkSize.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtChunkSize.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtChunkSize.gridx = 1;
-			gbc_txtChunkSize.gridy = 4;
-			panelBinInfo.add( getTxtChunkSize( ), gbc_txtChunkSize );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtChunkSize( ), gbc );
 			
-			GridBagConstraints gbc_lblXmlDescr = new GridBagConstraints( );
-			gbc_lblXmlDescr.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblXmlDescr.anchor = GridBagConstraints.EAST;
-			gbc_lblXmlDescr.gridx = 0;
-			gbc_lblXmlDescr.gridy = 5;
-			panelBinInfo.add( getLblXmlDescr( ), gbc_lblXmlDescr );
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblXmlDescr( ), gbc );
 			
-			GridBagConstraints gbc_txtXMLDesc = new GridBagConstraints( );
-			gbc_txtXMLDesc.insets = new Insets( 0, 0, 5, 0 );
-			gbc_txtXMLDesc.fill = GridBagConstraints.HORIZONTAL;
-			gbc_txtXMLDesc.gridx = 1;
-			gbc_txtXMLDesc.gridy = 5;
-			panelBinInfo.add( getTxtXMLDesc( ), gbc_txtXMLDesc );
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxtXMLDesc( ), gbc );
 			
-			GridBagConstraints gbc_lblOutputFormat = new GridBagConstraints( );
-			gbc_lblOutputFormat.anchor = GridBagConstraints.EAST;
-			gbc_lblOutputFormat.insets = new Insets( 0, 0, 5, 5 );
-			gbc_lblOutputFormat.gridx = 0;
-			gbc_lblOutputFormat.gridy = 6;
-			panelBinInfo.add( getLblOutputFormat( ), gbc_lblOutputFormat );
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLblOutputFormat( ), gbc );
 			
-			GridBagConstraints gbc_comboBox = new GridBagConstraints( );
-			gbc_comboBox.insets = new Insets( 0, 0, 5, 0 );
-			gbc_comboBox.fill = GridBagConstraints.HORIZONTAL;
-			gbc_comboBox.gridx = 1;
-			gbc_comboBox.gridy = 6;
-			panelBinInfo.add( getComboBoxOutputFormat( ), gbc_comboBox );
+			gbc.fill = GridBagConstraints.HORIZONTAL;			
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getComboBoxOutputFormat( ), gbc );
 			
-			GridBagConstraints gbc_lblOutputPath = new GridBagConstraints( );
-			gbc_lblOutputPath.anchor = GridBagConstraints.EAST;
-			gbc_lblOutputPath.insets = new Insets( 0, 0, 0, 5 );
-			gbc_lblOutputPath.gridx = 0;
-			gbc_lblOutputPath.gridy = 7;
-			panelBinInfo.add( getLblOutputPath( ), gbc_lblOutputPath );
 			
-			GridBagConstraints gbc_panelOutPath = new GridBagConstraints( );
-			gbc_panelOutPath.fill = GridBagConstraints.BOTH;
-			gbc_panelOutPath.gridx = 1;
-			gbc_panelOutPath.gridy = 7;
-			panelBinInfo.add( getPanelOutPath( ), gbc_panelOutPath );
+			JPanel panelAux = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			panelAux.add( getChbOutputParallelize() );
+			panelAux.add( new JLabel( Language.getLocalCaption( Language.OPTIONS_TEXT ) ) );
+			panelAux.add( this.getOutputFormatOptsButton() );			
+			colPadding++;
+			
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.anchor = GridBagConstraints.WEST;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;			
+			panelBinInfo.add( panelAux, gbc );
+			
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.anchor = GridBagConstraints.EAST;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount() + colPadding ) / COLS;
+			panelBinInfo.add( getLblOutputPath( ), gbc );
+			
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getPanelOutPath( ), gbc );
 		}
 
 		return panelBinInfo;
 	}
-	
+
+	private JButton getOutputFormatOptsButton()
+	{
+		if( this.btnOutFormatOptions == null )
+		{
+			this.btnOutFormatOptions = new JButton();
+			
+			int s = getChbOutputParallelize().getPreferredSize().height;
+			
+			this.btnOutFormatOptions.setPreferredSize( new Dimension( s, s ) );
+			
+			s = (int)( s * 0.75D);
+			
+			this.btnOutFormatOptions.setIcon( GeneralAppIcon.Pencil( s, Color.BLACK ) );
+			this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
+			
+			final JDialog ref = this;
+			this.btnOutFormatOptions.addActionListener( new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) 
+				{
+					JDialog dial = new JDialog( ref );
+					
+					dial.setModal( true );
+					dial.setLayout( new BorderLayout() );
+					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+					
+					dial.setTitle( Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+					
+					JPanel main = new JPanel( new BorderLayout() );
+					main.setBackground( Color.green );
+					
+					Object format = getComboBoxOutputFormat().getSelectedItem();
+					if( format != null )
+					{
+						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+						
+						main.add( scr, BorderLayout.CENTER );
+					}
+					
+					//dial.add( new JScrollPane( main ) );
+					dial.add( main );
+					
+					dial.setLocation( ref.getLocation() );					
+					dial.pack();
+					
+					Dimension s = dial.getSize();
+					FontMetrics fm = dial.getFontMetrics( dial.getFont() );
+					
+					int t = fm.stringWidth( dial.getTitle() ) * 2;
+					if( t > s.width )
+					{
+						s.width = t;
+					}
+					s.height = ref.getSize().height / 2;
+					
+					dial.setSize( s );
+					
+					dial.setVisible( true );
+				}
+			});
+		}
+		
+		return this.btnOutFormatOptions;
+	}
 
 	private JLabel getLblFile( ) 
 	{
@@ -1080,7 +947,19 @@ public class dialogConverBin2CLIS extends JDialog
 							String nm = e.getDocument().getText( 0, e.getDocument().getLength() );
 							if( !nm.isEmpty() )
 							{
-								currentBinFile.setName( nm );
+								StreamInfo prevInfo = currentBinFile.getStreamInfo();
+								
+								StreamInfo info = new StreamInfo( nm, prevInfo.type(), prevInfo.channel_count()
+																	, prevInfo.nominal_srate(), prevInfo.channel_format()
+																	, prevInfo.source_id() );
+								
+								List< String > parentNodes = new ArrayList< String >();
+								parentNodes.add( "info" );
+								parentNodes.add( LSLUtils.getAdditionalInformationLabelInXml() );
+								
+								addExtraStreamInfo( info.desc(), prevInfo.as_xml(), parentNodes );
+								
+								currentBinFile.setStreamInfo( info );
 								txtStreamName.setBorder( (new JTextField()).getBorder() );
 							}
 							else
@@ -1169,7 +1048,9 @@ public class dialogConverBin2CLIS extends JDialog
 							TableModel tm = (TableModel)e.getSource();							
 							Object d = tm.getValueAt( row, col );
 							
-							updateStreamHeader( row, col, d );
+							String file = tm.getValueAt( row, FileTableColumn ).toString();
+							
+							updateDataStreamSetting( file, col, d );
 						}
 					}
 				}
@@ -1186,50 +1067,23 @@ public class dialogConverBin2CLIS extends JDialog
 			this.tableFileData.getColumnModel().getColumn( 1 ).setPreferredWidth( 75 );
 			this.tableFileData.getColumnModel().getColumn( 1 ).setMaxWidth( 75 );
 			
-			/*
-			this.tableFileData.addFocusListener( new FocusListener( ) 
-			{				
-				@Override
-				public void focusLost( FocusEvent e ) 
-				{
-				}
-				
-				@Override
-				public void focusGained( FocusEvent e ) 
-				{
-					JTable t = getTableFileTime( );
-					t.clearSelection( );
-					clearInfoLabels( );
-				}
-			} );
-			*/
-			
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{				
 				@Override
 				public void valueChanged( ListSelectionEvent e ) 
 				{
-					// TODO Auto-generated method stub
-					
 					ListSelectionModel md = ( ListSelectionModel )e.getSource( );
 					if( !md.isSelectionEmpty( ) && !e.getValueIsAdjusting( ) )
 					{
-						//int c = tableFileData.getSelectedColumn( );
 						int r = tableFileData.getSelectedRow( );
 						
 						if( r < binaryDataFiles.size( ) )
 						{
-							currentBinFile = binaryDataFiles.get( r );
-							showBinaryFileInfo( currentBinFile );
+							String file = tableFileData.getValueAt( r, 0 ).toString();
+							currentBinFile = binaryDataFiles.get( file );
+							
+							showBinaryFileInfo( file, currentBinFile );
 						}
-						
-						/*
-						if( c >= 0 && r >= 0 )
-						{
-							String file = tableFileData.getValueAt( r, c ).toString( );
-							getBinaryFileInfo( file );
-						}
-						*/
 					}
 				}
 			} );		
@@ -1266,7 +1120,8 @@ public class dialogConverBin2CLIS extends JDialog
 				 };
 				 
 		t.getTableHeader( ).setReorderingAllowed( false );
-				
+			
+		/*
 		t.addKeyListener( new KeyAdapter() 
 		{				
 			@Override
@@ -1286,6 +1141,7 @@ public class dialogConverBin2CLIS extends JDialog
 				}
 			}
 		});
+		*/
 		
 		return t;
 	}
@@ -1318,10 +1174,11 @@ public class dialogConverBin2CLIS extends JDialog
 	
 	private Class[] getColumnTableTypes()
 	{
+		this.FileTableColumn = 0;
 		return new Class[]{ String.class, Boolean.class };
 	}
 		
-	private void insertBinaryFiles( JTable t, StreamHeader bh )
+	private void insertBinaryFilesInTable( JTable t, String file, boolean interleaved )
 	{	
 		Object[] vals = new Object[ t.getColumnCount( ) ];
 		Class[] colTableTypes = this.getColumnTableTypes();
@@ -1332,11 +1189,11 @@ public class dialogConverBin2CLIS extends JDialog
 			{
 				if( colTableTypes[ i ].equals( String.class ) )
 				{
-					vals[ i ] = bh.getFilePath();
+					vals[ i ] = file;
 				}
 				else if( colTableTypes[ i ].equals( Boolean.class ) )
 				{
-					vals[ i ] = bh.isInterleave();
+					vals[ i ] = interleaved;
 				}
 			}			
 		}
@@ -1345,17 +1202,17 @@ public class dialogConverBin2CLIS extends JDialog
 		m.addRow( vals );
 	}
 
-	private void showBinaryFileInfo( StreamHeader header )	
-	{
+	private void showBinaryFileInfo( String file, MutableDataStreamSetting header )	
+	{	
 		this.clearInfoLabels( );		
 	
 		if( header != null )
 		{
-			this.getTxtFilePath( ).setText( header.getFilePath( ) );
-			this.getTxtStreamName( ).setText( header.getName( ) );
+			this.getTxtFilePath( ).setText( file );
+			this.getTxtStreamName( ).setText( header.getStreamName() );
 			this.getTxtStreamName( ).setEditable( true );
 			
-			int type = header.getType( ) - 1;
+			int type = header.getDataType() - 1;
 			String t = type + "";
 			
 			Field[] fields = LSLUtils.class.getDeclaredFields( );
@@ -1378,32 +1235,26 @@ public class dialogConverBin2CLIS extends JDialog
 			}
 			
 			this.getTxtDataType( ).setText( t );	
-			this.getTxtNumChannels( ).setText( header.getNumberOfChannels( ) + "" );
-			this.getTxtXMLDesc( ).setText( header.getXMLDescription( ) );
-			this.getComboBoxOutputFormat( ).setSelectedItem( header.getOutputFormat( ) );
-			this.getTxtChunkSize( ).setText( header.getChunckSize() + "" );
+			this.getTxtNumChannels( ).setText( header.getStreamInfo().channel_count() + "" );
+			this.getTxtXMLDesc( ).setText( header.getStreamInfo().as_xml().replaceAll( "\\s+", "" ) );
+			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );
 		}
 	}
 		
 	
-	private void updateStreamHeader( int index, int fieldIndex, Object val )
+	private void updateDataStreamSetting( String file, int fieldIndex, Object val )
 	{
-		if( index >= 0 && index < this.binaryDataFiles.size() )
+		if( file != null && val != null )
 		{
-			StreamHeader bh = this.binaryDataFiles.get( index );
+			MutableDataStreamSetting bh = this.binaryDataFiles.get( file );
 			
 			switch ( fieldIndex )
 			{
-				case 0:
-				{
-					bh.setFilePath( val.toString() );
-					break;
-				}
 				case 1:
 				{
 					try
 					{
-						bh.setInterleave( (Boolean)val);
+						bh.setInterleaveadData( (Boolean)val);
 					}
 					catch (Exception e) 
 					{
@@ -1417,11 +1268,11 @@ public class dialogConverBin2CLIS extends JDialog
 		}
 	}
 	
-	private StreamHeader getBinaryFileInfo( String file )	
+	private MutableDataStreamSetting getBinaryFileInfo( String file )	
 	{
 		this.clearInfoLabels( );		
 		
-		StreamHeader bH = null;
+		MutableDataStreamSetting bH = null;
 		
 		BufferedReader reader = null;
 		
@@ -1431,12 +1282,12 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			String binHeader = reader.readLine( );
 		
-			String binSplitChar = StreamHeader.HEADER_BINARY_SEPARATOR ;
+			String binSplitChar = StreamBinaryHeader.HEADER_BINARY_SEPARATOR ;
 			
 			String[] parts = binHeader.split( binSplitChar );
 					
 			String name = "", type = "", timeType = ""
-					, chs = "", chunck = "", xml = ""
+					, chs = "", chunk = "", xml = ""
 					, interleave = "", strLenType = "";
 						
 			for( int i = 0; i < parts.length; i++ )
@@ -1447,27 +1298,27 @@ public class dialogConverBin2CLIS extends JDialog
 				}
 				else if( i == 1 )
 				{
-					type = parts[ i ];
+					type = parts[ i ]; // data type
 				}				
 				else if( i == 2 )
 				{
-					chs = parts[ i ];
+					chs = parts[ i ]; // channels
 				}
 				else if( i == 3 )
 				{
-					chunck = parts[ i ];
+					chunk = parts[ i ]; // chunk size
 				}
 				else if( i == 4 )
 				{
-					timeType = parts[ i ];
+					timeType = parts[ i ]; // time data type
 				}
 				else if( i == 5 )
-				{
-					strLenType = parts[ i ];
+				{ 
+					strLenType = parts[ i ]; // string length data type
 				}
 				else if( i == 6 )
 				{
-					interleave = parts[ i ];
+					interleave = parts[ i ]; // intereleavd
 				}
 				else
 				{
@@ -1482,18 +1333,37 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			xml = xml.replaceAll( "\\s+", " " );
 			
-			bH = new StreamHeader( file, name
-									, new Integer( type )
-									, new Integer( timeType )
-									, new Integer( strLenType )
-									, new Integer( chs )
-									, new Integer( chunck )
-									, new Boolean( interleave )
-									, xml
-									, this.getComboBoxOutputFormat( ).getSelectedItem( ).toString( )
-									, this.getTxtOutFileFolder( ).getText( )
-									, this.getChckbxDeleteBinaries().isSelected() );
-		} 
+			Map< String, String > fields = this.getStreamInfoFields( xml );
+						
+			String stType = fields.get( "type" );
+			stType = ( stType == null ? "" : stType );
+			
+			String fr = fields.get( "nominal_srate" );			
+			double frq = LSL.IRREGULAR_RATE;
+			if( fr != null )
+			{
+				try
+				{
+					frq = new Double( fr );
+				}
+				catch (Exception e) 
+				{
+				}
+			}
+			
+			String sid = fields.get( "source_id" );
+			sid = ( sid == null ? "" : sid );
+			
+			StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );
+			
+			List< String > parentNodes = new ArrayList< String >();
+			parentNodes.add( "info" );
+			parentNodes.add( LSLUtils.getAdditionalInformationLabelInXml() );
+			this.addExtraStreamInfo( info.desc(), xml, parentNodes);
+			
+			bH = new MutableDataStreamSetting( info, new Integer( timeType ), new Integer( strLenType ), xml, new Integer( chunk ), new Boolean( interleave ), false  );
+			
+		}
 		catch ( Exception e ) 
 		{
 			bH = null;
@@ -1515,6 +1385,115 @@ public class dialogConverBin2CLIS extends JDialog
 		return bH;
 	}
 	
+	private Map< String, String > getStreamInfoFields( String xml )
+	{
+		Map< String, String > nodes = new HashMap<String, String>();
+		
+		Document doc = ConvertTo.xmlStringToXMLDocument( xml );
+	
+		Node n = doc.getFirstChild();
+		NodeList nl = n.getChildNodes();
+		Node an;
+
+		for (int i=0; i < nl.getLength(); i++) 
+		{
+		    an = nl.item(i);
+		    
+		    if(an.getNodeType()==Node.ELEMENT_NODE) 
+		    {
+		    	nodes.put( an.getNodeName(), an.getTextContent() );
+		    }
+		}
+		
+		return nodes;
+	}
+	
+	private void addExtraStreamInfo( XMLElement desc, String xml, List< String > parentNodes )
+	{
+		if( xml != null && parentNodes != null && !parentNodes.isEmpty() )
+		{
+			Document doc = ConvertTo.xmlStringToXMLDocument( xml );
+		
+			Node root = doc.getFirstChild();
+			
+			Node aux = findNode( root, parentNodes, 0 );
+			
+			if( aux != null )
+			{
+				this.addExtraStreamInfoAux( desc, aux.getChildNodes() );
+			}
+		}
+	}
+	
+	private void addExtraStreamInfoAux( XMLElement el, NodeList nl )
+	{
+		if( el != null && nl != null )
+		{
+			for (int i=0; i < nl.getLength(); i++) 
+			{
+				Node an = nl.item(i);
+	
+				if( an.getNodeType() == Node.ELEMENT_NODE) 
+			    {
+					String name = an.getNodeName();
+					
+					NodeList childNodes = an.getChildNodes();
+					if( childNodes.getLength() == 1 )
+					{
+						String value = an.getTextContent();
+						el.append_child_value( name, value);
+					}
+					else
+					{
+						this.addExtraStreamInfoAux( el.append_child( name ), childNodes );
+					}
+			    }
+				else
+				{
+					this.addExtraStreamInfoAux( el.next_sibling(), an.getChildNodes() );
+				}
+			}
+		}
+	}
+	
+	private Node findNode( Node node, List< String > parentNodes, int parentNodeIndex )
+	{
+		Node res = null;
+		
+		if( node != null 
+				&& parentNodeIndex < parentNodes.size() )
+		{
+			String parentNode = parentNodes.get( parentNodeIndex );
+			
+			if( node.getNodeName().toLowerCase().equals( parentNode.toLowerCase() ) )
+			{
+				parentNodeIndex++;
+				
+				if( parentNodeIndex >= parentNodes.size() )
+				{
+					res = node;
+				}
+				else
+				{
+					Node child = node.getFirstChild();
+					
+					res = this.findNode( child, parentNodes, parentNodeIndex );
+					while( res == null )
+					{
+						child = child.getNextSibling();
+						if( child != null )
+						{
+							res = this.findNode( child, parentNodes, parentNodeIndex );
+						}
+					}
+					
+				}
+			}
+		}
+			
+		return res;
+	}
+	
 	private void clearInfoLabels( )
 	{
 		this.getTxtFilePath( ).setText( "" );
@@ -1528,7 +1507,7 @@ public class dialogConverBin2CLIS extends JDialog
 		this.getTxtXMLDesc( ).setText( "" );	
 	}
 	
-	
+	/*
 	private JButton getBtnMoveUpDataFile( ) 
 	{
 		if ( btnMoveUpDataFile == null )
@@ -1557,8 +1536,8 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return btnMoveUpDataFile;
 	}
-	
-
+	*/
+	/*
 	private JButton getButtonMoveDownDataFile( ) 
 	{
 		if ( buttonMoveDownDataFile == null )
@@ -1587,71 +1566,8 @@ public class dialogConverBin2CLIS extends JDialog
 
 		return buttonMoveDownDataFile;
 	}
-	
-	
-	/*
-	private JButton getBtnMoveUpTimeFile( ) 
-	{
-		if ( btnMoveUpTimeFile == null )
-		{
-			btnMoveUpTimeFile = new JButton( "" );
-			btnMoveUpTimeFile.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
-						
-			try
-			{
-				btnMoveUpTimeFile.setIcon( new ImageIcon( imagenPoligono2D.crearImagenTriangulo( 12, 1, Color.BLACK, Color.GRAY, imagenPoligono2D.NORTH ) ) );
-			}
-			catch( Exception e )
-			{
-				btnMoveUpTimeFile.setText( Language.getLocalCaption( Language.UP_TEXT ) );
-			}
-			
-			btnMoveUpTimeFile.addActionListener( new ActionListener( ) 
-			{				
-				@Override
-				public void actionPerformed( ActionEvent e ) 
-				{
-					moveBinaryFile( getTableFileTime( ), -1 );
-				}
-			} );
-		}
-
-		return btnMoveUpTimeFile;
-	}
-	 */
-	
-	/*
-	private JButton getButtonMoveDownTimeFile( ) 
-	{
-		if ( buttonMoveDownTimeFile == null )
-		{
-			buttonMoveDownTimeFile = new JButton( "" );
-			buttonMoveDownTimeFile.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
-			
-			try
-			{
-				buttonMoveDownTimeFile.setIcon( new ImageIcon( imagenPoligono2D.crearImagenTriangulo( 12, 1, Color.BLACK, Color.GRAY, imagenPoligono2D.SOUTH ) ) );
-			}
-			catch( Exception e )
-			{
-				buttonMoveDownTimeFile.setText( Language.getLocalCaption( Language.DOWN_TEXT ) );
-			}
-			
-			buttonMoveDownTimeFile.addActionListener( new ActionListener( ) 
-			{				
-				@Override
-				public void actionPerformed( ActionEvent e ) 
-				{
-					moveBinaryFile( getTableFileTime( ), 1 );
-				}
-			} );
-		}
-
-		return buttonMoveDownTimeFile;
-	}
 	*/
-	
-	
+	/*
 	private void moveBinaryFile( JTable list, int relativePos )	
 	{
 		int indexRow = list.getSelectedRow( );
@@ -1661,8 +1577,8 @@ public class dialogConverBin2CLIS extends JDialog
 				( newIndexRow > -1 ) && 
 				( newIndexRow < list.getRowCount( ) ) )
 		{
-			StreamHeader bh = this.binaryDataFiles.get( indexRow );
-			StreamHeader bh2 = this.binaryDataFiles.get( newIndexRow );
+			StreamBinaryHeader bh = this.binaryDataFiles.get( indexRow );
+			StreamBinaryHeader bh2 = this.binaryDataFiles.get( newIndexRow );
 			
 			this.binaryDataFiles.set( newIndexRow, bh );
 			this.binaryDataFiles.set( indexRow, bh2 );
@@ -1674,6 +1590,7 @@ public class dialogConverBin2CLIS extends JDialog
 			list.setRowSelectionInterval( newIndexRow, newIndexRow );
 		}
 	}
+	*/
 
 	private JLabel getLblOutputFormat( ) 
 	{
@@ -1707,25 +1624,42 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						JComboBox< String > cb = ( JComboBox<String> )e.getSource( );
 						String f = cb.getSelectedItem( ).toString( );
-						for( StreamHeader bH : binaryDataFiles )
-						{
-							bH.setOutputFormat( f );
-						}
-						
-						/*
-						for( StreamHeader bH : binaryTimeFiles )
-						{
-							bH.setOutputFormat( f );
-						}
-						*/
+						outFormat.setOutputFileFormat( f );						
 					}
 				}
 			} );
+			
+			fileFormat.setSelectedItem( this.outFormat.getOutputFileFormat() );
 		}
 
 		return fileFormat;
 	}
-		
+	
+	private JCheckBox getChbOutputParallelize( ) 
+	{
+		if ( this.chbParallelize == null )
+		{
+			this.chbParallelize = new JCheckBox( Language.getLocalCaption( Language.PARALLELIZE_TEXT ) );
+			this.chbParallelize.setHorizontalTextPosition( SwingConstants.LEFT);
+			
+			this.chbParallelize.addItemListener( new ItemListener()
+			{	
+				@Override
+				public void itemStateChanged(ItemEvent arg0) 
+				{	
+					JCheckBox c = (JCheckBox)arg0.getSource();
+					
+					outFormat.setParallelize( c.isSelected() );
+				}
+			}); 
+			
+			this.chbParallelize.setSelected( true );
+		}
+
+		return chbParallelize;
+	}
+	
+	
 	private JLabel getLblOutputPath( ) 
 	{
 		if ( lblOutputPath == null )
@@ -1754,8 +1688,7 @@ public class dialogConverBin2CLIS extends JDialog
 	{
 		if ( txtOutFileFolder == null )
 		{
-			txtOutFileFolder = new JTextField( );
-			txtOutFileFolder.setText( this.currentFolderPath );
+			txtOutFileFolder = new JTextField( );			
 			txtOutFileFolder.setColumns( 10 );
 			
 			txtOutFileFolder.getDocument( ).addDocumentListener( new DocumentListener( ) 
@@ -1783,24 +1716,16 @@ public class dialogConverBin2CLIS extends JDialog
 					try 
 					{
 						String folder = e.getDocument( ).getText( 0, e.getDocument( ).getLength( ) );
-						
-						for( StreamHeader bh : binaryDataFiles )
-						{
-							bh.setOutputFolder( folder );
-						}
-						
-						/*
-						for( StreamHeader bh : binaryTimeFiles )
-						{
-							bh.setOutputFolder( folder );
-						}
-						*/
+					
+						outFormat.setOutputFileName( folder );						
 					}
 					catch ( BadLocationException e1 ) 
 					{
 					}
 				}
 			} );
+			
+			txtOutFileFolder.setText( this.currentFolderPath );
 		}
 		
 		return txtOutFileFolder;
@@ -1857,17 +1782,7 @@ public class dialogConverBin2CLIS extends JDialog
 					
 					boolean del = c.isSelected();
 					
-					for( StreamHeader bh : binaryDataFiles )
-					{
-						bh.setDeleteBinary( del );
-					}
-					
-					/*
-					for( StreamHeader bh : binaryTimeFiles )
-					{
-						bh.setDeleteBinary( del );
-					}
-					*/
+					outFormat.setDeleteBin( del );
 				}
 			});
 		}

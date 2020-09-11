@@ -30,6 +30,8 @@ import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.outputDataFile.OutputBinaryFileSegmentation;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
@@ -46,7 +48,6 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -68,11 +69,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 {	
 	public static final String ID = "OutputDataHandler";
 	
-	public static final String PARAMETER_FILE_FORMAT = "format";
-	public static final String PARAMETER_SET_MARK = "mark";
-	public static final String PARAMETER_FILE_PATH = "filePath";
+	public static final String ACTION_START_RECORD = "start record";
+	public static final String ACTION_START_SYNC = "Start sync";
+	public static final String ACTION_SET_MARK = "mark";
+	
+	public static final String PARAMETER_OUTPUT_FORMAT = "PARAMETER_OUTPUT_FORMAT";	
+	//public static final String PARAMETER_FILE_PATH = "filePath";
 	public static final String PARAMETER_LSL_SETTING = "LSL settings";
-	public static final String PARAMETER_START_SYNC = "Start sync";
 	public static final String PARAMETER_WRITE_TEST = "Writing test";
 	
 	private static OutputDataFileHandler ctr = null;
@@ -84,9 +87,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private boolean inputSyncLauched = false;
 	private boolean isRecorderThreadOn = false;
 	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
-	
-	private String fileFormat = DataFileFormat.CLIS_GZIP;
-	
+		
 	//private List<LSL.StreamInfo> streamInfos = null;
 
 	private Map<String, OutputBinaryFileSegmentation> outWriterHandlers = null;
@@ -145,11 +146,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.isRunBinData.set( true );
 			
 			this.NumberOfSavingThreads.set( this.temps.size() );
-						
+			
 			for ( TemporalOutDataFileWriter temp : this.temps )
-			{	
-				temp.setOutputFileFormat( this.fileFormat );
-				
+			{					
 				if( !temp.getState().equals( Thread.State.NEW ) )
 				{					
 					temp.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
@@ -197,34 +196,21 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	 */
 	@Override
 	protected void startWork( Object info ) throws Exception
-	{
-		final OutputDataFileHandler auxOutDataFileCtrl = this;
-		
+	{		
 		if (this.temps != null)
 		{
 			synchronized ( this.temps )
 			{
 				Tuple t = (Tuple)info;
 				
-				if( t.x.equals( PARAMETER_START_SYNC ) )
+				String act = (String)t.x;
+				
+				if( act.equals( ACTION_START_SYNC ) )
 				{					
-					//this.startSyncThread( t.x.toString() );
-					//this.startSyncCollector();
 					this.startSyncThread( );
 				}
-				else if ( t.x.toString().equals( PARAMETER_FILE_FORMAT ) )
+				else if ( act.toString().equals( ACTION_START_RECORD ) )
 				{
-					String format = t.y.toString();
-					
-					if ( !DataFileFormat.isSupportedFileFormat( format ) )
-					{
-						throw new IllegalArgumentException( "Unsupport file format." );
-					}
-
-					this.fileFormat = format;
-				
-					//this.startSyncThread( t.x.toString() );
-					//this.startSyncCollector();
 					this.startSyncThread( );
 					
 					if( !this.isRecorderThreadOn )
@@ -237,40 +223,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 							LaunchThread tLaunch = new LaunchThread( temp );
 							tLaunch.taskMonitor( this );
-							
-							/*
-							Thread tLauch = new Thread()
-							{	
-								public void run()
-								{
-									try
-									{
-										temp.startThread();										
-									}
-									catch (Exception e)
-									{
-										EventInfo event = new EventInfo( eventType.PROBLEM, e);
-										supervisor.eventNotification( auxOutDataFileCtrl, event );
-									}
-								}
-							};
-							
-							tLauch.start();
-							*/
-							
+														
 							tLaunch.startThread();
 						}
 					}
 				}
-				else if ( t.x.toString().equals( PARAMETER_SET_MARK ) )
-				{					
-					/*
-					for( final TemporalOutputDataFile temp : this.temps )
-					{							
-						temp.addMark( (Integer)t.y );						
-					}
-					*/
-										
+				else if ( act.toString().equals( ACTION_SET_MARK ) )
+				{						
 					if( this.saveSyncMarker.get() )
 					{
 						this.syncCollector.SaveSyncMarker( (SyncMarker)t.y );
@@ -345,11 +304,21 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			ParameterList parameters = minionPars.getMinionParameters( ID );
 			
-			Parameter filePar = parameters.getParameter( PARAMETER_FILE_PATH );			
-			String filePath = (String)filePar.getValue();
+			Parameter parFormat = parameters.getParameter( PARAMETER_OUTPUT_FORMAT );
+			OutputFileFormatParameters fileFormat = (OutputFileFormatParameters)parFormat.getValue();
 			
+			if( fileFormat == null )
+			{
+				throw new IllegalArgumentException( "OutputFileFormatParameters null" );
+			}
+			
+			if( !DataFileFormat.isSupportedFileFormat( fileFormat.getOutputFileFormat() ) )
+			{
+				throw new  IllegalArgumentException( "Unsupport file format." );
+			}
+						
 			Parameter lslSetting = parameters.getParameter( PARAMETER_LSL_SETTING );
-			HashSet< LSLConfigParameters > lslCFGs = ( HashSet< LSLConfigParameters > )lslSetting.getValue();
+			HashSet< DataStreamSetting > lslCFGs = ( HashSet< DataStreamSetting > )lslSetting.getValue();
 			
 			Parameter writingTest = parameters.getParameter( PARAMETER_WRITE_TEST );
 			boolean test = false;
@@ -358,12 +327,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				test = (boolean)writingTest.getValue();
 			}				
 			
+			
 			//
 			//
 			// Clear control list
 			//
 			
-			//this.streamInfos.clear();
 			this.temps.clear();
 			this.syncInputData.clear();
 			
@@ -372,7 +341,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				this.syncCollector.stopThread( IStoppableThread.FORCE_STOP );
 			}
 			
-			this.syncCollector = new SyncMarkerCollectorWriter( filePath );				
+			this.syncCollector = new SyncMarkerCollectorWriter( fileFormat.getOutputFileName() );				
 
 			//
 			//
@@ -382,10 +351,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			LSL.StreamInfo[] results = LSL.resolve_streams();
 
 			// To check alive stream
-			List< Tuple< LSL.StreamInfo, LSLConfigParameters > > inlets = new ArrayList< Tuple< LSL.StreamInfo, LSLConfigParameters > >();
+			List< DataStreamSetting > streamSettings = new ArrayList< DataStreamSetting >();
 			
 			// chunck size of each stream
-			List< Integer > inLetsChunckSizes = new ArrayList< Integer >();
+			List< Integer > inLetsChunkSizes = new ArrayList< Integer >();
 
 			// check selected stream
 			for( int i = 0; i < results.length; i++ )
@@ -393,46 +362,42 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				LSL.StreamInfo info = results[ i ];
 				boolean found = false;
 				
-				Iterator< LSLConfigParameters > itLSLcfg = lslCFGs.iterator();
+				Iterator< DataStreamSetting > itLSLcfg = lslCFGs.iterator();
 
 				while ( ( itLSLcfg.hasNext() ) && ( !found ) )
 				{
-					LSLConfigParameters t = itLSLcfg.next();
-					if( t.isSelected() || t.isSynchronationStream() )
+					DataStreamSetting stt = itLSLcfg.next();
+					if( stt.isSelected() || stt.isSynchronationStream() )
 					{
-						found = info.uid().equals( t.getUID() );
+						found = info.uid().equals( stt.getUID() );
 	
 						if ( found )
 						{								
 							// copy extra information
-							info.desc().append_child_value( t.getExtraInfoLabel(), t.getAdditionalInfo() );
+							stt.getStreamInfo().desc().append_child_value( stt.getExtraInfoLabel(), stt.getAdditionalInfo() );
 							
 							// Save selected and alive stream
-							Tuple< LSL.StreamInfo, LSLConfigParameters > tLSL = new Tuple<LSL.StreamInfo, LSLConfigParameters>( info , t );
-							inlets.add( tLSL );
+							streamSettings.add( stt );
 							
 							// Save chunck size
-							inLetsChunckSizes.add( t.getChunckSize() );
-						}						
+							inLetsChunkSizes.add( stt.getChunkSize() );
+						}				
 					}					
 				}
 			}
 
 			// Save selected LSL stream
-			if ( !inlets.isEmpty() )
+			if ( !streamSettings.isEmpty() )
 			{
 				//List< Tuple< LSL.StreamInfo, LSLConfigParameters > > syncs = new ArrayList< Tuple< LSL.StreamInfo, LSLConfigParameters > >();
 				
-				for ( int indexInlets = 0; indexInlets < inlets.size(); indexInlets++)
+				for ( int indexInlets = 0; indexInlets < streamSettings.size(); indexInlets++)
 				{
-					Tuple< LSL.StreamInfo, LSLConfigParameters > t = inlets.get( indexInlets );
+					DataStreamSetting t = streamSettings.get( indexInlets );
 					
-					LSL.StreamInfo inletInfo = t.x;
-					//this.streamInfos.add( inletInfo );
-					
-					if( t.y.isSynchronationStream() )
+					if( t.isSynchronationStream() )
 					{
-						InputSyncData sync = new InputSyncData( inletInfo, t.y );
+						InputSyncData sync = new InputSyncData( t );
 						this.syncInputData.add( sync );
 						//syncs.add( t );
 					}
@@ -442,11 +407,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						if( !test )
 						{
-							temp = new TemporalOutDataFileWriter( filePath,  inletInfo, t.y, indexInlets );
+							temp = new TemporalOutDataFileWriter( t, fileFormat.clone(), indexInlets );
 						}
 						else
 						{
-							temp = new WritingTest( filePath,  inletInfo, t.y, indexInlets );
+							temp = new WritingTest( t, fileFormat.clone(),  indexInlets );
 						}
 
 						this.temps.add( temp );
@@ -582,7 +547,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							t.y.closeStream();
 						}
 						
-						//if( this.NumberOfSavingThreads < 1 )
 						if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
 						{								
 							if( this.checkOutWriterTimer != null )
@@ -645,7 +609,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{							
 					super.supervisor.eventNotification( this, new EventInfo( event.getIdSource(), event.getEventType(),  event.getEventInformation() ) );
 					
-					this.startWorking( new Tuple( PARAMETER_SET_MARK, event.getEventInformation() ) );
+					this.startWorking( new Tuple( ACTION_SET_MARK, event.getEventInformation() ) );
 				}
 				else if ( event.getEventType().equals( EventType.TEST_WRITE_TIME ) )
 				{		
@@ -725,13 +689,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 								else
 								{
-									binName = dat.getStreamingName();
+									binName = dat.getDataStreamSetting().getStreamName();
 
 									Tuple< String, Boolean > res;
 
 									synchronized( this.sync ) 
 									{
-										res = FileUtils.checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
+										res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getOutputFileName(), binName );
 
 										try
 										{
@@ -747,10 +711,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 									if (!((Boolean)res.y).booleanValue())
 									{
-										dat.setOutputFileName( (String)res.x );
+										dat.getOutputFileFormat().setOutputFileName( (String)res.x );
 									}
 
-									dat.setOutputFileName( res.x );
+									dat.getOutputFileFormat().setOutputFileName( (String)res.x );
 
 									saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
 									saveOutFileThread.taskMonitor( this );
@@ -829,7 +793,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						synchronized( this.sync ) 
 						{
-							res = FileUtils.checkOutputFileName( dat.getOutputFileName(), dat.getStreamingName() );
+							res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getOutputFileName(), dat.getDataStreamSetting().getStreamName() );
 							
 							try
 							{
@@ -845,10 +809,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						if (!((Boolean)res.y).booleanValue())
 						{
-							dat.setOutputFileName( (String)res.x );
+							dat.getOutputFileFormat().setOutputFileName( (String)res.x );
 						}
 						
-						dat.setOutputFileName( res.x );
+						dat.getOutputFileFormat().setOutputFileName( res.x );
 						
 						launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
 
@@ -872,7 +836,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						if( this.NumberOfSavingThreads.get() < 1 )
 						{
-							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalBinData)event.getEventInformation()).getStreamingName() )  );
+							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, ((TemporalBinData)event.getEventInformation()).getDataStreamSetting().getStreamName() ) );
 						}
 
 						super.event = new EventInfo( event.getIdSource(), EventType.PROBLEM, "Save process error: " + ex.getMessage() );
@@ -978,7 +942,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				throw new IllegalArgumentException( "SyncMarkerCollectorWriter null" );
 			}
 			
-			super.setName( this.getClass().getSimpleName() + "-" + data.getStreamingName() );
+			super.setName( this.getClass().getSimpleName() + "-" + data.getDataStreamSetting().getStreamName() );
 			
 			this.syncCollector = syncCol;
 			this.dat = data;
@@ -1017,7 +981,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				
 				if( this.writeList != null )
 				{
-					this.writeList.put( this.dat.getStreamingName(), this.saveOutFileThread );
+					this.writeList.put( this.dat.getDataStreamSetting().getStreamName(), this.saveOutFileThread );
 		
 					savingPercentage.put( this.saveOutFileThread.getID(), 0 );
 					

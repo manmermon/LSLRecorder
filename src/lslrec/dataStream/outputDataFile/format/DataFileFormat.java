@@ -22,49 +22,78 @@
 
 package lslrec.dataStream.outputDataFile.format;
 
-import java.util.HashMap;
-import java.util.Map;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.dataStream.outputDataFile.IOutputDataFileWriter;
-import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
-import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputCLISDataParallelWriter;
-import lslrec.dataStream.outputDataFile.format.clis.OutputCLISDataWriter;
-import lslrec.dataStream.outputDataFile.format.hdf5.OutputHDF5DataWriter;
-import lslrec.dataStream.outputDataFile.format.matlab.OutputMatDataWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+
+import lslrec.config.SettingOptions;
+import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
+import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
+import lslrec.dataStream.outputDataFile.format.matlab.MatlabEncoder;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 
 public class DataFileFormat
 {
 	public static String MATLAB = "MATLAB";
 	//public static String CSV = "CSV";
+	/*
 	public static final String CLIS_GZIP = "CLIS-GZIP";
 	public static final String PCLIS_GZIP = "PCLIS-GZIP";
 	public static final String CLIS_BZIP2 = "CLIS-BZIP2";
 	public static final String PCLIS_BZIP2 = "PCLIS-BZIP2";
+	*/
+	public static final String CLIS = "CLIS";
 	public static final String HDF5 = "HDF5";
 
+	private static final Map< String, ILSLRecPluginEncoder > pluginEncoders = new HashMap< String, ILSLRecPluginEncoder>();
+	
 	public static String[] getSupportedFileFormat()
 	{
-		return new String[] { PCLIS_GZIP, CLIS_GZIP, PCLIS_BZIP2, CLIS_BZIP2, HDF5, MATLAB };//, CSV };
-		//return new String[] { CLIS, PCLIS };//, MATLAB, CSV };
+		String[] formats = new String[] { CLIS, HDF5, MATLAB };
+		
+		return formats;
 	}
 
 	public static Map<String, String > getSupportedFileExtension()
 	{
-		Map< String, String > exts = new HashMap< String, String >();
+		Map< String, String > exts = new LinkedHashMap< String, String >();
 		
-		exts.put( PCLIS_GZIP, ".clis" );
-		exts.put( CLIS_GZIP, ".clis" );
-		exts.put( PCLIS_BZIP2, ".clis" );
-		exts.put( CLIS_BZIP2, ".clis" );
-		exts.put( HDF5, ".h5" );		
-		exts.put( MATLAB, ".mat" );
+		Encoder enc = getDataFileEncoder( CLIS );		
+		exts.put( CLIS, enc.getOutputFileExtension() );
+		
+		enc = getDataFileEncoder( HDF5 );
+		exts.put( HDF5, enc.getOutputFileExtension() );
+		
+		enc = getDataFileEncoder( MATLAB );
+		exts.put( MATLAB, enc.getOutputFileExtension() );
+		
+		for( ILSLRecPluginEncoder pl : pluginEncoders.values() )
+		{
+			String ex = pl.getEncoder().getOutputFileExtension();
+			if( ex == null || ex.isEmpty() )
+			{
+				ex = "." + pl.getID();
+			}
+			
+			if( ex.charAt( 0 ) != '.' )
+			{
+				ex = "." + ex;
+			}
+			
+			exts.put( pl.getID(), ex );
+		}
 		
 		//exts.put( CSV, ".csv" );		
 		
 		return exts;
 	}
 	
+	/*
 	public static int getCompressTech( String fileFormat )
 	{
 		int zp = OutputZipDataFactory.UNDEFINED;
@@ -84,7 +113,9 @@ public class DataFileFormat
 		
 		return zp;
 	}
-	
+	*/
+
+	/*
 	public static String getSupportedFileExtension( String fileFormat ) throws IllegalArgumentException
 	{
 		if( !isSupportedFileFormat( fileFormat ) )
@@ -96,26 +127,9 @@ public class DataFileFormat
 
 		String ext = exts.get( fileFormat );
 		
-		/*
-		if (fileFormat.toUpperCase().equals( PCLIS_GZIP ))
-		{
-			ext = exts[1];
-		}
-		*/
-		
-		/*
-		if (fileFormat.equals(MATLAB))
-		{
-			ext = exts[1];
-		}
-		else if (fileFormat.equals(CSV))
-		{
-			ext = exts[2];
-		}
-		*/
-
 		return ext;
 	}
+	*/
 
 	public static boolean isSupportedFileFormat(String format)
 	{
@@ -130,41 +144,41 @@ public class DataFileFormat
 		return ok;
 	}
 
-	public static IOutputDataFileWriter getDataFileWriter(String format, String file, OutputFileFormatParameters p, ITaskMonitor monitor ) throws Exception
+	public static Encoder getDataFileEncoder( String format)
 	{
-		IOutputDataFileWriter writer = null;
+		Encoder enc = null;
 		
 		if ( isSupportedFileFormat( format ) )
 		{	
 			format = format.toUpperCase();
-			
-			if ( format.equals(CLIS_GZIP) || format.equals( CLIS_BZIP2 ) )
+						
+			if ( format.equals( CLIS ) )
 			{				
-				writer = new OutputCLISDataWriter( file, p, monitor );
-			}
-			else if( format.equals( PCLIS_GZIP ) || format.equals( PCLIS_BZIP2 ) ) 
-			{
-				writer = new OutputCLISDataParallelWriter( file, p, monitor );
+				enc = new ClisEncoder();
 			}
 			else if( format.equals( HDF5 ) )
 			{
-				writer = new OutputHDF5DataWriter( file, monitor );
+				enc = new HDF5Encoder();
 			}
 			else if (format.equals(MATLAB))
 			{
-				writer = new OutputMatDataWriter( file, monitor );
+				enc = new MatlabEncoder();
 			}
-			/*
-			else if (format.equals(CSV))
+			else
 			{
-				writer = new CSVFile(file);
+				ILSLRecPluginEncoder pl = pluginEncoders.get( format );
+				
+				if( pl != null )
+				{
+					enc = pl.getEncoder( );					
+				}
 			}
-			*/
 		}
 
-		return writer;
+		return enc;
 	}
 	
+	/*
 	public static boolean isSupportedEncryption( String format ) 
 	{
 		boolean supported = false;
@@ -173,13 +187,35 @@ public class DataFileFormat
 		{	
 			format = format.toUpperCase();
 			
-			if ( format.equals(CLIS_GZIP) || format.equals( CLIS_BZIP2 ) 
-				|| format.equals( PCLIS_GZIP ) || format.equals( PCLIS_BZIP2 ) ) 
+			Encoder enc = getDataFileEncoder( format );
+			if( enc != null )
 			{
-				supported = true;
+				supported = enc.isSupportedEncryption();
 			}
 		}
 		
 		return supported;
+	}
+	*/
+
+	public static void addEncoder( ILSLRecPluginEncoder encoder )
+	{
+		if( encoder != null )
+		{
+			pluginEncoders.put( encoder.getID().toUpperCase(), encoder );
+		}
+	}
+
+	public static List< SettingOptions > getOutputFileFormat( String format )
+	{
+		List< SettingOptions > opts = new ArrayList< SettingOptions >();
+		
+		Encoder enc = getDataFileEncoder( format );
+		if( enc != null )
+		{
+			opts.addAll( enc.getSettiongOptions() );
+		}
+		
+		return opts;
 	}
 }

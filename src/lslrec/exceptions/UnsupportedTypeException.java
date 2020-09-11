@@ -1,18 +1,18 @@
 package lslrec.exceptions;
 
-public class UnsupportedDataTypeException extends Exception 
+public class UnsupportedTypeException extends Exception 
 {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 3222289336391196548L;
 
-	public UnsupportedDataTypeException( )
+	public UnsupportedTypeException( )
 	{
 		super( "Unsuppoted data type." );
 	}
 	
-	public UnsupportedDataTypeException( String msg )
+	public UnsupportedTypeException( String msg )
 	{
 		super( msg );
 	}

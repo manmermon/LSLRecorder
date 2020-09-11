@@ -23,20 +23,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.auxiliar.extra.Tuple;
+import lslrec.config.ConfigApp;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
-import lslrec.edu.ucsd.sccn.LSLConfigParameters;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 
 public class WritingTest extends TemporalOutDataFileWriter 
 {
 	private List< Long > times;
 	private long initTime;
 		
-	public WritingTest(String filePath, StreamInfo info, LSLConfigParameters lslCfg, int Number) throws Exception 
+	public WritingTest( DataStreamSetting lslCfg, OutputFileFormatParameters format, int Number) throws Exception 
 	{
-		super(filePath, info, lslCfg, Number);
+		super( lslCfg, format, Number);
 	}	
 	
 	@Override
@@ -65,22 +66,13 @@ public class WritingTest extends TemporalOutDataFileWriter
 		
 	@Override
 	protected void postCleanUp() throws Exception 
-	{
-		if( !super.file.delete() )
+	{	
+		if( !ConfigApp.isTesting() && !super.file.delete() )
 		{
 			super.file.deleteOnExit();
 		}
 		
-		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.LSLName, this.times ) );
-
-		/*
-		this.events.add(event);
-		
-		if (this.monitor != null)
-		{
-			this.monitor.taskDone(this);
-		}
-		*/
+		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.streamSetting.getStreamName(), this.times ) );
 		
 		this.notifTask.addEvent( event );
 		synchronized ( this.notifTask )

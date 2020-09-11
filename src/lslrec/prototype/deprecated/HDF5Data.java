@@ -60,7 +60,7 @@ public class HDF5Data
 				
 		if( this.dataType == LSL.ChannelFormat.undefined )
 		{
-			throw new UnsupportedDataTypeException( );
+			throw new UnsupportedTypeException( );
 		}
 		
 		this.createMatrix();

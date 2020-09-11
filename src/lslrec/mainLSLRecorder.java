@@ -163,33 +163,41 @@ public class mainLSLRecorder
 
 	public static void createApplication() throws Throwable
 	{	
-		// Load GUI
-		ExceptionDialog.createExceptionDialog( createAppGUI() );
+		// Opening dialog
+		OpeningDialog open = showOpeningDialog();
 		
 		// 
 		// Load plugins
 		//
-		
+
+		if( false )		
 		try
 		{
 			List< Exception > exs = PluginLoader.LoadPlugins();
-			
+
 			for( Exception e : exs )
 			{
 				ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, true );
+				showError( e, false );
 			}
-			
+
 			guiManager.getInstance().LoadPluginSetting();
 		}
-		catch( Exception e )
+		catch( Exception | Error e )
 		{
 			ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 		
+		// Load GUI
+		ExceptionDialog.createExceptionDialog( createAppGUI() );
+		
+		open.dispose();
+		
 		// Load Controllers
 		createAppCoreControl();
+		
+		ConfigApp.setTesting( true );
 	}
 
 	private static void createAppCoreControl()
@@ -205,26 +213,35 @@ public class mainLSLRecorder
 		}
 	}
 
-	private static appUI createAppGUI() throws Exception
-	{	
+	private static OpeningDialog showOpeningDialog()
+	{
 		Dimension openDim = new Dimension( 500, 200 );
-		OpeningDialog open = new OpeningDialog( openDim 
+		OpeningDialog openDialog = new OpeningDialog( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
 												, ConfigApp.shortNameApp
 												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
-		open.setVisible( true );
-		open.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
+		openDialog.setVisible( true );
+		openDialog.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
 		
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
-		Insets pad = t.getScreenInsets( open.getGraphicsConfiguration() );
+		Insets pad = t.getScreenInsets( openDialog.getGraphicsConfiguration() );
 
 		
-		open.setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
+		openDialog.setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
 		
+		return openDialog;
+	}
+	
+	private static appUI createAppGUI() throws Exception
+	{	
+		Toolkit t = Toolkit.getDefaultToolkit();
+		Dimension dm = t.getScreenSize();
 	
 		appUI ui = appUI.getInstance();
+		
+		Insets pad = t.getScreenInsets( ui.getGraphicsConfiguration() );
 		
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
 		ui.setTitle(  ConfigApp.fullNameApp );
@@ -255,102 +272,9 @@ public class mainLSLRecorder
 		ui.setLocation( insets.left + 1, insets.top + 1 );
 
 		ui.setVisible(true);
-		
-		open.dispose();
-		
+						
 		return ui;
 	}
-
-	/*
-	private static void showError( Throwable e, final boolean fatalError )
-	{
-		JTextArea jta = new JTextArea();
-		jta.setAutoscrolls( true );
-		jta.setEditable( false );
-		jta.setLineWrap( true );
-		jta.setTabSize( 0 );
-
-		TextAreaPrintStream log = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
-
-		e.printStackTrace( log );
-
-		String[] lines = jta.getText().split( "\n" );
-		int wd = Integer.MIN_VALUE;
-		FontMetrics fm = jta.getFontMetrics( jta.getFont() );
-		for (int i = 0; i < lines.length; i++)
-		{
-			if (wd < fm.stringWidth( lines[i] ) )
-			{
-				wd = fm.stringWidth( lines[i] );
-			}
-		}
-
-		JDialog p = new JDialog();
-
-		Icon icono = UIManager.getIcon( "OptionPane.warningIcon" );
-		
-		int w = icono.getIconWidth();
-		int h = icono.getIconHeight();
-		
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
-		GraphicsConfiguration gc = gd.getDefaultConfiguration();
-		
-		BufferedImage img = gc.createCompatibleImage( w, h, BufferedImage.TYPE_INT_ARGB ); 
-		Graphics2D g = img.createGraphics();
-		icono.paintIcon( null, g, 0, 0 );
-		p.setIconImage( img );
-
-		p.setTitle( "Problem" );
-		
-		if( fatalError )
-		{
-			p.setTitle( "Fatal Error" );
-		}
-		
-		Dimension d = new Dimension( (int)( wd * 1.25D ), fm.getHeight() * 10 );
-		p.setSize( d );
-
-		Point pos = ge.getCenterPoint();
-		pos.x -= d.width / 2;
-		pos.y -= d.height / 2;
-		p.setLocation(pos);
-
-		p.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent e)
-			{
-				if( fatalError )
-				{
-					System.exit( 0 );
-				}
-			}
-
-		});
-		
-		JButton close = new JButton("Cerrar");
-		close.addActionListener(new ActionListener()
-		{
-			public void actionPerformed( ActionEvent e )
-			{
-				if( fatalError )
-				{
-					System.exit( 0 );
-				}
-				else
-				{
-					p.dispose();
-				}
-			}
-
-		});
-		
-		p.add( new JScrollPane( jta ), BorderLayout.CENTER );
-		p.add( close, BorderLayout.SOUTH );
-		p.toFront();
-		p.setVisible( true );		
-	}
-	*/
 	
 	private static void showError( Throwable e, final boolean fatalError )
 	{

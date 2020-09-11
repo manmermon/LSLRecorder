@@ -24,7 +24,6 @@ package lslrec.dataStream.outputDataFile.format.clis;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.dataStream.outputDataFile.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
@@ -36,7 +35,9 @@ import lslrec.dataStream.outputDataFile.dataBlock.IntegerBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.LongBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
+import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 
 public class OutputCLISDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
 {	
@@ -44,11 +45,11 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		
 	private CLISCompressorWriter clisWriter = null;
 	
-	public OutputCLISDataWriter( String file, OutputFileFormatParameters pars, ITaskMonitor monitor ) throws Exception
+	public OutputCLISDataWriter( OutputFileFormatParameters formatPars, DataStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
 		
-		Integer zip = pars.getCompressType();
+		String zip = formatPars.getCompressType();
 		
 		if( zip == null )
 		{
@@ -64,8 +65,8 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		
 		this.taskMonitor( monitor );
 				
-		CLISMetadata metadata = new CLISMetadata( pars );		
-		this.clisWriter = new CLISCompressorWriter( file, metadata );		
+		CLISMetadata metadata = new CLISMetadata( formatPars, streamSettings );		
+		this.clisWriter = new CLISCompressorWriter( formatPars.getOutputFileName(), metadata );		
 	}
 
 	public void addMetadata( String id, String text ) throws Exception
@@ -224,7 +225,6 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		return true;
 	}
 
-
 	@Override
 	public String getFileName() 
 	{
@@ -233,6 +233,6 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 
 	@Override
 	public void taskMonitor(ITaskMonitor monitor) 
-	{	
+	{
 	}
 }

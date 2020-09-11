@@ -34,8 +34,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.config.language.Language;
-import lslrec.gui.miscellany.ArrayTreeMap;
 
 public class GuiLanguageManager 
 {

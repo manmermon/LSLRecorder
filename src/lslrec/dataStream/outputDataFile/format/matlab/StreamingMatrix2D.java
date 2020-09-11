@@ -35,7 +35,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import lslrec.exceptions.UnsupportedDataTypeException;
+import lslrec.exceptions.UnsupportedTypeException;
 import us.hebi.matlab.mat.util.Bytes;
 import us.hebi.matlab.mat.util.Preconditions;
 
@@ -164,7 +164,7 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 				}
 				default:
 				{
-					throw new UnsupportedDataTypeException( "Matlab data type '" + this.mattype.name() + "' unsupported." );
+					throw new UnsupportedTypeException( "Matlab data type '" + this.mattype.name() + "' unsupported." );
 				}
 			}
 		}

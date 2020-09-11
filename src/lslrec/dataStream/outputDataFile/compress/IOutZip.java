@@ -22,10 +22,10 @@ package lslrec.dataStream.outputDataFile.compress;
 
 import java.nio.charset.Charset;
 
-public interface IOutZip 
-{
-	public String getZipID();
-	
+import lslrec.auxiliar.tasks.ITaskIdentity;
+
+public interface IOutZip extends ITaskIdentity
+{	
 	public byte[] zipData( byte[] data ) throws Exception;
 	
 	public byte[] zipData( short[] data ) throws Exception;

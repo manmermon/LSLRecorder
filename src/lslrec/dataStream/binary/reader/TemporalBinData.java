@@ -28,71 +28,41 @@ import java.util.List;
 
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
-import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class TemporalBinData
 {	
-	private int dataType;
-	private int timeType;
-	
-	private String streamName;
-	private String lslXML;
-	private int CountChannels;
-	private int ChunckSize;
-	
-	private String outFileName = "./data" + DataFileFormat.getSupportedFileExtension( DataFileFormat.CLIS_GZIP );
-	private String outFileFormat = DataFileFormat.CLIS_GZIP;
-	
 	private ReaderBinaryFile reader = null;
 	
 	private File binFile = null;
 	
 	private boolean deleteBinaries = true;
 	
-	private boolean dataInterleave = false; 
-	
 	private int dataTypeBytes;
 	private List< BinaryDataFormat > formats;
 	
-	private String encryptKey = null;
-	
-	private int strLenType;
+	private DataStreamSetting streamSetting;
+	private OutputFileFormatParameters outputFormat;
 	
 	public TemporalBinData( File dataBin
-						, int typeData
-						, int nChannels
-						, int chunckSize
-						, boolean interleave
-						, int typeTime
-						, int typeOfStrLen
-						, String name
-						, String xml
-						, String outName
-						, String outputFormat
-						, String encrypy_Key
-						, boolean delBinaries ) throws Exception
+							, DataStreamSetting strSetting
+							, OutputFileFormatParameters outFormat ) throws Exception
 	{	
-		this.deleteBinaries = delBinaries;
+		if( strSetting == null || outFormat == null )
+		{
+			throw new IllegalArgumentException( "DataStreamSetting and/or OutputFileFormatParameters null");
+		}
 		
-		this.outFileFormat = outputFormat;
-
+		this.streamSetting = strSetting;
+		this.outputFormat = outFormat;
+		
+		this.deleteBinaries = this.outputFormat.getDeleteBin();
+		
 		this.binFile = dataBin;
 		
-		this.dataType = typeData;
-		this.timeType = typeTime;
-				
-		this.CountChannels = nChannels;
-		this.ChunckSize = chunckSize;
-		this.streamName = name;
-		this.lslXML = xml;
-		this.outFileName = outName;
-		
-		this.encryptKey = encrypy_Key;
-		
-		this.strLenType = typeOfStrLen;
-		
-		this.dataTypeBytes = LSLUtils.getDataTypeBytes( this.dataType );
+		this.dataTypeBytes = LSLUtils.getDataTypeBytes( strSetting.getDataType() );
 		
 		if( this.dataTypeBytes < 1 )
 		{
@@ -101,82 +71,37 @@ public class TemporalBinData
 		
 		this.formats = new ArrayList<BinaryDataFormat>();
 		
-		if( this.dataType != LSLUtils.string )
+		int len = strSetting.getStreamInfo().channel_count() * strSetting.getChunkSize();
+		
+		if( strSetting.getDataType() != LSLUtils.string )
 		{
-			this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, this.CountChannels * this.ChunckSize ) );
+			this.formats.add( new BinaryDataFormat( strSetting.getDataType(), this.dataTypeBytes, len ) );
 		}
 		else
 		{
-			BinaryDataFormat strLenFormat = new BinaryDataFormat( typeOfStrLen, LSLUtils.getDataTypeBytes( typeOfStrLen ), this.CountChannels * this.ChunckSize );
-			this.formats.add( new BinaryDataFormat( typeData, this.dataTypeBytes, strLenFormat ) );
+			BinaryDataFormat strLenFormat = new BinaryDataFormat( strSetting.getStringLegthType(), LSLUtils.getDataTypeBytes( strSetting.getStringLegthType() ), len );
+			this.formats.add( new BinaryDataFormat( strSetting.getDataType(), this.dataTypeBytes, strLenFormat ) );
 		}
 		
 		
-		this.formats.add( new BinaryDataFormat( typeTime, LSLUtils.getDataTypeBytes( typeTime ), this.ChunckSize ) );
+		this.formats.add( new BinaryDataFormat( strSetting.getTimeDataType(), LSLUtils.getDataTypeBytes( strSetting.getTimeDataType() ), strSetting.getChunkSize() ) );
 		
 		this.reader = new ReaderBinaryFile( dataBin, this.formats, '\n' );
+	}
+	
+	public DataStreamSetting getDataStreamSetting()
+	{
+		return this.streamSetting;
+	}
+	
+	public OutputFileFormatParameters getOutputFileFormat()
+	{
+		return this.outputFormat;
+	}
 		
-		this.dataInterleave = interleave;
-	}
-	
-	public int getTimeDataType()
-	{
-		return this.timeType;
-	}
-	
-	public boolean isInterleave()
-	{
-		return this.dataInterleave;
-	}
-	
-	public String getOutputFileFormat()
-	{
-		return this.outFileFormat;
-	}
-
-	public String getOutputFileName()
-	{
-		return this.outFileName;
-	}
-	
-	public void setOutputFileName( String file )
-	{
-		this.outFileName = file;
-	}
-	
 	public int getTypeDataBytes()
 	{
 		return this.dataTypeBytes;
-	}
-
-	public int getDataType()
-	{
-		return this.dataType;
-	}
-
-	public int getNumberOfChannels()
-	{
-		return this.CountChannels;
-	}
-
-	public int getChunckSize() 
-	{
-		return this.ChunckSize;
-	}
-	
-	public String getStreamingName()
-	{
-		return this.streamName;
-	}
-
-	public String getLslXml()
-	{
-		return this.lslXML;
-	}
-	
-	public int getStringLengthDataType() 
-	{
-		return this.strLenType;
 	}
 	
 	public List< ByteBlock > getDataBlocks(  ) throws Exception
@@ -184,11 +109,6 @@ public class TemporalBinData
 		List< ByteBlock > data = this.reader.readDataFromBinaryFile();		
 		
 		return data;
-	}
-	
-	public String getEncryptKey()
-	{
-		return this.encryptKey;
 	}
 		
 	public void reset() throws Exception
