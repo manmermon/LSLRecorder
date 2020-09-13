@@ -75,7 +75,7 @@ import lslrec.config.language.Language;
 import lslrec.gui.GuiLanguageManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.InfoDialog;
-import lslrec.gui.miscellany.basicPainter2D;
+import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.config.ConfigApp;
 
 public class CanvasLSLDataPlot extends JPanel
@@ -734,7 +734,7 @@ public class CanvasLSLDataPlot extends JPanel
 			int h = r.height - pad.top - pad.bottom;
 			if ((w > 0) && (h > 0))
 			{
-				Image img = basicPainter2D.createEmptyImage( w, h, null );//chart.createBufferedImage(w, h);
+				Image img = BasicPainter2D.createEmptyImage( w, h, null );//chart.createBufferedImage(w, h);
 				
 				chart.draw( (Graphics2D)img.getGraphics(), 
 							new Rectangle2D.Double( 0, 0, img.getWidth( null ), img.getHeight( null ) ) );

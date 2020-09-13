@@ -36,7 +36,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.LevelIndicator;
-import lslrec.gui.miscellany.basicPainter2D;
+import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
@@ -73,8 +73,8 @@ import lslrec.auxiliar.tasks.NotificationTask;
 
 public class guiManager
 {
-	public static final Icon START_ICO = new ImageIcon( basicPainter2D.paintTriangle(10, 1.0F, Color.BLACK, Color.GREEN, basicPainter2D.EAST ) );
-	public static final Icon STOP_ICO = new ImageIcon( basicPainter2D.paintRectangle(10, 10, 1.0F, Color.BLACK, Color.RED ) );
+	public static final Icon START_ICO = new ImageIcon( BasicPainter2D.paintTriangle(10, 1.0F, Color.BLACK, Color.GREEN, BasicPainter2D.EAST ) );
+	public static final Icon STOP_ICO = new ImageIcon( BasicPainter2D.paintRectangle(10, 10, 1.0F, Color.BLACK, Color.RED ) );
 
 	private static guiManager ctr = null;
 

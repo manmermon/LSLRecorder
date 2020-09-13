@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -55,6 +56,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -82,6 +84,7 @@ import java.util.TreeSet;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -105,6 +108,7 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.config.ConfigApp;
+import lslrec.config.SettingOptions;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -132,7 +136,6 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	// Tabs
 	private JTabbedPane tabDevice;
-	private JTabbedPane jOutFile;
 	//private CanvasLSLDataPlot LSLplot;
 
 	//JPANEL
@@ -145,6 +148,7 @@ public class settingMenu_StreamingSettings extends JPanel
 	private JPanel panelOutFileName;
 	private JPanel panelDeviceAndSetting;
 	private JPanel panelDataPlotter;
+	private JPanel jOutFile;
 
 	//JCOMBOX
 	private JComboBox< String > fileFormat;
@@ -160,6 +164,7 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	//JBUTTON	
 	private JButton jButtonSelectOutFile;
+	private JButton btnOutFormatOptions;
 
 	// JScrollPanel
 	private JScrollPane scrollPanelSelectDevPanel;
@@ -514,20 +519,24 @@ public class settingMenu_StreamingSettings extends JPanel
 		return find;
 	}
 
-	private JTabbedPane getJPanelOutFile()
+	private JPanel getJPanelOutFile()
 	{
 		if( this.jOutFile == null )
 		{
-			this.jOutFile = new JTabbedPane( );
-			//this.jOutFile.setLayout( new BoxLayout( this.jOutFile, BoxLayout.Y_AXIS ) );
+			this.jOutFile = new JPanel( );
+			this.jOutFile.setLayout( new BoxLayout( this.jOutFile, BoxLayout.Y_AXIS ) );
 
+			TitledBorder tb = new TitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) );
+			this.jOutFile.setBorder( tb );
+			
 			//this.jOutFile.add( this.getPanelGeneralAddInfoOutFile() );		
 			//this.jOutFile.add( this.getJPanelOutFileFormat() );
 			JPanel p = this.getJPanelOutFileFormat();
 			
-			this.jOutFile.addTab( Language.getLocalCaption( Language.OUTPUT_TEXT ), new JScrollPane( p ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.OUTPUT_TEXT, p );
+			this.jOutFile.add( new JScrollPane( p ) );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.OUTPUT_TEXT, tb );
 		}
 
 		return this.jOutFile;
@@ -868,8 +877,9 @@ public class settingMenu_StreamingSettings extends JPanel
 			Dimension d = this.getJComboxFileFormat().getPreferredSize();			
 			separator.setPreferredSize( new Dimension( 1, d.height ) );
 			
-			this.panelOutFileOption.add( this.getEncryptKeyActive() );
-			this.panelOutFileOption.add( this.getParallelizeActive() );
+			this.panelOutFileOption.add( this.getOutputFormatOptsButton() );
+			this.panelOutFileOption.add( this.getEncryptKeyActive() );			
+			//this.panelOutFileOption.add( this.getParallelizeActive() );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lb );
 		}
@@ -927,6 +937,11 @@ public class settingMenu_StreamingSettings extends JPanel
 						
 						getEncryptKeyActive().setEnabled( encorder.isSupportedEncryption() );
 						
+						List< SettingOptions > opts = encorder.getSettiongOptions();
+						
+						getOutputFormatOptsButton().setEnabled( ( opts != null  && !opts.isEmpty() ) );
+						
+						/*
 						JScrollPane encoderSetting = CreatorEncoderSettingPanel.getSettingPanel( encorder.getSettiongOptions() );
 						
 						JTabbedPane panel = getJPanelOutFile();
@@ -940,6 +955,7 @@ public class settingMenu_StreamingSettings extends JPanel
 						{					
 							panel.addTab( encorder.getID(), encoderSetting );
 						}
+						*/
 					}
 				}
 			});
@@ -2005,5 +2021,72 @@ public class settingMenu_StreamingSettings extends JPanel
 		}
 
 		return nodeText;
+	}
+	
+	private JButton getOutputFormatOptsButton()
+	{
+		if( this.btnOutFormatOptions == null )
+		{
+			this.btnOutFormatOptions = new JButton();
+			
+			int s = getJComboxFileFormat().getPreferredSize().height;
+			
+			this.btnOutFormatOptions.setPreferredSize( new Dimension( s, s ) );
+			
+			s = (int)( s * 0.75D);
+			
+			this.btnOutFormatOptions.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK )
+																		.getScaledInstance( s, s, Image.SCALE_SMOOTH ) ) ); // GeneralAppIcon.Pencil( s, Color.BLACK ) );
+			this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
+			
+			this.btnOutFormatOptions.addActionListener( new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent arg0) 
+				{
+					Object format = getJComboxFileFormat().getSelectedItem();
+					if( format != null )
+					{
+						JDialog dial = new JDialog( winOwner );
+
+						dial.setModal( true );
+						dial.setLayout( new BorderLayout() );
+						dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+
+						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+
+						JPanel main = new JPanel( new BorderLayout() );
+						main.setBackground( Color.green );
+
+
+						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+
+						main.add( scr, BorderLayout.CENTER );
+
+
+						dial.add( main );
+
+						dial.setLocation( winOwner.getLocation() );					
+						dial.pack();
+
+						Dimension s = dial.getSize();
+						FontMetrics fm = dial.getFontMetrics( dial.getFont() );
+
+						int t = fm.stringWidth( dial.getTitle() ) * 2;
+						if( t > s.width )
+						{
+							s.width = t;
+						}
+						s.height += 15;
+
+						dial.setSize( s );
+
+						dial.setVisible( true );
+					}
+				}
+			});
+		}
+		
+		return this.btnOutFormatOptions;
 	}
 }

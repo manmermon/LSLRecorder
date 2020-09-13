@@ -2,9 +2,7 @@ package lslrec.dataStream.outputDataFile.format;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -92,7 +90,7 @@ public class CreatorEncoderSettingPanel
 		return scrollPane;
 	}
 
-	private static Component getSettingPanel( SettingOptions opt  )
+	private static Component getSettingPanel( SettingOptions opt )
 	{
 		Component c = null;
 
@@ -140,9 +138,9 @@ public class CreatorEncoderSettingPanel
 							{
 								String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
 
-								ConfigApp.setProperty( refPar, desc );
+								saveValue( refPar, desc );
 							} 
-							catch (BadLocationException e1) 
+							catch ( Exception e1) 
 							{
 								ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 
@@ -171,7 +169,16 @@ public class CreatorEncoderSettingPanel
 
 							String select = cb.getSelectedItem().toString();
 							
-							ConfigApp.setProperty( refPar, select );										
+							try 
+							{
+								saveValue( refPar, select );
+							} 
+							catch (Exception e1) 
+							{
+								ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+
+								ExceptionDialog.showMessageDialog( m, true, true );
+							}
 						}
 					});
 					
@@ -187,5 +194,48 @@ public class CreatorEncoderSettingPanel
 		}
 
 		return c;
+	}
+	
+	private static void saveValue( String parRefID, String value ) throws Exception
+	{
+		Object type = ConfigApp.getProperty( parRefID );
+		if( type != null && value != null )
+		{
+			if( type instanceof String )
+			{
+				ConfigApp.setProperty( parRefID, value );
+			}
+			else if( type instanceof Boolean )
+			{
+				ConfigApp.setProperty( parRefID, Boolean.parseBoolean( value ) );
+			}
+			else if( type instanceof Number )				
+			{
+				Number d = Double.parseDouble( value );
+				
+				if( type instanceof Float )
+				{
+					d = d.floatValue();
+				}
+				else if( type instanceof Long )
+				{
+					d = d.longValue();
+				}
+				else if( type instanceof Integer )
+				{
+					d = d.intValue();
+				}
+				else if( type instanceof Short )
+				{
+					d = d.shortValue();
+				}
+				else if( type instanceof Byte )
+				{
+					d = d.byteValue();
+				}
+				
+				ConfigApp.setProperty( parRefID, d );
+			}
+		}
 	}
 }

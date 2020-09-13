@@ -6,6 +6,7 @@ import java.util.List;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.SettingOptions;
+import lslrec.config.language.Language;
 import lslrec.dataStream.outputDataFile.compress.zip.OutputBZip2Data;
 import lslrec.dataStream.outputDataFile.compress.zip.OutputGZipData;
 import lslrec.dataStream.outputDataFile.format.Encoder;
@@ -50,7 +51,15 @@ public class ClisEncoder implements Encoder
 			}
 		}
 		
+		SettingOptions parall = new SettingOptions( Language.getLocalCaption( Language.PARALLELIZE_TEXT )
+													, true, ConfigApp.OUTPUT_PARALLELIZE );
+		parall.addValue( true + "" );
+		parall.addValue( false + "" );
+		parall.setSelectedValue( 0 );
+		
 		opts.add( zips );
+		opts.add( parall );
+		
 		return opts;
 	}
 

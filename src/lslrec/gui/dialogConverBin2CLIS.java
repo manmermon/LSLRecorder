@@ -34,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -76,6 +77,7 @@ import javax.swing.JOptionPane;
 
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -752,7 +754,8 @@ public class dialogConverBin2CLIS extends JDialog
 			
 			s = (int)( s * 0.75D);
 			
-			this.btnOutFormatOptions.setIcon( GeneralAppIcon.Pencil( s, Color.BLACK ) );
+			this.btnOutFormatOptions.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK )
+																		.getScaledInstance( s, s, Image.SCALE_SMOOTH ) ) ); // GeneralAppIcon.Pencil( s, Color.BLACK ) );
 			this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
 			
 			final JDialog ref = this;
@@ -761,44 +764,44 @@ public class dialogConverBin2CLIS extends JDialog
 				@Override
 				public void actionPerformed(ActionEvent arg0) 
 				{
-					JDialog dial = new JDialog( ref );
-					
-					dial.setModal( true );
-					dial.setLayout( new BorderLayout() );
-					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
-					
-					dial.setTitle( Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
-					
-					JPanel main = new JPanel( new BorderLayout() );
-					main.setBackground( Color.green );
-					
 					Object format = getComboBoxOutputFormat().getSelectedItem();
 					if( format != null )
 					{
-						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+						JDialog dial = new JDialog( ref );
 						
+						dial.setModal( true );
+						dial.setLayout( new BorderLayout() );
+						dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+						
+						JPanel main = new JPanel( new BorderLayout() );
+						main.setBackground( Color.green );
+						
+						
+						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+
+						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+
 						main.add( scr, BorderLayout.CENTER );
+						
+						dial.add( main );
+						
+						dial.setLocation( ref.getLocation() );					
+						dial.pack();
+						
+						Dimension s = dial.getSize();
+						FontMetrics fm = dial.getFontMetrics( dial.getFont() );
+						
+						int t = fm.stringWidth( dial.getTitle() ) * 2;
+						if( t > s.width )
+						{
+							s.width = t;
+						}
+						s.height += 10;
+						
+						dial.setSize( s );
+						
+						dial.setVisible( true );
 					}
-					
-					//dial.add( new JScrollPane( main ) );
-					dial.add( main );
-					
-					dial.setLocation( ref.getLocation() );					
-					dial.pack();
-					
-					Dimension s = dial.getSize();
-					FontMetrics fm = dial.getFontMetrics( dial.getFont() );
-					
-					int t = fm.stringWidth( dial.getTitle() ) * 2;
-					if( t > s.width )
-					{
-						s.width = t;
-					}
-					s.height = ref.getSize().height / 2;
-					
-					dial.setSize( s );
-					
-					dial.setVisible( true );
 				}
 			});
 		}

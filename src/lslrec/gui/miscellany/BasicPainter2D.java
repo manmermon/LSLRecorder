@@ -38,7 +38,7 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 
-public class basicPainter2D
+public class BasicPainter2D
 {	
 	public static final int NORTH = 0;
 	public static final int SOUTH = 1;

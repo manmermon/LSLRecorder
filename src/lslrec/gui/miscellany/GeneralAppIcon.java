@@ -49,14 +49,14 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 
-			basicPainter2D.paintPolygonLine( new int[ ]{ size / 2 - thick, thick, thick, size - thick/2, size - thick/2 }, 
+			BasicPainter2D.paintPolygonLine( new int[ ]{ size / 2 - thick, thick, thick, size - thick/2, size - thick/2 }, 
 					new int[ ]{ thick/2, thick/2, size - thick/2, size - thick/2, size / 2 + thick}, 
 					thick, color, 
 					img);
 
-			basicPainter2D.paintFillPolygon( new int[]{ size / 2, size, size }, 
+			BasicPainter2D.paintFillPolygon( new int[]{ size / 2, size, size }, 
 					new int[]{ 0, 0, size / 2 }, 
 					color, img);
 
@@ -78,14 +78,14 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 
-			basicPainter2D.paintLine( 0, size - thick, size, size - thick, thick, color, img);
+			BasicPainter2D.paintLine( 0, size - thick, size, size - thick, thick, color, img);
 
-			Image imgTr = basicPainter2D.paintTriangle( size / 3 + thick, 1, color, color, basicPainter2D.SOUTH );
-			basicPainter2D.compoundImages( img, ( size - imgTr.getWidth( null ) ) / 2 , size - imgTr.getHeight( null ) - thick, imgTr );
+			Image imgTr = BasicPainter2D.paintTriangle( size / 3 + thick, 1, color, color, BasicPainter2D.SOUTH );
+			BasicPainter2D.compoundImages( img, ( size - imgTr.getWidth( null ) ) / 2 , size - imgTr.getHeight( null ) - thick, imgTr );
 
-			basicPainter2D.paintLine( size / 2 - thick / 2 , 0, size / 2 - thick / 2, size / 2, thick, color, img );
+			BasicPainter2D.paintLine( size / 2 - thick / 2 , 0, size / 2 - thick / 2, size / 2, thick, color, img );
 			
 			ico = new ImageIcon( img );
 		}
@@ -105,15 +105,15 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 
-			Image r = basicPainter2D.paintRectangle( ( 3 * size ) / 4, ( 3 * size ) / 4, thick, color, null );
+			Image r = BasicPainter2D.paintRectangle( ( 3 * size ) / 4, ( 3 * size ) / 4, thick, color, null );
 
-			basicPainter2D.compoundImages( img, 0, size - r.getHeight( null), r );
-			basicPainter2D.paintLine( size / 2 - thick / 2, size - r.getHeight( null), size / 2 - thick / 2, 0, thick, color, img );
-			basicPainter2D.paintLine( size / 2 - thick / 2, thick / 2, size, thick / 2, thick, color, img );
-			basicPainter2D.paintLine( size - thick / 2, 0, size - thick / 2, size / 2, thick, color, img );
-			basicPainter2D.paintLine( r.getWidth( null ), size / 2, size, size / 2, thick, color, img );
+			BasicPainter2D.compoundImages( img, 0, size - r.getHeight( null), r );
+			BasicPainter2D.paintLine( size / 2 - thick / 2, size - r.getHeight( null), size / 2 - thick / 2, 0, thick, color, img );
+			BasicPainter2D.paintLine( size / 2 - thick / 2, thick / 2, size, thick / 2, thick, color, img );
+			BasicPainter2D.paintLine( size - thick / 2, 0, size - thick / 2, size / 2, thick, color, img );
+			BasicPainter2D.paintLine( r.getWidth( null ), size / 2, size, size / 2, thick, color, img );
 			
 			ico = new ImageIcon( img );
 		}
@@ -133,11 +133,11 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.paintRectangle( size, size, thick, color, null );
+			Image img = BasicPainter2D.paintRectangle( size, size, thick, color, null );
 
-			basicPainter2D.paintLine( size / 4, size / 4, size - size / 4, size / 4, thick, color, img );
-			basicPainter2D.paintLine( size / 4, size / 2, size - size / 4, size / 2, thick, color, img );
-			basicPainter2D.paintLine( size / 4, ( 3 * size ) / 4, size - size / 4, ( 3 * size ) / 4, thick, color, img );
+			BasicPainter2D.paintLine( size / 4, size / 4, size - size / 4, size / 4, thick, color, img );
+			BasicPainter2D.paintLine( size / 4, size / 2, size - size / 4, size / 2, thick, color, img );
+			BasicPainter2D.paintLine( size / 4, ( 3 * size ) / 4, size - size / 4, ( 3 * size ) / 4, thick, color, img );
 
 			ico = new ImageIcon( img );
 		}
@@ -159,13 +159,13 @@ public class GeneralAppIcon
 
 			int radio = size / 2 - thick;
 			
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 			
-			Image circ = basicPainter2D.paintFillCircle( 0, 0, radio, color, null );
-			Image circf = basicPainter2D.paintOutlineCircle( 0, 0, radio, thick, color, null );
+			Image circ = BasicPainter2D.paintFillCircle( 0, 0, radio, color, null );
+			Image circf = BasicPainter2D.paintOutlineCircle( 0, 0, radio, thick, color, null );
 			
-			basicPainter2D.compoundImages( img, 0, 0, circ );
-			basicPainter2D.compoundImages( img, img.getWidth( null ) - circf.getWidth( null ), img.getHeight( null ) - circf.getHeight( null ), circf );
+			BasicPainter2D.compoundImages( img, 0, 0, circ );
+			BasicPainter2D.compoundImages( img, img.getWidth( null ) - circf.getWidth( null ), img.getHeight( null ) - circf.getHeight( null ), circf );
 			
 			/*
 			imagenPoligono2D.crearImagenArco( circ.getWidth( null ) / 2 + thick, circ.getHeight( null ) / 2 + thick
@@ -186,15 +186,15 @@ public class GeneralAppIcon
 												, img.getWidth( null ), img.getHeight( null ) / 2, thick, color, img );
 												*/
 			
-			basicPainter2D.paintLine( circ.getWidth( null ) - thick, circ.getHeight( null ) - thick
+			BasicPainter2D.paintLine( circ.getWidth( null ) - thick, circ.getHeight( null ) - thick
 												, img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) + thick
 												, thick, color, img );
 			
-			basicPainter2D.paintLine( img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) + thick
+			BasicPainter2D.paintLine( img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) + thick
 												, img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) - 2 * thick
 												, thick, color, img );
 			
-			basicPainter2D.paintLine( img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) + thick
+			BasicPainter2D.paintLine( img.getWidth( null ) - circf.getWidth( null ) + thick, img.getHeight( null ) - circf.getHeight( null ) + thick
 												, img.getWidth( null ) - circf.getWidth( null ) - 2 * thick, img.getHeight( null ) - circf.getHeight( null ) + thick
 												, thick, color, img );
 			
@@ -219,16 +219,16 @@ public class GeneralAppIcon
 
 			int w = size / 2;
 
-			Image img = basicPainter2D.compoundImages( 
-					basicPainter2D.createEmptyImage( size, size, null ), 
+			Image img = BasicPainter2D.compoundImages( 
+					BasicPainter2D.createEmptyImage( size, size, null ), 
 					0, 0,  
-					basicPainter2D.paintRectangle( w - thick, size - thick, thick, color, null ) );
+					BasicPainter2D.paintRectangle( w - thick, size - thick, thick, color, null ) );
 
-			basicPainter2D.paintLine( w / 4, size / 4, w - w / 4 - thick, size / 4, thick, color, img );
-			basicPainter2D.paintLine( w / 4, size / 2, w - w / 4 - thick, size / 2, thick, color, img );
-			basicPainter2D.paintLine( w / 4, ( 3 * size ) / 4, w - w / 4 - thick, ( 3 * size ) / 4, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, size / 4, w - w / 4 - thick, size / 4, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, size / 2, w - w / 4 - thick, size / 2, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, ( 3 * size ) / 4, w - w / 4 - thick, ( 3 * size ) / 4, thick, color, img );
 
-			basicPainter2D.paintFillPolygon( new int[]{ w + thick, w + thick, size }, 
+			BasicPainter2D.paintFillPolygon( new int[]{ w + thick, w + thick, size }, 
 					new int[]{ size / 4, size - size / 4, size / 2 }, 
 					color, img);
 
@@ -249,13 +249,13 @@ public class GeneralAppIcon
 			borderColor = Color.BLACK;
 		}
 
-		Image img = basicPainter2D.createEmptyImage( w, h, null );
+		Image img = BasicPainter2D.createEmptyImage( w, h, null );
 
 		Image imgAux = Folder( 2 * w / 3, h, borderColor, fillColor ).getImage();
-		Image imgAux2 = basicPainter2D.paintTriangle( w / 3, 1, borderColor, borderColor, basicPainter2D.EAST );
+		Image imgAux2 = BasicPainter2D.paintTriangle( w / 3, 1, borderColor, borderColor, BasicPainter2D.EAST );
 
-		basicPainter2D.compoundImages( img, 0, 0, imgAux );
-		return new ImageIcon( basicPainter2D.compoundImages( img, 2 * w / 3, h / 2 - w / 6, imgAux2 ) );
+		BasicPainter2D.compoundImages( img, 0, 0, imgAux );
+		return new ImageIcon( BasicPainter2D.compoundImages( img, 2 * w / 3, h / 2 - w / 6, imgAux2 ) );
 	}
 
 	public static ImageIcon SaveFile( int size, Color color )
@@ -272,16 +272,16 @@ public class GeneralAppIcon
 
 			int w = size / 2;
 
-			Image img = basicPainter2D.compoundImages( 
-					basicPainter2D.createEmptyImage( size, size, null ), 
+			Image img = BasicPainter2D.compoundImages( 
+					BasicPainter2D.createEmptyImage( size, size, null ), 
 					0, 0,  
-					basicPainter2D.paintRectangle( w - thick, size - thick, thick, color, null ) );
+					BasicPainter2D.paintRectangle( w - thick, size - thick, thick, color, null ) );
 
-			basicPainter2D.paintLine( w / 4, size / 4, w - w / 4 - thick, size / 4, thick, color, img );
-			basicPainter2D.paintLine( w / 4, size / 2, w - w / 4 - thick, size / 2, thick, color, img );
-			basicPainter2D.paintLine( w / 4, ( 3 * size ) / 4, w - w / 4 - thick, ( 3 * size ) / 4, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, size / 4, w - w / 4 - thick, size / 4, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, size / 2, w - w / 4 - thick, size / 2, thick, color, img );
+			BasicPainter2D.paintLine( w / 4, ( 3 * size ) / 4, w - w / 4 - thick, ( 3 * size ) / 4, thick, color, img );
 
-			basicPainter2D.paintFillPolygon( new int[]{ size, size, w + thick }, 
+			BasicPainter2D.paintFillPolygon( new int[]{ size, size, w + thick }, 
 					new int[]{ size / 4, size - size / 4, size / 2 }, 
 					color, img);
 
@@ -304,13 +304,13 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 
-			basicPainter2D.paintLine( 0, 0, size, size, thick, color, img );
-			basicPainter2D.paintLine( 0, size, size, 0, thick, color, img );
+			BasicPainter2D.paintLine( 0, 0, size, size, thick, color, img );
+			BasicPainter2D.paintLine( 0, size, size, 0, thick, color, img );
 
-			basicPainter2D.compoundImages( img, size / 4, size / 4, 
-					basicPainter2D.paintRectangle( size / 2, size / 2, thick, color, null ) );
+			BasicPainter2D.compoundImages( img, size / 4, size / 4, 
+					BasicPainter2D.paintRectangle( size / 2, size / 2, thick, color, null ) );
 
 			ico = new ImageIcon( img );
 		}
@@ -332,7 +332,7 @@ public class GeneralAppIcon
 
 			//Image img = imagenPoligono2D.crearLienzoVacio( size, size, null );
 
-			Image img = basicPainter2D.paintRectangle( size-thick/2, size-thick/2, thick, color, null );
+			Image img = BasicPainter2D.paintRectangle( size-thick/2, size-thick/2, thick, color, null );
 
 			Font f = new Font( Font.DIALOG, Font.BOLD, 12 );
 			FontMetrics fm = img.getGraphics().getFontMetrics( f );			
@@ -342,10 +342,10 @@ public class GeneralAppIcon
 				fm = img.getGraphics().getFontMetrics( f );
 			}
 
-			Image imgTxt = basicPainter2D.paintText( 0, 0, "?", fm, color, color, null );
+			Image imgTxt = BasicPainter2D.paintText( 0, 0, "?", fm, color, color, null );
 			int x = (int)Math.round( ( size - imgTxt.getWidth( null ) ) / 2.0 );
 			int y = 0;
-			img = basicPainter2D.compoundImages( img, x, y, imgTxt );
+			img = BasicPainter2D.compoundImages( img, x, y, imgTxt );
 
 			ico = new ImageIcon( img );
 		}
@@ -365,9 +365,9 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 
-			basicPainter2D.paintOutlinePolygon( new int[]{ thick - 1, size / 2, size - thick + 1},
+			BasicPainter2D.paintOutlinePolygon( new int[]{ thick - 1, size / 2, size - thick + 1},
 					new int[]{ size - thick/2, thick, size -thick/2},
 					thick, color, img );
 
@@ -385,10 +385,10 @@ public class GeneralAppIcon
 				fm = img.getGraphics().getFontMetrics( f );
 			}
 
-			Image imgTxt = basicPainter2D.paintText( 0, 0, "!", fm, color, color, null );
+			Image imgTxt = BasicPainter2D.paintText( 0, 0, "!", fm, color, color, null );
 			int x = (int)Math.round( ( size - imgTxt.getWidth( null ) ) / 2.0 );
 			int y = size - imgTxt.getHeight( null ) + 1;
-			img = basicPainter2D.compoundImages( img, x, y, imgTxt );
+			img = BasicPainter2D.compoundImages( img, x, y, imgTxt );
 
 			ico = new ImageIcon( img );
 		}
@@ -408,11 +408,11 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
 			
-			Image c = basicPainter2D.paintOutlineCircle( 0, 0, size, thick, color, null );
+			Image c = BasicPainter2D.paintOutlineCircle( 0, 0, size, thick, color, null );
 						
-			basicPainter2D.compoundImages( img, (img.getWidth( null ) - c.getWidth( null ) ) / 2
+			BasicPainter2D.compoundImages( img, (img.getWidth( null ) - c.getWidth( null ) ) / 2
 												, (img.getHeight( null ) - c.getHeight( null ) ) / 2
 												, c );
 			
@@ -442,8 +442,8 @@ public class GeneralAppIcon
 			}
 			*/
 						
-			Image imgI = basicPainter2D.paintText( 0, 0, "i", fm, null, color, null );
-			basicPainter2D.compoundImages( img
+			Image imgI = BasicPainter2D.paintText( 0, 0, "i", fm, null, color, null );
+			BasicPainter2D.compoundImages( img
 												, ( img.getWidth( null ) - imgI.getWidth( null ) )/2
 												, ( img.getHeight( null ) - imgI.getHeight( null ) )/2 + thick / 2
 												, imgI );
@@ -466,7 +466,7 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.paintRectangle( size, size, 1, color, null);
+			Image img = BasicPainter2D.paintRectangle( size, size, 1, color, null);
 
 			int[] x = new int[ size ];
 			int[] y = new int[ size ];
@@ -477,7 +477,7 @@ public class GeneralAppIcon
 				y[ i ] = (int)(( ( Math.sin( ( i * 4 * Math.PI ) / size ) + 1 ) / 2 ) * h ) + ( size - h ) / 2;
 			}
 
-			basicPainter2D.paintPolygonLine( x, y, thick, color, img );
+			BasicPainter2D.paintPolygonLine( x, y, thick, color, img );
 
 			ico = new ImageIcon( img );
 		}
@@ -503,21 +503,21 @@ public class GeneralAppIcon
 				thickness = 1;
 			}			
 			
-			Image img = basicPainter2D.createEmptyImage( w, w, null );
+			Image img = BasicPainter2D.createEmptyImage( w, w, null );
 			
 			int pI = (2 * w) / 3;
 			
-			basicPainter2D.paintFillPolygon( new int[] { pI, w, pI }
+			BasicPainter2D.paintFillPolygon( new int[] { pI, w, pI }
 														, new int[] { 0, w / 2, w}
 														, color, img);
 			
-			Image r = basicPainter2D.paintRectangle( pI - 2 * thickness 
+			Image r = BasicPainter2D.paintRectangle( pI - 2 * thickness 
 															, ( 2 * w ) / 5
 															, thickness
 															, color
 															, color );
 			
-			basicPainter2D.compoundImages( img, pI - r.getWidth( null ) + thickness * 2, w /2 - r.getHeight( null ) / 2, r );
+			BasicPainter2D.compoundImages( img, pI - r.getWidth( null ) + thickness * 2, w /2 - r.getHeight( null ) / 2, r );
 			
 			int thickness2 = thickness / 2;
 			
@@ -526,7 +526,7 @@ public class GeneralAppIcon
 				thickness2 = 1;
 			}
 			
-			basicPainter2D.paintPolygonLine( new int[] { pI - 2 * thickness, thickness2, thickness2, pI - 2 * thickness}
+			BasicPainter2D.paintPolygonLine( new int[] { pI - 2 * thickness, thickness2, thickness2, pI - 2 * thickness}
 														, new int[] { thickness2, thickness2, w - thickness2, w - thickness2 }
 														, thickness
 														, color, img );
@@ -550,10 +550,10 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null  );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null  );
 
-			basicPainter2D.paintLine( 0, 0, size, size, thick, color, img );
-			basicPainter2D.paintLine( 0, size, size, 0, thick, color, img );
+			BasicPainter2D.paintLine( 0, 0, size, size, thick, color, img );
+			BasicPainter2D.paintLine( 0, size, size, 0, thick, color, img );
 
 			ico = new ImageIcon( img );
 		}
@@ -580,24 +580,24 @@ public class GeneralAppIcon
 				shiftThick = 1;
 			}
 
-			Image img = basicPainter2D.createEmptyImage( size, size, null  );
+			Image img = BasicPainter2D.createEmptyImage( size, size, null  );
 
 			double div = size / 10.0;
 			int[] xs = new int[]{ size / 2 , size - shiftThick, size / 2, shiftThick  };			
 			int[] ys = new int[]{ shiftThick, size / 2, size - shiftThick, size / 2  };
 
-			basicPainter2D.paintOutlinePolygon(xs, ys, thick, color, img );
+			BasicPainter2D.paintOutlinePolygon(xs, ys, thick, color, img );
 
-			basicPainter2D.paintLine( (int)( div * 1.5 ) + shiftThick, (int)( div * 6.5 ) - shiftThick, (int)( div * 6.5 ) - shiftThick, (int)( div * 1.5 ) + shiftThick, thick, color, img);
-			basicPainter2D.paintLine( (int)( div * 3.5 ) + shiftThick, (int)( div * 8.5 ) - shiftThick, (int)( div * 8.5) - shiftThick, (int)( div * 3.5 ) + shiftThick, thick, color, img);
+			BasicPainter2D.paintLine( (int)( div * 1.5 ) + shiftThick, (int)( div * 6.5 ) - shiftThick, (int)( div * 6.5 ) - shiftThick, (int)( div * 1.5 ) + shiftThick, thick, color, img);
+			BasicPainter2D.paintLine( (int)( div * 3.5 ) + shiftThick, (int)( div * 8.5 ) - shiftThick, (int)( div * 8.5) - shiftThick, (int)( div * 3.5 ) + shiftThick, thick, color, img);
 
-			basicPainter2D.paintLine( shiftThick, size / 2 + shiftThick, shiftThick, size, thick, color, img);
-			basicPainter2D.paintLine( 0, size - shiftThick, size / 2 - shiftThick, size - shiftThick, thick, color, img);
+			BasicPainter2D.paintLine( shiftThick, size / 2 + shiftThick, shiftThick, size, thick, color, img);
+			BasicPainter2D.paintLine( 0, size - shiftThick, size / 2 - shiftThick, size - shiftThick, thick, color, img);
 
 			xs = new int[]{ shiftThick, shiftThick, (int)( 2.5 * div ) };
 			ys = new int[]{ (int)( 7.5 * div ), size - shiftThick, size - shiftThick };
 
-			basicPainter2D.paintFillPolygon(xs, ys, color, img );
+			BasicPainter2D.paintFillPolygon(xs, ys, color, img );
 
 			ico = new ImageIcon( img );			
 		}
@@ -611,31 +611,31 @@ public class GeneralAppIcon
 		Color colorRelleno = Color.LIGHT_GRAY;
 		Color colorBorde = Color.BLACK;
 		int width = 100,  height = 100;
-		icono = basicPainter2D.createEmptyImage( width, height, null );
+		icono = BasicPainter2D.createEmptyImage( width, height, null );
 
 		int xs[] = { 0, 0, width / 6, width / 6, 2 * width / 6 , 2 * width / 6, width / 2, width / 2 };
 		int ys[] = { height / 4, 0, 0, height / 4, height / 4, 0, 0, height / 4 };
 
-		basicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
-		basicPainter2D.paintOutlinePolygon( xs, ys, 1.0F, colorBorde, icono );		
+		BasicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
+		BasicPainter2D.paintOutlinePolygon( xs, ys, 1.0F, colorBorde, icono );		
 
-		aux = basicPainter2D.paintRectangle( width / 6 , height / 2 -1, 1.0F, colorBorde, colorRelleno );		
-		basicPainter2D.compoundImages( icono, width / 6 , height / 2 , aux );
+		aux = BasicPainter2D.paintRectangle( width / 6 , height / 2 -1, 1.0F, colorBorde, colorRelleno );		
+		BasicPainter2D.compoundImages( icono, width / 6 , height / 2 , aux );
 
-		basicPainter2D.paintArc( 0, 0, width / 2, height / 2, 
+		BasicPainter2D.paintArc( 0, 0, width / 2, height / 2, 
 				180, 180, 1.0F, colorBorde, colorRelleno, icono );
-		basicPainter2D.paintLine( width / 6, height / 4, 2 * width / 6, height / 4 , 1.0F, colorBorde, icono );
+		BasicPainter2D.paintLine( width / 6, height / 4, 2 * width / 6, height / 4 , 1.0F, colorBorde, icono );
 		xs = new int[ 8 ];
 		ys = new int[ 8 ];		
 		xs[ 0 ] = width / 2 + width / 6; xs[ 1 ] = xs[ 0 ]; xs[ 2 ] = xs[ 1 ] - width / 12; xs[ 3 ] = xs[ 0 ]; xs[ 4 ] = xs[ 3 ] + width / 6 ; xs[ 5 ] = xs[ 4 ] + width / 12; xs[ 6 ] = xs[ 4 ]; xs[ 7 ] = xs[ 6 ];
 		ys[ 0 ] = height / 2; ys[ 1 ] = ys[ 0 ] - height / 6; ys[ 2 ] = ys[ 1 ] - height / 4; ys[ 3 ] = 0; ys[ 4 ] = ys[ 3 ]; ys[ 5 ] = ys[ 2 ]; ys[ 6 ] = ys[ 1 ]; ys[ 7 ] = ys[ 0 ];
 
-		basicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
-		basicPainter2D.paintOutlinePolygon( xs, ys, 1.0F, colorBorde, icono );
+		BasicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
+		BasicPainter2D.paintOutlinePolygon( xs, ys, 1.0F, colorBorde, icono );
 
 
-		aux = basicPainter2D.paintRectangle( width / 6 + 4, height / 2, 1.0F, colorBorde, Color.RED);
-		basicPainter2D.compoundImages( icono, width / 2 + width / 6 - 2, height / 2, aux );
+		aux = BasicPainter2D.paintRectangle( width / 6 + 4, height / 2, 1.0F, colorBorde, Color.RED);
+		BasicPainter2D.compoundImages( icono, width / 2 + width / 6 - 2, height / 2, aux );
 
 		return new ImageIcon( icono );
 	}
@@ -649,7 +649,7 @@ public class GeneralAppIcon
 		
 		int size = 512;
 				
-		Image base = basicPainter2D.createEmptyImage( size, size, null );
+		Image base = BasicPainter2D.createEmptyImage( size, size, null );
 		
 		int r = size / 3;
 		
@@ -663,12 +663,12 @@ public class GeneralAppIcon
 		int numLines = 2;		
 		
 		//Image circ = imagenPoligono2D.crearImagenCirculo( 0, 0, r, color, null );
-		Image circ = basicPainter2D.paintDot( 0, 0, r, color, true, null );
+		Image circ = BasicPainter2D.paintDot( 0, 0, r, color, true, null );
 		
 		Color fill = new Color( ~color.getRGB() );
 		//Image circ2 = imagenPoligono2D.crearImagenCirculo( 0, 0, r / 2, fill, null );
-		Image circ2 = basicPainter2D.paintDot( 0, 0, ( 2 * r ) / 3, fill, true, null );
-		basicPainter2D.compoundImages( circ, (int)Math.round( ( circ.getWidth( null ) - circ2.getWidth( null ) ) / 2.0 )
+		Image circ2 = BasicPainter2D.paintDot( 0, 0, ( 2 * r ) / 3, fill, true, null );
+		BasicPainter2D.compoundImages( circ, (int)Math.round( ( circ.getWidth( null ) - circ2.getWidth( null ) ) / 2.0 )
 												, (int)Math.round( ( circ.getHeight( null ) - circ2.getHeight( null ) ) / 2.0 )												
 												, circ2 );
 		
@@ -679,8 +679,8 @@ public class GeneralAppIcon
 		
 		for( int i = 1; i <= numLines; i++ )
 		{
-			basicPainter2D.paintLine( 0, (int)( h ), size, (int)( h ) , thick, color, base );
-			basicPainter2D.compoundImages( base, x, (int)Math.round( h - cc ), circ );
+			BasicPainter2D.paintLine( 0, (int)( h ), size, (int)( h ) , thick, color, base );
+			BasicPainter2D.compoundImages( base, x, (int)Math.round( h - cc ), circ );
 			
 			h += size / numLines;
 			x += stepX;
@@ -747,79 +747,79 @@ public class GeneralAppIcon
 		
 		int arrowWidth = (int)( (iconSize / 8) * 1.25); 
 	
-		Image icon = basicPainter2D.createEmptyImage( iconSize, iconSize, Color.WHITE);
+		Image icon = BasicPainter2D.createEmptyImage( iconSize, iconSize, Color.WHITE);
 		
-		Image icon2 = basicPainter2D.createEmptyImage( iconSize, iconSize, null );
-		icon2 = basicPainter2D.paintLine( iconSize / 2 - thick2,  arrowWidth / 2, iconSize / 2 - thick2, iconSize - arrowWidth / 2, 2 * thick2 , Color.BLACK, icon2 );
-		icon2 = basicPainter2D.paintLine( arrowWidth / 2, iconSize / 2 - thick2, iconSize - arrowWidth / 2, iconSize / 2 - thick2, 2 * thick2, Color.BLACK, icon2 );
+		Image icon2 = BasicPainter2D.createEmptyImage( iconSize, iconSize, null );
+		icon2 = BasicPainter2D.paintLine( iconSize / 2 - thick2,  arrowWidth / 2, iconSize / 2 - thick2, iconSize - arrowWidth / 2, 2 * thick2 , Color.BLACK, icon2 );
+		icon2 = BasicPainter2D.paintLine( arrowWidth / 2, iconSize / 2 - thick2, iconSize - arrowWidth / 2, iconSize / 2 - thick2, 2 * thick2, Color.BLACK, icon2 );
 				
-		icon = basicPainter2D.paintArc( thick / 2, thick / 2, 
+		icon = BasicPainter2D.paintArc( thick / 2, thick / 2, 
 												iconSize - thick,
 												iconSize - thick, 
 												180, -90, 
 												thick, Color.BLACK, Color.BLACK, icon );
 		
-		icon = basicPainter2D.paintArc( thick / 2, thick / 2, 
+		icon = BasicPainter2D.paintArc( thick / 2, thick / 2, 
 												iconSize - thick,
 												iconSize - thick, 
 												90, -90, 
 												thick, Color.GREEN, Color.GREEN, icon );
 		
-		icon = basicPainter2D.paintArc( thick / 2, thick / 2, 
+		icon = BasicPainter2D.paintArc( thick / 2, thick / 2, 
 												iconSize - thick,
 												iconSize - thick, 
 												0, -90, 
 												thick, Color.CYAN.darker(), Color.CYAN.darker(), icon );
 		
-		icon = basicPainter2D.paintArc( thick / 2, thick / 2, 
+		icon = BasicPainter2D.paintArc( thick / 2, thick / 2, 
 												iconSize - thick,
 												iconSize - thick, 
 												-90, -90, 
 												thick, Color.YELLOW, Color.YELLOW, icon );
 		
-		Image aux = basicPainter2D.paintFillPolygon( new int[]{ 0, 0, arrowWidth / 2 },
+		Image aux = BasicPainter2D.paintFillPolygon( new int[]{ 0, 0, arrowWidth / 2 },
 																 new int[]{ 0, arrowWidth, arrowWidth / 2 }, 
 																 Color.BLACK, 
 																 null);
 		
-		icon = basicPainter2D.compoundImages( icon,  iconSize / 2 - 1, 0, aux);
+		icon = BasicPainter2D.compoundImages( icon,  iconSize / 2 - 1, 0, aux);
 		
-		aux = basicPainter2D.paintFillPolygon( new int[]{ 0, arrowWidth, arrowWidth / 2 },
+		aux = BasicPainter2D.paintFillPolygon( new int[]{ 0, arrowWidth, arrowWidth / 2 },
 															 new int[]{  0, 0, arrowWidth / 2 }, 
 															 Color.GREEN, 
 															 null);
 
-		icon = basicPainter2D.compoundImages( icon,  iconSize - arrowWidth, iconSize / 2 - 1, aux);		
+		icon = BasicPainter2D.compoundImages( icon,  iconSize - arrowWidth, iconSize / 2 - 1, aux);		
 
-		aux = basicPainter2D.paintFillPolygon( new int[]{ arrowWidth/2, arrowWidth/2, 0 },
+		aux = BasicPainter2D.paintFillPolygon( new int[]{ arrowWidth/2, arrowWidth/2, 0 },
 															 new int[]{  0, arrowWidth, arrowWidth / 2 }, 
 															 Color.CYAN.darker(), 
 															 null);
 
-		icon = basicPainter2D.compoundImages( icon,  iconSize / 2 - arrowWidth / 2, iconSize - arrowWidth, aux);		
+		icon = BasicPainter2D.compoundImages( icon,  iconSize / 2 - arrowWidth / 2, iconSize - arrowWidth, aux);		
 
-		aux = basicPainter2D.paintFillPolygon( new int[]{ 0, arrowWidth, arrowWidth / 2 },
+		aux = BasicPainter2D.paintFillPolygon( new int[]{ 0, arrowWidth, arrowWidth / 2 },
 															 new int[]{  arrowWidth / 2, arrowWidth / 2, 0 }, 
 															 Color.YELLOW, 
 															 null);
 
 		
-		icon = basicPainter2D.compoundImages( icon,  0, iconSize / 2 - arrowWidth / 2, aux);		
+		icon = BasicPainter2D.compoundImages( icon,  0, iconSize / 2 - arrowWidth / 2, aux);		
 		
 		//icon = imagenPoligono2D.crearImagenCircunferencia(0, 0, iconSize-1, thick2, Color.BLACK, icon );
 		
-		icon = basicPainter2D.paintFillCircle( arrowWidth, arrowWidth, iconSize - 2 * arrowWidth, Color.WHITE, icon );
+		icon = BasicPainter2D.paintFillCircle( arrowWidth, arrowWidth, iconSize - 2 * arrowWidth, Color.WHITE, icon );
 		//icon = imagenPoligono2D.crearImagenCircunferencia( arrowWidth, arrowWidth, iconSize - 2 * arrowWidth, thick2, Color.BLACK, icon );
 		
-		icon = basicPainter2D.changeColorPixels( Color.WHITE, new Color( 255, 255, 255, 0), icon );
+		icon = BasicPainter2D.changeColorPixels( Color.WHITE, new Color( 255, 255, 255, 0), icon );
 		
-		icon = basicPainter2D.compoundImages( icon2, 0, 0, icon );
+		icon = BasicPainter2D.compoundImages( icon2, 0, 0, icon );
 		
-		icon = basicPainter2D.paintFillCircle( iconSize / 2 - iconSize / 8 - thick2, 
+		icon = BasicPainter2D.paintFillCircle( iconSize / 2 - iconSize / 8 - thick2, 
 													iconSize / 2 - iconSize / 8, 
 													iconSize / 4, Color.RED, icon );
 		
-		icon = basicPainter2D.paintOutlineCircle( iconSize / 2 - iconSize / 8 - thick2 * 2 + 1,  
+		icon = BasicPainter2D.paintOutlineCircle( iconSize / 2 - iconSize / 8 - thick2 * 2 + 1,  
 															iconSize / 2 - iconSize / 8 - thick2 / 2, 
 															iconSize / 4 + 2*thick2, 
 															2*thick2, Color.BLACK, icon );
@@ -836,12 +836,12 @@ public class GeneralAppIcon
 		int width = 100, height = 100;
 		float thickness = width / 4.0F;
 
-		icono = basicPainter2D.createEmptyImage( width, height, null );
+		icono = BasicPainter2D.createEmptyImage( width, height, null );
 
-		basicPainter2D.paintLine( 0+(int)thickness, 0+(int)thickness, width-(int)thickness, height-(int)thickness, thickness+2.0F, colorBorder, icono );
-		basicPainter2D.paintLine( width-(int)thickness, 0+(int)thickness, 0+(int)thickness, height-(int)thickness, thickness+2.0F, colorBorder, icono );
-		basicPainter2D.paintLine( 0+(int)thickness, 0+(int)thickness, width-(int)thickness, height-(int)thickness, thickness, colorRelleno, icono );
-		basicPainter2D.paintLine( width-(int)thickness, 0+(int)thickness, 0+(int)thickness, height-(int)thickness, thickness, colorRelleno, icono );
+		BasicPainter2D.paintLine( 0+(int)thickness, 0+(int)thickness, width-(int)thickness, height-(int)thickness, thickness+2.0F, colorBorder, icono );
+		BasicPainter2D.paintLine( width-(int)thickness, 0+(int)thickness, 0+(int)thickness, height-(int)thickness, thickness+2.0F, colorBorder, icono );
+		BasicPainter2D.paintLine( 0+(int)thickness, 0+(int)thickness, width-(int)thickness, height-(int)thickness, thickness, colorRelleno, icono );
+		BasicPainter2D.paintLine( width-(int)thickness, 0+(int)thickness, 0+(int)thickness, height-(int)thickness, thickness, colorRelleno, icono );
 
 		return new ImageIcon( icono );
 	}
@@ -854,15 +854,15 @@ public class GeneralAppIcon
 		Color colorRelleno = fillColor;
 		float thickness = 1.0F;
 
-		icono = basicPainter2D.createEmptyImage( width, height, null );
+		icono = BasicPainter2D.createEmptyImage( width, height, null );
 
 		int x = (int)thickness, y = height / 2 + (int)thickness;
 
 		int xs[ ] = { x, x + width / 4, width - (int)thickness, x + width / 4 };
 		int ys[ ] = { y, y + height / 4 - (int)thickness, 0 + (int)thickness,  height - (int)thickness };  
 
-		basicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
-		basicPainter2D.paintOutlinePolygon( xs, ys, thickness, colorBorder, icono );
+		BasicPainter2D.paintFillPolygon( xs, ys, colorRelleno, icono );
+		BasicPainter2D.paintOutlinePolygon( xs, ys, thickness, colorBorder, icono );
 
 		return new ImageIcon( icono );
 	}
@@ -886,42 +886,42 @@ public class GeneralAppIcon
 			y = (int)thickness;
 		}
 
-		icono = basicPainter2D.createEmptyImage( width, height, null );
+		icono = BasicPainter2D.createEmptyImage( width, height, null );
 
-		aux = basicPainter2D.paintRectangle(  5 * width / 8, height - (int)(thickness * 2 ), thickness, colorBorder, colorBorder );
-		basicPainter2D.compoundImages( icono, ( width - aux.getWidth( null ) ) / 2 , ( height - aux.getHeight( null ) ) / 2 , aux); 
+		aux = BasicPainter2D.paintRectangle(  5 * width / 8, height - (int)(thickness * 2 ), thickness, colorBorder, colorBorder );
+		BasicPainter2D.compoundImages( icono, ( width - aux.getWidth( null ) ) / 2 , ( height - aux.getHeight( null ) ) / 2 , aux); 
 
-		basicPainter2D.paintFillCircle( x, y, diametro, Color.WHITE, icono );
-		basicPainter2D.paintOutlineCircle( x, y, diametro, thickness, colorBorder, icono );
+		BasicPainter2D.paintFillCircle( x, y, diametro, Color.WHITE, icono );
+		BasicPainter2D.paintOutlineCircle( x, y, diametro, thickness, colorBorder, icono );
 
-		aux = basicPainter2D.paintRectangle( diametro / 12, diametro / 12, thickness, Color.BLACK, Color.BLACK );		
-		basicPainter2D.compoundImages( icono, width / 2 - aux.getWidth( null ) / 2, y + (int)(thickness * 2 ), aux );
-		basicPainter2D.compoundImages( icono, width / 2 - aux.getWidth( null ) / 2, y + diametro - (int)(thickness * 2 ) - aux.getHeight( null ), aux );
-		basicPainter2D.compoundImages( icono, 0 + (int)(thickness * 2 ), height / 2 - aux.getHeight( null ) / 2, aux );
-		basicPainter2D.compoundImages( icono, width - (int)(thickness * 2 ) - aux.getWidth( null ), height / 2 - aux.getHeight( null ) / 2, aux );
+		aux = BasicPainter2D.paintRectangle( diametro / 12, diametro / 12, thickness, Color.BLACK, Color.BLACK );		
+		BasicPainter2D.compoundImages( icono, width / 2 - aux.getWidth( null ) / 2, y + (int)(thickness * 2 ), aux );
+		BasicPainter2D.compoundImages( icono, width / 2 - aux.getWidth( null ) / 2, y + diametro - (int)(thickness * 2 ) - aux.getHeight( null ), aux );
+		BasicPainter2D.compoundImages( icono, 0 + (int)(thickness * 2 ), height / 2 - aux.getHeight( null ) / 2, aux );
+		BasicPainter2D.compoundImages( icono, width - (int)(thickness * 2 ) - aux.getWidth( null ), height / 2 - aux.getHeight( null ) / 2, aux );
 
-		basicPainter2D.paintLine( width / 2, height / 2, width / 2 , height / 2 -  3 * ( diametro / 2 ) / 4, thickness*1.5F, colorBorder, icono );
-		basicPainter2D.paintLine( width / 2, height / 2, width / 2 + diametro / 4, height / 2, thickness*1.5F, colorBorder, icono );		
+		BasicPainter2D.paintLine( width / 2, height / 2, width / 2 , height / 2 -  3 * ( diametro / 2 ) / 4, thickness*1.5F, colorBorder, icono );
+		BasicPainter2D.paintLine( width / 2, height / 2, width / 2 + diametro / 4, height / 2, thickness*1.5F, colorBorder, icono );		
 
 		return new ImageIcon( icono );
 	}
 
 	public static ImageIcon Socket( Color colorIn, Color colorOut )
 	{
-		Image imgIn = basicPainter2D.paintTriangle( 14,  1, 
+		Image imgIn = BasicPainter2D.paintTriangle( 14,  1, 
 				Color.BLACK,
 				colorIn,
-				basicPainter2D.SOUTH );
+				BasicPainter2D.SOUTH );
 
-		Image imgOut = basicPainter2D.paintTriangle( 14,  1, 
+		Image imgOut = BasicPainter2D.paintTriangle( 14,  1, 
 				Color.BLACK,
 				colorOut,
-				basicPainter2D.NORTH );
+				BasicPainter2D.NORTH );
 
-		Image img = basicPainter2D.createEmptyImage( 30,15, null );
-		img = basicPainter2D.compoundImages( img, 0, 0, imgIn );
+		Image img = BasicPainter2D.createEmptyImage( 30,15, null );
+		img = BasicPainter2D.compoundImages( img, 0, 0, imgIn );
 
-		return new ImageIcon( basicPainter2D.compoundImages( img, 12, 0, imgOut ) );
+		return new ImageIcon( BasicPainter2D.compoundImages( img, 12, 0, imgOut ) );
 	}
 
 	public static ImageIcon Folder( int width, int height, Color borderColor, Color fillColor )
@@ -935,7 +935,7 @@ public class GeneralAppIcon
 			borderColor = Color.BLACK;
 		}
 
-		Image img = basicPainter2D.createEmptyImage( w, h, null );
+		Image img = BasicPainter2D.createEmptyImage( w, h, null );
 
 		//Image imgAux = imagenPoligono2D.crearImagenRectangulo( w / 2, h / 5, thickness, borderColor, fillColor );
 		int x[] = { thickness, 3 * w / 7, 3 * w / 7, w - thickness, w - thickness, thickness };
@@ -943,12 +943,12 @@ public class GeneralAppIcon
 
 		if( fillColor != null )
 		{
-			basicPainter2D.paintFillPolygon( x, y, fillColor, img );
+			BasicPainter2D.paintFillPolygon( x, y, fillColor, img );
 		}
 
 		if( borderColor != null )
 		{
-			basicPainter2D.paintOutlinePolygon( x, y, thickness, borderColor, img );
+			BasicPainter2D.paintOutlinePolygon( x, y, thickness, borderColor, img );
 		}
 		//imagenPoligono2D.componerImagen( img, 0, 0, imgAux );
 
@@ -957,12 +957,12 @@ public class GeneralAppIcon
 
 		if( fillColor != null )
 		{
-			basicPainter2D.paintFillPolygon( xs, ys, fillColor, img );
+			BasicPainter2D.paintFillPolygon( xs, ys, fillColor, img );
 		}
 
 		if( borderColor != null )
 		{
-			basicPainter2D.paintOutlinePolygon( xs, ys, thickness, borderColor, img );
+			BasicPainter2D.paintOutlinePolygon( xs, ys, thickness, borderColor, img );
 		}
 
 		//Image imgAux = imagenPoligono2D.crearImagenRectangulo( w - thickness, 3 * h / 5, thickness, borderColor, fillColor );
@@ -985,18 +985,18 @@ public class GeneralAppIcon
 		}
 
 
-		Image img = basicPainter2D.createEmptyImage( w, h, null );
+		Image img = BasicPainter2D.createEmptyImage( w, h, null );
 
 		if( borderColor == null )
 		{
 			borderColor = Color.BLACK;
 		}
 
-		Image imgAux = basicPainter2D.paintTriangle( l, 1, borderColor, borderColor, basicPainter2D.EAST );
+		Image imgAux = BasicPainter2D.paintTriangle( l, 1, borderColor, borderColor, BasicPainter2D.EAST );
 
-		basicPainter2D.compoundImages( img, w / 2, 0, imgAux );
+		BasicPainter2D.compoundImages( img, w / 2, 0, imgAux );
 
-		basicPainter2D.paintArc( thickness / 2, thickness / 2, w - (thickness * 3 ) / 2 , h - 2 * l / 3 - thickness, 0, -270, thickness, borderColor, fillColor, img );
+		BasicPainter2D.paintArc( thickness / 2, thickness / 2, w - (thickness * 3 ) / 2 , h - 2 * l / 3 - thickness, 0, -270, thickness, borderColor, fillColor, img );
 
 		return new ImageIcon( img );		
 	}
@@ -1013,7 +1013,7 @@ public class GeneralAppIcon
 				thick = 1;
 			}
 
-			Image img = basicPainter2D.paintRectangle( size, size, 1, color, null);
+			Image img = BasicPainter2D.paintRectangle( size, size, 1, color, null);
 
 			int[] x = new int[ size ];
 			int[] y = new int[ size ];
@@ -1024,7 +1024,7 @@ public class GeneralAppIcon
 				y[ i ] = (int)(( ( Math.sin( ( i * 4 * Math.PI ) / size ) + 1 ) / 2 ) * h ) + ( size - h ) / 2;
 			}
 
-			basicPainter2D.paintPolygonLine( x, y, thick, color, img );
+			BasicPainter2D.paintPolygonLine( x, y, thick, color, img );
 
 			ico = new ImageIcon( img );
 		}
@@ -1709,7 +1709,7 @@ public class GeneralAppIcon
 	
 	public static ImageIcon getQuaver( int width, int height, Color fillColor, Color bgColor)
 	{
-		Image base = basicPainter2D.createEmptyImage( width, height, bgColor );
+		Image base = BasicPainter2D.createEmptyImage( width, height, bgColor );
 		
 		int s = Math.min( width, height );
 		
@@ -1725,20 +1725,20 @@ public class GeneralAppIcon
 		int x2 = width - x - r;
 		int y = height - r - height / 8; 
 		
-		basicPainter2D.paintFillCircle( x, y, r, fillColor, base );
-		basicPainter2D.paintFillCircle( x2, y, r, fillColor, base );
+		BasicPainter2D.paintFillCircle( x, y, r, fillColor, base );
+		BasicPainter2D.paintFillCircle( x2, y, r, fillColor, base );
 		
-		basicPainter2D.paintLine( x + r - t / 2, ( 3 * height ) / 4, x + r - t / 2, height / 4, t, fillColor, base );
-		basicPainter2D.paintLine( x2 + r - t / 2, ( 3 * height ) / 4, x2 + r - t / 2, height / 4, t, fillColor, base );
+		BasicPainter2D.paintLine( x + r - t / 2, ( 3 * height ) / 4, x + r - t / 2, height / 4, t, fillColor, base );
+		BasicPainter2D.paintLine( x2 + r - t / 2, ( 3 * height ) / 4, x2 + r - t / 2, height / 4, t, fillColor, base );
 		
-		basicPainter2D.paintLine( x + r, height / 4, x2 + r - t, height / 4, t * 2, fillColor, base );
+		BasicPainter2D.paintLine( x + r, height / 4, x2 + r - t, height / 4, t * 2, fillColor, base );
 		
 		return new ImageIcon( base );
 	}
 	
 	public static ImageIcon Sound( int width, int height, Color fillColor, Color bgColor)
 	{
-		Image base = basicPainter2D.createEmptyImage( width, height, bgColor );
+		Image base = BasicPainter2D.createEmptyImage( width, height, bgColor );
 		
 		int x[]  = new int[] { width / 8, width / 4, width / 2, width / 2, width / 4, width / 8 };
 		int y[]  = new int[] { ( 3 * height ) / 8, ( 3 * height ) / 8, height / 4, ( 3 * height ) / 4, ( 5 * height ) / 8, ( 5 * height ) / 8 };
@@ -1752,25 +1752,25 @@ public class GeneralAppIcon
 			t = 1;
 		}
 		
-		basicPainter2D.paintFillPolygon( x, y, fillColor, base ); 
+		BasicPainter2D.paintFillPolygon( x, y, fillColor, base ); 
 		
 		int w =  width / 8;
 		
-		basicPainter2D.paintArc( width / 2, height / 2 - h / 8 - t, w / 2, h / 4, -90, 180, t, fillColor, null, base );
+		BasicPainter2D.paintArc( width / 2, height / 2 - h / 8 - t, w / 2, h / 4, -90, 180, t, fillColor, null, base );
 		
 		if( width >= 32 )
 		{		
-			basicPainter2D.paintArc( width / 2, height / 2 - h / 4 - t, w, h / 2, -90, 180, t, fillColor, null, base );
+			BasicPainter2D.paintArc( width / 2, height / 2 - h / 4 - t, w, h / 2, -90, 180, t, fillColor, null, base );
 		}
 		
-		basicPainter2D.paintArc( width  / 2, height / 2 - ( ( 4 * h ) / 5 ) /2 - t, ( 3 * w ) / 2, ( 4 * h ) / 5, -90, 180, t, fillColor, null, base );
+		BasicPainter2D.paintArc( width  / 2, height / 2 - ( ( 4 * h ) / 5 ) /2 - t, ( 3 * w ) / 2, ( 4 * h ) / 5, -90, 180, t, fillColor, null, base );
 		
 		return new ImageIcon( base );
 	}
 	
 	public static ImageIcon InterleavedIcon( int width, int height, Color border, Color fill, Color background )
 	{
-		Image base = basicPainter2D.createEmptyImage( width, height, background );
+		Image base = BasicPainter2D.createEmptyImage( width, height, background );
 		
 		int thick = Math.min( width, height) / 16;
 		if( thick < 1 )
@@ -1798,25 +1798,25 @@ public class GeneralAppIcon
 			}
 		}
 					
-		Image rect = basicPainter2D.paintRectangle( ( 3 * width ) / 10 - 1, ( 3 * height ) / 5, thick, border, c );
+		Image rect = BasicPainter2D.paintRectangle( ( 3 * width ) / 10 - 1, ( 3 * height ) / 5, thick, border, c );
 		
 		int x = rect.getWidth( null ) / 3;
 		int y = rect.getHeight( null ) / 3;
-		basicPainter2D.compoundImages( base, x * 2 + thick + 1, thick, rect );
-		basicPainter2D.compoundImages( base, x + thick + 1, y, rect );
-		basicPainter2D.compoundImages( base, thick + 1, 2 * y - thick, rect );
+		BasicPainter2D.compoundImages( base, x * 2 + thick + 1, thick, rect );
+		BasicPainter2D.compoundImages( base, x + thick + 1, y, rect );
+		BasicPainter2D.compoundImages( base, thick + 1, 2 * y - thick, rect );
 		
 		x = rect.getWidth( null ) / 3;
 		y = rect.getHeight( null ) / 3;
-		basicPainter2D.compoundImages( base, width / 2 + x * 2 - thick + 1, thick, rect );
-		basicPainter2D.compoundImages( base, width / 2 + x - thick + 1, y, rect );
-		basicPainter2D.compoundImages( base, width / 2 - thick + 1, 2 * y - thick, rect );
+		BasicPainter2D.compoundImages( base, width / 2 + x * 2 - thick + 1, thick, rect );
+		BasicPainter2D.compoundImages( base, width / 2 + x - thick + 1, y, rect );
+		BasicPainter2D.compoundImages( base, width / 2 - thick + 1, 2 * y - thick, rect );
 		
 		if( fill == null )
 		{
 			Color n = new Color( c.getRed() / 255F, c.getGreen() / 255F , c.getBlue() / 255F, 0F );
 			
-			basicPainter2D.changeColorPixels( c, n, base );
+			BasicPainter2D.changeColorPixels( c, n, base );
 		}
 		
 		
