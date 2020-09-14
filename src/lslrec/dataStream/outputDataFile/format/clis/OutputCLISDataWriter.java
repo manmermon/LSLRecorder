@@ -25,7 +25,7 @@ package lslrec.dataStream.outputDataFile.format.clis;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
-import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -49,14 +49,14 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
 		
-		String zip = formatPars.getCompressType();
+		String zip = (String)formatPars.getParameter( OutputFileFormatParameters.ZIP_ID ).getValue();
 		
 		if( zip == null )
 		{
-			zip = OutputZipDataFactory.UNDEFINED;
+			zip = ZipDataFactory.UNDEFINED;
 		}
 		
-		this.zipProcess = OutputZipDataFactory.createOuputZipStream( zip );
+		this.zipProcess = ZipDataFactory.createOuputZipStream( zip );
 		
 		if( this.zipProcess == null )
 		{
@@ -66,7 +66,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		this.taskMonitor( monitor );
 				
 		CLISMetadata metadata = new CLISMetadata( formatPars, streamSettings );		
-		this.clisWriter = new CLISCompressorWriter( formatPars.getOutputFileName(), metadata );		
+		this.clisWriter = new CLISCompressorWriter( (String)formatPars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), metadata );		
 	}
 
 	public void addMetadata( String id, String text ) throws Exception

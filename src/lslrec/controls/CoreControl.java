@@ -119,7 +119,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private int savingDataProgress = 0;
 	
-	private volatile String encryptKey;
+	private volatile String encryptKey = "";
 		
 	/**
 	 * Create main control unit.
@@ -465,12 +465,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					LSLPars.addParameter( writingTest );
 					
 					OutputFileFormatParameters outFormat = new OutputFileFormatParameters();
-					outFormat.setOutputFileName( file );
-					outFormat.setCompressType( ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
-					outFormat.setOutputFileFormat( (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );					
-					outFormat.setParallelize( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
-					outFormat.setEncryptKey(  this.encryptKey );
-					this.encryptKey = null;
+					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
+					outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
+					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );
+					outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
+					outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
+					this.encryptKey = "";
 					
 					
 					String nodeId = DataStreamSetting.ID_SOCKET_MARK_INFO_LABEL;
@@ -484,12 +484,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						nodeText += idMark + "=" + v + StreamBinaryHeader.HEADER_BINARY_SEPARATOR;
 					}		
 					
-					outFormat.addRecordingInfo( nodeId, nodeText );
+					((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, nodeText );
 										
 					nodeId = DataStreamSetting.ID_RECORD_GENERAL_DESCRIPTION;
 					nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
-					outFormat.addRecordingInfo( nodeId, nodeText );					
-										
+					((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
 					
 					Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
 					LSLPars.addParameter( outFileFormat );;
@@ -627,6 +626,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 			
 			this.encryptKey = pass.getPassword();
+			
+			if( this.encryptKey == null )
+			{
+				this.encryptKey = "";
+			}
 		}
 		
 		HashSet< MutableDataStreamSetting > lslPars = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );

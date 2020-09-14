@@ -30,7 +30,7 @@ import java.nio.ShortBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-public abstract class OutZipDataTemplate implements IOutZip
+public abstract class ZipDataTemplate implements IOutZip
 {	
 	public byte[] zipData( byte[] data ) throws Exception
 	{	

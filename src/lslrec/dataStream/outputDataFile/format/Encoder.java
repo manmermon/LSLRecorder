@@ -4,6 +4,7 @@ import java.util.List;
 
 import lslrec.auxiliar.tasks.ITaskIdentity;
 import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.setting.DataStreamSetting;
 
@@ -24,4 +25,6 @@ public interface Encoder extends ITaskIdentity
 	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, DataStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception;	
 	
 	public List< SettingOptions > getSettiongOptions();
+	
+	public ParameterList getParameters();
 }

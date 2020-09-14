@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
@@ -54,9 +54,17 @@ public class DataFileFormat
 	
 	public static String[] getSupportedFileFormat()
 	{
-		String[] formats = new String[] { CLIS, HDF5, MATLAB };
+		List< String > formats = new ArrayList< String >();
+		formats.add( CLIS );
+		formats.add( HDF5 );
+		formats.add( MATLAB );
 		
-		return formats;
+		for( String id : pluginEncoders.keySet() )
+		{
+			formats.add( id );
+		}
+		
+		return formats.toArray( new String[0] );
 	}
 
 	public static Map<String, String > getSupportedFileExtension()
@@ -217,5 +225,19 @@ public class DataFileFormat
 		}
 		
 		return opts;
+	}
+	
+	public static ParameterList getParameters( String format )
+	{
+		ParameterList pars = null;
+		
+		Encoder enc = getDataFileEncoder( format );
+				
+		if( enc != null )
+		{
+			pars = enc.getParameters();
+		}
+		
+		return pars;
 	}
 }

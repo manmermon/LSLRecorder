@@ -58,7 +58,7 @@ public class TemporalBinData
 		this.streamSetting = strSetting;
 		this.outputFormat = outFormat;
 		
-		this.deleteBinaries = this.outputFormat.getDeleteBin();
+		this.deleteBinaries = (Boolean)this.outputFormat.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue();
 		
 		this.binFile = dataBin;
 		

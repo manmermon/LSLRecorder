@@ -22,29 +22,38 @@
 
 package lslrec.config;
 
-public class Parameter implements IParameter
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.EventListenerList;
+
+import lslrec.config.language.Language;
+
+public class Parameter< T > implements IParameter< T >
 {
 	private String ID;
-	private Object value = null;
+	private String txtID;
+	private T value = null;
+	
+	private EventListenerList listenerList;
 
 	/**
 	 * Create a parameter
 	 * 
 	 * @param id: parameter identifier.
 	 * @param defaultValue: parameter value.
-	 * @throws IllegalArgumentException: 
-	 * 			if id == null || id.trim().isempty() || defaultValue == null  
+	 * @throws IllegalArgumentException
 	 */
-	public Parameter(String id, Object defaultValue) throws IllegalArgumentException
+	public Parameter(String id, T defaultValue) throws IllegalArgumentException
 	{
-
-		if ( id == null || id.trim().isEmpty() || defaultValue == null )
+		if ( id == null || defaultValue == null )
 		{
 			throw new IllegalArgumentException( "Parameter ID and/or value are null or empty" );
 		}
 
 		this.ID = id;
 		this.value = defaultValue;
+		
+		this.listenerList = new EventListenerList();
 	}
 
 	/**
@@ -80,7 +89,7 @@ public class Parameter implements IParameter
 	 * @return previous value
 	 * @throws ClassCastException: Class new value is different
 	 */
-	public Object setValue( Object newValue ) throws ClassCastException
+	public T setValue( T newValue ) throws ClassCastException
 	{
 		String parClass = this.value.getClass().getCanonicalName();
 		if ( !parClass.equals( newValue.getClass().getCanonicalName() ) )
@@ -88,9 +97,11 @@ public class Parameter implements IParameter
 			throw new ClassCastException("New value class is different to parameter class: " + parClass );
 		}
 
-		Object prev = this.value;
+		T prev = this.value;
 		this.value = newValue;
 
+		this.fireChangeEvent();
+		
 		return prev;
 	}
 
@@ -98,8 +109,51 @@ public class Parameter implements IParameter
 	 * 
 	 * @return parameter value
 	 */
-	public Object getValue()
+	public T getValue()
 	{
 		return this.value;
 	}
+	
+	public void setLangID( String t )
+	{
+		this.txtID = t;
+	}
+	
+	public String getLangID( )
+	{
+		return this.txtID;
+	}
+	
+	public String getText()
+	{
+		String t = Language.getLocalCaption( this.txtID );
+		
+		if( t == null )
+		{
+			t = this.ID;
+		}
+			
+		return t;
+	}
+		
+	public void addValueChangeListener( ChangeListener listener )
+	{
+		this.listenerList.add( ChangeListener.class, listener );
+	}
+	
+	/**
+	 * 
+	 */
+	private synchronized void fireChangeEvent( )
+	{
+		ChangeEvent event = new ChangeEvent( this );
+
+		ChangeListener[] listeners = this.listenerList.getListeners( ChangeListener.class );
+
+		for (int i = 0; i < listeners.length; i++ ) 
+		{
+			listeners[ i ].stateChanged( event );
+		}
+	}
+	
 }

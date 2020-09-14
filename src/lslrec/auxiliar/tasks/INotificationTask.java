@@ -45,6 +45,4 @@ public interface INotificationTask extends ITaskIdentity, IMonitoredTask
 	 * Erase task result.
 	 */
 	public void clearResult();
-	
-	
 }

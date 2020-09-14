@@ -28,7 +28,6 @@ import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.config.ConfigApp;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -65,7 +64,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		
 		super.setName( super.streamSetting.getStreamName() + "(" + super.streamSetting.getStreamInfo().uid() + ")");
 		
-		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getOutputFileName() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
+		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
 		
 	}
 	

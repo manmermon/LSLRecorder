@@ -3,6 +3,7 @@ package lslrec.dataStream.outputDataFile.format.hdf5;
 import java.util.List;
 
 import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
@@ -22,7 +23,7 @@ public class HDF5Encoder implements Encoder
 	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, DataStreamSetting streamSettings, ITaskMonitor monitor )
 			throws Exception 
 	{	
-		return new OutputHDF5DataWriter( pars.getOutputFileName(), monitor );
+		return new OutputHDF5DataWriter( (String)pars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), monitor );
 	}
 
 	@Override
@@ -41,6 +42,12 @@ public class HDF5Encoder implements Encoder
 	public String getID() 
 	{
 		return "HDF5";
+	}
+
+	@Override
+	public ParameterList getParameters() 
+	{
+		return null;
 	}
 
 }

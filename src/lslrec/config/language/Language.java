@@ -105,6 +105,7 @@ public class Language
 	public static final String SETTING_LSL_MARK = "SETTING_LSL_MARK";
 	public static final String SETTING_LSL_FILE = "SETTING_LSL_FILE";
 	public static final String SETTING_LSL_OUTPUT_FORMAT = "SETTING_LSL_OUTPUT_FORMAT";
+	public static final String SETTING_COMPRESSOR = "SETTING_COMPRESSOR";
 	public static final String SETTING_LSL_REFRESH = "SETTING_LSL_REFRESH";
 	public static final String SETTING_LSL_DEVICES = "SETTING_LSL_DEVICES";
 	public static final String SETTING_LSL_PLOT = "SETTING_LSL_PLOT";	
@@ -318,6 +319,7 @@ public class Language
 		*/
 		captions.put(SETTING_LSL_MARK, new Caption(SETTING_LSL_MARK, defaultLanguage, "Mark"));
 		captions.put(SETTING_LSL_FILE, new Caption(SETTING_LSL_FILE, defaultLanguage, "File name"));
+		captions.put(SETTING_COMPRESSOR, new Caption(SETTING_COMPRESSOR, defaultLanguage, "Compressor"));
 		captions.put(SETTING_LSL_OUTPUT_FORMAT,
 				new Caption(SETTING_LSL_OUTPUT_FORMAT, defaultLanguage, "Output file format"));
 		captions.put(SETTING_LSL_REFRESH, new Caption(SETTING_LSL_REFRESH, defaultLanguage, "Refresh LSL"));

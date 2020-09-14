@@ -21,15 +21,12 @@
 package lslrec.dataStream.outputDataFile;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -40,9 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import com.sun.org.apache.bcel.internal.generic.DCONST;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
@@ -130,7 +125,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		this.outputFormat = DAT.getOutputFileFormat();
 		
-		super.setName( this.getClass().getSimpleName() + "-" + this.outputFormat.getOutputFileName() );
+		super.setName( this.getClass().getSimpleName() + "-" + this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() );
 		
 		this.syncReader = syncReader;
 		
@@ -178,8 +173,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 			
 			// Setting		
-			this.outputFormat.setBlockDataLength( this.BLOCK_SIZE );
-			String outFormat = this.outputFormat.getOutputFileFormat();			
+			this.outputFormat.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, this.BLOCK_SIZE );
+			String outFormat = (String)this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue();			
 			
 			// Header size stimation
 			long binFileSizeLen = this.DATA.getDataBinaryFileSize();
@@ -193,7 +188,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				syncBlockLen = (long)Math.ceil(  1.0D * syncBlockLen / this.BLOCK_SIZE );
 			}
 	
-			this.outputFormat.setNumerOfBlock( syncBlockLen + binFileSizeLen  );
+			this.outputFormat.setParameter( OutputFileFormatParameters.NUM_BLOCKS, syncBlockLen + binFileSizeLen  );
 						
 			String varNames = "";
 			String streamName = this.DATA.getDataStreamSetting().getStreamName();
@@ -203,7 +198,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			varNames += this.prefixStringLen + streamName + ";";
 			varNames += this.prefixTime + streamName + ";";			
 			
-			this.outputFormat.setDataNames( varNames ); // CLIS: To calculate padding header 
+			this.outputFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames ); // CLIS: To calculate padding header 
 						
 			IOutputDataFileWriter wr = DataFileFormat.getDataFileEncoder( outFormat ).getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
 					
@@ -226,7 +221,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			String lslName = streamSettings.getStreamName(); // LSL streaming name
 			String lslXML = streamSettings.getStreamInfo().as_xml(); // LSL description
 
-			Map< String, String > addInfo = this.outputFormat.getRecordingInfo();
+			Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
 			if( addInfo != null )
 			{
 				for( String id : addInfo.keySet() )

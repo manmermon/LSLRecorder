@@ -96,6 +96,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
+import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
 import lslrec.dataStream.outputDataFile.format.CreatorEncoderSettingPanel;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
@@ -108,6 +109,8 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -160,7 +163,7 @@ public class settingMenu_StreamingSettings extends JPanel
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
-	private JCheckBox parallelizeActive;
+	//private JCheckBox parallelizeActive;
 	
 	//JBUTTON	
 	private JButton jButtonSelectOutFile;
@@ -661,6 +664,7 @@ public class settingMenu_StreamingSettings extends JPanel
 		return this.encryptKeyActive;
 	}
 	
+	/*
 	private JCheckBox getParallelizeActive()
 	{
 		if( this.parallelizeActive == null )
@@ -688,6 +692,7 @@ public class settingMenu_StreamingSettings extends JPanel
 		
 		return this.parallelizeActive;
 	}
+	*/
 	
 	private JPanel getJPanelOutFileFormat()
 	{
@@ -2058,8 +2063,30 @@ public class settingMenu_StreamingSettings extends JPanel
 						JPanel main = new JPanel( new BorderLayout() );
 						main.setBackground( Color.green );
 
-
-						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+						
+						Encoder enc = DataFileFormat.getDataFileEncoder( format.toString() );
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						ParameterList pars = enc.getParameters();
+						
+						for( String idPar : pars.getParameterIDs() )
+						{
+							Parameter par = pars.getParameter( idPar );
+							
+							par.setValue( ConfigApp.getProperty( par.getID() ) );
+							
+							par.addValueChangeListener( new ChangeListener() 
+							{	
+								@Override
+								public void stateChanged(ChangeEvent e) 
+								{
+									Parameter par = (Parameter)e.getSource();
+									
+									ConfigApp.setProperty( par.getID(), par.getValue() );
+								}
+							});
+						}
+						
+						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( opts, pars );
 
 						main.add( scr, BorderLayout.CENTER );
 

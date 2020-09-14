@@ -22,368 +22,83 @@ package lslrec.dataStream.outputDataFile.format;
 
 import java.nio.charset.Charset;
 import java.util.HashMap;
-import java.util.Map;
 
 import lslrec.config.ConfigApp;
-import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
+import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
 
 public class OutputFileFormatParameters
 {
-	private final String OUT_FILE_NAME = "OUT_FILE_NAME";
-	private final String ZIP_ID = "ZIP_ID";
-	private final String CHAR_CODING = "CHAR_CODING";
-	private final String ENCRYPT_KEY = "ENCRYPT_KEY";	
-	private final String PARALLELIZE = "PARALLELIZE";
-	private final String OUT_FILE_FORMAT = "OUT_FILE_FORMAT";
-	private final String NUM_BLOCKS= "NUM_BLOCKS";	
-	private final String BLOCK_DATA_SIZE = "BLOCK_DATA_SIZE";
-	private final String DATA_NAMES = "DATA_NAME";
-	private final String RECORDING_INFO = "RECORDING_INFO";
-	private final String DELETE_BIN = "DELETE_BIN";
+	public static final String OUT_FILE_NAME = ConfigApp.OUTPUT_FILE_NAME;
+	public static final String ZIP_ID = ConfigApp.OUTPUT_COMPRESSOR;
+	public static final String CHAR_CODING = "CHAR_CODING";
+	public static final String ENCRYPT_KEY = ConfigApp.OUTPUT_ENCRYPT_DATA;	
+	public static final String PARALLELIZE = ConfigApp.OUTPUT_PARALLELIZE;
+	public static final String OUT_FILE_FORMAT = ConfigApp.OUTPUT_FILE_FORMAT;
+	public static final String NUM_BLOCKS= "NUM_BLOCKS";	
+	public static final String BLOCK_DATA_SIZE = "BLOCK_DATA_SIZE";
+	public static final String DATA_NAMES = "DATA_NAME";
+	public static final String RECORDING_INFO = "RECORDING_INFO";
+	public static final String DELETE_BIN = "DELETE_BIN";
 	
-	private Map< String, Object > pars = new HashMap< String, Object >();
+	private ParameterList pars = new ParameterList();
 	
 	public OutputFileFormatParameters() 
 	{
-		this.setCompressType( OutputZipDataFactory.GZIP );
-		this.setOutputFileFormat( DataFileFormat.CLIS );
-		this.setCharset( Charset.forName( "UTF-8" )  );
-		this.setDeleteBin( !ConfigApp.isTesting() );
-		this.setOutputFileName( "./data" + DataFileFormat.getSupportedFileExtension().get( DataFileFormat.CLIS ) );
+		this.setParameter( OUT_FILE_FORMAT, DataFileFormat.CLIS );
+		
+		Parameter< String > p = this.pars.getParameter( OUT_FILE_FORMAT );
+		this.setParameter( OUT_FILE_NAME, "./data" + DataFileFormat.getSupportedFileExtension().get( p.getValue() ) );
+		
+		this.setParameter( ZIP_ID, ZipDataFactory.GZIP );
+		this.setParameter( CHAR_CODING,  Charset.forName( "UTF-8" )  );
+		//this.setParameter( new Parameter< String >( ENCRYPT_KEY, null ) );
+		this.setParameter( PARALLELIZE, true );
+		
+		
+		this.setParameter(NUM_BLOCKS, 2L );
+		this.setParameter( BLOCK_DATA_SIZE, ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE );
+		
+		this.setParameter( DATA_NAMES, "" );
+		
+		this.setParameter( RECORDING_INFO, new HashMap< String, String >() );				
+		this.setParameter( DELETE_BIN, !ConfigApp.isTesting() );		
+	}
+	
+	public void setParameter( String id, Object value )
+	{
+		Parameter p = this.pars.getParameter( id );
+		if( p == null )
+		{
+			p = new Parameter( id, value );
+			this.pars.addParameter( p );
+		}
+		
+		p.setValue( value );
+	}
+	
+	public Parameter getParameter( String id )
+	{
+		return this.pars.getParameter( id );
+	}
+	
+	public ParameterList getAllParameters()
+	{		
+		return this.pars;
 	}
 	
 	public OutputFileFormatParameters clone() 
 	{
 		OutputFileFormatParameters clon = new OutputFileFormatParameters();
 		
-		Object val = this.getBlockDataLength();
-		if( val != null )
+		for( String id : this.pars .getParameterIDs())
 		{
-			clon.setBlockDataLength( (Integer)val );
-		}
-		
-		val = this.getCharset();
-		if( val != null )
-		{
-			clon.setCharset( (Charset)this.getCharset() );
-		}
-		
-		val = this.getCompressType();
-		if( val != null )
-		{
-			clon.setCompressType( val.toString() );
-		}
-		
-		val = this.getEncryptKey();		
-		if( val != null )
-		{
-			clon.setEncryptKey( val.toString() );
-		}
-		
-		val = this.getNumerOfBlocks();
-		if( val != null )
-		{
-			clon.setNumerOfBlock( (Integer)val );
-		}
-		
-		val = this.getOutputFileFormat();
-		if( val != null )
-		{
-			clon.setOutputFileFormat( val.toString() );
-		}
-		
-		val = this.getOutputFileName();
-		if( val != null )
-		{
-			clon.setOutputFileName(  val.toString() );
-		}
-		
-		val = this.isParallelize();
-		if( val != null )
-		{
-			clon.setParallelize( (Boolean)val );
-		}
-		
-		val = this.getDataNames();
-		if( val != null )
-		{
-			clon.setDataNames( val.toString() );
-		}
-		
-		val = this.getRecordingInfo();
-		if( val != null )
-		{
-			Map< String, String > aux = (Map< String, String >)val;
-			for( String id : aux.keySet() )
-			{
-				clon.addRecordingInfo( id, aux.get( id ) );
-			}
+			Parameter par = this.pars.getParameter( id );
+			clon.setParameter( par.getID(), par.getValue() );
 		}
 		
 		return clon;
 	}
 	
-	public void setCompressType( String type )
-	{
-		this.pars.put( this.ZIP_ID, type );
-	}
-	
-	public void setOutputFileFormat( String format )
-	{
-		this.pars.put( this.OUT_FILE_FORMAT, format );
-	}
-	
-	public void setCharset( Charset coding )
-	{
-		if( coding != null )
-		{
-			this.pars.put( this.CHAR_CODING, coding );
-		}
-	}
-	
-	public String getOutputFileFormat()
-	{
-		String format = null;
-		
-		Object z = this.pars.get( this.OUT_FILE_FORMAT );
-		if( z != null )
-		{
-			format = z.toString();
-		}
-		
-		return format;
-	}
-	
-	public String getCompressType( )
-	{
-		String zp = null;
-		
-		Object z = this.pars.get( this.ZIP_ID );
-		if( z != null )
-		{
-			zp = z.toString();
-		}
-		
-		return zp;
-	}
-	
-	public Charset getCharset( )
-	{
-		Charset cs = null;
-		
-		Object c = this.pars.get( this.CHAR_CODING );
-		if( c != null )
-		{
-			cs = (Charset)c;
-		}
-		
-		return cs;
-	}
-
-	public void setEncryptKey( String key )
-	{
-		if( key != null )
-		{
-			this.pars.put( this.ENCRYPT_KEY, key );
-		}
-	}
-	
-	public String getEncryptKey()
-	{
-		String key = null;
-		
-		Object k = this.pars.get( this.ENCRYPT_KEY );
-		
-		if( k != null )
-		{
-			key = k.toString();
-		}
-		
-		return key;
-	}
-	
-	public void setOutputFileName( String file )
-	{
-		if( file != null )
-		{
-			this.pars.put( this.OUT_FILE_NAME, file );
-		}
-	}
-	
-	public String getOutputFileName( )
-	{
-		String file = null;
-		
-		Object f = this.pars.get( this.OUT_FILE_NAME );
-		if( f != null )
-		{
-			file = f.toString();
-		}
-		
-		return file;
-	}
-		
-	public void setBlockDataLength( int len )
-	{
-		this.pars.put( this.BLOCK_DATA_SIZE, len );
-	}
-	
-	public Integer getBlockDataLength( )
-	{
-		Integer len = null;
-		
-		Object size = this.pars.get( this.BLOCK_DATA_SIZE );
-		if( size != null ) 
-		{
-			len = (Integer)size;
-		}
-		return len;
-	}
-	
-	public void setNumerOfBlock( long num )
-	{
-		this.pars.put( this.NUM_BLOCKS, num );
-	}
-	
-	public Long getNumerOfBlocks( )
-	{
-		Long val = null;
-		
-		Object num = this.pars.get( this.NUM_BLOCKS );
-		if( num != null )
-		{
-			val = (Long) num;
-		}
-		
-		return val;
-	}
-	
-	public void setDataNames( String names )
-	{
-		if( names != null )
-		{
-			this.pars.put( this.DATA_NAMES, names );
-		}
-	}
-	
-	public String getDataNames( )
-	{
-		String names = "";
-		
-		Object n = this.pars.get( this.DATA_NAMES );
-		if( n != null )
-		{
-			names = n.toString();
-		}
-				
-		return names;
-	}
-	
-	public void addRecordingInfo( String id, String content )
-	{
-		if(id != null && content != null )
-		{
-			Map< String, String > info = this.getRecordingInfo();
-			
-			if( info == null )
-			{
-				info = new HashMap< String, String >();
-				
-				this.pars.put( this.RECORDING_INFO, info );
-			}
-			
-			info.put( id, content );
-		}
-	}
-	
-	public Map< String, String > getRecordingInfo( )
-	{
-		Map< String, String > res = null;
-		
-		Object info = this.pars.get( this.RECORDING_INFO );
-		if( info != null )
-		{
-			res = (Map< String, String >)info;
-		}
-		
-		return res;
-	}
-	
-	/*
-	public void setChannels( int ch )
-	{
-		this.pars.put( this.CHANNELS, ch );
-	}
-	
-	public Integer getChannels()
-	{
-		Integer ch = null;
-		
-		Object c = this.pars.get( this.CHANNELS );
-		
-		if( c != null )
-		{
-			ch = (Integer)c;
-		}
-		
-		return ch;
-	}
-	
-	public void setEncryptID( String encryptID )
-	{
-		this.pars.put( this.ENCRYPT_ID, encryptID );
-	}
-	
-	public String getEncryptID( )
-	{
-		String id = null;
-		
-		Object e = this.pars.get( this.ENCRYPT_ID );
-		
-		if( e != null )
-		{
-			id = e.toString();
-		}
-		
-		return id;
-	}
-	*/
-	
-	public void setParallelize( boolean parallel )
-	{
-		this.pars.put( this.PARALLELIZE , parallel );
-	}
-	
-	public boolean isParallelize()
-	{
-		boolean parallel = false;
-		
-		Object e = this.pars.get( this.PARALLELIZE );
-		
-		if( e != null )
-		{
-			parallel= (Boolean) e;
-		}
-		
-		return parallel;
-	}
-	
-	public void setDeleteBin( boolean del )
-	{
-		this.pars.put( this.DELETE_BIN, del );
-	}
-	
-	public boolean getDeleteBin()
-	{
-		boolean del = false;
-		
-		Object e = this.pars.get( this.DELETE_BIN );
-		
-		if( e != null )
-		{
-			del= (Boolean) e;
-		}
-		
-		return del;
-	}
 }

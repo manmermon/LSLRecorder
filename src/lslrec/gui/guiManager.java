@@ -251,13 +251,13 @@ public class guiManager
 				BinaryFileStreamSetting binSetting = dat.x;
 				OutputFileFormatParameters format = dat.y;
 				
-				String folder = format.getOutputFileName();
+				String folder = (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue();
 				if( !folder.endsWith( File.separator ) )
 				{
 					folder += File.separator;
 				}
 					
-				format.setOutputFileName( folder + "data" + DataFileFormat.getSupportedFileExtension().get( format.getOutputFileFormat() ) );
+				format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder + "data" + DataFileFormat.getSupportedFileExtension().get(  (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue() ) );
 				
 				File dataFile = null;
 				if( dat != null )
@@ -286,7 +286,7 @@ public class guiManager
 					reader = new SyncMarkerBinFileReader( syncFile
 														, sync
 														, StreamBinaryHeader.HEADER_END
-														, format.getDeleteBin() );
+														, (Boolean)format.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue() );
 				}
 
 				STREAMS.add( new Tuple< TemporalBinData, SyncMarkerBinFileReader >( binData, reader ) );

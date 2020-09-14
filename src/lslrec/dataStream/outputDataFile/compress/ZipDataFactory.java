@@ -20,10 +20,10 @@
 
 package lslrec.dataStream.outputDataFile.compress;
 
-import lslrec.dataStream.outputDataFile.compress.zip.OutputBZip2Data;
-import lslrec.dataStream.outputDataFile.compress.zip.OutputGZipData;
+import lslrec.dataStream.outputDataFile.compress.zip.BZip2Data;
+import lslrec.dataStream.outputDataFile.compress.zip.GZipData;
 
-public class OutputZipDataFactory 
+public class ZipDataFactory 
 {
 	public static final String UNDEFINED = "UNDEFINED";
 	public static final String GZIP = "GZIP";
@@ -43,12 +43,12 @@ public class OutputZipDataFactory
 		{
 			case GZIP:
 			{
-				zip = new OutputGZipData();
+				zip = new GZipData();
 				break;
 			}
 			case BZIP2:
 			{
-				zip = new OutputBZip2Data();
+				zip = new BZip2Data();
 			}
 			default:
 			{

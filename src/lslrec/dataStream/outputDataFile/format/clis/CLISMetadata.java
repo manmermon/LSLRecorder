@@ -17,10 +17,11 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
-import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
 
 
 public class CLISMetadata 
@@ -51,7 +52,7 @@ public class CLISMetadata
 	private final String fieldSep = "," ;
  
 	private String zip_text_id = "GZIP";
-	private String zip_id = OutputZipDataFactory.GZIP;
+	private String zip_id = ZipDataFactory.GZIP;
 
 	//private boolean addedStreamDataInfo = false;
 	
@@ -76,14 +77,14 @@ public class CLISMetadata
 	
 	public CLISMetadata( OutputFileFormatParameters pars, DataStreamSetting settings  ) throws Exception 
 	{	
-		this.zip_id = pars.getCompressType();
+		this.zip_id = pars.getParameter( OutputFileFormatParameters.ZIP_ID ).getValue().toString();
 		
 		if( this.zip_id == null )
 		{
-			this.zip_id = OutputZipDataFactory.UNDEFINED;
+			this.zip_id = ZipDataFactory.UNDEFINED;
 		}
 		
-		IOutZip zipProcess = OutputZipDataFactory.createOuputZipStream( this.zip_id );
+		IOutZip zipProcess = ZipDataFactory.createOuputZipStream( this.zip_id );
 		
 		if( zipProcess == null )
 		{
@@ -92,13 +93,25 @@ public class CLISMetadata
 		
 		this.zip_text_id = zipProcess.getID();
 				
-		this.charCode = pars.getCharset();
+		this.charCode = (Charset)pars.getParameter( OutputFileFormatParameters.CHAR_CODING ).getValue();
 		if( this.charCode == null )
 		{
 			this.charCode = Charset.forName( "UTF-8" );
 		}
 		
-		String encryptKey = pars.getEncryptKey();
+		Parameter< String > p = pars.getParameter( OutputFileFormatParameters.ENCRYPT_KEY );
+		String encryptKey = null;
+		
+		if( p != null )
+		{
+			Object k = pars.getParameter( OutputFileFormatParameters.ENCRYPT_KEY ).getValue();
+			
+			if( k != null )
+			{
+				encryptKey = k.toString();
+			}
+		}
+		
 		
 		int encryptBlockSize = 1;
 		int cipherBlockSize  = 0;	
@@ -119,7 +132,7 @@ public class CLISMetadata
 	        this.encrpytKeyMetadata = this.cipher.doFinal( encryptKey.getBytes( this.charCode ) );		
 		}
 		
-		Long numBlocks = pars.getNumerOfBlocks();
+		Long numBlocks = (Long)pars.getParameter( OutputFileFormatParameters.NUM_BLOCKS ).getValue();
 		if( numBlocks == null )
 		{
 			numBlocks = 2L;
@@ -137,13 +150,14 @@ public class CLISMetadata
 			chs = 1;
 		}
 		
-		String names = pars.getDataNames();
-		if( names == null )
+		String names = "";
+		Object aux = pars.getParameter( OutputFileFormatParameters.DATA_NAMES ).getValue();
+		if( aux != null )
 		{
-			names = "";
+			names = aux.toString();
 		}
 
-		Integer BLOCK_SIZE = pars.getBlockDataLength();
+		Integer BLOCK_SIZE = (Integer)pars.getParameter(OutputFileFormatParameters.BLOCK_DATA_SIZE ).getValue();
 		
 		if( BLOCK_SIZE == null )
 		{

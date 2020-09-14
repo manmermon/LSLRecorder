@@ -312,7 +312,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				throw new IllegalArgumentException( "OutputFileFormatParameters null" );
 			}
 			
-			if( !DataFileFormat.isSupportedFileFormat( fileFormat.getOutputFileFormat() ) )
+			if( !DataFileFormat.isSupportedFileFormat( fileFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT  ).getValue().toString() ) )
 			{
 				throw new  IllegalArgumentException( "Unsupport file format." );
 			}
@@ -341,7 +341,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				this.syncCollector.stopThread( IStoppableThread.FORCE_STOP );
 			}
 			
-			this.syncCollector = new SyncMarkerCollectorWriter( fileFormat.getOutputFileName() );				
+			this.syncCollector = new SyncMarkerCollectorWriter( fileFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString() );				
 
 			//
 			//
@@ -695,7 +695,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 									synchronized( this.sync ) 
 									{
-										res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getOutputFileName(), binName );
+										res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), binName );
 
 										try
 										{
@@ -711,10 +711,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 									if (!((Boolean)res.y).booleanValue())
 									{
-										dat.getOutputFileFormat().setOutputFileName( (String)res.x );
+										dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
 									}
 
-									dat.getOutputFileFormat().setOutputFileName( (String)res.x );
+									dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
 
 									saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
 									saveOutFileThread.taskMonitor( this );
@@ -793,7 +793,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						synchronized( this.sync ) 
 						{
-							res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getOutputFileName(), dat.getDataStreamSetting().getStreamName() );
+							res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), dat.getDataStreamSetting().getStreamName() );
 							
 							try
 							{
@@ -809,10 +809,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						if (!((Boolean)res.y).booleanValue())
 						{
-							dat.getOutputFileFormat().setOutputFileName( (String)res.x );
+							dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
 						}
 						
-						dat.getOutputFileFormat().setOutputFileName( res.x );
+						dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
 						
 						launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
 

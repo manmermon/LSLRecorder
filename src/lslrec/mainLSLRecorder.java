@@ -29,6 +29,8 @@ import lslrec.gui.guiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.OpeningDialog;
 import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 import lslrec.config.ConfigApp;
 
 import java.awt.Color;
@@ -43,10 +45,12 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
 public class mainLSLRecorder
 {
@@ -170,7 +174,7 @@ public class mainLSLRecorder
 		// Load plugins
 		//
 
-		if( false )		
+		//if( false )		
 		try
 		{
 			List< Exception > exs = PluginLoader.LoadPlugins();
@@ -198,6 +202,22 @@ public class mainLSLRecorder
 		createAppCoreControl();
 		
 		ConfigApp.setTesting( true );
+	}
+	
+	public void LoadPluginSetting( ) throws Exception 
+	{
+		List< ILSLRecPlugin > plugins = PluginLoader.getPlugins();
+		
+		for( ILSLRecPlugin plg : plugins )
+		{
+			String id = plg.getID();
+			JPanel p = plg.getSettingPanel();
+			
+			if( plg instanceof ILSLRecPluginEncoder )
+			{
+				DataFileFormat.addEncoder( (ILSLRecPluginEncoder)plg );
+			}
+		}
 	}
 
 	private static void createAppCoreControl()

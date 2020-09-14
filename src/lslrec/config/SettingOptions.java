@@ -7,8 +7,14 @@ import lslrec.exceptions.UnsupportedTypeException;
 
 public class SettingOptions
 {	
+	public enum Type 
+	{
+		STRING, NUMBER, BOOLEAN 
+	}
+	
 	private String ID;
 	private List< String > values = null;
+	private Type type;
 	
 	private boolean listType = false;
 	private String refPar = null;
@@ -22,7 +28,7 @@ public class SettingOptions
 	 * @param isList
 	 * @param idRefParameter
 	 */
-	public SettingOptions( String id, boolean isList, String idRefParameter  ) 
+	public SettingOptions( String id, Type dataType, boolean isList, String idRefParameter  ) 
 	{
 		if( id == null || id.isEmpty() )
 		{
@@ -37,14 +43,27 @@ public class SettingOptions
 		this.ID = id;
 		
 		this.values = new ArrayList< String >( );
+		this.type = dataType;
 		
 		this.listType = isList;
-		
+				
 		this.refPar = idRefParameter;
 	}
 		
-	public void addValue( String value )
+	/**
+	 * 
+	 * @param value
+	 * @throws IllegalArgumentException
+	 */
+	public void addValue( String value ) 
 	{
+		if( !this.checkType( value ) )
+		{
+			throw new IllegalArgumentException( "String argument is null and is not equal"
+													+ ", ignoring case, to the string of " 
+													+ this.type.name() );
+		}
+		
 		if( this.listType )
 		{
 			this.values.add( value );
@@ -54,6 +73,51 @@ public class SettingOptions
 			this.values.clear();
 			this.values.add( value );
 		}
+	}
+	
+	private boolean checkType( String value )
+	{
+		boolean ok = true;
+		
+		switch ( this.type )
+		{
+			case STRING:
+			{
+				break;
+			}
+			case NUMBER:
+			{
+				try
+				{
+					Double.parseDouble( value );
+				}
+				catch (Exception e) 
+				{
+					ok = false;
+				}
+				
+				break;
+			}
+			case BOOLEAN:
+			{
+				try
+				{
+					Boolean.parseBoolean( value );
+				}
+				catch (Exception e) 
+				{
+					ok = false;
+				}
+				
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		
+		return ok;		
 	}
 	
 	public String getIDReferenceParameter()
@@ -93,5 +157,10 @@ public class SettingOptions
 	public int getSelectedValue()
 	{
 		return this.selectedOpt;
+	}
+	
+	public Type getDataType()
+	{
+		return this.type;
 	}
 }

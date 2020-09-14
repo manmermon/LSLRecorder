@@ -23,9 +23,9 @@ package lslrec.dataStream.outputDataFile.compress.zip;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
 
-import lslrec.dataStream.outputDataFile.compress.OutZipDataTemplate;
+import lslrec.dataStream.outputDataFile.compress.ZipDataTemplate;
 
-public class OutputGZipData extends OutZipDataTemplate 
+public class GZipData extends ZipDataTemplate 
 {
 	@Override
 	protected byte[] compressData( byte[] data ) throws Exception

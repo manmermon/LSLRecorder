@@ -28,7 +28,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
-import lslrec.dataStream.outputDataFile.compress.OutputZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
@@ -40,7 +40,7 @@ import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
 {
-	private String zipType = OutputZipDataFactory.GZIP;
+	private String zipType = ZipDataFactory.GZIP;
 	
 	private ConcurrentSkipListMap< Integer, DataInByteFormatBlock > compressDataList = null;
 	
@@ -61,7 +61,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		this.metadata = new CLISMetadata( formatPars, streamSettings );
 		this.zipType = this.metadata.getZipID();
 		
-		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
+		IOutZip zp = ZipDataFactory.createOuputZipStream( this.zipType );
 		
 		if( zp == null )
 		{
@@ -71,7 +71,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		super.taskMonitor( monitor );
 		
 		
-		this.clisWriter = new CLISCompressorWriter( formatPars.getOutputFileName(), this.metadata );
+		this.clisWriter = new CLISCompressorWriter( (String)formatPars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), this.metadata );
 		
 		
 		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
@@ -129,7 +129,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		
 	private void Zip( String varName, int dataType, long nChannels, int ordered, Object[] data ) throws Exception
 	{
-		IOutZip zp = OutputZipDataFactory.createOuputZipStream( this.zipType );
+		IOutZip zp = ZipDataFactory.createOuputZipStream( this.zipType );
 		
 		ZipThread zipThr = new ZipThread( varName, dataType, nChannels, zp, this, this.metadata.getCharCode() );
 				

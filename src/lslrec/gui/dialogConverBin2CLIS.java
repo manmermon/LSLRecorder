@@ -35,6 +35,8 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
@@ -53,11 +55,14 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
+import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.outputDataFile.format.CreatorEncoderSettingPanel;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
@@ -76,7 +81,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
@@ -255,7 +259,7 @@ public class dialogConverBin2CLIS extends JDialog
 			{
 				String key = dg.getPassword();
 				
-				this.outFormat.setEncryptKey( key );
+				this.outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, key );
 			}
 		}
 	}
@@ -708,20 +712,19 @@ public class dialogConverBin2CLIS extends JDialog
 			gbc.gridx = 0;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
 			panelBinInfo.add( getLblOutputFormat( ), gbc );
-			
-			gbc.fill = GridBagConstraints.HORIZONTAL;			
+			/*			gbc.fill = GridBagConstraints.HORIZONTAL;			
 			gbc.gridx = 1;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
 			panelBinInfo.add( getComboBoxOutputFormat( ), gbc );
-			
+			*/
 			
 			JPanel panelAux = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-			panelAux.add( getChbOutputParallelize() );
-			panelAux.add( new JLabel( Language.getLocalCaption( Language.OPTIONS_TEXT ) ) );
+			panelAux.add( getComboBoxOutputFormat( ) );
+			//panelAux.add( new JLabel( Language.getLocalCaption( Language.OPTIONS_TEXT ) ) );
 			panelAux.add( this.getOutputFormatOptsButton() );			
-			colPadding++;
+			//colPadding++;
 			
-			gbc.fill = GridBagConstraints.NONE;
+			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.anchor = GridBagConstraints.WEST;
 			gbc.gridx = 1;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;			
@@ -779,7 +782,43 @@ public class dialogConverBin2CLIS extends JDialog
 						
 						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 
-						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( DataFileFormat.getOutputFileFormat( format.toString() ) );
+						Encoder enc = DataFileFormat.getDataFileEncoder( format.toString() );
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						
+						ParameterList encPars = enc.getParameters();
+						
+						for( SettingOptions opt : opts )
+						{	
+							Parameter p = outFormat.getParameter( opt.getIDReferenceParameter() );
+							Parameter p2  = encPars.getParameter( opt.getIDReferenceParameter() );
+							
+							String id = opt.getIDReferenceParameter();
+							Object val = null;
+							String langID = null;
+									
+							if( p != null )
+							{
+								val = p.getValue();
+								langID = p.getLangID();
+							}
+							
+							if( val == null )
+							{
+								val = p2.getValue();
+								langID = p2.getLangID();
+							}
+							
+							if( langID == null || langID.isEmpty() )
+							{
+								langID = p2.getLangID();
+							}
+							
+							outFormat.setParameter( id, val );							
+							outFormat.getParameter( id ).setLangID( langID );
+						}
+						
+						
+						JScrollPane scr = CreatorEncoderSettingPanel.getSettingPanel( opts, outFormat.getAllParameters() );
 
 						main.add( scr, BorderLayout.CENTER );
 						
@@ -1627,12 +1666,18 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						JComboBox< String > cb = ( JComboBox<String> )e.getSource( );
 						String f = cb.getSelectedItem( ).toString( );
-						outFormat.setOutputFileFormat( f );						
+						outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, f );			
+						
+						Encoder enc = DataFileFormat.getDataFileEncoder( f );
+						
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						
+						getOutputFormatOptsButton().setEnabled( opts != null && !opts.isEmpty() );
 					}
 				}
 			} );
 			
-			fileFormat.setSelectedItem( this.outFormat.getOutputFileFormat() );
+			fileFormat.setSelectedItem( this.outFormat.getParameter(OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue() );
 		}
 
 		return fileFormat;
@@ -1652,7 +1697,7 @@ public class dialogConverBin2CLIS extends JDialog
 				{	
 					JCheckBox c = (JCheckBox)arg0.getSource();
 					
-					outFormat.setParallelize( c.isSelected() );
+					outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, c.isSelected() );
 				}
 			}); 
 			
@@ -1720,7 +1765,7 @@ public class dialogConverBin2CLIS extends JDialog
 					{
 						String folder = e.getDocument( ).getText( 0, e.getDocument( ).getLength( ) );
 					
-						outFormat.setOutputFileName( folder );						
+						outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder );						
 					}
 					catch ( BadLocationException e1 ) 
 					{
@@ -1785,7 +1830,7 @@ public class dialogConverBin2CLIS extends JDialog
 					
 					boolean del = c.isSelected();
 					
-					outFormat.setDeleteBin( del );
+					outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, del );
 				}
 			});
 		}

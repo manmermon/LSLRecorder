@@ -3,6 +3,7 @@ package lslrec.dataStream.outputDataFile.format.matlab;
 import java.util.List;
 
 import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
@@ -22,7 +23,7 @@ public class MatlabEncoder implements Encoder
 	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, DataStreamSetting streamSettings, ITaskMonitor monitor )
 			throws Exception 
 	{
-		return new OutputMatDataWriter( pars.getOutputFileName(), monitor );
+		return new OutputMatDataWriter( (String)pars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), monitor );
 	}
 
 	@Override
@@ -41,6 +42,12 @@ public class MatlabEncoder implements Encoder
 	public String getID() 
 	{
 		return "Matlab";
+	}
+
+	@Override
+	public ParameterList getParameters() 
+	{
+		return null;
 	}
 
 }

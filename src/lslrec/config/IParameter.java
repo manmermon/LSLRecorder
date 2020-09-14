@@ -23,7 +23,7 @@
 
 package lslrec.config;
 
-public interface IParameter
+public interface IParameter< T >
 {
 	/**
 	 * 
@@ -33,11 +33,11 @@ public interface IParameter
 	 * @return previous value
 	 * @throws ClassCastException: Class new value is different
 	 */
-	public Object setValue(Object newValue) throws ClassCastException;
+	public T setValue( T newValue) throws ClassCastException;
 
 	/**
 	 * 
 	 * @return parameter value
 	 */
-	public Object getValue();
+	public T getValue();
 }
