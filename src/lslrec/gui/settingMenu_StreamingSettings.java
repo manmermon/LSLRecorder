@@ -102,6 +102,7 @@ import lslrec.controls.CoreControl;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
+import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -1283,7 +1284,7 @@ public class settingMenu_StreamingSettings extends JPanel
 						
 						if( e.getStateChange() == ItemEvent.SELECTED )
 						{	
-							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( ConfigApp.SYNC_LSL ) )
+							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_LSL ) )
 							{
 								/*
 								JOptionPane.showMessageDialog( winOwner

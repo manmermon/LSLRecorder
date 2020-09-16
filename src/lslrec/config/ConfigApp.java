@@ -27,6 +27,7 @@ import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
+import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.sockets.SocketMessageDelayCalculator;
@@ -62,10 +63,6 @@ public class ConfigApp
 	// Language
 	public static final String LANGUAGE = "LANGUAGE";
 	
-	public static final String SYNC_NONE = "None";
-	public static final String SYNC_SOCKET = "Socket";
-	public static final String SYNC_LSL = "LabStreaming Layer";
-
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
 	public static final Calendar buildDate = new GregorianCalendar( 2020, 9 - 1, 16 );
@@ -682,7 +679,9 @@ public class ConfigApp
 			{				
 				loadDefaultSyncMethod();
 				
-				if( !p.equals( SYNC_NONE ) && !p.equals( SYNC_SOCKET ) && !p.equals( SYNC_LSL) )
+				if( !p.equals( SyncMethod.SYNC_NONE ) 
+						&& !p.equals( SyncMethod.SYNC_SOCKET ) 
+						&& !p.equals( SyncMethod.SYNC_LSL) )
 				{
 					defaultValue = true;
 					defaultMsg +=  key + "; ";
@@ -882,7 +881,7 @@ public class ConfigApp
 
 	private static void loadDefaultSyncMethod()
 	{
-		listConfig.put( SELECTED_SYNC_METHOD, SYNC_NONE );
+		listConfig.put( SELECTED_SYNC_METHOD, SyncMethod.SYNC_NONE );
 	}
 	
 	/*

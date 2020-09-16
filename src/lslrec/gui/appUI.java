@@ -26,6 +26,7 @@ import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -372,9 +373,7 @@ public class appUI extends JFrame
 		{
 			final String ID = ConfigApp.SELECTED_SYNC_METHOD;
 
-			this.jComboxSyncMethod = new JComboBox< String >( new String[] { ConfigApp.SYNC_NONE
-					, ConfigApp.SYNC_SOCKET
-					, ConfigApp.SYNC_LSL } );
+			this.jComboxSyncMethod = new JComboBox< String >( SyncMethod.getSyncMethodID() );
 
 			this.jComboxSyncMethod.setSelectedItem( ConfigApp.getProperty( ID ) );
 
@@ -389,13 +388,13 @@ public class appUI extends JFrame
 
 					getJCheckActiveSpecialInputMsg().setEnabled( true );
 					
-					if( sync.equalsIgnoreCase( ConfigApp.SYNC_NONE ) )
+					if( sync.equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
 					{
 						getJCheckActiveSpecialInputMsg().setSelected( false );
 						getJCheckActiveSpecialInputMsg().setEnabled( false );
 					}
 					
-					if( !sync.equalsIgnoreCase( ConfigApp.SYNC_LSL ) )
+					if( !sync.equalsIgnoreCase( SyncMethod.SYNC_LSL ) )
 					{
 						try 
 						{
@@ -445,7 +444,7 @@ public class appUI extends JFrame
 				}
 			});
 
-			if( this.getJComboxSyncMethod().getSelectedItem().toString().equalsIgnoreCase( ConfigApp.SYNC_NONE ) )
+			if( this.getJComboxSyncMethod().getSelectedItem().toString().equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
 			{
 				this.checkActiveSpecialInputMsg.setSelected( false );;
 				this.checkActiveSpecialInputMsg.setEnabled( false );

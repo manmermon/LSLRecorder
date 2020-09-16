@@ -39,6 +39,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -433,7 +434,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 					else
 					{
-						if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( ConfigApp.SYNC_LSL ) 
+						if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_LSL ) 
 								&& dev.isSynchronationStream() )
 						{
 							DEV_ID.add( dev );
@@ -589,7 +590,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
 		
-		if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( ConfigApp.SYNC_NONE ) )
+		if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_NONE ) )
 		{
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
@@ -678,11 +679,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			
-			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( ConfigApp.SYNC_LSL ) && specialInMsg && !existSelectedSyncLSL )
+			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_LSL ) && specialInMsg && !existSelectedSyncLSL )
 			{
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
 			}
-			else if( existSelectedSyncLSL && !ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( ConfigApp.SYNC_LSL ) )
+			else if( existSelectedSyncLSL && !ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_LSL ) )
 			{
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			}
@@ -1069,7 +1070,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		SocketInformations infos = new SocketInformations();
 
-		if ( ( (String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ) ).equals( ConfigApp.SYNC_SOCKET ) )
+		if ( ( (String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ) ).equals( SyncMethod.SYNC_SOCKET ) )
 		{
 			Set< String > SOCKETS = (Set< String > )ConfigApp.getProperty( ConfigApp.SERVER_SOCKET );
 

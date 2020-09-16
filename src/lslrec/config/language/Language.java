@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import lslrec.config.ConfigApp;
+import lslrec.dataStream.sync.SyncMethod;
 
 public class Language 
 {
@@ -239,7 +240,7 @@ public class Language
 		captions.put(MSG_INTERRUPT, new Caption(MSG_INTERRUPT, defaultLanguage, "Interrupt"));
 		captions.put(MSG_APP_STATE, new Caption(MSG_APP_STATE, defaultLanguage, "App's state is "));
 		captions.put(MSG_WARNING, new Caption(MSG_WARNING, defaultLanguage, "Warning"));
-		captions.put(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, new Caption(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, defaultLanguage, "Option Sync for streams not enable. Select " + ConfigApp.SYNC_LSL + " as sync method." ));
+		captions.put(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, new Caption(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, defaultLanguage, "Option Sync for streams not enable. Select " + SyncMethod.SYNC_LSL + " as sync method." ));
 
 		captions.put(INFO_STATE_LABEL, new Caption(INFO_STATE_LABEL, defaultLanguage, "State"));
 		captions.put(INFO_SESSION_TIME_LABEL, new Caption(INFO_SESSION_TIME_LABEL, defaultLanguage, "Session time"));
