@@ -20,14 +20,47 @@
 
 package lslrec.dataStream.outputDataFile.compress;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import lslrec.dataStream.outputDataFile.compress.zip.BZip2Data;
 import lslrec.dataStream.outputDataFile.compress.zip.GZipData;
+import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
 
-public class ZipDataFactory 
+public class CompressorDataFactory 
 {
 	public static final String UNDEFINED = "UNDEFINED";
 	public static final String GZIP = "GZIP";
 	public static final String BZIP2 = "BZIP2";
+	
+	private static final Map< String, ILSLRecPluginCompressor > compressors = new HashMap<String, ILSLRecPluginCompressor>();
+	
+	public static String[] getCompressorIDs()
+	{	
+		List< String > ids = new ArrayList< String >();
+		
+		ids.add( GZIP );
+		ids.add( BZIP2 );
+		
+		for( String id : compressors.keySet() )
+		{
+			ids.add( id );
+		}
+		
+		return ids.toArray( new String[0] );
+	} 
+	
+	public static void addCompressor( ILSLRecPluginCompressor compressor )
+	{
+		if( compressor != null )
+		{
+			compressors.put( compressor.getID(), compressor );
+		}
+	}
 	
 	/**
 	 * 
@@ -51,8 +84,13 @@ public class ZipDataFactory
 				zip = new BZip2Data();
 			}
 			default:
-			{
-				//throw new IllegalArgumentException( "Unsupport type" );
+			{	
+				ILSLRecPluginCompressor plg = compressors.get( type );
+				
+				if( plg != null )
+				{
+					zip = plg.getCompressor();
+				}
 			}
 		}
 		

@@ -7,7 +7,6 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
@@ -57,6 +56,7 @@ public class ExceptionDialog
 		int w = icono.getIconWidth();
 		int h = icono.getIconHeight();
 		
+		
 		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice gd = ge.getDefaultScreenDevice();
 		GraphicsConfiguration gc = gd.getDefaultConfiguration();
@@ -75,11 +75,13 @@ public class ExceptionDialog
 		Dimension d = new Dimension( (int)( dim.width /3 ), dim.height / 2 );
 		dialog.setSize( d );
 
-		
+		/*
 		Point pos = ge.getCenterPoint();
 		pos.x -= d.width / 2;
 		pos.y -= d.height / 2;
 		dialog.setLocation(pos);
+		*/
+		dialog.setLocationRelativeTo( null );
 
 		dialog.addWindowListener(new WindowAdapter()
 		{

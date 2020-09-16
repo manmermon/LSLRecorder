@@ -114,7 +114,7 @@ public class Language
 	public static final String SETTING_LSL_CHUNCK = "SETTING_LSL_CHUNCK";
 	public static final String SETTING_LSL_INTERLEAVED = "SETTING_LSL_INTERLEAVED";
 	public static final String SETTING_LSL_SYNC = "SETTING_LSL_SYNC";
-	public static final String SETTING_LSL_NAME = "SETTING_LSL_NAME";
+	public static final String SETTING_LSL_NAME = "SETTING_LSL_NAME";	
 
 	public static final String SETTING_LSL_SYNC_TOOLTIP = "SETTING_LSL_SYNC_TOOLTIP";
 	public static final String SETTING_LSL_EXTRA_TOOLTIP = "SETTING_LSL_EXTRA_TOOLTIP";
@@ -216,6 +216,8 @@ public class Language
 	public static final String INPUT_START_LEGEND = "INPUT_START_LEGEND";
 	public static final String INPUT_STOP_LEGEND = "INPUT_STOP_LEGEND";
 	public static final String LANGUAGE_TEXT = "LANGUAGE_TEXT";
+	
+	public static final String SETTING_PLUGIN = "SETTING_PLUGIN";
 
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -425,6 +427,9 @@ public class Language
 				new Caption(INPUT_START_LEGEND, defaultLanguage, "system must start the recording."));
 		captions.put(INPUT_STOP_LEGEND,
 				new Caption(INPUT_STOP_LEGEND, defaultLanguage, "system must stop the recording."));
+		
+		captions.put(SETTING_PLUGIN,
+				new Caption(SETTING_PLUGIN, defaultLanguage, "Plugin"));
 
 	}
 

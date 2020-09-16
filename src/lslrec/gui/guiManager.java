@@ -38,6 +38,7 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 import lslrec.stoppableThread.IStoppableThread;
@@ -487,7 +488,7 @@ public class guiManager
 				
 		try 
 		{
-			ui.getLSLSetting().enableSettings( enable );
+			ui.getStreamSetting().enableSettings( enable );
 		}
 		catch (Exception e) 
 		{
@@ -720,12 +721,11 @@ public class guiManager
 		
 		for( ILSLRecPlugin plg : plugins )
 		{
-			String id = plg.getID();
-			JPanel p = plg.getSettingPanel();
-			
-			if( plg instanceof ILSLRecPluginEncoder )
+			if( plg instanceof ILSLRecConfigurablePlugin )
 			{
-				DataFileFormat.addEncoder( (ILSLRecPluginEncoder)plg );
+				JPanel p = ((ILSLRecConfigurablePlugin)plg).getSettingPanel();
+				
+				getAppUI().getStreamSetting().addPluginSettingTab( p, plg.getID() );
 			}
 		}
 	}

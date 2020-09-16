@@ -17,7 +17,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.config.ConfigApp;
@@ -52,7 +52,7 @@ public class CLISMetadata
 	private final String fieldSep = "," ;
  
 	private String zip_text_id = "GZIP";
-	private String zip_id = ZipDataFactory.GZIP;
+	private String zip_id = CompressorDataFactory.GZIP;
 
 	//private boolean addedStreamDataInfo = false;
 	
@@ -81,10 +81,10 @@ public class CLISMetadata
 		
 		if( this.zip_id == null )
 		{
-			this.zip_id = ZipDataFactory.UNDEFINED;
+			this.zip_id = CompressorDataFactory.UNDEFINED;
 		}
 		
-		IOutZip zipProcess = ZipDataFactory.createOuputZipStream( this.zip_id );
+		IOutZip zipProcess = CompressorDataFactory.createOuputZipStream( this.zip_id );
 		
 		if( zipProcess == null )
 		{

@@ -25,7 +25,7 @@ package lslrec.dataStream.outputDataFile.format.clis;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -53,10 +53,10 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		
 		if( zip == null )
 		{
-			zip = ZipDataFactory.UNDEFINED;
+			zip = CompressorDataFactory.UNDEFINED;
 		}
 		
-		this.zipProcess = ZipDataFactory.createOuputZipStream( zip );
+		this.zipProcess = CompressorDataFactory.createOuputZipStream( zip );
 		
 		if( this.zipProcess == null )
 		{

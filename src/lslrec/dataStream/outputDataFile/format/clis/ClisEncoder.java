@@ -3,9 +3,6 @@ package lslrec.dataStream.outputDataFile.format.clis;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -13,9 +10,7 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
-import lslrec.dataStream.outputDataFile.compress.zip.BZip2Data;
-import lslrec.dataStream.outputDataFile.compress.zip.GZipData;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
@@ -23,20 +18,7 @@ import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputCLISDataParal
 import lslrec.dataStream.setting.DataStreamSetting;
 
 public class ClisEncoder implements Encoder 
-{	
-	private static final List< String > SupportedZip = new ArrayList< String >();
-	
-	static
-	{
-		addCompressor( ( new GZipData()).getID() );
-		addCompressor(( new BZip2Data()).getID() );
-	}
-	
-	public static void addCompressor( String idZip )
-	{
-		SupportedZip.add( idZip );
-	}
-	
+{
 	@Override
 	public List<SettingOptions> getSettiongOptions() 
 	{
@@ -46,10 +28,12 @@ public class ClisEncoder implements Encoder
 		
 		String selZip = ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString().toLowerCase();
 		
-		for( int i = 0; i <  SupportedZip.size(); i++ )
-		{			
-			String zip = SupportedZip.get( i );
-					
+		String[] comps = CompressorDataFactory.getCompressorIDs();
+		
+		for( int i = 0; i < comps.length; i++ )
+		{								
+			String zip = comps[ i ];
+			
 			zips.addValue( zip );
 			
 			if( zip.toLowerCase().equals( selZip) )
@@ -60,11 +44,12 @@ public class ClisEncoder implements Encoder
 		
 		SettingOptions parall = new SettingOptions( OutputFileFormatParameters.PARALLELIZE
 													, Type.BOOLEAN, false, ConfigApp.OUTPUT_PARALLELIZE );
+		
 		parall.addValue( ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ).toString() );
 		
 		opts.add( zips );
 		opts.add( parall );
-		
+				
 		return opts;
 	}
 	
@@ -77,7 +62,7 @@ public class ClisEncoder implements Encoder
 		par1.setLangID( Language.PARALLELIZE_TEXT );
 		pars.addParameter( par1 );
 		
-		Parameter< String > par2 = new Parameter<String>( ConfigApp.OUTPUT_COMPRESSOR, ZipDataFactory.GZIP );
+		Parameter< String > par2 = new Parameter<String>( ConfigApp.OUTPUT_COMPRESSOR, CompressorDataFactory.GZIP );
 		par2.setLangID( Language.SETTING_COMPRESSOR );
 		pars.addParameter( par2 );
 		

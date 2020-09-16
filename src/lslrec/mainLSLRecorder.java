@@ -29,7 +29,9 @@ import lslrec.gui.guiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.OpeningDialog;
 import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 import lslrec.config.ConfigApp;
 
@@ -50,6 +52,7 @@ import javax.swing.UIManager;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
 public class mainLSLRecorder
@@ -181,20 +184,26 @@ public class mainLSLRecorder
 
 			for( Exception e : exs )
 			{
-				ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
+				//ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
 				showError( e, false );
-			}
-
-			guiManager.getInstance().LoadPluginSetting();
+			}			
 		}
 		catch( Exception | Error e )
 		{
+			/*
 			ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg, true, true );
+			*/
+			
+			showError( e, false );
 		}
+		
+		registerPlugins();
 		
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
+		
+		guiManager.getInstance().LoadPluginSetting();
 		
 		open.dispose();
 		
@@ -204,22 +213,23 @@ public class mainLSLRecorder
 		ConfigApp.setTesting( true );
 	}
 	
-	public void LoadPluginSetting( ) throws Exception 
+	private static void registerPlugins()
 	{
 		List< ILSLRecPlugin > plugins = PluginLoader.getPlugins();
 		
 		for( ILSLRecPlugin plg : plugins )
 		{
-			String id = plg.getID();
-			JPanel p = plg.getSettingPanel();
-			
 			if( plg instanceof ILSLRecPluginEncoder )
 			{
 				DataFileFormat.addEncoder( (ILSLRecPluginEncoder)plg );
 			}
-		}
+			else if( plg instanceof ILSLRecPluginCompressor )
+			{
+				CompressorDataFactory.addCompressor( (ILSLRecPluginCompressor)plg );
+			}
+		}		
 	}
-
+	
 	private static void createAppCoreControl()
 	{
 		try

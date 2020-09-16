@@ -44,7 +44,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -400,7 +399,7 @@ public class appUI extends JFrame
 					{
 						try 
 						{
-							getLSLSetting().deselectSyncDevices();
+							getStreamSetting().deselectSyncDevices();
 						}
 						catch (Exception e1) 
 						{
@@ -546,7 +545,7 @@ public class appUI extends JFrame
 							{
 								try 
 								{	
-									getLSLSetting().refreshLSLStreamings();
+									getStreamSetting().refreshLSLStreamings();
 									
 									bt.setEnabled( true );
 									
@@ -608,7 +607,7 @@ public class appUI extends JFrame
 			try 
 			{
 				this.jPanelOper.setLeftComponent( this.getJPanelInputMsg() );
-				this.jPanelOper.setRightComponent( this.getLSLSetting() );
+				this.jPanelOper.setRightComponent( this.getStreamSetting() );
 			} 
 			catch (Exception e) 
 			{
@@ -655,7 +654,7 @@ public class appUI extends JFrame
 		return this.SocketSetting;
 	}
 
-	protected settingMenu_StreamingSettings getLSLSetting() throws Exception
+	protected settingMenu_StreamingSettings getStreamSetting() throws Exception
 	{
 		if( this.lslSetting == null )
 		{
@@ -1104,7 +1103,7 @@ public class appUI extends JFrame
 
 		try 
 		{
-			this.getLSLSetting().loadConfigValues();
+			this.getStreamSetting().loadConfigValues();
 		} 
 		catch (Exception e) 
 		{
@@ -1253,7 +1252,6 @@ public class appUI extends JFrame
 						{
 							jDialogGPL = new menuWindow_GNUGLPLicence( appUI.getInstance() );
 
-
 							jDialogGPL.setVisible(false);
 							jDialogGPL.pack();
 							jDialogGPL.validate();
@@ -1263,6 +1261,7 @@ public class appUI extends JFrame
 							dd.height /= 4;
 							jDialogGPL.setSize(dd);
 
+							/*
 							Point l = appUI.ui.getLocation();
 							Dimension d = appUI.ui.getSize();
 							Point loc = new Point(l.x + d.width / 2 - dd.width / 2, l.y + d.height / 2 - dd.height / 2);
@@ -1279,6 +1278,9 @@ public class appUI extends JFrame
 							}
 
 							jDialogGPL.setLocation(loc);
+							*/
+							
+							jDialogGPL.setLocationRelativeTo( appUI.getInstance() );
 
 							jDialogGPL.setResizable(true);
 							jDialogGPL.setVisible(true);
@@ -1342,16 +1344,17 @@ public class appUI extends JFrame
 					{
 						try
 						{
-							JDialog jDialogAcercaDe = new menuWindow_AboutApp(appUI.getInstance());
-							jDialogAcercaDe.setVisible(false);
-							jDialogAcercaDe.pack();
-							jDialogAcercaDe.validate();
+							JDialog jDialogAbout = new menuWindow_AboutApp(appUI.getInstance());
+							jDialogAbout.setVisible(false);
+							jDialogAbout.pack();
+							jDialogAbout.validate();
 
 							Dimension dd = Toolkit.getDefaultToolkit().getScreenSize();
 							dd.width /= 4;
 							dd.height /= 2;
-							jDialogAcercaDe.setSize(dd);
+							jDialogAbout.setSize(dd);
 
+							/*
 							Point l = appUI.ui.getLocation();
 							Dimension d = appUI.ui.getSize();
 							Point loc = new Point(l.x + d.width / 2 - dd.width / 2, l.y + d.height / 2 - dd.height / 2);
@@ -1367,10 +1370,13 @@ public class appUI extends JFrame
 								loc.y = (ssooPAD.top + 1);
 							}
 
-							jDialogAcercaDe.setLocation(loc);
+							jDialogAbout.setLocation(loc);
+							*/
+							
+							jDialogAbout.setLocationRelativeTo( appUI.getInstance() );
 
-							jDialogAcercaDe.setResizable(true);
-							jDialogAcercaDe.setVisible(true);
+							jDialogAbout.setResizable(true);
+							jDialogAbout.setVisible(true);
 						}
 						catch (Exception ex) 
 						{

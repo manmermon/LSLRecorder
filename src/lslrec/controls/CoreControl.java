@@ -60,8 +60,6 @@ import lslrec.edu.ucsd.sccn.LSL;
 import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -596,11 +594,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
 		
-		String encryptKey = null;
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
 		{
 			PasswordDialog pass = new PasswordDialog( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
 			
+			/*
 			Dimension d = this.managerGUI.getAppUI().getSize();
 			Point l = this.managerGUI.getAppUI().getLocation();
 			
@@ -610,7 +608,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			loc.x = l.x + ( d.width - dPass.width ) / 2;
 			loc.y = l.y + ( d.height- dPass.height ) / 2;
 			pass.setLocation( loc );
+			*/
 			
+			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
 			pass.setVisible( true );
 			
 			while( pass.getState() == PasswordDialog.PASSWORD_INCORRECT )

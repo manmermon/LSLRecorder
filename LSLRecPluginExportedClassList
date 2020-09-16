@@ -31,7 +31,10 @@ lslrec
 										.OuputFileFormatParameters.java
 										.parallelize.*
 				.setting
-						.*				
+						.*	
+				
+				.sync
+					.SyncMarker.java
 								
 	.edu
 		.ucsd

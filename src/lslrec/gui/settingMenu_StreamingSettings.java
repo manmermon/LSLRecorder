@@ -31,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -45,6 +46,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
 import java.awt.BorderLayout;
@@ -64,6 +66,7 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -96,8 +99,6 @@ import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
-import lslrec.dataStream.outputDataFile.format.CreatorEncoderSettingPanel;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
@@ -138,15 +139,15 @@ public class settingMenu_StreamingSettings extends JPanel
 	private static final String LSL_STREAM_SYNC = "LSL_STREAM_SYNC";
 	
 	// Tabs
-	private JTabbedPane tabDevice;
+	private JTabbedPane tabStreams;
 	//private CanvasLSLDataPlot LSLplot;
 
 	//JPANEL
 	private JPanel contentPanel;
-	private JPanel jPanelDeviceInfo;	
+	private JPanel jPanelStreamInfo;	
 	private JPanel jPanelGeneralAddInfoOutFile;
 	private JPanel jOutFileFormat;
-	private JPanel paneDeviceInfo;
+	private JPanel paneStreamInfo;
 	private JPanel panelOutFileOption;
 	private JPanel panelOutFileName;
 	private JPanel panelDeviceAndSetting;
@@ -423,16 +424,16 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	private JPanel getJPanelDeviceInfo()
 	{
-		if( this.jPanelDeviceInfo == null )
+		if( this.jPanelStreamInfo == null )
 		{
-			this.jPanelDeviceInfo = new JPanel();
-			this.jPanelDeviceInfo.setLayout( new BorderLayout() );
+			this.jPanelStreamInfo = new JPanel();
+			this.jPanelStreamInfo.setLayout( new BorderLayout() );
 
 			//this.jPanelDeviceInfo.add( this.getJPanelOutFileFormat(), BorderLayout.NORTH );
-			this.jPanelDeviceInfo.add( this.getJPaneDeviceInfo( ), BorderLayout.CENTER );
+			this.jPanelStreamInfo.add( this.getJPaneDeviceInfo( ), BorderLayout.CENTER );
 		}
 
-		return this.jPanelDeviceInfo;
+		return this.jPanelStreamInfo;
 	}
 
 	/**
@@ -529,15 +530,15 @@ public class settingMenu_StreamingSettings extends JPanel
 			this.jOutFile = new JPanel( );
 			this.jOutFile.setLayout( new BoxLayout( this.jOutFile, BoxLayout.Y_AXIS ) );
 
-			TitledBorder tb = new TitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) );
-			this.jOutFile.setBorder( tb );
-			
 			//this.jOutFile.add( this.getPanelGeneralAddInfoOutFile() );		
 			//this.jOutFile.add( this.getJPanelOutFileFormat() );
-			JPanel p = this.getJPanelOutFileFormat();
+			JScrollPane p = new JScrollPane( this.getJPanelOutFileFormat() );
 			
-			
-			this.jOutFile.add( new JScrollPane( p ) );
+			TitledBorder tb = new TitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) );
+			//this.jOutFile.setBorder( tb );
+			p.setBorder( tb );
+						
+			this.jOutFile.add( p );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.OUTPUT_TEXT, tb );
 		}
@@ -699,8 +700,9 @@ public class settingMenu_StreamingSettings extends JPanel
 		if( this.jOutFileFormat == null )
 		{
 			this.jOutFileFormat = new JPanel( );
-			BorderLayout ly = new BorderLayout( 0, 5 );
+			BorderLayout ly = new BorderLayout( 2, 2 );
 			this.jOutFileFormat.setLayout( ly );
+			//this.jOutFileFormat.setBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) );
 			
 			//this.jOutFileFormat.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) ) );
 			
@@ -973,15 +975,15 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	private JPanel getJPaneDeviceInfo( )
 	{		
-		if( this.paneDeviceInfo == null )
+		if( this.paneStreamInfo == null )
 		{
-			this.paneDeviceInfo = new JPanel();
-			this.paneDeviceInfo.setLayout( new BorderLayout() );
+			this.paneStreamInfo = new JPanel();
+			this.paneStreamInfo.setLayout( new BorderLayout() );
 
-			this.paneDeviceInfo.add( this.getContentPanelDeviceInfo( ), BorderLayout.CENTER ); 
+			this.paneStreamInfo.add( this.getContentPanelDeviceInfo( ), BorderLayout.CENTER ); 
 		}
 
-		return this.paneDeviceInfo;
+		return this.paneStreamInfo;
 	}
 		
 	private JSplitPane getContentPanelDeviceInfo( )
@@ -1389,7 +1391,7 @@ public class settingMenu_StreamingSettings extends JPanel
 					{
 						try 
 						{
-							tabDevice.setSelectedIndex( 1 );
+							tabStreams.setSelectedIndex( 1 );
 	
 							CoreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
 						}
@@ -1843,28 +1845,49 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	private JTabbedPane getJTabDevice( JTree tree )
 	{
-		if( this.tabDevice == null )
+		if( this.tabStreams == null )
 		{
-			this.tabDevice = new JTabbedPane();
+			this.tabStreams = new JTabbedPane( );
 
-			this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ), new JScrollPane( tree ) );
-			Component c = this.tabDevice.getComponentAt( 0 );
+			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ), new JScrollPane( tree ) );
+			Component c = this.tabStreams.getComponentAt( 0 );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, c );
 			
 			//this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getLSLPlot() );
-			this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
-			c = this.tabDevice.getComponentAt( 1 );
+			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
+			c = this.tabStreams.getComponentAt( 1 );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_PLOT, c );
+			
+			this.tabStreams.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
 		}
 
-		return this.tabDevice;
+		return this.tabStreams;
 	}
 	
 	public void addPluginSettingTab( JPanel panel, String id )
 	{
-		JTabbedPane tab = this.getJTabDevice( null );
-		
-		tab.addTab( id,  panel );
+		if( panel != null )
+		{
+			JTabbedPane tab = this.getJTabDevice( null );
+			
+			int c = tab.getTabCount();
+			
+			if( c < 3 )
+			{
+				JTabbedPane plugingPanel = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT );
+				
+				tab.addTab( Language.getLocalCaption( Language.SETTING_PLUGIN ), plugingPanel );
+				
+				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, tab );
+			}
+			
+			c = tab.getTabCount();
+			Component cp = tab.getComponentAt( 2 );
+			JTabbedPane plugingTabPanel = (JTabbedPane)cp;
+			
+			plugingTabPanel.addTab( id, panel );
+		}
+				
 	}
 
 	/*
@@ -2042,7 +2065,9 @@ public class settingMenu_StreamingSettings extends JPanel
 			
 			this.btnOutFormatOptions.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK )
 																		.getScaledInstance( s, s, Image.SCALE_SMOOTH ) ) ); // GeneralAppIcon.Pencil( s, Color.BLACK ) );
-			this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
+			
+			//this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
+			this.btnOutFormatOptions.setFocusPainted( false );
 			
 			this.btnOutFormatOptions.addActionListener( new ActionListener()
 			{
@@ -2072,7 +2097,12 @@ public class settingMenu_StreamingSettings extends JPanel
 						{
 							Parameter par = pars.getParameter( idPar );
 							
-							par.setValue( ConfigApp.getProperty( par.getID() ) );
+							Object val = ConfigApp.getProperty( par.getID() );
+							
+							if( val != null )
+							{
+								par.setValue( val );
+							}
 							
 							par.addValueChangeListener( new ChangeListener() 
 							{	
@@ -2107,7 +2137,13 @@ public class settingMenu_StreamingSettings extends JPanel
 						s.height += 15;
 
 						dial.setSize( s );
+						
+						dial.setLocationRelativeTo( winOwner );
 
+						dial.getRootPane().registerKeyboardAction( keyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+																	KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+																	JComponent.WHEN_IN_FOCUSED_WINDOW );
+						
 						dial.setVisible( true );
 					}
 				}

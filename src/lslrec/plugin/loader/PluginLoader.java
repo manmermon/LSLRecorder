@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginGUIExperiment;
@@ -23,6 +24,7 @@ public class PluginLoader
 															, ILSLRecPluginEncoder.class
 															, ILSLRecPluginGUIExperiment.class
 															, ILSLRecPluginSyncMethod.class
+															, ILSLRecPluginCompressor.class
 														};
 	
     /**
@@ -115,7 +117,7 @@ public class PluginLoader
      * Get plugins from classpath
      * @return plugin list
      */
-    private static List< ILSLRecPlugin > getPluginsByType( Class plgClss ) 
+    public static List< ILSLRecPlugin > getPluginsByType( Class plgClss ) 
     { 
         //Load ILslrecPlugins
         ServiceLoader sl = ServiceLoader.load( plgClss );        

@@ -26,7 +26,7 @@ import java.util.HashMap;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 
 public class OutputFileFormatParameters
 {
@@ -51,7 +51,7 @@ public class OutputFileFormatParameters
 		Parameter< String > p = this.pars.getParameter( OUT_FILE_FORMAT );
 		this.setParameter( OUT_FILE_NAME, "./data" + DataFileFormat.getSupportedFileExtension().get( p.getValue() ) );
 		
-		this.setParameter( ZIP_ID, ZipDataFactory.GZIP );
+		this.setParameter( ZIP_ID, CompressorDataFactory.GZIP );
 		this.setParameter( CHAR_CODING,  Charset.forName( "UTF-8" )  );
 		//this.setParameter( new Parameter< String >( ENCRYPT_KEY, null ) );
 		this.setParameter( PARALLELIZE, true );

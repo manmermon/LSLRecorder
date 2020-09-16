@@ -24,7 +24,7 @@
 package lslrec.config;
 
 import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.dataStream.outputDataFile.compress.ZipDataFactory;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.exceptions.DefaultValueException;
@@ -68,7 +68,7 @@ public class ConfigApp
 
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 9 - 1, 14 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 9 - 1, 16 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -965,7 +965,7 @@ public class ConfigApp
 	
 	private static void loadDefaultOutputCompressor()
 	{
-		listConfig.put( OUTPUT_COMPRESSOR, ZipDataFactory.GZIP );
+		listConfig.put( OUTPUT_COMPRESSOR, CompressorDataFactory.GZIP );
 	}
 	
 	private static void loadDefaultLSLOutputFileDescr()
