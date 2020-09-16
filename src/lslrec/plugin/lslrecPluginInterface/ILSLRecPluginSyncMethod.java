@@ -1,6 +1,6 @@
 package lslrec.plugin.lslrecPluginInterface;
 
-public interface ILSLRecPluginSyncMethod extends ILSLRecPlugin 
+public interface ILSLRecPluginSyncMethod extends ILSLRecConfigurablePlugin 
 {
 
 }
