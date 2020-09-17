@@ -309,7 +309,7 @@ public class testSyncCollector
 						
 						do
 						{	
-							sync = reader.getSyncMarker();
+							sync = reader.getSyncMarkerMethod();
 							System.out.println("\t" + sync );
 						}
 						while( sync != null );

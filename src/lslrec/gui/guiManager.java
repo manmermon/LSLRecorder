@@ -210,7 +210,7 @@ public class guiManager
 		
 		diag.setSize( 550, 450 );
 		
-		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT2 ) );
+		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT ) );
 		
 		diag.setVisible( true );
 				
@@ -725,7 +725,7 @@ public class guiManager
 			{
 				JPanel p = ((ILSLRecConfigurablePlugin)plg).getSettingPanel();
 				
-				getAppUI().getStreamSetting().addPluginSettingTab( p, plg.getID() );
+				getAppUI().getStreamSetting().addPluginSettingTab( p, plg.getID(), (ILSLRecConfigurablePlugin)plg );
 			}
 		}
 	}

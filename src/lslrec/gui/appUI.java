@@ -1196,7 +1196,7 @@ public class appUI extends JFrame
 	{
 		if( this.menuBin2Clis == null )
 		{
-			this.menuBin2Clis = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT2 ) );
+			this.menuBin2Clis = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT ) );
 			this.menuBin2Clis.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_C, KeyEvent.ALT_MASK ) );
 			
 			this.menuBin2Clis.setIcon( GeneralAppIcon.Convert( 16, Color.BLACK ) );
@@ -1210,7 +1210,7 @@ public class appUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_CONVERT2, this.menuBin2Clis );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_CONVERT, this.menuBin2Clis );
 		}
 
 		return this.menuBin2Clis;

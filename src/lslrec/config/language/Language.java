@@ -58,7 +58,7 @@ public class Language
 	public static final String MENU_GNU_GPL = "MENU_GNU_GPL";
 	public static final String MENU_PREFERENCE = "MENU_PREFERENCE";
 	public static final String MENU_SHOW_LOG = "MENU_SHOW_LOG";
-	public static final String MENU_CONVERT2 = "MENU_CONVERT2";
+	public static final String MENU_CONVERT = "MENU_CONVERT";
 	public static final String MENU_FILE = "MENU_FILE";
 	public static final String MENU_LOAD = "MENU_LOAD";
 	public static final String MENU_SAVE = "MENU_SAVE";
@@ -66,6 +66,8 @@ public class Language
 	public static final String MENU_WRITE_TEST = "MENU_WRITE_TEST";
 	
 	public static final String LOAD_TEXT = "LOAD_TEXT";
+	
+	public static final String OTHERS_TEXT = "OTHERS_TEXT";
 
 	
 
@@ -218,7 +220,10 @@ public class Language
 	public static final String INPUT_STOP_LEGEND = "INPUT_STOP_LEGEND";
 	public static final String LANGUAGE_TEXT = "LANGUAGE_TEXT";
 	
-	public static final String SETTING_PLUGIN = "SETTING_PLUGIN";
+	public static final String SETTING_PLUGIN = "SETTING_PLUGIN";	
+	public static final String TEST_TEXT = "TEST_TEXT";
+	public static final String ENCODER_TEXT = "ENCODER_TEXT";	
+	
 
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -272,7 +277,7 @@ public class Language
 		captions.put(MENU_LOAD, new Caption(MENU_LOAD, defaultLanguage, "Load setting"));
 		captions.put(MENU_SAVE, new Caption(MENU_SAVE, defaultLanguage, "Save setting"));
 		captions.put(MENU_EXIT, new Caption(MENU_EXIT, defaultLanguage, "Exit"));
-		captions.put(MENU_CONVERT2, new Caption(MENU_CONVERT2, defaultLanguage, "Convert bin to..."));
+		captions.put(MENU_CONVERT, new Caption(MENU_CONVERT, defaultLanguage, "Convert bin to..."));
 		captions.put( MENU_WRITE_TEST, new Caption( MENU_WRITE_TEST,  defaultLanguage, "Writing test" ) );
 
 		captions.put(LOAD_TEXT, new Caption(LOAD_TEXT, defaultLanguage, "Load"));
@@ -431,6 +436,15 @@ public class Language
 		
 		captions.put(SETTING_PLUGIN,
 				new Caption(SETTING_PLUGIN, defaultLanguage, "Plugin"));
+		
+		captions.put(OTHERS_TEXT,
+				new Caption(OTHERS_TEXT, defaultLanguage, "Others"));
+		
+		captions.put(TEST_TEXT,
+				new Caption(TEST_TEXT, defaultLanguage, "Test"));
+		
+		captions.put(ENCODER_TEXT,
+				new Caption(ENCODER_TEXT, defaultLanguage, "Encoder"));
 
 	}
 

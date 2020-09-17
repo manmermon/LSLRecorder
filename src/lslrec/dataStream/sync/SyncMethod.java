@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
 
 /**
  * @author Manuel Merino Monge
@@ -20,7 +20,7 @@ public class SyncMethod
 	public static final String SYNC_SOCKET = "Socket";
 	public static final String SYNC_LSL = "LabStreaming Layer";
 	
-	private static final Map< String, ILSLRecPluginSyncMethod > syncs = new HashMap< String, ILSLRecPluginSyncMethod >();
+	private static final Map< String, LSLRecPluginSyncMethod > syncs = new HashMap< String, LSLRecPluginSyncMethod >();
 	
 	public static String[] getSyncMethodID()
 	{
@@ -42,7 +42,7 @@ public class SyncMethod
 	 * 
 	 * @param plg 
 	 */
-	public static void addSyncMethod( ILSLRecPluginSyncMethod plg )
+	public static void addSyncMethod( LSLRecPluginSyncMethod plg )
 	{
 		if( plg != null )
 		{
@@ -55,7 +55,7 @@ public class SyncMethod
 	 * @param ID
 	 * @return ILSLRecPluginSyncMethod object or null if ID is unknown.  
 	 */
-	public static ILSLRecPluginSyncMethod getSyncPlugin( String id )
+	public static LSLRecPluginSyncMethod getSyncPlugin( String id )
 	{
 		return syncs.get( id );
 	}

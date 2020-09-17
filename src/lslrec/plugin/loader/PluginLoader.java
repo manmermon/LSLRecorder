@@ -11,8 +11,8 @@ import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginGUIExperiment;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginGUIExperiment;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
 
 public class PluginLoader 
 {
@@ -22,8 +22,8 @@ public class PluginLoader
 	
 	private static final Class< ILSLRecPlugin >[] PLUGINS = new Class[] { ILSLRecPluginDataProcessing.class
 															, ILSLRecPluginEncoder.class
-															, ILSLRecPluginGUIExperiment.class
-															, ILSLRecPluginSyncMethod.class
+															, LSLRecPluginGUIExperiment.class
+															, LSLRecPluginSyncMethod.class
 															, ILSLRecPluginCompressor.class
 														};
 	

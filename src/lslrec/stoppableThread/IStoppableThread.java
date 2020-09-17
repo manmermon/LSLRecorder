@@ -22,7 +22,7 @@
 
 package lslrec.stoppableThread;
 
-public interface IStoppableThread 
+public interface IStoppableThread extends Runnable
 {
 	public final int STOP_WITH_TASKDONE = -1;
 	public final int STOP_IN_NEXT_LOOP = 0;

@@ -48,7 +48,7 @@ import lslrec.controls.messages.EventType;
 import lslrec.gui.PasswordDialog;
 import lslrec.gui.guiManager;
 import lslrec.gui.dataPlot.CanvasLSLDataPlot;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.sockets.info.StreamSocketProblem;
@@ -499,7 +499,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 			
-			ILSLRecPluginSyncMethod syncMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
+			LSLRecPluginSyncMethod syncMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
 
 			if( syncMet != null )
 			{

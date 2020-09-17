@@ -110,6 +110,11 @@ import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecConfigurablePlugin;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
+import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginGUIExperiment;
+import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -1865,7 +1870,7 @@ public class settingMenu_StreamingSettings extends JPanel
 		return this.tabStreams;
 	}
 	
-	public void addPluginSettingTab( JPanel panel, String id )
+	public void addPluginSettingTab( JPanel panel, String id, ILSLRecConfigurablePlugin pluginClass   )
 	{
 		if( panel != null )
 		{
@@ -1886,7 +1891,38 @@ public class settingMenu_StreamingSettings extends JPanel
 			Component cp = tab.getComponentAt( 2 );
 			JTabbedPane plugingTabPanel = (JTabbedPane)cp;
 			
-			plugingTabPanel.addTab( id, panel );
+			String pluginCategory = Language.getLocalCaption( Language.OTHERS_TEXT );
+			
+			if( pluginClass instanceof LSLRecPluginSyncMethod )
+			{
+				pluginCategory = Language.getLocalCaption( Language.SETTING_LSL_SYNC );
+			}
+			else if( pluginClass instanceof ILSLRecPluginCompressor )
+			{
+				pluginCategory = Language.getLocalCaption( Language.SETTING_COMPRESSOR );
+			}
+			else if( pluginClass instanceof LSLRecPluginGUIExperiment )
+			{
+				pluginCategory = Language.getLocalCaption( Language.TEST_TEXT );
+			}
+			else if( pluginClass instanceof ILSLRecPluginEncoder )
+			{
+				pluginCategory = Language.getLocalCaption( Language.ENCODER_TEXT );
+			}
+			
+			int indTab = plugingTabPanel.indexOfTab( pluginCategory );
+			
+			JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT ); 
+			if( indTab < 0 )
+			{			
+				plugingTabPanel.addTab( pluginCategory, subTab );
+			}
+			else
+			{
+				subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+			}
+			
+			subTab.addTab( id, new JScrollPane( panel ) );
 		}
 				
 	}
