@@ -1,9 +1,10 @@
 /**
  * 
  */
-package lslrec.plugin.lslrecPluginInterface;
+package lslrec.plugin.lslrecPlugin.compressor;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
+import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 
 /**
  * @author Manuel Merino Monge

@@ -29,10 +29,9 @@ import lslrec.gui.guiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.OpeningDialog;
 import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
 import lslrec.config.ConfigApp;
 
 import java.awt.Color;
@@ -47,7 +46,6 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import lslrec.config.language.Language;

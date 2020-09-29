@@ -28,8 +28,8 @@ import java.util.Map;
 import lslrec.dataStream.outputDataFile.compress.zip.BZip2Data;
 import lslrec.dataStream.outputDataFile.compress.zip.GZipData;
 import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPlugin;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
 
 public class CompressorDataFactory 
 {

@@ -34,7 +34,7 @@ import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
 import lslrec.dataStream.outputDataFile.format.matlab.MatlabEncoder;
-import lslrec.plugin.lslrecPluginInterface.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
 
 public class DataFileFormat
 {

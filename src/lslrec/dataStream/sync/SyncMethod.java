@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 
 /**
  * @author Manuel Merino Monge

@@ -48,7 +48,7 @@ import lslrec.controls.messages.EventType;
 import lslrec.gui.PasswordDialog;
 import lslrec.gui.guiManager;
 import lslrec.gui.dataPlot.CanvasLSLDataPlot;
-import lslrec.plugin.lslrecPluginInterface.LSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.sockets.info.StreamSocketProblem;
