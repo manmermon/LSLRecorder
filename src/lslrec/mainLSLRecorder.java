@@ -30,8 +30,8 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.OpeningDialog;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
-import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.config.ConfigApp;
 
 import java.awt.Color;
@@ -217,13 +217,13 @@ public class mainLSLRecorder
 		
 		for( ILSLRecPlugin plg : plugins )
 		{
-			if( plg instanceof ILSLRecPluginEncoder )
+			if( plg instanceof LSLRecPluginEncoder )
 			{
-				DataFileFormat.addEncoder( (ILSLRecPluginEncoder)plg );
+				DataFileFormat.addEncoder( (LSLRecPluginEncoder)plg );
 			}
-			else if( plg instanceof ILSLRecPluginCompressor )
+			else if( plg instanceof LSLRecPluginCompressor )
 			{
-				CompressorDataFactory.addCompressor( (ILSLRecPluginCompressor)plg );
+				CompressorDataFactory.addCompressor( (LSLRecPluginCompressor)plg );
 			}
 		}		
 	}
@@ -252,12 +252,14 @@ public class mainLSLRecorder
 		openDialog.setVisible( true );
 		openDialog.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
 		
+		/*
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
 		Insets pad = t.getScreenInsets( openDialog.getGraphicsConfiguration() );
+		*/
 
 		
-		openDialog.setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
+		openDialog.setLocationRelativeTo( null ); //setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
 		
 		return openDialog;
 	}

@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
-import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginGUIExperiment;
@@ -21,10 +21,10 @@ public class PluginLoader
 	private static final String EXTENSION_JAR = ".jar";
 	
 	private static final Class< ILSLRecPlugin >[] PLUGINS = new Class[] { LSLRecPluginDataProcessing.class
-															, ILSLRecPluginEncoder.class
+															, LSLRecPluginEncoder.class
 															, LSLRecPluginGUIExperiment.class
 															, LSLRecPluginSyncMethod.class
-															, ILSLRecPluginCompressor.class
+															, LSLRecPluginCompressor.class
 														};
 	
     /**

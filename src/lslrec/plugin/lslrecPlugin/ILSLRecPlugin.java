@@ -1,4 +1,4 @@
-package lslrec.plugin.lslrecPluginInterface;
+package lslrec.plugin.lslrecPlugin;
 
 import lslrec.auxiliar.tasks.ITaskIdentity;
 

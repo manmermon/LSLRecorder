@@ -27,9 +27,7 @@ import java.util.Map;
 
 import lslrec.dataStream.outputDataFile.compress.zip.BZip2Data;
 import lslrec.dataStream.outputDataFile.compress.zip.GZipData;
-import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 
 public class CompressorDataFactory 
 {
@@ -37,7 +35,7 @@ public class CompressorDataFactory
 	public static final String GZIP = "GZIP";
 	public static final String BZIP2 = "BZIP2";
 	
-	private static final Map< String, ILSLRecPluginCompressor > compressors = new HashMap<String, ILSLRecPluginCompressor>();
+	private static final Map< String, LSLRecPluginCompressor > compressors = new HashMap<String, LSLRecPluginCompressor>();
 	
 	public static String[] getCompressorIDs()
 	{	
@@ -54,7 +52,7 @@ public class CompressorDataFactory
 		return ids.toArray( new String[0] );
 	} 
 	
-	public static void addCompressor( ILSLRecPluginCompressor compressor )
+	public static void addCompressor( LSLRecPluginCompressor compressor )
 	{
 		if( compressor != null )
 		{
@@ -85,7 +83,7 @@ public class CompressorDataFactory
 			}
 			default:
 			{	
-				ILSLRecPluginCompressor plg = compressors.get( type );
+				LSLRecPluginCompressor plg = compressors.get( type );
 				
 				if( plg != null )
 				{

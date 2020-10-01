@@ -9,7 +9,6 @@ import lslrec.auxiliar.tasks.ITaskIdentity;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.dataStream.sync.SyncMarker;
-import lslrec.plugin.lslrecPlugin.LSLRecRunnablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

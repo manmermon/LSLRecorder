@@ -111,8 +111,8 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPlugin.compressor.ILSLRecPluginCompressor;
-import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
+import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
+import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginGUIExperiment;
 import lslrec.config.ConfigApp;
@@ -1872,7 +1872,7 @@ public class settingMenu_StreamingSettings extends JPanel
 	
 	public void addPluginSettingTab( JPanel panel, String id, ILSLRecConfigurablePlugin pluginClass   )
 	{
-		if( panel != null )
+		if( panel != null && panel.getComponentCount() > 0 )
 		{
 			JTabbedPane tab = this.getJTabDevice( null );
 			
@@ -1897,7 +1897,7 @@ public class settingMenu_StreamingSettings extends JPanel
 			{
 				pluginCategory = Language.getLocalCaption( Language.SETTING_LSL_SYNC );
 			}
-			else if( pluginClass instanceof ILSLRecPluginCompressor )
+			else if( pluginClass instanceof LSLRecPluginCompressor )
 			{
 				pluginCategory = Language.getLocalCaption( Language.SETTING_COMPRESSOR );
 			}
@@ -1905,7 +1905,7 @@ public class settingMenu_StreamingSettings extends JPanel
 			{
 				pluginCategory = Language.getLocalCaption( Language.TEST_TEXT );
 			}
-			else if( pluginClass instanceof ILSLRecPluginEncoder )
+			else if( pluginClass instanceof LSLRecPluginEncoder )
 			{
 				pluginCategory = Language.getLocalCaption( Language.ENCODER_TEXT );
 			}

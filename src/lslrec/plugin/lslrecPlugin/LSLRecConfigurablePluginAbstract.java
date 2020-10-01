@@ -16,7 +16,7 @@ import lslrec.config.Parameter;
  * @author Manuel Merino Monge
  *
  */
-public abstract class LSLRecRunnablePluginAbstract implements ILSLRecConfigurablePlugin 
+public abstract class LSLRecConfigurablePluginAbstract implements ILSLRecConfigurablePlugin 
 {	
 	protected Map< String, Parameter< String > > pars;
 	
@@ -25,7 +25,7 @@ public abstract class LSLRecRunnablePluginAbstract implements ILSLRecConfigurabl
 	/**
 	 * 
 	 */
-	public LSLRecRunnablePluginAbstract( )
+	public LSLRecConfigurablePluginAbstract( )
 	{		
 		this.pars = new HashMap< String, Parameter< String > >();
 				

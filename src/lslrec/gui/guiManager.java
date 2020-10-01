@@ -22,30 +22,6 @@
 
 package lslrec.gui;
 
-import lslrec.config.language.Language;
-import lslrec.controls.messages.AppState;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
-import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
-import lslrec.dataStream.binary.reader.TemporalBinData;
-import lslrec.dataStream.outputDataFile.format.DataFileFormat;
-import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.BinaryFileStreamSetting;
-import lslrec.dataStream.sync.SyncMarkerBinFileReader;
-import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
-import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.miscellany.LevelIndicator;
-import lslrec.gui.miscellany.BasicPainter2D;
-import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.encoder.ILSLRecPluginEncoder;
-import lslrec.stoppableThread.IStoppableThread;
-import lslrec.config.ConfigApp;
-import lslrec.controls.CoreControl;
-import lslrec.controls.OutputDataFileHandler;
-
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -71,6 +47,28 @@ import javax.swing.text.StyleConstants;
 
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.tasks.NotificationTask;
+import lslrec.config.ConfigApp;
+import lslrec.config.language.Language;
+import lslrec.controls.CoreControl;
+import lslrec.controls.OutputDataFileHandler;
+import lslrec.controls.messages.AppState;
+import lslrec.controls.messages.EventInfo;
+import lslrec.controls.messages.EventType;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.sync.SyncMarkerBinFileReader;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.miscellany.BasicPainter2D;
+import lslrec.gui.miscellany.LevelIndicator;
+import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.stoppableThread.IStoppableThread;
 
 public class guiManager
 {
