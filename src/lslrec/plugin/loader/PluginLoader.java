@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ServiceLoader;
 
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
@@ -20,12 +21,14 @@ public class PluginLoader
 	
 	private static final String EXTENSION_JAR = ".jar";
 	
-	private static final Class< ILSLRecPlugin >[] PLUGINS = new Class[] { LSLRecPluginDataProcessing.class
-															, LSLRecPluginEncoder.class
-															, LSLRecPluginGUIExperiment.class
-															, LSLRecPluginSyncMethod.class
-															, LSLRecPluginCompressor.class
-														};
+	private static final Class< ILSLRecPlugin >[] PLUGIN_TYPES = new Class[] { LSLRecPluginDataProcessing.class
+																			, LSLRecPluginEncoder.class
+																			, LSLRecPluginGUIExperiment.class
+																			, LSLRecPluginSyncMethod.class
+																			, LSLRecPluginCompressor.class
+																		};
+	
+	private static ArrayTreeMap< Class, ILSLRecPlugin > _Plugins = new ArrayTreeMap<Class, ILSLRecPlugin>(); 
 	
     /**
      * Load plugins
@@ -85,7 +88,7 @@ public class PluginLoader
     				
     				int c = pluginCount;
     				
-    				for( Class< ILSLRecPlugin > plg : PLUGINS )
+    				for( Class< ILSLRecPlugin > plg : PLUGIN_TYPES )
     				{
 	    				c = getPluginsByType( plg ).size();
 	    				
@@ -118,21 +121,42 @@ public class PluginLoader
      * @return plugin list
      */
     public static List< ILSLRecPlugin > getPluginsByType( Class plgClss ) 
-    { 
-        //Load ILslrecPlugins
-        ServiceLoader sl = ServiceLoader.load( plgClss );        
-        sl.reload();
- 
-        List< ILSLRecPlugin > lplg = new ArrayList< ILSLRecPlugin >();
+    {
+    	List< ILSLRecPlugin > plgs = _Plugins.get( plgClss );
+    	
+    	if( plgs.isEmpty() )
+    	{	
+	        //Load ILslrecPlugins
+	        ServiceLoader sl = ServiceLoader.load( plgClss );        
+	        sl.reload();
+	        
+	        for ( Iterator it = sl.iterator(); it.hasNext(); ) 
+	        {   
+	        	ILSLRecPlugin pl = (ILSLRecPlugin) it.next();
+	        	plgs.add( pl );
+	        }
+    	}
         
-        for ( Iterator it = sl.iterator(); it.hasNext(); ) 
-        {   
-        	ILSLRecPlugin pl = (ILSLRecPlugin) it.next();
-        	lplg.add( pl );
-        }
-         
         //loaded plugins
-        return lplg;
+        return plgs;
+    }
+    
+    public static ILSLRecPlugin getPlugin( Class plgClss, String id )
+    {
+    	ILSLRecPlugin plg = null;
+    	
+    	List< ILSLRecPlugin > plgs = getPluginsByType( plgClss );
+    	
+    	for( ILSLRecPlugin p : plgs )
+    	{
+    		if( p.getID().equals( id ) )
+    		{
+    			plg = p;
+    			break;
+    		}
+    	}
+    	
+    	return plg;
     }
     
     /**
@@ -143,7 +167,7 @@ public class PluginLoader
     { 
         //Load ILslrecPlugins
     	List< ILSLRecPlugin > lplg = new ArrayList<ILSLRecPlugin>();
-    	for( Class< ILSLRecPlugin > pl : PLUGINS )
+    	for( Class< ILSLRecPlugin > pl : PLUGIN_TYPES )
     	{
     		lplg.addAll( getPluginsByType( pl ) );
     	}

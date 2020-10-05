@@ -560,6 +560,50 @@ public class GeneralAppIcon
 
 		return ico;
 	}
+	
+	public static ImageIcon Clear( int size, Color color )
+	{
+		ImageIcon icon = null;
+		
+		if( color != null && size > 0 )
+		{
+			Image img = BasicPainter2D.createEmptyImage( size, size, null );
+			
+			int[] xs = new int[] { 0, size / 2, size, size, size / 2, 0 };
+			int[] ys = new int[] { size / 2, 0, 0, size, size, size / 2 };
+			
+			BasicPainter2D.paintFillPolygon( xs, ys, color, img );
+			
+			float[] hsb = Color.RGBtoHSB( color.getRed(), color.getGreen(), color.getBlue(), null );
+			
+			Color crossColor = Color.WHITE;
+			if( hsb[ 2 ] >= 0.75 )
+			{
+				crossColor = Color.BLACK;
+			}
+			
+			float thickness = size / 8;
+			if( thickness < 1 )
+			{
+				thickness = 1;
+			}
+			
+			int wCross = size / 2;
+			int hCross  = size / 2;
+			
+			BasicPainter2D.paintLine( (int)(wCross - thickness), ( img.getHeight( null ) - hCross ) / 2 
+								, (int)( size - thickness), ( img.getHeight( null ) + hCross ) / 2
+								, thickness, crossColor, img );
+			
+			BasicPainter2D.paintLine( (int)( size - thickness), ( img.getHeight( null ) - hCross ) / 2 
+								, (int)(wCross - thickness), ( img.getHeight( null ) + hCross ) / 2
+								, thickness, crossColor, img );
+			
+			icon = new ImageIcon( img );
+		}	
+		
+		return icon;
+	}
 
 	public static ImageIcon Pencil( int size, Color color )
 	{

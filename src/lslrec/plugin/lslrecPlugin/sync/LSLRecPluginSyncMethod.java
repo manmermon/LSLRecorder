@@ -45,6 +45,18 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 	}
 	
 	@Override
+	public final void start() 
+	{
+		super.start();
+	}
+	
+	@Override
+	public final synchronized void startThread() throws Exception 
+	{
+		super.startThread();
+	}
+	
+	@Override
 	public final synchronized void run() 
 	{
 		super.run();

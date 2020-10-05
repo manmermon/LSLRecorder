@@ -45,8 +45,24 @@ lslrec
 				.*.java
 				
 	.plugin
-			.lslrecPlugionInterface.*
-												
+			.loader.*
+			
+			.lslrecPlugin
+				
+				.compressor.*
+				
+				.encoder.*
+				
+				.processing
+					.ILSLRecPluginDataProcessing.java
+					.LSLRecPluginDataProcessing.java
+				
+				.sync.*
+				
+				.trial.*
+				
+				.*.java
+													
 	.stoppableThread
 					.*.java
 					

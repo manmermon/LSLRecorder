@@ -1,4 +1,4 @@
-package lslrec.dataStream.binary.input;
+package lslrec.plugin.lslrecPlugin.processing.executor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
-public abstract class DataProcessingPipeline extends AbstractStoppableThread
+public abstract class DataProcessingExecutor extends AbstractStoppableThread
 {
 	private ConcurrentLinkedQueue< Byte[] > inputs;
 	private List< Number > data;
@@ -19,7 +19,7 @@ public abstract class DataProcessingPipeline extends AbstractStoppableThread
 	/**
 	 * 
 	 */
-	public DataProcessingPipeline( LSLRecPluginDataProcessing processes ) 
+	public DataProcessingExecutor( LSLRecPluginDataProcessing processes ) 
 	{
 		this.inputs = new ConcurrentLinkedQueue< Byte[] >();
 		this.data = new ArrayList< Number >();
