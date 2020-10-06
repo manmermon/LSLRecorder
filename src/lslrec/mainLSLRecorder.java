@@ -178,25 +178,14 @@ public class mainLSLRecorder
 		//if( false )		
 		try
 		{
-			List< Exception > exs = PluginLoader.LoadPlugins();
-
-			for( Exception e : exs )
-			{
-				//ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
-				showError( e, false );
-			}			
+			registerPlugins();
 		}
 		catch( Exception | Error e )
 		{
-			/*
-			ExceptionMessage msg = new ExceptionMessage( e, "Load plugin errors", ExceptionDictionary.WARNING_MESSAGE );
-			ExceptionDialog.showMessageDialog( msg, true, true );
-			*/
-			
 			showError( e, false );
 		}
 		
-		registerPlugins();
+		
 		
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
@@ -211,9 +200,10 @@ public class mainLSLRecorder
 		ConfigApp.setTesting( true );
 	}
 	
-	private static void registerPlugins()
+	private static void registerPlugins() throws Exception
 	{
-		List< ILSLRecPlugin > plugins = PluginLoader.getPlugins();
+		PluginLoader loader = PluginLoader.getInstance();
+		List< ILSLRecPlugin > plugins = loader.getPlugins();
 		
 		for( ILSLRecPlugin plg : plugins )
 		{

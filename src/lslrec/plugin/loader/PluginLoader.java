@@ -17,32 +17,61 @@ import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginGUIExperiment;
 
 public class PluginLoader 
 {
-	public static final String DEFAULT_FOLDER = System.getProperty( "user.dir" ) + "/plugins/";
+	private static PluginLoader loader = null;
 	
-	private static final String EXTENSION_JAR = ".jar";
+	private final String DEFAULT_FOLDER = System.getProperty( "user.dir" ) + "/plugins/";
 	
-	private static final Class< ILSLRecPlugin >[] PLUGIN_TYPES = new Class[] { LSLRecPluginDataProcessing.class
+	private final String EXTENSION_JAR = ".jar";
+	
+	private final Class< ILSLRecPlugin >[] PLUGIN_TYPES = new Class[] { LSLRecPluginDataProcessing.class
 																			, LSLRecPluginEncoder.class
 																			, LSLRecPluginGUIExperiment.class
 																			, LSLRecPluginSyncMethod.class
 																			, LSLRecPluginCompressor.class
 																		};
 	
-	private static ArrayTreeMap< Class, ILSLRecPlugin > _Plugins = new ArrayTreeMap<Class, ILSLRecPlugin>(); 
+	private ArrayTreeMap< Class, ILSLRecPlugin > _Plugins = new ArrayTreeMap<Class, ILSLRecPlugin>(); 
+	
+	private PluginLoader() throws Exception
+	{
+		List< Exception > exs = this.LoadPlugins();
+		if( !exs.isEmpty() )
+		{
+			Exception e = new Exception( );
+			for( Exception ex : exs )
+			{
+				StackTraceElement[] tr = ex.getStackTrace();
+				
+				e.setStackTrace( tr );				
+			}
+			
+			throw e;
+		}
+	}
+	
+	public static PluginLoader getInstance() throws Exception
+	{
+		if( loader == null )
+		{
+			loader = new PluginLoader();
+		}
+		
+		return loader;
+	}
 	
     /**
      * Load plugins
      * @return exception list. It is empty if all plugins were loaded.
      * @throws NoSuchMethodException 
      */
-    public static List< Exception > LoadPlugins() throws NoSuchMethodException
+    private List< Exception > LoadPlugins() throws NoSuchMethodException
     {
     	//Jar file list
     	List< Exception > exs = new ArrayList<Exception>();
     	
         List< File > vUrls = new ArrayList< File >();        
  
-        File pluginFolder = new File( DEFAULT_FOLDER );
+        File pluginFolder = new File( this.DEFAULT_FOLDER );
         
         //
         //Search jar files
@@ -111,7 +140,6 @@ public class PluginLoader
 				}
     		}
     	}
- 
         
         return exs;
     }
@@ -120,7 +148,7 @@ public class PluginLoader
      * Get plugins from classpath
      * @return plugin list
      */
-    public static List< ILSLRecPlugin > getPluginsByType( Class plgClss ) 
+    public List< ILSLRecPlugin > getPluginsByType( Class plgClss ) 
     {
     	List< ILSLRecPlugin > plgs = _Plugins.get( plgClss );
     	
@@ -141,35 +169,72 @@ public class PluginLoader
         return plgs;
     }
     
-    public static ILSLRecPlugin getPlugin( Class plgClss, String id )
-    {
-    	ILSLRecPlugin plg = null;
+    public List< ILSLRecPlugin > getPlugin( Class plgClss, String id )
+7    {
+    	List< ILSLRecPlugin > plg = new ArrayList<ILSLRecPlugin>();
     	
-    	List< ILSLRecPlugin > plgs = getPluginsByType( plgClss );
+    	List< ILSLRecPlugin > plgs = this.getPluginsByType( plgClss );
     	
     	for( ILSLRecPlugin p : plgs )
     	{
     		if( p.getID().equals( id ) )
     		{
-    			plg = p;
-    			break;
+    			plg.add( p );
     		}
     	}
     	
     	return plg;
     }
     
+    public int addNewPluginInstance( Class plgClass, String id )
+    {
+    	int index = -1;
+    	List< ILSLRecPlugin > plgs = this.getPlugin( plgClass, id );
+    	if( !plgs.isEmpty() )
+    	{
+    		ILSLRecPlugin plg = plgs.get( 0 );
+    		
+    		try 
+    		{
+				Class p = Class.forName( plg.getClass().getCanonicalName() );
+				
+				ILSLRecPlugin pl = (ILSLRecPlugin)p.cast( p );
+				this._Plugins.putElement( plgClass, pl );
+				index = this._Plugins.size() - 1;
+			} 
+    		catch (ClassNotFoundException e) 
+    		{
+    			e.printStackTrace();
+			}
+    	}
+    	
+    	return index;
+    }
+    
+    public ILSLRecPlugin removePluginInstance( Class plgCl, String id, int index )
+    {
+    	ILSLRecPlugin pl = null;
+    	
+    	List< ILSLRecPlugin > plgs = this.getPlugin( plgCl, id );
+    	if( index >= 0 && index < plgs.size() )
+    	{
+    		pl = plgs.remove( index );
+    	}
+    	
+    	return pl;
+    }
+    
     /**
      * Get all plugins from classpath
      * @return plugin list
      */
-    public static List< ILSLRecPlugin > getPlugins() 
+    public List< ILSLRecPlugin > getPlugins() 
     { 
         //Load ILslrecPlugins
     	List< ILSLRecPlugin > lplg = new ArrayList<ILSLRecPlugin>();
     	for( Class< ILSLRecPlugin > pl : PLUGIN_TYPES )
     	{
-    		lplg.addAll( getPluginsByType( pl ) );
+    		lplg.addAll( this.getPluginsByType( pl ) );
     	}
     	         
         //loaded plugins
