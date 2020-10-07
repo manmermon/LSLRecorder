@@ -1,4 +1,4 @@
-package lslrec.gui;
+package lslrec.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -33,7 +33,7 @@ import lslrec.config.language.Language;
  * 
  * @author Manuel Oliver Watkins (c)
  */
-public class PasswordDialog extends JDialog 
+public class Dialog_Password extends JDialog 
 {
 	/**
 	 * 
@@ -62,7 +62,7 @@ public class PasswordDialog extends JDialog
 
 	private String passError = "";
 	
-	public PasswordDialog( JFrame owner, String message ) 
+	public Dialog_Password( JFrame owner, String message ) 
 	{	
 		super( owner );
 		
@@ -236,8 +236,8 @@ public class PasswordDialog extends JDialog
 						state = PASSWORD_INCORRECT;
 					}
 
-					PasswordDialog.this.setVisible( false );
-					PasswordDialog.this.dispose();
+					Dialog_Password.this.setVisible( false );
+					Dialog_Password.this.dispose();
 				}
 			});
 		}
@@ -343,8 +343,8 @@ public class PasswordDialog extends JDialog
 				{
 					cancelPassword();
 					
-					PasswordDialog.this.setVisible( false );
-					PasswordDialog.this.dispose();
+					Dialog_Password.this.setVisible( false );
+					Dialog_Password.this.dispose();
 				}
 			});
 		}

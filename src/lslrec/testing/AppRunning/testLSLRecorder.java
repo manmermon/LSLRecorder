@@ -640,7 +640,7 @@ public class testLSLRecorder
 					try
 					{	
 						((HashSet)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES )).clear();
-						guiManager.getInstance().refreshLSLDevices();
+						GuiManager.getInstance().refreshLSLDevices();
 						
 						LSLStream.CreateDataLSLStreams( dataStreamCfg[ 0 ], LSL.ChannelFormat.double64, dataStreamCfg[ 2 ]
 														, dataStreamCfg[ 3 ], dataStreamCfg[ 4 ], dataStreamCfg[ 5 ], dataStreamCfg[ 6 ]  );
@@ -747,7 +747,7 @@ public class testLSLRecorder
 							{
 								if( args[0].equals( "-c" ) )
 								{
-									guiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
+									GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
 
 									ConfigApp.loadConfig( new File( args[ 1 ] ) );
 								}
@@ -773,9 +773,9 @@ public class testLSLRecorder
 						}
 						finally
 						{
-							guiManager.getInstance().getAppUI().loadConfigValues();
-							guiManager.getInstance().refreshLSLDevices();
-							guiManager.getInstance().getAppUI().getGlassPane().setVisible( false );						
+							GuiManager.getInstance().getAppUI().loadConfigValues();
+							GuiManager.getInstance().refreshLSLDevices();
+							GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );						
 						}
 
 						boolean startTest = false;
@@ -791,9 +791,9 @@ public class testLSLRecorder
 
 						if( startTest )
 						{	
-							guiManager.getInstance().addInputMessageLog( "Test index " + indexTest + ". Settings: " + simPar + "-" + Arrays.toString( dataStreamCfg ) + "\n" );
+							GuiManager.getInstance().addInputMessageLog( "Test index " + indexTest + ". Settings: " + simPar + "-" + Arrays.toString( dataStreamCfg ) + "\n" );
 
-							guiManager.getInstance().startTest( false );
+							GuiManager.getInstance().startTest( false );
 
 							Thread.sleep( 3000L );
 
@@ -865,7 +865,7 @@ public class testLSLRecorder
 
 	private static void LoadSettings( int testType, int numSynStream, int chunkSize, int interleave, int specialInputs  )
 	{
-		guiManager.getInstance().refreshLSLDevices();
+		GuiManager.getInstance().refreshLSLDevices();
 		
 		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT, outFileFormat );
 		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_NAME, outFilePath );
@@ -932,16 +932,16 @@ public class testLSLRecorder
 		}
 	}
 
-	private static appUI createAppGUI() throws Exception
+	private static AppUI createAppGUI() throws Exception
 	{	
 		Dimension openDim = new Dimension( 500, 200 );
-		OpeningDialog open = new OpeningDialog( openDim 
+		Dialog_Opening open = new Dialog_Opening( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
 												, ConfigApp.shortNameApp
 												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
 		open.setVisible( true );
-		open.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
+		open.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
 		
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
@@ -951,7 +951,7 @@ public class testLSLRecorder
 		open.setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
 		
 	
-		appUI ui = appUI.getInstance();
+		AppUI ui = AppUI.getInstance();
 		
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
 		ui.setTitle(  ConfigApp.fullNameApp );

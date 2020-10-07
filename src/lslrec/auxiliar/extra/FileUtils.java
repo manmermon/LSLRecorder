@@ -24,6 +24,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import javax.annotation.processing.FilerException;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import lslrec.config.language.Language;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.AppUI;
 
 
 public class FileUtils 
@@ -158,5 +166,104 @@ public class FileUtils
 		Tuple< String, Boolean > res = new Tuple< String, Boolean>(aux2,  ok );
 
 		return res;
+	}
+	
+
+	public static File[] selectFile(String defaulName, String titleDialog
+							, int typeDialog, boolean multiSelection
+							, int selectionModel, String descrFilter
+							, String[] filterExtensions, String defaultFolder )
+	{		
+		FileNameExtensionFilter filter = null;
+				
+		if( filterExtensions != null && filterExtensions.length > 0 )
+		{
+			filter = new FileNameExtensionFilter( descrFilter, filterExtensions );
+		}
+		
+		
+		File[] file = null;
+
+		JFileChooser jfc = null;
+
+		jfc = new JFileChooser( defaultFolder );
+
+		jfc.setMultiSelectionEnabled(multiSelection);
+
+		jfc.setDialogTitle(titleDialog);
+		jfc.setDialogType(typeDialog);
+		jfc.setFileSelectionMode(selectionModel);
+		jfc.setSelectedFile(new File(defaulName));
+		
+		if( filter != null )
+		{
+			jfc.setFileFilter( filter );
+		}
+
+		int returnVal = jfc.showDialog( AppUI.getInstance(), null);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION )
+		{
+			if (multiSelection)
+			{
+				file = jfc.getSelectedFiles();
+			}
+			else
+			{
+				file = new File[1];
+				file[0] = jfc.getSelectedFile();
+			}
+		}
+
+		return file;
+	}
+	
+	public static String[] selectUserFile(String defaultName, boolean mustExist
+									, boolean multiSelection, int selectionModel
+									, String descrFilter, String[] filterExtensions
+									, String defaultFolder )
+	{
+		File[] f = selectFile( defaultName, Language.getLocalCaption( Language.DIALOG_SELECT_UESR_FILE )
+								, JFileChooser.OPEN_DIALOG
+								, multiSelection, selectionModel, descrFilter, filterExtensions, defaultFolder );
+
+		int N = 1;
+		
+		if( f != null && f.length > 0 )
+		{
+			N = f.length;
+		}
+		
+		String[] path = null;
+				
+		if (f != null)
+		{			
+			boolean allFileExist = true;
+			for( int iF = 0; iF < N && allFileExist; iF++ )
+			{
+				allFileExist = f[ iF ].exists();				
+			}
+						
+			
+			if ( mustExist && !allFileExist )
+			{
+				path = null;
+				
+				Exception e = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg,	true, false );
+			}
+			else
+			{
+				path = new String[ N ];
+				
+				for( int iF = 0; iF < N; iF++ )
+				{
+					path[ iF ] = f[ iF ].getAbsolutePath();					
+				}
+			}
+		}		
+
+		return path;
 	}
 }

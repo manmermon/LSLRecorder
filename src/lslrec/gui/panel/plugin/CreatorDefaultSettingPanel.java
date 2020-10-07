@@ -1,4 +1,4 @@
-package lslrec.gui;
+package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -34,7 +34,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 
-public class CreatorEncoderSettingPanel 
+public class CreatorDefaultSettingPanel 
 {
 	public static JScrollPane getSettingPanel( List< SettingOptions > opts, ParameterList parameters )
 	{
@@ -49,25 +49,8 @@ public class CreatorEncoderSettingPanel
 			
 			scrollPane.setViewportView( panel );
 			
-			//panel.setLayout(new GridLayout(1, 2, 0, 0) );
 			panel.setLayout(new GridBagLayout() );
-			
-			/*
-			JPanel leftPanel = new JPanel();
-			leftPanel.setLayout( new BoxLayout( leftPanel, BoxLayout.Y_AXIS ));			
-			
-			JPanel rigthPanel = new JPanel();
-			rigthPanel.setLayout( new BoxLayout( rigthPanel, BoxLayout.Y_AXIS ));
-			
-			JPanel adjustLeftPanel = new JPanel( new BorderLayout() );
-			adjustLeftPanel.add( leftPanel, BorderLayout.NORTH );
-			JPanel adjustRightPanel = new JPanel( new BorderLayout() );
-			adjustRightPanel.add( rigthPanel, BorderLayout.NORTH );
-			
-			panel.add( adjustLeftPanel );
-			panel.add( adjustRightPanel );
-			*/
-	
+
 			int c = 0;
 			for( SettingOptions opt : opts )
 			{

@@ -24,10 +24,10 @@ package lslrec;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.appUI;
-import lslrec.gui.guiManager;
+import lslrec.gui.AppUI;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dialog.Dialog_Opening;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.gui.miscellany.OpeningDialog;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
@@ -114,7 +114,7 @@ public class mainLSLRecorder
 				{
 					if( args[0].equals( "-c" ) )
 					{
-						guiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
+						GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
 						
 						ConfigApp.loadConfig( new File( args[ 1 ] ) );
 						
@@ -134,8 +134,8 @@ public class mainLSLRecorder
 			}
 			finally
 			{
-				guiManager.getInstance().getAppUI().loadConfigValues();
-				guiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
+				GuiManager.getInstance().getAppUI().loadConfigValues();
+				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			}
 		}
 		catch (Throwable e2)
@@ -169,7 +169,7 @@ public class mainLSLRecorder
 	public static void createApplication() throws Throwable
 	{	
 		// Opening dialog
-		OpeningDialog open = showOpeningDialog();
+		Dialog_Opening open = showOpeningDialog();
 		
 		// 
 		// Load plugins
@@ -190,7 +190,7 @@ public class mainLSLRecorder
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
 		
-		guiManager.getInstance().LoadPluginSetting();
+		GuiManager.getInstance().LoadPluginSetting();
 		
 		open.dispose();
 		
@@ -231,16 +231,16 @@ public class mainLSLRecorder
 		}
 	}
 
-	private static OpeningDialog showOpeningDialog()
+	private static Dialog_Opening showOpeningDialog()
 	{
 		Dimension openDim = new Dimension( 500, 200 );
-		OpeningDialog openDialog = new OpeningDialog( openDim 
+		Dialog_Opening openDialog = new Dialog_Opening( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
 												, ConfigApp.shortNameApp
 												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
 		openDialog.setVisible( true );
-		openDialog.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
+		openDialog.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
 		
 		/*
 		Toolkit t = Toolkit.getDefaultToolkit();
@@ -254,12 +254,12 @@ public class mainLSLRecorder
 		return openDialog;
 	}
 	
-	private static appUI createAppGUI() throws Exception
+	private static AppUI createAppGUI() throws Exception
 	{	
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
 	
-		appUI ui = appUI.getInstance();
+		AppUI ui = AppUI.getInstance();
 		
 		Insets pad = t.getScreenInsets( ui.getGraphicsConfiguration() );
 		

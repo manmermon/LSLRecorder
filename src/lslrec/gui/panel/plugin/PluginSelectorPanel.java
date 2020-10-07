@@ -1,4 +1,4 @@
-package lslrec.plugin.lslrecPlugin.processing.setting;
+package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,12 +11,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -27,14 +28,18 @@ import javax.swing.table.TableModel;
 
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
-import lslrec.gui.guiManager;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.gui.miscellany.InfoDialog;
 import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,7 +47,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
-public class SelectDataProcessPanel extends JPanel
+public class PluginSelectorPanel extends JPanel
 {
 
 	/**
@@ -50,8 +55,9 @@ public class SelectDataProcessPanel extends JPanel
 	 */
 	private static final long serialVersionUID = -4212736396179567663L;
 	
-	private static SelectDataProcessPanel ssp = null;
-	
+	public static final int SINGLE_SELECTION = 0;
+	public static final int MULTIPLE_SELECTION = 1;
+		
 	private JPanel contentPanel;
 	private JPanel panelSelectControl;
 	private JPanel panelProcessList;
@@ -68,42 +74,58 @@ public class SelectDataProcessPanel extends JPanel
 	private JButton btnClear;
 	private JButton buttonUp;
 	private JButton buttonDown;
+	
+	private int selectionMode = MULTIPLE_SELECTION;
+	private PluginType plgType = PluginType.DATA_PROCESSING;
 		
-	public static SelectDataProcessPanel getInstance()
-	{
-		if( ssp == null )
-		{
-			ssp = new SelectDataProcessPanel();
-		}
-		
-		return ssp;
+	public PluginSelectorPanel( PluginType type, Collection< String > idPlugins )
+	{	
+		this( type, idPlugins, MULTIPLE_SELECTION );
 	}
 	
-	private SelectDataProcessPanel( )
-	{		
+	public PluginSelectorPanel( PluginType type, Collection< String > idPlugins, int selectMode )
+	{
+		this.setSelectionMode( selectMode );
+		
+		this.plgType = type;
+		
 		super.setLayout( new BorderLayout() );
 		
-		this.add( this.getContainerPanel(), BorderLayout.WEST );		
-		this.add( this.getProcessSettingPanel(), BorderLayout.CENTER );
+		this.add( this.getProcessPanel(), BorderLayout.WEST );		
+		this.add( this.getPluginSettingPanel(), BorderLayout.CENTER );
+		
+		JTable t = this.getProcessListTable();
+		
+		DefaultTableModel tm = (DefaultTableModel)t.getModel();
+		
+		for( String id : idPlugins )
+		{
+			tm.addRow( new String[] { id } );
+		}
+	}
+		
+	public void setSelectionMode( int mode )
+	{
+		this.selectionMode = mode;
 	}
 	
-	private JPanel getProcessSettingPanel()
+	private JPanel getPluginSettingPanel()
 	{
 		if( this.panelProecssSetting == null )
 		{
 			this.panelProecssSetting = new JPanel();
-			this.panelProecssSetting.setBackground( Color.red );
+			this.panelProecssSetting.setBackground( Color.red );			
 		}
 		
 		return this.panelProecssSetting;
 	}
 	
-	private JPanel getContainerPanel()
+	private JPanel getProcessPanel()
 	{
 		if( this.contentPanel == null )
 		{
 			this.contentPanel = new JPanel();
-			this.contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
+			this.contentPanel.setBorder( BorderFactory.createEtchedBorder() );
 			
 			this.contentPanel.setLayout( new GridLayout( 0, 2 ) );
 						
@@ -120,16 +142,14 @@ public class SelectDataProcessPanel extends JPanel
 		{
 			this.panelProcessList = new JPanel( new BorderLayout() );
 			
-			JPanel panel = new JPanel( new BorderLayout() );
-			panel.add( this.gettableProcessList() , BorderLayout.CENTER );
+			JPanel aux = new JPanel( new BorderLayout() );			
+			aux.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.PROCESS_TEXT ) ) );
+			aux.setBackground( Color.WHITE );
+			aux.add( this.getProcessListTable(), BorderLayout.CENTER );
 			
-			JScrollPane scroll = new JScrollPane( panel );
-			scroll.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.PROCESS_TEXT ) ) );
-			scroll.setBackground( Color.WHITE );
+			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.PROCESS_TEXT, aux.getBorder() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.PROCESS_TEXT, scroll.getBorder() );
-			
-			this.panelProcessList.add( scroll, BorderLayout.CENTER );
+			this.panelProcessList.add( new JScrollPane( aux, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ), BorderLayout.CENTER );
 			this.panelProcessList.add( this.getPanelControl(), BorderLayout.EAST );
 		}
 		
@@ -142,8 +162,12 @@ public class SelectDataProcessPanel extends JPanel
 		{
 			this.panelSelectControl = new JPanel( new BorderLayout() );
 			
-			this.panelSelectControl.add( new JScrollPane( this.getSelectedSongs() ), BorderLayout.CENTER );
-			this.panelSelectControl.add( this.getJPanelUpDownCtrl(), BorderLayout.EAST );
+			this.panelSelectControl.add( new JScrollPane( this.getSelectedProcessPanel() ), BorderLayout.CENTER );
+			
+			if( this.selectionMode != SINGLE_SELECTION )
+			{
+				this.panelSelectControl.add( this.getJPanelUpDownCtrl(), BorderLayout.EAST );
+			}
 		}
 		
 		return this.panelSelectControl;
@@ -251,7 +275,7 @@ public class SelectDataProcessPanel extends JPanel
 		return this.buttonDown;
 	}
 	
-	private JPanel getSelectedSongs()
+	private JPanel getSelectedProcessPanel()
 	{
 		if( this.panelSelectedProcesses == null )
 		{
@@ -264,7 +288,7 @@ public class SelectDataProcessPanel extends JPanel
 											, this.panelSelectedProcesses.getBorder() );
 
 			
-			this.panelSelectedProcesses.add( this.getSelectedProcessTable(), BorderLayout.CENTER );
+			this.panelSelectedProcesses.add( this.getSelectedProcessTable(), BorderLayout.CENTER );			
 		}
 		
 		return this.panelSelectedProcesses;
@@ -352,22 +376,29 @@ public class SelectDataProcessPanel extends JPanel
 		return tm;
 	}
 
-	private JTable gettableProcessList()
+	private JTable getProcessListTable()
 	{
 		if( this.tableProcessList == null )
 		{	
 			this.tableProcessList = this.getCreateJTable();
 			this.tableProcessList.setModel( this.createTablemodel() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.PROCESS_TEXT, this.tableProcessList.getTableHeader() 
-					);						
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.PROCESS_TEXT, this.tableProcessList.getTableHeader() );
+			
 			this.tableProcessList.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
+			
+			if( this.selectionMode == SINGLE_SELECTION )
+			{
+				this.tableProcessList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+			}
 			
 			this.tableProcessList.setPreferredScrollableViewportSize( this.tableProcessList.getPreferredSize() );
 			this.tableProcessList.setFillsViewportHeight( true );
 			
-			this.addSelectionListenerTable( this.tableProcessList );
-			
+			for( int i = 0; i < 25; i++ )
+			{
+				((DefaultTableModel)this.tableProcessList.getModel()).addRow( new String[] { 'A' + i + "" } );
+			}
 		}
 		
 		return this.tableProcessList;
@@ -399,39 +430,56 @@ public class SelectDataProcessPanel extends JPanel
 					// TODO
 					if( sel < 0 )
 					{
-						getProcessSettingPanel().removeAll();
+						getPluginSettingPanel().removeAll();
 					}
 					else
 					{
-						String idProcess = tableSelectedProcessList.getValueAt( sel, 0 ).toString();
+						String id = tableSelectedProcessList.getValueAt( sel, 0 ).toString();
 						
-						ILSLRecPluginDataProcessing pl = (ILSLRecPluginDataProcessing)PluginLoader.getPlugin( ILSLRecPluginDataProcessing.class, idProcess );
-						
-						JPanel p = getProcessSettingPanel();
-						p.removeAll();
-						
-						if( pl != null )
-						{
-							p.add( pl.getSettingPanel(), BorderLayout.CENTER );
-						}
+						loadPluginSettingPanel( id, sel );						
 					}
 				}
 			});
 			
-			this.tableSelectedProcessList.getModel().addTableModelListener( new TableModelListener()
+			
+			this.tableSelectedProcessList.getModel().addTableModelListener( new TableModelListener() 
 			{	
 				@Override
-				public void tableChanged(TableModelEvent arg0)
+				public void tableChanged( TableModelEvent arg0 )
 				{
-					DefaultTableModel tm = (DefaultTableModel)arg0.getSource();
-					
-								
+					if( selectionMode == SINGLE_SELECTION && arg0.getType() == TableModelEvent.INSERT )
+					{
+						DefaultTableModel tm = (DefaultTableModel)arg0.getSource();
+						
+						for( int i = tm.getRowCount() - 2; i >= 0; i-- )
+						{
+							tm.removeRow( i );
+						}
+						
+						tableSelectedProcessList.setRowSelectionInterval( 0, 0 );
+					}
 				}
 			});
 			
 		}
 		
 		return this.tableSelectedProcessList;
+	}
+	
+	private int getSelectedProcessIndex( int selectIndex, String idProcess )
+	{
+		int index = -1;
+		for( int r = 0; r <= selectIndex; r++ )
+		{
+			String id = tableSelectedProcessList.getValueAt( r, 0 ).toString();
+			
+			if( id.equals( idProcess ) )
+			{
+				index++;
+			}
+		}
+		
+		return index;
 	}
 			
 	private JPanel getPanelControl() 
@@ -486,7 +534,7 @@ public class SelectDataProcessPanel extends JPanel
 				public void actionPerformed(ActionEvent arg0)
 				{
 					JTable tSelectedSong = getSelectedProcessTable();
-					JTable tSongList = gettableProcessList();
+					JTable tSongList = getProcessListTable();
 					
 					//moveSong( tSongList, tSelectedSong, false );				
 					shiftSelectedProcess( tSongList, tSelectedSong );
@@ -527,9 +575,34 @@ public class SelectDataProcessPanel extends JPanel
 				@Override
 				public void actionPerformed(ActionEvent arg0)
 				{
-					JTable tSelectedSong = getSelectedProcessTable();
+					JTable tSelectedProcess = getSelectedProcessTable();
+					DefaultTableModel tm = (DefaultTableModel)tSelectedProcess.getModel();
+										
+					int[] index = tSelectedProcess.getSelectedRows();
+					Arrays.sort( index );
 					
-					// TODO
+					for( int i = index.length - 1; i >= 0; i-- )
+					{			
+						int r = index[ i ];
+						
+						String id = tm.getValueAt( r, 0 ).toString();
+						
+						int ind = getSelectedProcessIndex( r, id );
+						
+						tm.removeRow( r );
+								
+						try
+						{
+							PluginLoader loader = PluginLoader.getInstance();
+
+							loader.removePluginInstance( plgType, id, ind );
+						}
+						catch( Exception ex )
+						{
+							ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+							ExceptionDialog.showMessageDialog( msg, true, true );
+						}					
+					}
 				}
 			});
 		}
@@ -567,6 +640,12 @@ public class SelectDataProcessPanel extends JPanel
 					JTable tsel = getSelectedProcessTable();
 					
 					// TODO
+					
+					for( int i = tsel.getRowCount() - 1; i >= 0; i-- )
+					{						
+						// TODO						
+						((DefaultTableModel)tsel.getModel()).removeRow( i );						
+					}
 				}
 			});
 		}
@@ -594,7 +673,7 @@ public class SelectDataProcessPanel extends JPanel
 				} 
 				catch (Exception e) 
 				{
-					InfoDialog d = new InfoDialog( guiManager.getInstance().getAppUI(), e.getMessage() + "\n" + e.getCause(), true );
+					Dialog_Info d = new Dialog_Info( GuiManager.getInstance().getAppUI(), e.getMessage() + "\n" + e.getCause(), true );
 					Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
 					size.width /= 2;
 					size.height /= 2;
@@ -604,12 +683,11 @@ public class SelectDataProcessPanel extends JPanel
 			}
 		}
 	}
-	
-	
+		
 	private void moveProcess( JTable source, int shift )
 	{
 		DefaultTableModel tmSource = (DefaultTableModel)source.getModel();
-		
+				
 		int dir = 1;
 		if( shift < 0 )
 		{
@@ -665,22 +743,41 @@ public class SelectDataProcessPanel extends JPanel
 				{
 					int index = selIndex[ i ];
 					int row = index + dir;
-						
-					String song = source.getValueAt( index, 0 ).toString();
 					
-					if( row >= 0 && row < source.getRowCount() )
-					{				
-						tmSource.removeRow( index );
-						tmSource.insertRow( row, new String[] { song } );
-					}
+					tmSource.moveRow( index, index, row );
 					
 					if( i == 0 )
 					{
-						source.clearSelection();
-						source.addRowSelectionInterval( row, row );
+						source.setRowSelectionInterval( row, row );
 					}
-				}
+				}				
 			}
 		}
+	}
+
+	private void loadPluginSettingPanel( String idPlugin, int selectedTableIndex )
+	{
+		int plgIndex = this.getSelectedProcessIndex( selectedTableIndex, idPlugin );
+		
+		PluginLoader loader;
+		try 
+		{
+			loader = PluginLoader.getInstance();
+			
+			List< ILSLRecPlugin > plgs = loader.getAllPlugins( plgType, idPlugin );
+			
+			ILSLRecConfigurablePlugin plg = (ILSLRecConfigurablePlugin)plgs.get( plgIndex );
+			
+			JPanel p = this.getPluginSettingPanel();
+			p.removeAll();
+			
+			p.add( plg.getSettingPanel(), BorderLayout.CENTER );
+		}
+		catch (Exception e) 
+		{
+			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+			
+			ExceptionDialog.showMessageDialog( msg, true, true );
+		}	
 	}
 }

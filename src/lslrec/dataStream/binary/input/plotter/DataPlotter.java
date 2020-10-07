@@ -30,16 +30,16 @@ import java.util.List;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.gui.dataPlot.CanvasLSLDataPlot;
+import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 
 public class DataPlotter extends LSLInStreamDataReceiverTemplate
 {
-	private CanvasLSLDataPlot plot;
+	private CanvasStreamDataPlot plot;
 	private int nByteData;
 	private int minDataLengthToDraw = 1;
 	private final List< List< Double > > dataBuffer = new ArrayList< List< Double > >();
 	
-	public DataPlotter( CanvasLSLDataPlot Plot, DataStreamSetting lslCfg ) throws Exception
+	public DataPlotter( CanvasStreamDataPlot Plot, DataStreamSetting lslCfg ) throws Exception
 	{
 		super( lslCfg );
 

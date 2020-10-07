@@ -29,6 +29,7 @@ lslrec
 										.Encoder.java
 										.IOuputDataFileWrite.java										
 										.OuputFileFormatParameters.java
+										
 										.parallelize.*
 				.setting
 						.*	
@@ -45,23 +46,7 @@ lslrec
 				.*.java
 				
 	.plugin
-			.loader.*
-			
-			.lslrecPlugin
-				
-				.compressor.*
-				
-				.encoder.*
-				
-				.processing
-					.ILSLRecPluginDataProcessing.java
-					.LSLRecPluginDataProcessing.java
-				
-				.sync.*
-				
-				.trial.*
-				
-				.*.java
+		.lslrecPluging.*
 													
 	.stoppableThread
 					.*.java

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lslrec.plugin.lslrecPlugin.processing.setting;
+package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -9,6 +9,8 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 
 /**
  * @author Manuel Merino Monge
@@ -45,7 +47,7 @@ public class SelectProcessTest extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		
-		contentPane.add( SelectDataProcessPanel.getInstance() );
+		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, PluginSelectorPanel.SINGLE_SELECTION ) );
 	}
 
 }

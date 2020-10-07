@@ -86,7 +86,7 @@ public class testRunLSLRec
 				{
 					if( args[0].equals( "-c" ) )
 					{
-						guiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
+						GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
 						
 						ConfigApp.loadConfig( new File( args[ 1 ] ) );
 						
@@ -106,8 +106,8 @@ public class testRunLSLRec
 			}
 			finally
 			{
-				guiManager.getInstance().getAppUI().loadConfigValues();
-				guiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
+				GuiManager.getInstance().getAppUI().loadConfigValues();
+				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			}
                         
                         ConfigApp.setTesting( true );
@@ -159,16 +159,16 @@ public class testRunLSLRec
 		}
 	}
 
-	private static appUI createAppGUI() throws Exception
+	private static AppUI createAppGUI() throws Exception
 	{	
 		Dimension openDim = new Dimension( 500, 200 );
-		OpeningDialog open = new OpeningDialog( openDim 
+		Dialog_Opening open = new Dialog_Opening( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
 												, ConfigApp.shortNameApp
 												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
 		open.setVisible( true );
-		open.setDefaultCloseOperation( OpeningDialog.DISPOSE_ON_CLOSE );
+		open.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
 		
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
@@ -178,7 +178,7 @@ public class testRunLSLRec
 		open.setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
 		
 	
-		appUI ui = appUI.getInstance();
+		AppUI ui = AppUI.getInstance();
 		
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
 		ui.setTitle(  ConfigApp.fullNameApp );

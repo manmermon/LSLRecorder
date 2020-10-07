@@ -1,4 +1,4 @@
-package lslrec.plugin.lslrecPlugin.processing.executor;
+package lslrec.dataStream.binary.input.writer.plugin;
 
 import java.util.ArrayList;
 import java.util.List;

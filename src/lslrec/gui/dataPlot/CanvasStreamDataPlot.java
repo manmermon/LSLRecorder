@@ -73,12 +73,12 @@ import org.jfree.data.xy.DefaultXYDataset;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.language.Language;
 import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.gui.miscellany.InfoDialog;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.config.ConfigApp;
 
-public class CanvasLSLDataPlot extends JPanel
+public class CanvasStreamDataPlot extends JPanel
 {
 	private static final long serialVersionUID = 9117600627145108594L;
 		
@@ -126,7 +126,7 @@ public class CanvasLSLDataPlot extends JPanel
 	/**
 	 * Create the dialog.
 	 */
-	public CanvasLSLDataPlot(int dataLength)
+	public CanvasStreamDataPlot(int dataLength)
 	{
 		super.setName( this.getClass().getName() );
 
@@ -427,7 +427,7 @@ public class CanvasLSLDataPlot extends JPanel
 					JButton b = (JButton)e.getSource();
 					Window setTask = (Window) SwingUtilities.getWindowAncestor( b );
 										
-					InfoDialog w = new InfoDialog( setTask, getFilterTextInfo() );
+					Dialog_Info w = new Dialog_Info( setTask, getFilterTextInfo() );
 					
 					w.setSize( 300, 200 );
 					//Dimension size = w.getSize();

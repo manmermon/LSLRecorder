@@ -45,9 +45,9 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.controls.messages.EventType;
-import lslrec.gui.PasswordDialog;
-import lslrec.gui.guiManager;
-import lslrec.gui.dataPlot.CanvasLSLDataPlot;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dataPlot.CanvasStreamDataPlot;
+import lslrec.gui.dialog.Dialog_Password;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.sockets.info.SocketSetting;
@@ -99,7 +99,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 	private static CoreControl core = null;
 
-	private guiManager managerGUI;
+	private GuiManager managerGUI;
 
 	private WarningMessage warnMsg = null;
 
@@ -157,7 +157,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private void createControlUnits() throws Exception
 	{
-		this.managerGUI = guiManager.getInstance(); // GUI manager
+		this.managerGUI = GuiManager.getInstance(); // GUI manager
 
 		// socket handler
 		this.ctrSocket = SocketHandler.getInstance();
@@ -291,7 +291,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				if( inletInfo.channel_format() != LSLUtils.string )
 				{	
-					CanvasLSLDataPlot LSLCanvaPlot = new CanvasLSLDataPlot( queueLength ); 
+					CanvasStreamDataPlot LSLCanvaPlot = new CanvasStreamDataPlot( queueLength ); 
 					
 					LSLCanvaPlot.clearData();
 					LSLCanvaPlot.clearFilters();
@@ -606,7 +606,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
 		{
-			PasswordDialog pass = new PasswordDialog( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+			Dialog_Password pass = new Dialog_Password( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
 			
 			/*
 			Dimension d = this.managerGUI.getAppUI().getSize();
@@ -623,13 +623,13 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
 			pass.setVisible( true );
 			
-			while( pass.getState() == PasswordDialog.PASSWORD_INCORRECT )
+			while( pass.getState() == Dialog_Password.PASSWORD_INCORRECT )
 			{
 				pass.setMessage( pass.getPasswordError()  + " " + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");
 				pass.setVisible( true );
 			}
 			
-			if( pass.getState() != PasswordDialog.PASSWORD_OK )
+			if( pass.getState() != Dialog_Password.PASSWORD_OK )
 			{
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
 										, WarningMessage.ERROR_MESSAGE );
