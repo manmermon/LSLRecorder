@@ -27,7 +27,8 @@ public class SyncMarker implements Comparable< SyncMarker >
 	public static final int MARK_TIME_TYPE = LSLUtils.double64;
 	
 	public static final int NON_MARK = 0;
-	
+	public static final int START_MARK = 1;
+	public static final int STOP_MARK = 2;
 	
 	private int markValue = NON_MARK;
 	

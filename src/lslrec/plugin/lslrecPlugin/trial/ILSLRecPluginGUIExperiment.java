@@ -9,7 +9,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
  * @author Manuel Merino Monge
  *
  */
-public interface ILSLRectPluginGUIExperiment extends ILSLRecConfigurablePlugin 
+public interface ILSLRecPluginGUIExperiment extends ILSLRecConfigurablePlugin 
 {
 	public LSLRecPluginGUIExperiment getGUIExperiment();
 }

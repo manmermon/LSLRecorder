@@ -18,7 +18,7 @@ import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.ILSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
-import lslrec.plugin.lslrecPlugin.trial.ILSLRectPluginGUIExperiment;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginGUIExperiment;
 
 public class PluginLoader 
@@ -37,7 +37,7 @@ public class PluginLoader
 	{
 		PLUGIN_TYPES.put( PluginType.DATA_PROCESSING,  ILSLRecPluginDataProcessing.class );
 		PLUGIN_TYPES.put( PluginType.ENCODER,  LSLRecPluginEncoder.class );
-		PLUGIN_TYPES.put( PluginType.TRIAL,  ILSLRectPluginGUIExperiment.class );
+		PLUGIN_TYPES.put( PluginType.TRIAL,  ILSLRecPluginGUIExperiment.class );
 		PLUGIN_TYPES.put( PluginType.SYNC,  ILSLRecPluginSyncMethod.class );
 		PLUGIN_TYPES.put( PluginType.COMPRESSOR,  LSLRecPluginCompressor.class );
 		

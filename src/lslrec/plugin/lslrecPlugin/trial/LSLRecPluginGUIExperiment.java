@@ -45,7 +45,7 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 	{
 		super.preStart();
 		
-		this.syncMethod = this.getSyncMarkerMethod( this.monitor );
+		this.syncMethod = this.loadSyncMarkerMethod( this.monitor );
 		
 		if( this.syncMethod != null )
 		{
@@ -57,6 +57,9 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 	protected void cleanUp() throws Exception 
 	{
 		super.cleanUp();
+	
+		this.GUIPanel.setVisible( false );
+		this.GUIPanel = null;
 		
 		if( this.syncMethod != null )
 		{
@@ -64,7 +67,7 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 		}
 	}
 
-	protected LSLRecPluginSyncMethod getSyncMarkerMethod( ITaskMonitor monitor )
+	protected LSLRecPluginSyncMethod loadSyncMarkerMethod( ITaskMonitor monitor )
 	{
 		LSLRecPluginSyncMethod sync = new LSLRecPluginSyncMethod( )
 										{
@@ -102,6 +105,11 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 		sync.taskMonitor( monitor );
 		
 		return sync;
+	}
+	
+	protected LSLRecPluginSyncMethod getSyncMethod()
+	{
+		return this.syncMethod;
 	}
 	
 	public final JPanel getGUIExperiment()

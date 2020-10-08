@@ -5,6 +5,7 @@ package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -14,6 +15,7 @@ import javax.swing.JTabbedPane;
 import lslrec.config.language.Language;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 
 /**
@@ -93,41 +95,50 @@ public class Panel_PluginSettings extends JPanel
 				{
 					int indTab = plugingTabPanel.indexOfTab( pluginCategory );
 					
-					ILSLRecConfigurablePlugin[] plgs = loader.getPluginsByType( pluginType ).toArray( new ILSLRecConfigurablePlugin[ 0 ] );
-				
-					if( pluginType == PluginType.DATA_PROCESSING 
-							|| pluginType == PluginType.TRIAL )
+					List< ILSLRecPlugin > list = loader.getPluginsByType( pluginType );
+					if( list != null )
 					{
-						Set< String > idPlugins = new HashSet< String >();
-						
-						for( ILSLRecConfigurablePlugin pl : plgs )
+						ILSLRecConfigurablePlugin[] plgs = list.toArray( new ILSLRecConfigurablePlugin[ 0 ] );
+					
+						if( pluginType == PluginType.DATA_PROCESSING 
+								|| pluginType == PluginType.TRIAL )
 						{
-							idPlugins.add( pl.getID() );
-						}
-						
-						PluginSelectorPanel psp = new PluginSelectorPanel( pluginType, idPlugins );
-						if( pluginType == PluginType.TRIAL )
-						{
-							psp.setSelectionMode( PluginSelectorPanel.SINGLE_SELECTION );
-						}
-						
-						plugingTabPanel.addTab( pluginCategory, new JScrollPane( psp ) );
-					} 
-					else
-					{
-						for( ILSLRecConfigurablePlugin p : plgs )
-						{	
-							JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT ); 
-							if( indTab < 0 )
-							{			
-								plugingTabPanel.addTab( pluginCategory, subTab );
-							}
-							else
+							Set< String > idPlugins = new HashSet< String >();
+							
+							for( ILSLRecConfigurablePlugin pl : plgs )
 							{
-								subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+								idPlugins.add( pl.getID() );
 							}
 							
-							subTab.addTab( p.getID(), new JScrollPane( p.getSettingPanel() ) );
+							PluginSelectorPanel psp = new PluginSelectorPanel( pluginType, idPlugins );
+							if( pluginType == PluginType.TRIAL )
+							{
+								psp.setSelectionMode( PluginSelectorPanel.SINGLE_SELECTION );
+							}
+							
+							plugingTabPanel.addTab( pluginCategory, new JScrollPane( psp ) );
+						} 
+						else
+						{
+							for( ILSLRecConfigurablePlugin p : plgs )
+							{	
+								JPanel settingPanel = p.getSettingPanel();
+								
+								if( settingPanel != null )
+								{
+									JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT ); 
+									if( indTab < 0 )
+									{			
+										plugingTabPanel.addTab( pluginCategory, subTab );
+									}
+									else
+									{
+										subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+									}
+									
+									subTab.addTab( p.getID(), new JScrollPane( settingPanel ) );
+								}
+							}
 						}
 					}
 				}			

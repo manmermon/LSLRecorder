@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import lslrec.config.language.Language;
+import lslrec.dataStream.sync.SyncMarker;
 
 public class RegisterSyncMessages 
 {
@@ -222,15 +223,15 @@ public class RegisterSyncMessages
 	{
 		outputDataFileMark.clear();
 		
-		int mark = 1;
+		int mark = SyncMarker.START_MARK;
 		for( String msg : specialInputs )
 		{
 			SpecialInputMessage in = new SpecialInputMessage( mark, msg );
-			if( mark == 1 )
+			if( mark == SyncMarker.START_MARK )
 			{
 				in.setMarkLegendToken( Language.INPUT_START_LEGEND );
 			}
-			else if( mark == 2 )
+			else if( mark == SyncMarker.STOP_MARK )
 			{
 				in.setMarkLegendToken( Language.INPUT_STOP_LEGEND );
 			}

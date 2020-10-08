@@ -82,7 +82,7 @@ public class PluginSelectorPanel extends JPanel
 	{	
 		this( type, idPlugins, MULTIPLE_SELECTION );
 	}
-	
+		
 	public PluginSelectorPanel( PluginType type, Collection< String > idPlugins, int selectMode )
 	{
 		this.setSelectionMode( selectMode );
@@ -103,18 +103,38 @@ public class PluginSelectorPanel extends JPanel
 			tm.addRow( new String[] { id } );
 		}
 	}
-		
+	
 	public void setSelectionMode( int mode )
 	{
 		this.selectionMode = mode;
+	}
+	
+	public void setPluginIDs( List< String > ids )
+	{
+		if( ids != null )
+		{		
+			JTable processList = this.getProcessListTable();
+			JTable selectedList = this.getSelectedProcessTable();
+			
+			processList.addRowSelectionInterval( 0, processList.getRowCount() );
+			processList.clearSelection();
+			
+			selectedList.addRowSelectionInterval( 0, selectedList.getRowCount() );
+			selectedList.clearSelection();
+			
+			DefaultTableModel tm = (DefaultTableModel)processList.getModel();
+			for( String id : ids )
+			{
+				tm.addRow( new String[] { id } );
+			}
+		}
 	}
 	
 	private JPanel getPluginSettingPanel()
 	{
 		if( this.panelProecssSetting == null )
 		{
-			this.panelProecssSetting = new JPanel();
-			this.panelProecssSetting.setBackground( Color.red );			
+			this.panelProecssSetting = new JPanel( new BorderLayout());	
 		}
 		
 		return this.panelProecssSetting;
@@ -395,10 +415,7 @@ public class PluginSelectorPanel extends JPanel
 			this.tableProcessList.setPreferredScrollableViewportSize( this.tableProcessList.getPreferredSize() );
 			this.tableProcessList.setFillsViewportHeight( true );
 			
-			for( int i = 0; i < 25; i++ )
-			{
-				((DefaultTableModel)this.tableProcessList.getModel()).addRow( new String[] { 'A' + i + "" } );
-			}
+			
 		}
 		
 		return this.tableProcessList;
@@ -434,9 +451,12 @@ public class PluginSelectorPanel extends JPanel
 					}
 					else
 					{
-						String id = tableSelectedProcessList.getValueAt( sel, 0 ).toString();
-						
-						loadPluginSettingPanel( id, sel );						
+						if( sel < tableProcessList.getRowCount() )
+						{
+							String id = tableSelectedProcessList.getValueAt( sel, 0 ).toString();
+							
+							loadPluginSettingPanel( id, sel );						
+						}
 					}
 				}
 			});
@@ -451,9 +471,12 @@ public class PluginSelectorPanel extends JPanel
 					{
 						DefaultTableModel tm = (DefaultTableModel)arg0.getSource();
 						
-						for( int i = tm.getRowCount() - 2; i >= 0; i-- )
+						if( tm.getRowCount() > 2 )
 						{
-							tm.removeRow( i );
+							for( int i = tm.getRowCount() - 2; i >= 0; i-- )
+							{
+								tm.removeRow( i );
+							}
 						}
 						
 						tableSelectedProcessList.setRowSelectionInterval( 0, 0 );
@@ -533,11 +556,11 @@ public class PluginSelectorPanel extends JPanel
 				@Override
 				public void actionPerformed(ActionEvent arg0)
 				{
-					JTable tSelectedSong = getSelectedProcessTable();
-					JTable tSongList = getProcessListTable();
+					JTable tSelectedProcess = getSelectedProcessTable();
+					JTable tProcessList = getProcessListTable();
 					
 					//moveSong( tSongList, tSelectedSong, false );				
-					shiftSelectedProcess( tSongList, tSelectedSong );
+					shiftSelectedProcess( tProcessList, tSelectedProcess );
 				}
 			});
 		}
@@ -665,11 +688,11 @@ public class PluginSelectorPanel extends JPanel
 			{
 				int index = selIndex[ i ];
 				
-				String song = source.getValueAt( index, 0 ).toString();
+				String process = source.getValueAt( index, 0 ).toString();
 			
 				try 
 				{	
-					tmDest.addRow( new String[] { song } );
+					tmDest.addRow( new String[] { process } );
 				} 
 				catch (Exception e) 
 				{
@@ -769,9 +792,14 @@ public class PluginSelectorPanel extends JPanel
 			ILSLRecConfigurablePlugin plg = (ILSLRecConfigurablePlugin)plgs.get( plgIndex );
 			
 			JPanel p = this.getPluginSettingPanel();
+			p.setVisible( false );
 			p.removeAll();
 			
-			p.add( plg.getSettingPanel(), BorderLayout.CENTER );
+			JPanel p2 = plg.getSettingPanel();
+			
+			p.add( p2, BorderLayout.CENTER );
+			
+			p.setVisible( true );			
 		}
 		catch (Exception e) 
 		{

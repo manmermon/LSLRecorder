@@ -44,23 +44,29 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 		this.notifier.startThread();
 	}
 	
+	/*
 	@Override
 	public final void start() 
 	{
 		super.start();
 	}
+	*/
 	
+	/*
 	@Override
 	public final synchronized void startThread() throws Exception 
 	{
 		super.startThread();
 	}
+	*/
 	
+	/*
 	@Override
 	public final synchronized void run() 
 	{
 		super.run();
 	}
+	*/
 	
 	@Override
 	protected final void runInLoop() throws Exception
