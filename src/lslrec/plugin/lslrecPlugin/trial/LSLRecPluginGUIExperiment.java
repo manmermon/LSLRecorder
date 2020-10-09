@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import com.sun.jna.platform.win32.COM.TypeLibUtil.IsName;
+
 import lslrec.auxiliar.tasks.IMonitoredTask;
 import lslrec.auxiliar.tasks.ITaskIdentity;
 import lslrec.auxiliar.tasks.ITaskMonitor;
@@ -54,11 +56,20 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 	}
 	
 	@Override
+	protected void runExceptionManager(Throwable e) 
+	{
+		if( !( e instanceof InterruptedException ) )
+		{
+			super.runExceptionManager( e );
+		}
+	}
+	
+	@Override
 	protected void cleanUp() throws Exception 
 	{
 		super.cleanUp();
 	
-		this.GUIPanel.setVisible( false );
+		this.GUIPanel.setVisible( false );		
 		this.GUIPanel = null;
 		
 		if( this.syncMethod != null )
@@ -129,10 +140,13 @@ public abstract class LSLRecPluginGUIExperiment extends AbstractStoppableThread
 				this.syncMethod.notify();
 			}			
 		}
-		
+			
 		synchronized ( this )
 		{
-			super.wait();
+			if( !this.stopThread )
+			{
+				super.wait();
+			}
 		}
 	}
 	

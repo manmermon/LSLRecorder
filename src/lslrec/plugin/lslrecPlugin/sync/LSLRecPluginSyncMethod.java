@@ -44,29 +44,23 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 		this.notifier.startThread();
 	}
 	
-	/*
 	@Override
 	public final void start() 
 	{
 		super.start();
 	}
-	*/
-	
-	/*
+	 
 	@Override
 	public final synchronized void startThread() throws Exception 
 	{
 		super.startThread();
 	}
-	*/
 	
-	/*
 	@Override
 	public final synchronized void run() 
 	{
 		super.run();
 	}
-	*/
 	
 	@Override
 	protected final void runInLoop() throws Exception
@@ -81,7 +75,19 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 		if( this.notifier != null && marker != null )
 		{
 			this.notifier.addEvent( new EventInfo( this.getID(), EventType.INPUT_MARK_READY, marker ) );
-			this.notifier.notify();
+			synchronized ( this.notifier )
+			{
+				this.notifier.notify();
+			}			
+		}
+	}
+	
+	@Override
+	protected void runExceptionManager(Throwable e) 
+	{
+		if( !( e instanceof InterruptedException ) )
+		{
+			super.runExceptionManager( e );
 		}
 	}
 	
