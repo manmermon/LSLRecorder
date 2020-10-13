@@ -2083,7 +2083,7 @@ public class Panel_StreamingSettings extends JPanel
 							});
 						}
 						
-						JScrollPane scr = CreatorDefaultSettingPanel.getSettingPanel( opts, pars );
+						JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, pars ) );
 
 						main.add( scr, BorderLayout.CENTER );
 

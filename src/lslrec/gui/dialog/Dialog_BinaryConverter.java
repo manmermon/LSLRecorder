@@ -818,7 +818,7 @@ public class Dialog_BinaryConverter extends JDialog
 						}
 						
 						
-						JScrollPane scr = CreatorDefaultSettingPanel.getSettingPanel( opts, outFormat.getAllParameters() );
+						JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, outFormat.getAllParameters() ) );
 
 						main.add( scr, BorderLayout.CENTER );
 						

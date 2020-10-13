@@ -5,6 +5,9 @@ package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -44,10 +47,15 @@ public class SelectProcessTest extends JFrame {
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		contentPane.setLayout(new BorderLayout(0, 0));
+		contentPane.setLayout(new GridLayout( 2, 1));
 		setContentPane(contentPane);
 		
-		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, PluginSelectorPanel.SINGLE_SELECTION ) );
+		List< String > ids = new ArrayList< String >();
+		for( int i =0; i < 50; i++)
+			ids.add( "test " + i);
+		
+		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, new ArrayList<String>( ids ), PluginSelectorPanel.SINGLE_SELECTION ), BorderLayout.NORTH );
+		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, ids, PluginSelectorPanel.MULTIPLE_SELECTION ), BorderLayout.SOUTH );
 	}
 
 }

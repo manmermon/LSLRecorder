@@ -15,7 +15,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -36,19 +35,15 @@ import lslrec.exceptions.handler.ExceptionMessage;
 
 public class CreatorDefaultSettingPanel 
 {
-	public static JScrollPane getSettingPanel( List< SettingOptions > opts, ParameterList parameters )
+	public static JPanel getSettingPanel( List< SettingOptions > opts, ParameterList parameters )
 	{
-		JScrollPane scrollPane = null;
+		JPanel panel = null;
 			
 		if( opts != null && !opts.isEmpty() )
 		{
 			int cols = 2;
-			
-			scrollPane = new JScrollPane();
-			JPanel panel = new JPanel();			
-			
-			scrollPane.setViewportView( panel );
-			
+			panel = new JPanel();			
+						
 			panel.setLayout(new GridBagLayout() );
 
 			int c = 0;
@@ -81,7 +76,7 @@ public class CreatorDefaultSettingPanel
 			}
 		}
 		
-		return scrollPane;
+		return panel;
 	}
 
 	private static Component getSettingPanel( SettingOptions opt, Parameter par )

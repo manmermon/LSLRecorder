@@ -110,12 +110,15 @@ public class Panel_PluginSettings extends JPanel
 								idPlugins.add( pl.getID() );
 							}
 							
-							PluginSelectorPanel psp = new PluginSelectorPanel( pluginType, idPlugins );
+							int selMode = PluginSelectorPanel.MULTIPLE_SELECTION;
 							if( pluginType == PluginType.TRIAL )
 							{
-								psp.setSelectionMode( PluginSelectorPanel.SINGLE_SELECTION );
+								selMode = PluginSelectorPanel.SINGLE_SELECTION;
+								
 							}
 							
+							PluginSelectorPanel psp = new PluginSelectorPanel( pluginType, idPlugins, selMode );
+														
 							plugingTabPanel.addTab( pluginCategory, new JScrollPane( psp ) );
 						} 
 						else

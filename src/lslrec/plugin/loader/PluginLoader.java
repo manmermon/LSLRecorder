@@ -193,20 +193,24 @@ public class PluginLoader
     	
     	List< ILSLRecPlugin > plgs = this.getPluginsByType( plgClss );
     	
-    	for( ILSLRecPlugin p : plgs )
+    	if( plgs != null )
     	{
-    		if( p.getID().equals( id ) )
-    		{
-    			plg.add( p );
-    		}
+	    	for( ILSLRecPlugin p : plgs )
+	    	{
+	    		if( p.getID().equals( id ) )
+	    		{
+	    			plg.add( p );
+	    		}
+	    	}
     	}
     	
     	return plg;
     }
     
-    public int addNewPluginInstance( PluginType plgType, String id )
+    public ILSLRecPlugin addNewPluginInstance( PluginType plgType, String id )
     {    		
-    	int index = -1;
+    	ILSLRecPlugin pl = null;
+    	
     	List< ILSLRecPlugin > plgs = this.getAllPlugins( plgType, id );
     	if( !plgs.isEmpty() )
     	{
@@ -214,29 +218,47 @@ public class PluginLoader
     		
     		try 
     		{
-				Class p = Class.forName( plg.getClass().getCanonicalName() );
+    			String idPl = plg.getClass().getCanonicalName();
+    			
+				Class p = Class.forName( idPl );
 				
-				ILSLRecPlugin pl = (ILSLRecPlugin)p.cast( p );
+				pl= (ILSLRecPlugin)p.newInstance();				
 				this._Plugins.putElement( plgType, pl );
-				index = this._Plugins.size() - 1;
 			} 
-    		catch (ClassNotFoundException e) 
+    		catch ( Exception e) 
     		{
     			e.printStackTrace();
 			}
     	}
     	
-    	return index;
+    	return pl;
     }
     
     public ILSLRecPlugin removePluginInstance( PluginType plgCl, String id, int index )
     {
     	ILSLRecPlugin pl = null;
     	
-    	List< ILSLRecPlugin > plgs = this.getAllPlugins( plgCl, id );
-    	if( index >= 0 && index < plgs.size() )
+    	List< ILSLRecPlugin > plgs = this._Plugins.get( plgCl );
+    	
+    	if( plgs != null )
     	{
-    		pl = plgs.remove( index );
+	    	for( int i = 0; i < plgs.size(); i++ )
+	    	{	    		
+	    		ILSLRecPlugin p = plgs.get( i );
+	    		if( p.getID().equals( id ) )
+	    		{
+	    			if( index == 0 )
+	    			{
+	    				pl = plgs.remove( i );
+	    				
+	    				break;
+	    			}
+	    			else
+	    			{
+	    				index--;
+	    			}
+	    		}
+	    	}
     	}
     	
     	return pl;
