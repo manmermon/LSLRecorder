@@ -4,13 +4,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -26,39 +32,42 @@ import javax.swing.table.TableModel;
 
 import org.jfree.ui.tabbedui.VerticalLayout;
 
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_Info;
+import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
+import lslrec.plugin.register.PluginRegistrar;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
-public class PluginSelectorPanel extends JPanel
+public class DataProcessingPluginSelectorPanel extends JPanel
 {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4212736396179567663L;
-	
-	public static final int SINGLE_SELECTION = 0;
-	public static final int MULTIPLE_SELECTION = 1;
-		
+			
 	private JPanel contentPanel;
 	private JPanel panelUpDownControl;
 	private JPanel panelMoveCtr;
@@ -73,15 +82,10 @@ public class PluginSelectorPanel extends JPanel
 	private JButton buttonUp;
 	private JButton buttonDown;
 	
-	private int selectionMode = MULTIPLE_SELECTION;
-	private PluginType plgType = PluginType.DATA_PROCESSING;
+	private final PluginType plgType = PluginType.DATA_PROCESSING;
 	
-	public PluginSelectorPanel( PluginType type, Collection< String > idPlugins, int selectMode )
-	{
-		this.selectionMode = selectMode;
-		
-		this.plgType = type;
-		
+	public DataProcessingPluginSelectorPanel( Collection< String > idPlugins )
+	{		
 		super.setLayout( new BorderLayout() );
 		
 		this.add( this.getPluginPanel(), BorderLayout.WEST );		
@@ -125,10 +129,203 @@ public class PluginSelectorPanel extends JPanel
 	{
 		if( this.panelPluginSetting == null )
 		{
-			this.panelPluginSetting = new JPanel( new BorderLayout());	
+			this.panelPluginSetting = new JPanel( new BorderLayout() );	
 		}
 		
 		return this.panelPluginSetting;
+	}
+	
+	private JPanel getStreamPanel( String pluginID, int numInstance )
+	{
+		JPanel panel = new JPanel( new BorderLayout( 0, 0 ) );
+		
+		JPanel p = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+				
+		JButton addbt = new JButton( );
+		Icon ic = GeneralAppIcon.Add( 32, Color.BLACK );
+				
+		//
+		// Load selected streams
+		//
+		
+		List< DataStreamSetting > streams = new ArrayList< DataStreamSetting >( ( HashSet< DataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
+		
+		List< DataStreamSetting > selectedStreams = new ArrayList< DataStreamSetting >();
+		List< String > removeKeys = new ArrayList<String>();
+		for( String key : PluginRegistrar.getRegisterKey() )
+		{			
+			boolean del = true;
+			
+			searchStream:
+			for( DataStreamSetting str : streams )
+			{
+				if( ( str.getStreamName() + str.getUID() ).equals( key ) )
+				{
+					del = false;
+					
+					List< String > idPlugins = PluginRegistrar.getPlugins( key ).get( PluginType.DATA_PROCESSING );
+					
+					if( idPlugins != null )
+					{
+						searchPlugin:
+						for( String id : idPlugins )
+						{
+							if( id.equals( pluginID ) )
+							{
+								if( numInstance == 0 )
+								{
+									selectedStreams.add( str );
+									
+									break searchPlugin;
+								}
+								
+								numInstance--;
+							}
+						}
+					}
+					
+					break searchStream;
+				}
+			}			
+			
+			if( del )
+			{
+				removeKeys.add( key );
+			}
+		}
+		
+		for( String key : removeKeys )
+		{
+			PluginRegistrar.removePlugins( key );
+		}
+		
+		this.addStream( p, selectedStreams, pluginID );
+		
+		
+		//
+		// Button Add
+		//
+		
+		addbt.setIcon( ic );
+		if( ic == null )
+		{
+			addbt.setText( "+" );
+		}
+		
+		addbt.addActionListener( new ActionListener() 
+		{	
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				List< String > opts = new ArrayList< String >();
+				for( DataStreamSetting str : streams )
+				{
+					opts.add( str.getStreamName() + " (" + str.getUID() + ")" );
+				}
+
+				Dialog_OptionList dial = new Dialog_OptionList();
+
+				dial.setOptions( opts );
+
+				dial.setLocationRelativeTo( (Component)e.getSource() );
+
+				Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
+
+				dial.setSize( d.width / 3, d.height / 3 );
+
+				dial.setModal( true );
+
+				dial.setVisible( true );
+
+				int[] selIndexes = dial.getSelectedIndex();
+
+				List< DataStreamSetting > selStreams = new ArrayList< DataStreamSetting >();
+				for( int index : selIndexes )
+				{
+					selStreams.add( streams.get( index ) );
+				}
+
+				addStream( p, selStreams, pluginID );
+			}
+		});
+				
+		
+		panel.add( addbt, BorderLayout.WEST );
+		JScrollPane sp = new JScrollPane( p, JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+		sp.setPreferredSize( panel.getPreferredSize() );
+		sp.getHorizontalScrollBar().setPreferredSize( new Dimension( 0, 5 ) );
+		panel.add( sp, BorderLayout.CENTER );
+		
+		JPanel strPanel = new JPanel( new BorderLayout( 0, 0 ) );
+		strPanel.add( panel, BorderLayout.NORTH );
+		
+		return strPanel;
+	}
+	
+	private void addStream( JPanel panel, List< DataStreamSetting > streams, String plgId )
+	{
+		if( panel != null && streams != null && plgId != null )
+		{
+			panel.setVisible( false );
+			
+			for( DataStreamSetting str : streams )
+			{
+				final String id = str.getStreamName() + str.getUID();
+				
+				
+				
+								
+				JLabel lb = new JLabel( str.getStreamName() );
+				lb.setToolTipText( str.getStreamName() + " (" + str.getUID() + ")" );
+				JButton b = new JButton( );
+				b.setBorder( BorderFactory.createEmptyBorder() );
+				b.setIcon( GeneralAppIcon.Close( 10, Color.RED  ) );
+				
+				Font f = b.getFont();
+				b.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+				
+				Dimension d = b.getPreferredSize();
+				d.height = lb.getPreferredSize().height;
+				b.setPreferredSize( d );
+				
+				JPanel p = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+				p.setBorder( BorderFactory.createEtchedBorder() );
+				p.getInsets( new Insets( 0, 0, 0, 0 ) );
+				
+				/*
+				FontMetrics fm = lb.getFontMetrics( lb.getFont() ); 
+				d = new Dimension( );
+				d.height = lb.getPreferredSize().height;
+				d.width = fm.stringWidth( lb.getText() ) * 2;
+				p.setPreferredSize( d );
+				*/
+				
+				final int numInstance = PluginRegistrar.addPluginInstance( id , PluginType.DATA_PROCESSING, plgId );
+				
+				b.addActionListener( new ActionListener() 
+				{	
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						PluginRegistrar.removePlugin( id, PluginType.DATA_PROCESSING, plgId, numInstance);
+						
+						panel.setVisible( false );
+						
+						panel.remove( p );
+						
+						panel.setVisible( true );
+					}
+				});
+				
+
+				p.add( lb );
+				p.add( b );
+				
+				panel.add( p );
+			}
+			
+			panel.setVisible( true );
+		}
 	}
 	
 	private JPanel getPluginPanel()
@@ -147,19 +344,16 @@ public class PluginSelectorPanel extends JPanel
 			// Adding			
 			JTable tab = this.getProcessListTable();
 			aux.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
-									
-			if( this.selectionMode != SINGLE_SELECTION )
-			{	
-				tab = this.getSelectedProcessTable();
 				
-				aux.add( this.getSelectionControlPanel( this.getProcessListTable(), tab ) );
-								
-				aux.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
-				
-				aux.add( this.getJPanelUpDownCtrl( tab ), BorderLayout.EAST );
-				
-				this.setPluginTableSelectionEvents( this.getSelectedProcessTable() );
-			}
+			tab = this.getSelectedProcessTable();
+
+			aux.add( this.getSelectionControlPanel( this.getProcessListTable(), tab ) );
+
+			aux.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
+
+			aux.add( this.getJPanelUpDownCtrl( tab ), BorderLayout.EAST );
+
+			this.setPluginTableSelectionEvents( this.getSelectedProcessTable() );
 			
 			this.setPluginTableSelectionEvents( tab );
 		}
@@ -254,16 +448,11 @@ public class PluginSelectorPanel extends JPanel
 		if( this.tablePluginList == null )
 		{	
 			this.tablePluginList = this.getCreateJTable();
-			this.tablePluginList.setModel( this.createTablemodel( Language.PROCESS_TEXT ) );
+			this.tablePluginList.setModel( this.createTablemodel( Language.SETTING_PLUGIN ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.PROCESS_TEXT, this.tablePluginList.getTableHeader() );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getTableHeader() );
 			
 			this.tablePluginList.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
-			
-			if( this.selectionMode == SINGLE_SELECTION )
-			{
-				this.tablePluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-			}
 			
 			this.tablePluginList.setPreferredScrollableViewportSize( this.tablePluginList.getPreferredSize() );
 			this.tablePluginList.setFillsViewportHeight( true );
@@ -277,10 +466,10 @@ public class PluginSelectorPanel extends JPanel
 		if( this.tableSelectedPluginList == null )
 		{	
 			this.tableSelectedPluginList = this.getCreateJTable();
-			this.tableSelectedPluginList.setModel( this.createTablemodel( Language.SELECT_TEXT ) );
+			this.tableSelectedPluginList.setModel( this.createTablemodel( Language.SELECTED_TEXT ) );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
-											, Language.SELECT_TEXT
+											, Language.SELECTED_TEXT
 											,	this.tableSelectedPluginList.getTableHeader() );
 			
 			this.tableSelectedPluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
@@ -316,9 +505,9 @@ public class PluginSelectorPanel extends JPanel
 					{
 						if( sel < table.getRowCount() )
 						{
-							String id = table.getValueAt( sel, 0 ).toString();
+							String idPlugin = table.getValueAt( sel, 0 ).toString();
 							
-							loadPluginSettingPanel( id, sel, table );						
+							loadPluginSettingPanel( idPlugin, sel, table );						
 						}
 					}
 				}
@@ -750,8 +939,14 @@ public class PluginSelectorPanel extends JPanel
 			
 			if( plg != null )
 			{
-				JPanel p2 = plg.getSettingPanel();
+				JPanel streamPanel = getStreamPanel( idPlugin, plgIndex );
+				streamPanel.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) ) );
 				
+				//GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.SETTING_LSL_DEVICES, streamPanel.getBorder() );
+				
+				p.add( streamPanel, BorderLayout.NORTH );
+								
+				JPanel p2 = plg.getSettingPanel();				
 				p.add( p2, BorderLayout.CENTER );
 			}
 			

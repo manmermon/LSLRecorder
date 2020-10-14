@@ -188,6 +188,7 @@ public class Language
 	public static final String OK_TEXT = "OK_TEXT";
 	public static final String CANCEL_TEXT = "CANCEL_TEXT";
 	public static final String SELECT_TEXT = "SELECT_TEXT";
+	public static final String SELECTED_TEXT = "SELECTED_TEXT";
 	public static final String UP_TEXT = "UP_TEXT";
 	public static final String DOWN_TEXT = "DOWN_TEXT";
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
@@ -404,6 +405,7 @@ public class Language
 		captions.put(OK_TEXT, new Caption(OK_TEXT, defaultLanguage, "Ok"));
 		captions.put(CANCEL_TEXT, new Caption(CANCEL_TEXT, defaultLanguage, "Cancel"));
 		captions.put(SELECT_TEXT, new Caption(SELECT_TEXT, defaultLanguage, "Select"));
+		captions.put(SELECTED_TEXT, new Caption(SELECTED_TEXT, defaultLanguage, "Selected"));
 		captions.put(UP_TEXT, new Caption(UP_TEXT, defaultLanguage, "Up"));
 		captions.put(DOWN_TEXT, new Caption(DOWN_TEXT, defaultLanguage, "Down"));
 		captions.put(CONTINUE_TEXT, new Caption(CONTINUE_TEXT, defaultLanguage, "Continue"));

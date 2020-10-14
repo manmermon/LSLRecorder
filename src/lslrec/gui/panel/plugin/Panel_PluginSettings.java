@@ -100,8 +100,7 @@ public class Panel_PluginSettings extends JPanel
 					{
 						ILSLRecConfigurablePlugin[] plgs = list.toArray( new ILSLRecConfigurablePlugin[ 0 ] );
 					
-						if( pluginType == PluginType.DATA_PROCESSING 
-								|| pluginType == PluginType.TRIAL )
+						if( pluginType == PluginType.DATA_PROCESSING)
 						{
 							Set< String > idPlugins = new HashSet< String >();
 							
@@ -110,17 +109,23 @@ public class Panel_PluginSettings extends JPanel
 								idPlugins.add( pl.getID() );
 							}
 							
-							int selMode = PluginSelectorPanel.MULTIPLE_SELECTION;
-							if( pluginType == PluginType.TRIAL )
-							{
-								selMode = PluginSelectorPanel.SINGLE_SELECTION;
-								
-							}
-							
-							PluginSelectorPanel psp = new PluginSelectorPanel( pluginType, idPlugins, selMode );
+							DataProcessingPluginSelectorPanel psp = new DataProcessingPluginSelectorPanel( idPlugins );
 														
 							plugingTabPanel.addTab( pluginCategory, new JScrollPane( psp ) );
 						} 
+						else if( pluginType == PluginType.TRIAL) 
+						{
+							Set< String > idPlugins = new HashSet< String >();
+							
+							for( ILSLRecConfigurablePlugin pl : plgs )
+							{
+								idPlugins.add( pl.getID() );
+							}
+							
+							TrialPluginSelectorPanel tsp = new TrialPluginSelectorPanel( idPlugins );
+							
+							plugingTabPanel.addTab( pluginCategory, new JScrollPane( tsp ) );
+						}
 						else
 						{
 							for( ILSLRecConfigurablePlugin p : plgs )

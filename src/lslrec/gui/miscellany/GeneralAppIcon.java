@@ -37,6 +37,31 @@ public class GeneralAppIcon
 	public static final int BIG_PLUS_SIZE_ICON = 64;
 	public static final int HUGE_SIZE_ICON = 128;
 
+	public static ImageIcon Add( int size, Color color )
+	{	
+		int thickness = size / 10;
+		if( thickness < 1 )
+		{
+			thickness = 1;
+		}
+		
+		Image img = BasicPainter2D.paintOutlineCircle( 0, 0, size, thickness, color, null );
+		
+		int w = img.getWidth( null );
+		int h = img.getHeight( null );
+				
+		int pad = w / 4;
+		BasicPainter2D.paintLine( pad, h / 2
+								,w - pad, h / 2
+								, thickness, color , img );
+		
+		BasicPainter2D.paintLine( w / 2, pad 
+								, w / 2, h - pad
+								, thickness, color , img );
+		
+		return new ImageIcon( img ); 
+	}
+	
 	public static ImageIcon WindowMax( int size, Color color )
 	{
 		ImageIcon ico = null;

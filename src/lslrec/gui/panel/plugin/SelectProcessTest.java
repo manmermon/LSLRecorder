@@ -54,8 +54,8 @@ public class SelectProcessTest extends JFrame {
 		for( int i =0; i < 50; i++)
 			ids.add( "test " + i);
 		
-		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, new ArrayList<String>( ids ), PluginSelectorPanel.SINGLE_SELECTION ), BorderLayout.NORTH );
-		contentPane.add( new PluginSelectorPanel( PluginType.DATA_PROCESSING, ids, PluginSelectorPanel.MULTIPLE_SELECTION ), BorderLayout.SOUTH );
+		contentPane.add( new DataProcessingPluginSelectorPanel( PluginType.DATA_PROCESSING, new ArrayList<String>( ids ), DataProcessingPluginSelectorPanel.SINGLE_SELECTION ), BorderLayout.NORTH );
+		contentPane.add( new DataProcessingPluginSelectorPanel( PluginType.DATA_PROCESSING, ids, DataProcessingPluginSelectorPanel.MULTIPLE_SELECTION ), BorderLayout.SOUTH );
 	}
 
 }
