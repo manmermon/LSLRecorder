@@ -144,4 +144,28 @@ public class DataProcessingPluginRegistrar
 		
 		return processes;
 	}
+	
+	public static List< ILSLRecPluginDataProcessing > getNewInstanceOfDataProcessing( DataStreamSetting stream )
+	{
+		List< ILSLRecPluginDataProcessing > processes = new ArrayList< ILSLRecPluginDataProcessing >();
+		
+		List< ILSLRecPluginDataProcessing > PROCESSES = getDataProcessing( stream );
+		
+		for( ILSLRecPluginDataProcessing process : PROCESSES  )
+		{
+			try 
+			{
+				ILSLRecPluginDataProcessing pr = process.getClass().newInstance();
+				pr.loadSettings( process.getSettings() );
+
+				processes.add( pr );
+			} 
+			catch (InstantiationException | IllegalAccessException e) 
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		return processes;
+	}
 }

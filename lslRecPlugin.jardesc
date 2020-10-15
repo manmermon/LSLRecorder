@@ -17,6 +17,7 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{DoubleBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.controls.messages{EventInfo.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{ByteBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{IParameter.java"/>

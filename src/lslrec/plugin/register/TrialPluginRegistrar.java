@@ -23,7 +23,7 @@ public class TrialPluginRegistrar
 		trial = null;
 	}
 	
-	public static ILSLRecPluginGUIExperiment getTrialPluginInstance()
+	public static ILSLRecPluginGUIExperiment getNewInstanceOfTrialPlugin()
 	{
 		ILSLRecPluginGUIExperiment test = null;
 	

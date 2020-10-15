@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 
 /**
@@ -24,4 +25,6 @@ public interface ILSLRecConfigurablePlugin extends ILSLRecPlugin
 	public void loadSettings( List< Parameter< String > > pars );
 	
 	public List< Parameter< String > > getSettings();
+	
+	public WarningMessage checkSettings();
 }
