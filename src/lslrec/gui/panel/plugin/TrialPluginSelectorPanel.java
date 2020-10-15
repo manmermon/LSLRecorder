@@ -24,10 +24,8 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
-import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -47,7 +45,7 @@ public class TrialPluginSelectorPanel extends JPanel
 	
 	private PluginType plgType = PluginType.TRIAL;
 	
-	public TrialPluginSelectorPanel( Collection< String > idPlugins )
+	public TrialPluginSelectorPanel( Collection< ILSLRecPluginGUIExperiment > plugins )
 	{
 		super.setLayout( new BorderLayout() );
 		
@@ -58,9 +56,9 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
 		
-		for( String id : idPlugins )
+		for( ILSLRecPluginGUIExperiment pl : plugins )
 		{
-			tm.addRow( new String[] { id } );
+			tm.addRow( new ILSLRecPluginGUIExperiment[] { pl } );
 		}
 		
 		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
@@ -148,7 +146,8 @@ public class TrialPluginSelectorPanel extends JPanel
 											{	
 												public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 											    {
-											        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+													String v = ( (ILSLRecPluginGUIExperiment) value ).getID();
+											        Component cellComponent = super.getTableCellRendererComponent( table, v, isSelected, hasFocus, row, column);
 											        	
 											        if( !table.isCellEditable( row, column ) )
 											        {	
@@ -181,12 +180,12 @@ public class TrialPluginSelectorPanel extends JPanel
 							{
 								private static final long serialVersionUID = 1L;
 								
-								Class[] columnTypes = new Class[]{ String.class };								
+								Class[] columnTypes = new Class[]{ ILSLRecPluginGUIExperiment.class };								
 								boolean[] columnEditables = new boolean[] { false };
 								
 								public Class getColumnClass(int columnIndex) 
 								{
-									return columnTypes[columnIndex];
+									return columnTypes[ columnIndex ];
 								}
 																								
 								public boolean isCellEditable(int row, int column) 
@@ -226,24 +225,27 @@ public class TrialPluginSelectorPanel extends JPanel
 				@Override
 				public void valueChanged(ListSelectionEvent arg0)
 				{	
-					int sel = table.getSelectedRow();
-					
-					// TODO
-					if( sel < 0 )
+					if( !arg0.getValueIsAdjusting() )
 					{
-						getPluginSettingPanel().setVisible( false );
+						int sel = table.getSelectedRow();
 						
-						getPluginSettingPanel().removeAll();
-						
-						getPluginSettingPanel().setVisible( true );
-					}
-					else
-					{
-						if( sel < table.getRowCount() )
+						// TODO
+						if( sel < 0 )
 						{
-							String id = table.getValueAt( sel, 0 ).toString();
+							getPluginSettingPanel().setVisible( false );
 							
-							loadPluginSettingPanel( id, sel, table );						
+							getPluginSettingPanel().removeAll();
+							
+							getPluginSettingPanel().setVisible( true );
+						}
+						else
+						{
+							if( sel < table.getRowCount() )
+							{
+								ILSLRecPluginGUIExperiment id = (ILSLRecPluginGUIExperiment)table.getValueAt( sel, 0 );
+								
+								loadPluginSettingPanel( id );						
+							}
 						}
 					}
 				}
@@ -275,27 +277,10 @@ public class TrialPluginSelectorPanel extends JPanel
 		}
 	}
 		
-	private void loadPluginSettingPanel( String idPlugin, int selectedTableIndex, JTable refTable )
-	{
-		int plgIndex = this.getNumPluginInstances( refTable, selectedTableIndex, idPlugin );
-		
-		PluginLoader loader;
+	private void loadPluginSettingPanel( ILSLRecPluginGUIExperiment plg )
+	{		
 		try 
 		{
-			loader = PluginLoader.getInstance();
-			
-			List< ILSLRecPlugin > plgs = loader.getAllPlugins( this.plgType, idPlugin );
-			
-			ILSLRecConfigurablePlugin plg;
-			if( plgIndex >= plgs.size() )
-			{
-				plg = (ILSLRecConfigurablePlugin)loader.addNewPluginInstance( this.plgType, idPlugin );
-			}
-			else
-			{
-				plg = (ILSLRecConfigurablePlugin)plgs.get( plgIndex );
-			}
-			
 			JPanel p = this.getPluginSettingPanel();
 			p.setVisible( false );
 			p.removeAll();
@@ -311,7 +296,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		}
 		catch (Exception e) 
 		{
-			Exception e1 = new Exception( "Setting panel for plugin " + idPlugin + " is not available.", e );
+			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
 														, ExceptionDictionary.ERROR_MESSAGE );
@@ -320,6 +305,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		}	
 	}
 	
+	/*
 	private int getNumPluginInstances( JTable refTable, int selectIndex, String idProcess )
 	{
 		int index = -1;
@@ -339,4 +325,5 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 		return index;
 	}
+	*/
 }

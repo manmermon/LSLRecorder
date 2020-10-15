@@ -17,6 +17,8 @@ import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
 
 /**
  * @author Manuel Merino Monge
@@ -102,11 +104,11 @@ public class Panel_PluginSettings extends JPanel
 					
 						if( pluginType == PluginType.DATA_PROCESSING)
 						{
-							Set< String > idPlugins = new HashSet< String >();
+							Set< ILSLRecPluginDataProcessing > idPlugins = new HashSet< ILSLRecPluginDataProcessing >();
 							
-							for( ILSLRecConfigurablePlugin pl : plgs )
+							for( ILSLRecPlugin pl : plgs )
 							{
-								idPlugins.add( pl.getID() );
+								idPlugins.add( (ILSLRecPluginDataProcessing) pl );
 							}
 							
 							DataProcessingPluginSelectorPanel psp = new DataProcessingPluginSelectorPanel( idPlugins );
@@ -115,11 +117,11 @@ public class Panel_PluginSettings extends JPanel
 						} 
 						else if( pluginType == PluginType.TRIAL) 
 						{
-							Set< String > idPlugins = new HashSet< String >();
+							Set< ILSLRecPluginGUIExperiment > idPlugins = new HashSet< ILSLRecPluginGUIExperiment >();
 							
 							for( ILSLRecConfigurablePlugin pl : plgs )
 							{
-								idPlugins.add( pl.getID() );
+								idPlugins.add( (ILSLRecPluginGUIExperiment)pl );
 							}
 							
 							TrialPluginSelectorPanel tsp = new TrialPluginSelectorPanel( idPlugins );

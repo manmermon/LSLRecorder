@@ -6,7 +6,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -18,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -40,16 +40,11 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
-import lslrec.gui.GuiManager;
-import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
-import lslrec.plugin.register.PluginRegistrar;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.register.DataProcessingPluginRegistrar;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -82,9 +77,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JButton buttonUp;
 	private JButton buttonDown;
 	
-	private final PluginType plgType = PluginType.DATA_PROCESSING;
-	
-	public DataProcessingPluginSelectorPanel( Collection< String > idPlugins )
+	public DataProcessingPluginSelectorPanel( Collection< ILSLRecPluginDataProcessing > plugins )
 	{		
 		super.setLayout( new BorderLayout() );
 		
@@ -95,9 +88,9 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
 		
-		for( String id : idPlugins )
+		for( ILSLRecPluginDataProcessing pl : plugins )
 		{
-			tm.addRow( new String[] { id } );
+			tm.addRow( new ILSLRecPluginDataProcessing[] { pl } );
 		}
 		
 		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
@@ -135,51 +128,42 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		return this.panelPluginSetting;
 	}
 	
-	private JPanel getStreamPanel( String pluginID, int numInstance )
+	private JPanel getStreamPanel( ILSLRecPluginDataProcessing plugin )
 	{
 		JPanel panel = new JPanel( new BorderLayout( 0, 0 ) );
 		
 		JPanel p = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 				
-		JButton addbt = new JButton( );
-		Icon ic = GeneralAppIcon.Add( 32, Color.BLACK );
-				
 		//
 		// Load selected streams
 		//
 		
+		Set< DataStreamSetting > selectedStreams = new HashSet< DataStreamSetting >();
+		List< DataStreamSetting > removeStream = new ArrayList< DataStreamSetting >();
 		List< DataStreamSetting > streams = new ArrayList< DataStreamSetting >( ( HashSet< DataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
-		
-		List< DataStreamSetting > selectedStreams = new ArrayList< DataStreamSetting >();
-		List< String > removeKeys = new ArrayList<String>();
-		for( String key : PluginRegistrar.getRegisterKey() )
+		for( DataStreamSetting STR : DataProcessingPluginRegistrar.getDataStreams( plugin ) )
 		{			
 			boolean del = true;
 			
 			searchStream:
 			for( DataStreamSetting str : streams )
 			{
-				if( ( str.getStreamName() + str.getUID() ).equals( key ) )
+				if( str == STR )
 				{
 					del = false;
 					
-					List< String > idPlugins = PluginRegistrar.getPlugins( key ).get( PluginType.DATA_PROCESSING );
+					Set< ILSLRecPluginDataProcessing > plugins = DataProcessingPluginRegistrar.getDataProcessing( STR );
 					
-					if( idPlugins != null )
+					if( plugins != null )
 					{
 						searchPlugin:
-						for( String id : idPlugins )
+						for( ILSLRecPluginDataProcessing pl : plugins )
 						{
-							if( id.equals( pluginID ) )
+							if( pl == plugin )
 							{
-								if( numInstance == 0 )
-								{
-									selectedStreams.add( str );
+								selectedStreams.add( STR );
 									
-									break searchPlugin;
-								}
-								
-								numInstance--;
+								break searchPlugin;
 							}
 						}
 					}
@@ -190,21 +174,25 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			if( del )
 			{
-				removeKeys.add( key );
+				removeStream.add( STR );
 			}
 		}
 		
-		for( String key : removeKeys )
+		for( DataStreamSetting STR : removeStream )
 		{
-			PluginRegistrar.removePlugins( key );
+			DataProcessingPluginRegistrar.removeAllDataStreams( STR );
 		}
 		
-		this.addStream( p, selectedStreams, pluginID );
+		this.addStream( p, selectedStreams, plugin, true );
 		
 		
 		//
 		// Button Add
 		//
+		
+		JButton addbt = new JButton( );
+		addbt.setBorder( BorderFactory.createEtchedBorder() );
+		Icon ic = GeneralAppIcon.Add( 32, Color.BLACK );
 		
 		addbt.setIcon( ic );
 		if( ic == null )
@@ -217,6 +205,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
+				List< DataStreamSetting > streams = new ArrayList< DataStreamSetting >( ( HashSet< DataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
+				
 				List< String > opts = new ArrayList< String >();
 				for( DataStreamSetting str : streams )
 				{
@@ -239,13 +229,13 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 
 				int[] selIndexes = dial.getSelectedIndex();
 
-				List< DataStreamSetting > selStreams = new ArrayList< DataStreamSetting >();
+				Set< DataStreamSetting > selStreams = new HashSet< DataStreamSetting >();
 				for( int index : selIndexes )
 				{
 					selStreams.add( streams.get( index ) );
 				}
 
-				addStream( p, selStreams, pluginID );
+				addStream( p, selStreams, plugin, false );
 			}
 		});
 				
@@ -262,19 +252,14 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		return strPanel;
 	}
 	
-	private void addStream( JPanel panel, List< DataStreamSetting > streams, String plgId )
+	private void addStream( JPanel panel, Set< DataStreamSetting > streams, ILSLRecPluginDataProcessing plg, boolean loadStream )
 	{
-		if( panel != null && streams != null && plgId != null )
+		if( panel != null && streams != null && plg != null )
 		{
 			panel.setVisible( false );
 			
 			for( DataStreamSetting str : streams )
 			{
-				final String id = str.getStreamName() + str.getUID();
-				
-				
-				
-								
 				JLabel lb = new JLabel( str.getStreamName() );
 				lb.setToolTipText( str.getStreamName() + " (" + str.getUID() + ")" );
 				JButton b = new JButton( );
@@ -292,22 +277,17 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				p.setBorder( BorderFactory.createEtchedBorder() );
 				p.getInsets( new Insets( 0, 0, 0, 0 ) );
 				
-				/*
-				FontMetrics fm = lb.getFontMetrics( lb.getFont() ); 
-				d = new Dimension( );
-				d.height = lb.getPreferredSize().height;
-				d.width = fm.stringWidth( lb.getText() ) * 2;
-				p.setPreferredSize( d );
-				*/
-				
-				final int numInstance = PluginRegistrar.addPluginInstance( id , PluginType.DATA_PROCESSING, plgId );
+				if( !loadStream )
+				{
+					DataProcessingPluginRegistrar.addDataStream( plg, str );
+				}
 				
 				b.addActionListener( new ActionListener() 
 				{	
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						PluginRegistrar.removePlugin( id, PluginType.DATA_PROCESSING, plgId, numInstance);
+						DataProcessingPluginRegistrar.removeDataStream( plg, str );
 						
 						panel.setVisible( false );
 						
@@ -390,9 +370,15 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				        
 		table.setDefaultRenderer( Object.class, new DefaultTableCellRenderer()
 											{	
+												/**
+												 * 
+												 */
+												private static final long serialVersionUID = 4144425414849985291L;
+
 												public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 											    {
-											        Component cellComponent = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+													String v = ( (ILSLRecPluginDataProcessing) value ).getID();
+											        Component cellComponent = super.getTableCellRendererComponent( table, v, isSelected, hasFocus, row, column);
 											        	
 											        if( !table.isCellEditable( row, column ) )
 											        {	
@@ -420,17 +406,17 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	}
 	
 	private TableModel createTablemodel( String tableHeaderID )
-	{					
+	{	
 		TableModel tm =  new DefaultTableModel( null, new String[] { Language.getLocalCaption( tableHeaderID ) } )
 							{
 								private static final long serialVersionUID = 1L;
 								
-								Class[] columnTypes = new Class[]{ String.class };								
+								Class[] columnTypes = new Class[]{ ILSLRecPluginDataProcessing.class };								
 								boolean[] columnEditables = new boolean[] { false };
-								
+																
 								public Class getColumnClass(int columnIndex) 
 								{
-									return columnTypes[columnIndex];
+									return columnTypes[ columnIndex ];
 								}
 																								
 								public boolean isCellEditable(int row, int column) 
@@ -490,52 +476,31 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				@Override
 				public void valueChanged(ListSelectionEvent arg0)
 				{	
-					int sel = table.getSelectedRow();
-					
-					// TODO
-					if( sel < 0 )
+					if( !arg0.getValueIsAdjusting() )
 					{
-						getPluginSettingPanel().setVisible( false );
+						int sel = table.getSelectedRow();
 						
-						getPluginSettingPanel().removeAll();
-						
-						getPluginSettingPanel().setVisible( true );
-					}
-					else
-					{
-						if( sel < table.getRowCount() )
+						// TODO
+						if( sel < 0 )
 						{
-							String idPlugin = table.getValueAt( sel, 0 ).toString();
+							getPluginSettingPanel().setVisible( false );
 							
-							loadPluginSettingPanel( idPlugin, sel, table );						
+							getPluginSettingPanel().removeAll();
+							
+							getPluginSettingPanel().setVisible( true );
 						}
-					}
-				}
-			});
-						
-			/*
-			table.getModel().addTableModelListener( new TableModelListener() 
-			{	
-				@Override
-				public void tableChanged( TableModelEvent arg0 )
-				{
-					if( selectionMode == SINGLE_SELECTION && arg0.getType() == TableModelEvent.INSERT )
-					{
-						DefaultTableModel tm = (DefaultTableModel)arg0.getSource();
-						
-						if( tm.getRowCount() > 2 )
+						else
 						{
-							for( int i = tm.getRowCount() - 2; i >= 0; i-- )
+							if( sel < table.getRowCount() )
 							{
-								tm.removeRow( i );
+								ILSLRecPluginDataProcessing plugin = (ILSLRecPluginDataProcessing)table.getValueAt( sel, 0 );
+								
+								loadPluginSettingPanel( plugin );						
 							}
 						}
-						
-						tableSelectedProcessList.setRowSelectionInterval( 0, 0 );
 					}
 				}
 			});
-			*/
 		}
 	}
 			
@@ -636,38 +601,6 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 		
 		return this.buttonRemove;
-	}
-	
-	private void removePlugins( JTable refTable )
-	{
-		DefaultTableModel tm = (DefaultTableModel)refTable.getModel();
-		
-		int[] index = refTable.getSelectedRows();
-		
-		Arrays.sort( index );
-		
-		for( int i = index.length - 1; i >= 0; i-- )
-		{			
-			int r = index[ i ];
-			
-			String id = tm.getValueAt( r, 0 ).toString();
-			
-			int ind = getNumPluginInstances( refTable, r, id );
-			
-			tm.removeRow( r );
-					
-			try
-			{
-				PluginLoader loader = PluginLoader.getInstance();
-
-				loader.removePluginInstance( plgType, id, ind );
-			}
-			catch( Exception ex )
-			{
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, true );
-			}					
-		}
 	}
 	
 	private JButton getBtnClear( JTable refTable ) 
@@ -822,22 +755,52 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			{
 				int index = selIndex[ i ];
 				
-				String process = source.getValueAt( index, 0 ).toString();
-			
+				ILSLRecPluginDataProcessing process = (ILSLRecPluginDataProcessing)source.getValueAt( index, 0 );
+							
 				try 
-				{	
-					tmDest.addRow( new String[] { process } );
+				{
+					ILSLRecPluginDataProcessing pr = process.getClass().newInstance();
+					
+					DataProcessingPluginRegistrar.addDataProcessing( pr );
+					
+					tmDest.addRow( new ILSLRecPluginDataProcessing[] { pr } );
 				} 
 				catch (Exception e) 
 				{
-					Dialog_Info d = new Dialog_Info( GuiManager.getInstance().getAppUI(), e.getMessage() + "\n" + e.getCause(), true );
-					Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-					size.width /= 2;
-					size.height /= 2;
-					d.setSize( size );
-					d.setVisible( true );
+					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionDictionary.ERROR_MESSAGE );
+					
+					ExceptionDialog.createExceptionDialog( SwingUtilities.getWindowAncestor( source ) );
+					ExceptionDialog.showMessageDialog( msg, true, true );
 				}								
 			}
+		}
+	}
+	
+	private void removePlugins( JTable refTable )
+	{
+		DefaultTableModel tm = (DefaultTableModel)refTable.getModel();
+		
+		int[] index = refTable.getSelectedRows();
+		
+		Arrays.sort( index );
+		
+		for( int i = index.length - 1; i >= 0; i-- )
+		{			
+			int r = index[ i ];
+			
+			tm.removeRow( r );
+					
+			try
+			{
+				ILSLRecPluginDataProcessing pl = (ILSLRecPluginDataProcessing)tm.getValueAt( r, 0 );
+				
+				DataProcessingPluginRegistrar.removeDataProcessing( pl );
+			}
+			catch( Exception ex )
+			{
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionDialog.showMessageDialog( msg, true, true );
+			}					
 		}
 	}
 		
@@ -912,41 +875,24 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 	}
 
-	private void loadPluginSettingPanel( String idPlugin, int selectedTableIndex, JTable refTable )
+	private void loadPluginSettingPanel( ILSLRecPluginDataProcessing process )
 	{
-		int plgIndex = this.getNumPluginInstances( refTable, selectedTableIndex, idPlugin );
-		
-		PluginLoader loader;
 		try 
-		{
-			loader = PluginLoader.getInstance();
-			
-			List< ILSLRecPlugin > plgs = loader.getAllPlugins( this.plgType, idPlugin );
-			
-			ILSLRecConfigurablePlugin plg;
-			if( plgIndex >= plgs.size() )
-			{
-				plg = (ILSLRecConfigurablePlugin)loader.addNewPluginInstance( this.plgType, idPlugin );
-			}
-			else
-			{
-				plg = (ILSLRecConfigurablePlugin)plgs.get( plgIndex );
-			}
-			
+		{			
 			JPanel p = this.getPluginSettingPanel();
 			p.setVisible( false );
 			p.removeAll();
 			
-			if( plg != null )
+			if( process != null )
 			{
-				JPanel streamPanel = getStreamPanel( idPlugin, plgIndex );
+				JPanel streamPanel = getStreamPanel( process );
 				streamPanel.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) ) );
 				
 				//GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.SETTING_LSL_DEVICES, streamPanel.getBorder() );
 				
 				p.add( streamPanel, BorderLayout.NORTH );
 								
-				JPanel p2 = plg.getSettingPanel();				
+				JPanel p2 = process.getSettingPanel();				
 				p.add( p2, BorderLayout.CENTER );
 			}
 			
@@ -954,32 +900,12 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 		catch (Exception e) 
 		{
-			Exception e1 = new Exception( "Setting panel for plugin " + idPlugin + " is not available.", e );
+			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
 														, ExceptionDictionary.ERROR_MESSAGE );
 		
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}	
-	}
-	
-	private int getNumPluginInstances( JTable refTable, int selectIndex, String idProcess )
-	{
-		int index = -1;
-		
-		if( refTable != null )
-		{
-			for( int r = 0; r <= selectIndex; r++ )
-			{
-				String id = refTable.getValueAt( r, 0 ).toString();
-				
-				if( id.equals( idProcess ) )
-				{
-					index++;
-				}
-			}
-		}
-		
-		return index;
 	}
 }

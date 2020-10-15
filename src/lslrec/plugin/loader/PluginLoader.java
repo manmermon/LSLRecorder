@@ -207,7 +207,7 @@ public class PluginLoader
     	return plg;
     }
     
-    public ILSLRecPlugin addNewPluginInstance( PluginType plgType, String id )
+    public ILSLRecPlugin createNewPluginInstance( PluginType plgType, String id, boolean registerInstance )
     {    		
     	ILSLRecPlugin pl = null;
     	
@@ -222,12 +222,15 @@ public class PluginLoader
     			
 				Class p = Class.forName( idPl );
 				
-				pl= (ILSLRecPlugin)p.newInstance();				
-				this._Plugins.putElement( plgType, pl );
+				pl= (ILSLRecPlugin)p.newInstance();
+				
+				if( registerInstance )
+				{
+					this._Plugins.putElement( plgType, pl );
+				}
 			} 
     		catch ( Exception e) 
     		{
-    			e.printStackTrace();
 			}
     	}
     	
