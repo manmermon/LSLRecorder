@@ -3,8 +3,10 @@
  */
 package lslrec.plugin.register;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,12 +19,21 @@ import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
  */
 public class DataProcessingPluginRegistrar 
 {
-	private static Set< ILSLRecPluginDataProcessing > processRegister = new HashSet< ILSLRecPluginDataProcessing >();
+	private static List< ILSLRecPluginDataProcessing > processRegister = new ArrayList< ILSLRecPluginDataProcessing >();
 	private static Map< String, Set< DataStreamSetting > > streamPluginRegister = new HashMap<String, Set< DataStreamSetting > >(); 
 	
 	public static void addDataProcessing( ILSLRecPluginDataProcessing process )
 	{
-		processRegister.add( process );
+		if( !processRegister.contains( process ) )
+		{
+			processRegister.add( process );
+		}
+	}
+	
+	public static void moveDataProcessing( int oldIndex, int newIndex )
+	{
+		ILSLRecPluginDataProcessing pr = processRegister.remove( oldIndex );
+		processRegister.add( newIndex, pr );		
 	}
 	
 	private static String getDataProcessPluginID( ILSLRecPluginDataProcessing process )
@@ -114,9 +125,9 @@ public class DataProcessingPluginRegistrar
 		return streams;
 	}
 	
-	public static Set< ILSLRecPluginDataProcessing > getDataProcessing( DataStreamSetting stream )
+	public static List< ILSLRecPluginDataProcessing > getDataProcessing( DataStreamSetting stream )
 	{
-		Set< ILSLRecPluginDataProcessing > processes = new HashSet< ILSLRecPluginDataProcessing >();
+		List< ILSLRecPluginDataProcessing > processes = new ArrayList< ILSLRecPluginDataProcessing >();
 		
 		for( ILSLRecPluginDataProcessing process : processRegister  )
 		{

@@ -10,10 +10,12 @@ import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -22,7 +24,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
+import lslrec.gui.KeyActions;
+
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
 /**
@@ -49,11 +54,14 @@ public class Dialog_OptionList extends JDialog
 	 */
 	public Dialog_OptionList() 
 	{
-		getContentPane().add(getOptionsTable(), BorderLayout.CENTER);
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
-		super.getContentPane().setLayout( new BorderLayout() );
+		super.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
+				KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+				JComponent.WHEN_IN_FOCUSED_WINDOW );
 		
+		super.getContentPane().setLayout( new BorderLayout() );
+	
 		super.getContentPane().add( this.getOptionListPanel(), BorderLayout.CENTER);
 		super.getContentPane().add( this.getButtonPanel(), BorderLayout.SOUTH);
 	}

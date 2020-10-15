@@ -1263,25 +1263,6 @@ public class AppUI extends JFrame
 							dd.width /= 4;
 							dd.height /= 4;
 							jDialogGPL.setSize(dd);
-
-							/*
-							Point l = appUI.ui.getLocation();
-							Dimension d = appUI.ui.getSize();
-							Point loc = new Point(l.x + d.width / 2 - dd.width / 2, l.y + d.height / 2 - dd.height / 2);
-
-							Insets ssooPAD = Toolkit.getDefaultToolkit().getScreenInsets(appUI.ui.getGraphicsConfiguration());
-							if (loc.x < ssooPAD.left + 1)
-							{
-								loc.x = (ssooPAD.left + 1);
-							}
-
-							if (loc.y < ssooPAD.top + 1)
-							{
-								loc.y = (ssooPAD.top + 1);
-							}
-
-							jDialogGPL.setLocation(loc);
-							*/
 							
 							jDialogGPL.setLocationRelativeTo( AppUI.getInstance() );
 

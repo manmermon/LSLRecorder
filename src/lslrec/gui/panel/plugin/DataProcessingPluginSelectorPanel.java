@@ -122,7 +122,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	{
 		if( this.panelPluginSetting == null )
 		{
-			this.panelPluginSetting = new JPanel( new BorderLayout() );	
+			this.panelPluginSetting = new JPanel( new BorderLayout() );
+			this.panelPluginSetting.setBorder( BorderFactory.createEtchedBorder() );
 		}
 		
 		return this.panelPluginSetting;
@@ -152,7 +153,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				{
 					del = false;
 					
-					Set< ILSLRecPluginDataProcessing > plugins = DataProcessingPluginRegistrar.getDataProcessing( STR );
+					List< ILSLRecPluginDataProcessing > plugins = DataProcessingPluginRegistrar.getDataProcessing( STR );
 					
 					if( plugins != null )
 					{
@@ -183,7 +184,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			DataProcessingPluginRegistrar.removeAllDataStreams( STR );
 		}
 		
-		this.addStream( p, selectedStreams, plugin, true );
+		this.addStream( p, selectedStreams, plugin );
 		
 		
 		//
@@ -215,6 +216,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 
 				Dialog_OptionList dial = new Dialog_OptionList();
 
+				dial.setIconImage( GeneralAppIcon.getIconoAplicacion( 32, 32 ).getImage() );
+				dial.setTitle( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) );
 				dial.setOptions( opts );
 
 				dial.setLocationRelativeTo( (Component)e.getSource() );
@@ -232,10 +235,16 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				Set< DataStreamSetting > selStreams = new HashSet< DataStreamSetting >();
 				for( int index : selIndexes )
 				{
-					selStreams.add( streams.get( index ) );
+					DataStreamSetting str = streams.get( index );
+					
+					if( !DataProcessingPluginRegistrar.getDataStreams( plugin ).contains( str ) )
+					{
+						DataProcessingPluginRegistrar.addDataStream( plugin, streams.get( index ) );
+						selStreams.add( str );
+					}
 				}
-
-				addStream( p, selStreams, plugin, false );
+				
+				addStream( p, selStreams, plugin );
 			}
 		});
 				
@@ -252,7 +261,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		return strPanel;
 	}
 	
-	private void addStream( JPanel panel, Set< DataStreamSetting > streams, ILSLRecPluginDataProcessing plg, boolean loadStream )
+	private void addStream( JPanel panel, Set< DataStreamSetting > streams, ILSLRecPluginDataProcessing plg )
 	{
 		if( panel != null && streams != null && plg != null )
 		{
@@ -276,12 +285,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				JPanel p = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 				p.setBorder( BorderFactory.createEtchedBorder() );
 				p.getInsets( new Insets( 0, 0, 0, 0 ) );
-				
-				if( !loadStream )
-				{
-					DataProcessingPluginRegistrar.addDataStream( plg, str );
-				}
-				
+								
 				b.addActionListener( new ActionListener() 
 				{	
 					@Override
@@ -787,12 +791,12 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		for( int i = index.length - 1; i >= 0; i-- )
 		{			
 			int r = index[ i ];
-			
-			tm.removeRow( r );
 					
 			try
 			{
 				ILSLRecPluginDataProcessing pl = (ILSLRecPluginDataProcessing)tm.getValueAt( r, 0 );
+				
+				tm.removeRow( r );
 				
 				DataProcessingPluginRegistrar.removeDataProcessing( pl );
 			}
@@ -865,6 +869,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					int row = index + dir;
 					
 					tmSource.moveRow( index, index, row );
+					
+					DataProcessingPluginRegistrar.moveDataProcessing( index, row );
 					
 					if( i == 0 )
 					{
