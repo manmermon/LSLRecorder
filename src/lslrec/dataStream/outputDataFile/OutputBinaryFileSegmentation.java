@@ -49,6 +49,7 @@ import lslrec.auxiliar.tasks.NotificationTask;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
@@ -62,7 +63,6 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 /**
  * 

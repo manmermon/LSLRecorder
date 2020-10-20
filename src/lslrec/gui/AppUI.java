@@ -26,6 +26,7 @@ import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -38,6 +39,7 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.panel.primary.Panel_SocketSetting;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
+import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.config.ConfigApp;
 import lslrec.gui.miscellany.LevelIndicator;
 
@@ -68,6 +70,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -549,6 +552,14 @@ public class AppUI extends JFrame
 								try 
 								{	
 									getStreamSetting().refreshLSLStreamings();
+									
+									if( GuiManager.getInstance().refreshPlugins() )
+									{
+										JOptionPane.showMessageDialog( AppUI.getInstance()
+												, Language.getLocalCaption( Language.MSG_DATA_PROCESSING_STREAMS_CHANGED )
+												, Language.getLocalCaption( Language.MSG_WARNING )
+												, JOptionPane.WARNING_MESSAGE );
+									}
 									
 									bt.setEnabled( true );
 									

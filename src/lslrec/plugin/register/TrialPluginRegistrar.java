@@ -3,7 +3,10 @@
  */
 package lslrec.plugin.register;
 
-import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
+import java.util.List;
+
+import lslrec.config.Parameter;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 
 /**
  * @author Manuel Merino Monge
@@ -11,9 +14,9 @@ import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
  */
 public class TrialPluginRegistrar 
 {
-	private static ILSLRecPluginGUIExperiment trial = null;
+	private static ILSLRecPluginTrial trial = null;
 	
-	public static void setTrialPlugin( ILSLRecPluginGUIExperiment test )
+	public static void setTrialPlugin( ILSLRecPluginTrial test )
 	{
 		trial = test;
 	}
@@ -23,18 +26,21 @@ public class TrialPluginRegistrar
 		trial = null;
 	}
 	
-	public static ILSLRecPluginGUIExperiment getNewInstanceOfTrialPlugin()
+	public static ILSLRecPluginTrial getNewInstanceOfTrialPlugin()
 	{
-		ILSLRecPluginGUIExperiment test = null;
+		ILSLRecPluginTrial test = null;
 	
 		try
 		{
 			test = trial.getClass().newInstance();
 			
-			test.loadSettings( trial.getSettings() );
+			List< Parameter< String > > pars = trial.getSettings();
+			
+			test.loadSettings( pars  );
 		}
 		catch( Exception e )
 		{			
+			e.printStackTrace();
 		}
 		
 		return test;

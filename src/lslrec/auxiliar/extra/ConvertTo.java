@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.family.lsl.LSLUtils;
 
 public class ConvertTo 
 {

@@ -43,9 +43,9 @@ public class testSendSocketMsgToLslRec extends AbstractStoppableThread implement
 	private List< TCPClientSocketThread > tcpClients;
 	private List< UDPClientSocketThread > udpClients;
 	
-	private LSL.StreamInfo info;
+	private lslrec.dataStream.family.lsl.StreamInfo info;
 	
-	private LSL.StreamOutlet out;
+	private lslrec.dataStream.family.lsl.StreamOutlet out;
 
 	private int numSocket;
 	

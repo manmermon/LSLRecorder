@@ -1,4 +1,4 @@
-package lslrec.gui.panel.plugin;
+package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,7 +25,8 @@ import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
-import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
+import lslrec.plugin.register.TrialPluginRegistrar;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -45,7 +46,7 @@ public class TrialPluginSelectorPanel extends JPanel
 	
 	private PluginType plgType = PluginType.TRIAL;
 	
-	public TrialPluginSelectorPanel( Collection< ILSLRecPluginGUIExperiment > plugins )
+	public TrialPluginSelectorPanel( Collection< ILSLRecPluginTrial > plugins )
 	{
 		super.setLayout( new BorderLayout() );
 		
@@ -56,9 +57,9 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
 		
-		for( ILSLRecPluginGUIExperiment pl : plugins )
+		for( ILSLRecPluginTrial pl : plugins )
 		{
-			tm.addRow( new ILSLRecPluginGUIExperiment[] { pl } );
+			tm.addRow( new ILSLRecPluginTrial[] { pl } );
 		}
 		
 		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
@@ -146,7 +147,7 @@ public class TrialPluginSelectorPanel extends JPanel
 											{	
 												public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 											    {
-													String v = ( (ILSLRecPluginGUIExperiment) value ).getID();
+													String v = ( (ILSLRecPluginTrial) value ).getID();
 											        Component cellComponent = super.getTableCellRendererComponent( table, v, isSelected, hasFocus, row, column);
 											        	
 											        if( !table.isCellEditable( row, column ) )
@@ -180,7 +181,7 @@ public class TrialPluginSelectorPanel extends JPanel
 							{
 								private static final long serialVersionUID = 1L;
 								
-								Class[] columnTypes = new Class[]{ ILSLRecPluginGUIExperiment.class };								
+								Class[] columnTypes = new Class[]{ ILSLRecPluginTrial.class };								
 								boolean[] columnEditables = new boolean[] { false };
 								
 								public Class getColumnClass(int columnIndex) 
@@ -237,14 +238,18 @@ public class TrialPluginSelectorPanel extends JPanel
 							getPluginSettingPanel().removeAll();
 							
 							getPluginSettingPanel().setVisible( true );
+							
+							TrialPluginRegistrar.removeTrialPlugin();
 						}
 						else
 						{
 							if( sel < table.getRowCount() )
 							{
-								ILSLRecPluginGUIExperiment id = (ILSLRecPluginGUIExperiment)table.getValueAt( sel, 0 );
+								ILSLRecPluginTrial trial = (ILSLRecPluginTrial)table.getValueAt( sel, 0 );
+
+								TrialPluginRegistrar.setTrialPlugin( trial );
 								
-								loadPluginSettingPanel( id );						
+								loadPluginSettingPanel( trial );
 							}
 						}
 					}
@@ -277,7 +282,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		}
 	}
 		
-	private void loadPluginSettingPanel( ILSLRecPluginGUIExperiment plg )
+	private void loadPluginSettingPanel( ILSLRecPluginTrial plg )
 	{		
 		try 
 		{

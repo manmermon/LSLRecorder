@@ -225,12 +225,13 @@ public class Language
 	public static final String TEST_TEXT = "TEST_TEXT";
 	public static final String ENCODER_TEXT = "ENCODER_TEXT";	
 	
-
+	public static final String MSG_DATA_PROCESSING_STREAMS_CHANGED = "MSG_DATA_PROCESSING_STREAMS_CHANGED"; 
+			
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
 	static {
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
-
+		
 		captions.put(SETTING_SYNC_METHOD, new Caption(SETTING_SYNC_METHOD, defaultLanguage, "Sync Method"));
 		captions.put(SETTING_SPECIAL_IN_METHOD,
 				new Caption(SETTING_SPECIAL_IN_METHOD, defaultLanguage, "Special input messages"));
@@ -447,6 +448,9 @@ public class Language
 		
 		captions.put(ENCODER_TEXT,
 				new Caption(ENCODER_TEXT, defaultLanguage, "Encoder"));
+		
+		captions.put( MSG_DATA_PROCESSING_STREAMS_CHANGED
+						, new Caption( MSG_DATA_PROCESSING_STREAMS_CHANGED, defaultLanguage, "The streams selected to be processed have changed. Check that everything is correct." ) );
 
 	}
 

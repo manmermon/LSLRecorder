@@ -34,10 +34,10 @@ import javax.swing.text.StyledDocument;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.stoppableThread.IStoppableThread;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class StringPlotter extends LSLInStreamDataReceiverTemplate 
 {

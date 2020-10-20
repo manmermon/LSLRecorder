@@ -30,7 +30,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -60,6 +62,7 @@ import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -71,6 +74,7 @@ import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class GuiManager
@@ -636,5 +640,34 @@ public class GuiManager
 			
 			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );		
 		}
+	}
+	
+	public boolean refreshPlugins()
+	{
+		HashSet< DataStreamSetting > streams = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		Set< DataStreamSetting > plgStr = DataProcessingPluginRegistrar.getAllDataStreams();
+		boolean del = false;
+		for( DataStreamSetting dss : plgStr )
+		{
+			if( !streams.contains( dss ) )
+			{
+				DataProcessingPluginRegistrar.removeDataStreamInAllProcess( dss );
+				
+				del = true;
+			}
+		}
+		
+		if( del )
+		{
+			try 
+			{
+				AppUI.getInstance().getStreamSetting().refreshPlugins();
+			}
+			catch (Exception e) 
+			{
+			}
+		}
+		
+		return del;
 	}
 }

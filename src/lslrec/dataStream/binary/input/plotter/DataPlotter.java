@@ -22,13 +22,12 @@
 
 package lslrec.dataStream.binary.input.plotter;
 
-import lslrec.edu.ucsd.sccn.LSLUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 

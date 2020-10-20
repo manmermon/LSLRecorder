@@ -24,6 +24,8 @@
 package lslrec.config;
 
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
@@ -32,8 +34,6 @@ import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -65,7 +65,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 15 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 19 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute

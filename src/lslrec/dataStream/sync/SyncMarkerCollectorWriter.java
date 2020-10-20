@@ -42,10 +42,10 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 public class SyncMarkerCollectorWriter extends AbstractStoppableThread implements INotificationTask
 {	

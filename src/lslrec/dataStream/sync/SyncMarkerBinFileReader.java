@@ -27,9 +27,9 @@ import java.util.List;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class SyncMarkerBinFileReader
 {

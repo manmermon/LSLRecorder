@@ -20,8 +20,8 @@
 
 package lslrec.dataStream.binary.input.writer;
 
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 public class StreamBinaryHeader
 {	

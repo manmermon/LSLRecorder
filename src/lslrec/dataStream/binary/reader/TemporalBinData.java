@@ -27,10 +27,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.dataStream.binary.BinaryDataFormat;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class TemporalBinData
 {	

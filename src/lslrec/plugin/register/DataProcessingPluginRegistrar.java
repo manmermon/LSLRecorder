@@ -93,7 +93,7 @@ public class DataProcessingPluginRegistrar
 		}
 	}
 	
-	public static void removeAllDataStreams( DataStreamSetting stream )
+	public static void removeDataStreamInAllProcess( DataStreamSetting stream )
 	{
 		for( Set< DataStreamSetting > strs : streamPluginRegister.values() )
 		{
@@ -167,5 +167,22 @@ public class DataProcessingPluginRegistrar
 		}
 		
 		return processes;
+	}
+
+	public static Set< DataStreamSetting > getAllDataStreams()
+	{
+		Set< DataStreamSetting > strs = new HashSet<DataStreamSetting>();
+		
+		for( Set< DataStreamSetting > dss : streamPluginRegister.values() )
+		{
+			strs.addAll( dss );
+		}
+		
+		return strs;
+	}
+	
+	public static List< ILSLRecPluginDataProcessing > getDataProcesses()
+	{
+		return new ArrayList<ILSLRecPluginDataProcessing>( processRegister );
 	}
 }

@@ -1,4 +1,4 @@
-package lslrec.gui.panel.plugin;
+package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -118,6 +118,17 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 	}
 	
+	public void refreshSelectedProcessTable()
+	{
+		JTable t = this.getSelectedProcessTable();
+		
+		for( int sel : t.getSelectedRows() )
+		{
+			t.clearSelection();
+			t.setRowSelectionInterval( sel, sel );
+		}
+	}
+	
 	private JPanel getPluginSettingPanel()
 	{
 		if( this.panelPluginSetting == null )
@@ -181,7 +192,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		
 		for( DataStreamSetting STR : removeStream )
 		{
-			DataProcessingPluginRegistrar.removeAllDataStreams( STR );
+			DataProcessingPluginRegistrar.removeDataStreamInAllProcess( STR );
 		}
 		
 		this.addStream( p, selectedStreams, plugin );

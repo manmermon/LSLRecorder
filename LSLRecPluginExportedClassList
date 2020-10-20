@@ -17,6 +17,10 @@ lslrec
 					.EventType.java
 					
 	.dataStream
+				.family
+						.lsl
+							.*
+							
 				.outputDataFile
 								.compress										
 										.IOutZip.java
@@ -36,11 +40,6 @@ lslrec
 				
 				.sync
 					.SyncMarker.java
-								
-	.edu
-		.ucsd
-			.sccn
-				.LSLUtils.java
 				
 	.exceptions
 				.*.java

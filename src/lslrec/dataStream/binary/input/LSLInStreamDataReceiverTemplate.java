@@ -35,11 +35,11 @@ import lslrec.controls.messages.EventType;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
+import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
+import lslrec.dataStream.family.lsl.LSL.StreamInlet;
 import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
-import lslrec.edu.ucsd.sccn.LSL.StreamInlet;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

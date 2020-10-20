@@ -40,8 +40,8 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 	
 	private int _softClose = 1;
 	
-	private LSL.StreamOutlet out;
-	private LSL.StreamOutlet out_time;
+	private lslrec.dataStream.family.lsl.StreamOutlet out;
+	private lslrec.dataStream.family.lsl.StreamOutlet out_time;
 	
 	public static String PREFIX =  "SyncLSL-"; 
 	

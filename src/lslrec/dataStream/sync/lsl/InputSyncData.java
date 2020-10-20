@@ -28,10 +28,10 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
-import lslrec.edu.ucsd.sccn.LSLUtils;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
 {	

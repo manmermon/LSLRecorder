@@ -9,8 +9,8 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class CLISCompressorWriter 
 {

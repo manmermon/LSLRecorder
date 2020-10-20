@@ -22,7 +22,7 @@
 
 package lslrec.dataStream.setting;
 
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 
 /**
  * 

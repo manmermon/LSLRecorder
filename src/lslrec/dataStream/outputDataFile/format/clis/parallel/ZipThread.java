@@ -29,10 +29,10 @@ import lslrec.auxiliar.tasks.INotificationTask;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
 import lslrec.stoppableThread.AbstractStoppableThread;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 public class ZipThread extends AbstractStoppableThread implements INotificationTask  
 {

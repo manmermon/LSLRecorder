@@ -99,6 +99,10 @@ import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
+import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
+import lslrec.dataStream.family.lsl.LSL.XMLElement;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
@@ -112,7 +116,8 @@ import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
-import lslrec.gui.panel.plugin.CreatorDefaultSettingPanel;
+import lslrec.gui.panel.plugin.Panel_PluginSettings;
+import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -128,10 +133,6 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.edu.ucsd.sccn.LSLUtils;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
-import lslrec.edu.ucsd.sccn.LSL.XMLElement;
 
 public class Panel_StreamingSettings extends JPanel
 {
@@ -239,6 +240,8 @@ public class Panel_StreamingSettings extends JPanel
 	public void enableSettings( boolean enable )
 	{
 		this.getDisabledPanel( ).setEnabled( enable );
+		
+		this.setEnablePluginSetting( enable );
 	}
 	
 	private DisabledPanel getDisabledPanel( )
@@ -2125,5 +2128,31 @@ public class Panel_StreamingSettings extends JPanel
 		JTabbedPane t = this.getJTabDevice( null );
 		
 		t.addTab( title, panel );
+	}
+	
+	private void setEnablePluginSetting( boolean ena )
+	{
+		JTabbedPane t = this.getJTabDevice( null );
+		
+		for( Component c : t.getComponents() )
+		{
+			if( c instanceof Panel_PluginSettings )
+			{
+				((Panel_PluginSettings) c ).enableSettings( ena ); 
+			}
+		}
+	}
+	
+	public void refreshPlugins()
+	{
+		JTabbedPane t = this.getJTabDevice( null );
+		
+		for( Component c : t.getComponents() )
+		{
+			if( c instanceof Panel_PluginSettings )
+			{
+				((Panel_PluginSettings) c ).refreshSelectedPlugins(); 
+			}
+		}
 	}
 }

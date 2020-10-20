@@ -1,7 +1,7 @@
 package lslrec.dataStream.setting;
 
-import lslrec.edu.ucsd.sccn.LSL.StreamInfo;
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 
 public class DataStreamSetting 
 {

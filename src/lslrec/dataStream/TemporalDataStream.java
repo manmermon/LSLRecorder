@@ -28,7 +28,7 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.family.lsl.LSLUtils;
 
 public class TemporalDataStream
 {

@@ -19,7 +19,7 @@
  */
 package lslrec.dataStream.sync;
 
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.family.lsl.LSLUtils;
 
 public class SyncMarker implements Comparable< SyncMarker >
 {	

@@ -1,4 +1,4 @@
-package lslrec.gui.panel.plugin;
+package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
 import java.awt.Component;

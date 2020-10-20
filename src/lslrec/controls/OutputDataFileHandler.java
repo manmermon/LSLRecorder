@@ -28,6 +28,7 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.family.lsl.LSL;
 import lslrec.dataStream.outputDataFile.OutputBinaryFileSegmentation;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
@@ -47,7 +48,6 @@ import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.edu.ucsd.sccn.LSL;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

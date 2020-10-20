@@ -19,7 +19,7 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.edu.ucsd.sccn.LSLUtils;
+import lslrec.dataStream.family.lsl.LSLUtils;
 
 public class FloatBlock extends DataBlock<Float> 
 {

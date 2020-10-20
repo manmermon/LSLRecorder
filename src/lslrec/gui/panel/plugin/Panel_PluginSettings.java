@@ -4,6 +4,7 @@
 package lslrec.gui.panel.plugin;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,12 +14,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
 import lslrec.config.language.Language;
+import lslrec.gui.miscellany.DisabledPanel;
+import lslrec.gui.panel.plugin.item.DataProcessingPluginSelectorPanel;
+import lslrec.gui.panel.plugin.item.TrialPluginSelectorPanel;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
-import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginGUIExperiment;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 
 /**
  * @author Manuel Merino Monge
@@ -31,17 +35,49 @@ public class Panel_PluginSettings extends JPanel
 	 */
 	private static final long serialVersionUID = -5517816000307765982L;
 	
+	private JPanel container = null;
+	
 	private JTabbedPane tab = null;
+	
+	// DisabledPanel
+	private DisabledPanel disPanel;
 	
 	public Panel_PluginSettings() 
 	{
 		super.setLayout( new BorderLayout() );
 		
-		super.add( this.getTabbedPanel(), BorderLayout.CENTER );
+		super.add( this.getDisabledPanel(), BorderLayout.CENTER );
 		
 		this.loadPluginSettingTab( );
 	}
-
+	
+	private DisabledPanel getDisabledPanel( )
+	{
+		if( this.disPanel == null )
+		{
+			this.disPanel = new DisabledPanel( this.getContainerPanel() ); 
+		}
+		
+		return this.disPanel;
+	}
+	
+	public void enableSettings( boolean enable )
+	{
+		this.getDisabledPanel( ).setEnabled( enable );
+	}
+	
+	private JPanel getContainerPanel()
+	{
+		if( this.container == null )
+		{
+			this.container = new JPanel( new BorderLayout() );
+			
+			this.container.add( this.getTabbedPanel(), BorderLayout.CENTER );
+		}
+		
+		return this.container;
+	}
+	
 	private JTabbedPane getTabbedPanel()
 	{
 		if( this.tab == null )
@@ -51,7 +87,7 @@ public class Panel_PluginSettings extends JPanel
 		
 		return this.tab;
 	}
-		
+	
 	private void loadPluginSettingTab( )
 	{
 		JTabbedPane plugingTabPanel = this.getTabbedPanel();
@@ -117,11 +153,11 @@ public class Panel_PluginSettings extends JPanel
 						} 
 						else if( pluginType == PluginType.TRIAL) 
 						{
-							Set< ILSLRecPluginGUIExperiment > idPlugins = new HashSet< ILSLRecPluginGUIExperiment >();
+							Set< ILSLRecPluginTrial > idPlugins = new HashSet< ILSLRecPluginTrial >();
 							
 							for( ILSLRecConfigurablePlugin pl : plgs )
 							{
-								idPlugins.add( (ILSLRecPluginGUIExperiment)pl );
+								idPlugins.add( (ILSLRecPluginTrial)pl );
 							}
 							
 							TrialPluginSelectorPanel tsp = new TrialPluginSelectorPanel( idPlugins );
@@ -162,5 +198,22 @@ public class Panel_PluginSettings extends JPanel
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}		
+	}
+	
+	public void refreshSelectedPlugins()
+	{
+		JTabbedPane plugingTabPanel = this.getTabbedPanel();
+		
+		for( Component c : plugingTabPanel.getComponents() )
+		{
+			if( c instanceof JScrollPane )
+			{
+				Component c2 = ( (JScrollPane) c ).getViewport().getComponent( 0 );
+				if( c2 instanceof DataProcessingPluginSelectorPanel )
+				{
+					( (DataProcessingPluginSelectorPanel) c2 ).refreshSelectedProcessTable();
+				}
+			}
+		}
 	}
 }

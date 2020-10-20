@@ -35,6 +35,8 @@ import lslrec.controls.messages.SocketInformations;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
@@ -48,7 +50,12 @@ import lslrec.controls.messages.EventType;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
+import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
+import lslrec.plugin.register.DataProcessingPluginRegistrar;
+import lslrec.plugin.register.TrialPluginRegistrar;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.sockets.info.StreamSocketProblem;
@@ -58,8 +65,6 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.edu.ucsd.sccn.LSL;
-import lslrec.edu.ucsd.sccn.LSLUtils;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -75,6 +80,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -120,6 +127,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private int savingDataProgress = 0;
 	
 	private volatile String encryptKey = "";
+	
+	private LSLRecPluginTrial trial = null;
+	private JFrame trialWindows = null;
 		
 	/**
 	 * Create main control unit.
@@ -391,7 +401,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}			
 			
-
 			//Create In-Out sockets
 			this.streamPars = this.getSocketStreamingInformations();
 			ParameterList socketParameters = new ParameterList();
@@ -514,9 +523,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.isWaitingForStartCommand = this.isActiveSpecialInputMsg
 												&& 
 												( this.streamPars.getInputCommands().containsKey( RegisterSyncMessages.INPUT_START )
-														|| isSyncLSL );				
-				
-							
+														|| isSyncLSL );
 			}
 			else
 			{
@@ -532,6 +539,29 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				} );
 				
 				this.writingTestTimer.start();
+			}
+			
+			ILSLRecPluginTrial trialPl = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+			
+			if( trialPl != null )
+			{
+				this.trial = trialPl.getGUIExperiment();
+				
+				if( this.trial != null )
+				{
+					if( this.trialWindows != null )
+					{
+						this.trialWindows.dispose();
+					}
+					
+					this.trialWindows = this.trial.getWindonw();
+					this.trialWindows.setVisible( false );
+					this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
+					
+					this.trial.loadSettings( trialPl.getSettings() );
+					
+					this.trial.taskMonitor( this.ctrlOutputFile );
+				}
 			}
 			
 			this.waitStartCommand();
@@ -585,10 +615,19 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private void checkSettings() 
 	{
+		this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
+		
 		WarningMessage outFileMsg = this.ctrlOutputFile.checkParameters();
 		WarningMessage socketMsg = this.ctrSocket.checkParameters();
 		
-		this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
+		ILSLRecPluginTrial trial = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+		
+		if( trial != null )
+		{
+			WarningMessage trW = trial.checkSettings();
+			
+			this.warnMsg.addMessage( trW.getMessage(), trW.getWarningType() );
+		}
 		
 		this.warnMsg.addMessage( outFileMsg.getMessage(), outFileMsg.getWarningType() );
 		this.warnMsg.addMessage( socketMsg.getMessage(), socketMsg.getWarningType() );
@@ -607,18 +646,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
 		{
 			Dialog_Password pass = new Dialog_Password( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
-			
-			/*
-			Dimension d = this.managerGUI.getAppUI().getSize();
-			Point l = this.managerGUI.getAppUI().getLocation();
-			
-			Dimension dPass = pass.getSize();
-			
-			Point loc = pass.getLocation();
-			loc.x = l.x + ( d.width - dPass.width ) / 2;
-			loc.y = l.y + ( d.height- dPass.height ) / 2;
-			pass.setLocation( loc );
-			*/
 			
 			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
 			pass.setVisible( true );
@@ -643,7 +670,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 		
-		HashSet< MutableDataStreamSetting > lslPars = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		HashSet< DataStreamSetting > lslPars = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 				
 		LSL.StreamInfo[] results = LSL.resolve_streams();
 				
@@ -652,7 +679,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		if( results.length >= 0 )
 		{
 			boolean selected = false;
-			for( MutableDataStreamSetting lslcfg : lslPars )
+			
+			// Check if one stream is selected.
+			for( DataStreamSetting lslcfg : lslPars )
 			{
 				selected = lslcfg.isSelected();
 
@@ -670,8 +699,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 				}
 			}
-									
-			for( MutableDataStreamSetting lslcfg : lslPars )
+					
+			// Check if sync stream is selected.
+			for( DataStreamSetting lslcfg : lslPars )
 			{
 				existSelectedSyncLSL = lslcfg.isSynchronationStream();
 
@@ -697,29 +727,41 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			}
 			
-			if( results.length != lslPars.size() )
-			{
-				boolean change = false;
+			boolean change = false;
 				
-				for( int i = 0; i < results.length && !change; i++ )
+			for( int i = 0; i < results.length && !change; i++ )
+			{
+				LSL.StreamInfo stream = results[ i ];
+
+				for( DataStreamSetting lslcfg : lslPars )
 				{
-					LSL.StreamInfo stream = results[ i ];
-					
-					for( MutableDataStreamSetting lslcfg : lslPars )
+					if( ( lslcfg.isSelected() || lslcfg.isSynchronationStream() )
+							&& lslcfg.getStreamName().equals( stream.name() ) 
+							&& lslcfg.getSourceID().equals( stream.source_id() ) )
 					{
-						change = !stream.uid().equals( lslcfg.getUID() );
-						
+						change = !stream.uid().equals( lslcfg.getUID() ) ;
+	
 						if( change )
 						{
 							break;
 						}
 					}
 				}
-				
-				if( change )
-				{
-					this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );					
-				}
+			}
+
+			if( change )
+			{
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE );
+			}
+		}
+		
+		// Checking plugin setting
+		for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
+		{
+			if( !DataProcessingPluginRegistrar.getDataStreams( process ).isEmpty() )
+			{
+				WarningMessage w = process.checkSettings();
+				this.warnMsg.addMessage( w.getMessage(), w.getWarningType() );
 			}
 		}
 		
@@ -747,6 +789,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{			
 			this.ctrSocket.toWorkSubordinates( null );
 			this.startRecord();
+		}
+		
+		if( this.trial != null )
+		{	
+			this.trialWindows.setVisible( true );
+			this.trial.startThread();
 		}
 	}
 
@@ -1898,10 +1946,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		@Override
 		protected void runInLoop() throws Exception 
-		{
+		{	
 			if ( isRecording 
 					|| isWaitingForStartCommand )
-			{					
+			{	
+				trial.stopThread( IStoppableThread.FORCE_STOP );
+				
 				isRecording = false;
 				isWaitingForStartCommand = false;
 				isActiveSpecialInputMsg = false;
@@ -1985,7 +2035,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				{
 					System.exit( 0 );
 				}
-			}
+			}			
+			
+			trialWindows = null;
 		}
 		
 		@Override
