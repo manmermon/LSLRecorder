@@ -393,6 +393,7 @@ public class AppUI extends JFrame
 
 					String sync = (String)jc.getSelectedItem();
 
+					/*
 					getJCheckActiveSpecialInputMsg().setEnabled( true );
 					
 					if( sync.equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
@@ -411,6 +412,7 @@ public class AppUI extends JFrame
 						{
 						}
 					}
+					*/
 					
 					ConfigApp.setProperty( ID, sync );
 				}
@@ -438,7 +440,7 @@ public class AppUI extends JFrame
 				public void itemStateChanged(ItemEvent e) 
 				{
 					JCheckBox c = (JCheckBox)e.getSource();
-					
+					/*
 					if( e.getStateChange() == ItemEvent.SELECTED )
 					{
 						if( !c.isEnabled() )
@@ -446,16 +448,18 @@ public class AppUI extends JFrame
 							c.setSelected( false );
 						}					
 					}					
-					
+					*/
 					ConfigApp.setProperty( ID, c.isSelected() );
 				}
 			});
 
+			/*
 			if( this.getJComboxSyncMethod().getSelectedItem().toString().equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
 			{
 				this.checkActiveSpecialInputMsg.setSelected( false );;
 				this.checkActiveSpecialInputMsg.setEnabled( false );
 			}
+			*/
 			
 			this.parameters.put( ID, this.checkActiveSpecialInputMsg );
 						

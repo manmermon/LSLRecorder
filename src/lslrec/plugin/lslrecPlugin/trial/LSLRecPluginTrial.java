@@ -26,8 +26,6 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	
 	private ITaskMonitor monitor = null;
 
-	protected StreamOutlet stream = null;
-	
 	/**
 	 * 
 	 */
@@ -88,12 +86,6 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		if( this.syncMethod != null )
 		{
 			this.syncMethod.stopThread( IStoppableThread.FORCE_STOP );
-		}
-		
-		if( this.stream != null )
-		{
-			this.stream.close();
-			this.stream = null;
 		}
 	}
 
@@ -177,15 +169,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 			}
 		}
 	}
-	
-	protected final void setStream( StreamOutlet str )
-	{
-		if( this.getState().equals( State.NEW ) )
-		{
-			this.stream = str;
-		}
-	}
-	
+		
 	public abstract void loadSettings( List< Parameter< String > > pars);
 	
 	public abstract void setStage( JPanel GUIPanel );

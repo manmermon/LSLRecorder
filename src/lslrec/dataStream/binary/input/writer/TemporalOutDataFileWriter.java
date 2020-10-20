@@ -25,9 +25,12 @@ package lslrec.dataStream.binary.input.writer;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.stoppableThread.IStoppableThread;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -48,7 +51,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	private String ext = ".temp";
 	
 	private OutputFileFormatParameters outputFormat;
-		
+	
+	private DataProcessingExecutor datProcessingExec = null;
+	
 	public TemporalOutDataFileWriter( DataStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
 		super( lslCfg );
@@ -65,7 +70,14 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		super.setName( super.streamSetting.getStreamName() + "(" + super.streamSetting.getStreamInfo().uid() + ")");
 		
 		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
-		
+	}
+
+	public void setDataProcessing( LSLRecPluginDataProcessing process )
+	{
+		if( super.getState().equals( State.NEW ) )
+		{
+			this.datProcessingExec = new DataProcessingExecutor( process );
+		}
 	}
 	
 	protected void preStart() throws Exception
@@ -95,6 +107,11 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		this.out.write( binHeader.getBytes() );
 		
 		super.startUp();
+		
+		if( this.datProcessingExec != null )
+		{
+			this.datProcessingExec.startThread();
+		}
 	}
 	
 	protected void managerData( byte[] data, byte[] time ) throws Exception
@@ -123,6 +140,11 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			}
 						
 			this.out.write( DAT );			
+			
+			if( this.datProcessingExec != null )
+			{
+				this.datProcessingExec.processData( data );
+			}
 		}
 	}		
 
@@ -143,6 +165,12 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			super.notifTask.addEvent( event );
 			
 			super.closeNotifierThread();
+		}
+		
+		if( this.datProcessingExec != null )
+		{
+			this.datProcessingExec.stopThread( IStoppableThread.FORCE_STOP );
+			this.datProcessingExec = null;
 		}
 	}
 	

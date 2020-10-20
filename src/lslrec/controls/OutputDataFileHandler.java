@@ -38,6 +38,8 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.sync.lsl.InputSyncData;
 import lslrec.dataStream.writingSystemTester.WritingTest;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.tasks.INotificationTask;
@@ -77,6 +79,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	//public static final String PARAMETER_FILE_PATH = "filePath";
 	public static final String PARAMETER_LSL_SETTING = "LSL settings";
 	public static final String PARAMETER_WRITE_TEST = "Writing test";
+	public static final String PARAMETER_DATA_PROCESSING = "data processing";
 	
 	private static OutputDataFileHandler ctr = null;
 
@@ -327,6 +330,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				test = (boolean)writingTest.getValue();
 			}				
 			
+			Parameter parProcesses = parameters.getParameter( PARAMETER_DATA_PROCESSING );
+			Map< DataStreamSetting, LSLRecPluginDataProcessing > processes = null;
+			if( parProcesses != null )
+			{
+				processes = (Map< DataStreamSetting, LSLRecPluginDataProcessing >) parProcesses.getValue();
+			}
 			
 			//
 			//
@@ -408,6 +417,15 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						if( !test )
 						{
 							temp = new TemporalOutDataFileWriter( t, fileFormat.clone(), indexInlets );
+							
+							if( processes != null )
+							{
+								LSLRecPluginDataProcessing p = processes.get( t );
+								if( p != null )
+								{
+									temp.setDataProcessing( p );
+								}
+							}
 						}
 						else
 						{

@@ -8,7 +8,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
-public abstract class DataProcessingExecutor extends AbstractStoppableThread
+public class DataProcessingExecutor extends AbstractStoppableThread
 {
 	private ConcurrentLinkedQueue< Byte[] > inputs;
 	private List< Number > data;
@@ -76,8 +76,17 @@ public abstract class DataProcessingExecutor extends AbstractStoppableThread
 			}	
 		}
 	}
+	
+	@Override
+	protected void runExceptionManager(Throwable e) 
+	{
+		if( !( e instanceof InterruptedException ) )
+		{	
+			super.runExceptionManager(e);
+		}
+	} 
 
-	public final void addData( byte[] inputs )
+	public final void processData( byte[] inputs )
 	{
 		if( this.process != null && inputs != null )
 		{
@@ -88,5 +97,15 @@ public abstract class DataProcessingExecutor extends AbstractStoppableThread
 				super.notify();
 			}
 		}
+	}
+
+	@Override
+	protected void preStopThread(int friendliness) throws Exception 
+	{	
+	}
+
+	@Override
+	protected void postStopThread(int friendliness) throws Exception 
+	{	
 	}		
 }

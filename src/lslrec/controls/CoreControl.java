@@ -51,6 +51,7 @@ import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
@@ -73,6 +74,7 @@ import java.io.File;
 import java.nio.file.FileSystemException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -436,11 +438,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				HashSet< MutableDataStreamSetting > deviceIDs = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 
 				HashSet< MutableDataStreamSetting > DEV_ID = new HashSet< MutableDataStreamSetting >();
+				Map< MutableDataStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<MutableDataStreamSetting, LSLRecPluginDataProcessing >();
 				for( MutableDataStreamSetting dev : deviceIDs )
 				{
 					if( dev.isSelected() )
 					{
 						DEV_ID.add( dev );
+						
+						LSLRecPluginDataProcessing process = null;
+						for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev ) )
+						{
+							process = pr.getProcessing( dev, process );
+							process.loadProcessingSettings( pr.getSettings() );
+						}
+						
+						DataProcesses.put( dev, process );
 					}
 					else
 					{
@@ -465,13 +477,16 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						}
 					}
 
-					ParameterList LSLPars = new ParameterList();
-
+					ParameterList StreamPars = new ParameterList();
+					
 					Parameter lslSetting = new Parameter( this.ctrlOutputFile.PARAMETER_LSL_SETTING, DEV_ID );
-					LSLPars.addParameter( lslSetting );
+					StreamPars.addParameter( lslSetting );
+					
+					Parameter datProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_PROCESSING, DataProcesses );
+					StreamPars.addParameter( datProcesses );
 					
 					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
-					LSLPars.addParameter( writingTest );
+					StreamPars.addParameter( writingTest );
 					
 					OutputFileFormatParameters outFormat = new OutputFileFormatParameters();
 					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
@@ -500,9 +515,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
 					
 					Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
-					LSLPars.addParameter( outFileFormat );;
-
-					minionPars.setMinionParameters( this.ctrlOutputFile.ID, LSLPars );
+					StreamPars.addParameter( outFileFormat );
+					
+					minionPars.setMinionParameters( this.ctrlOutputFile.ID, StreamPars );
 
 					this.ctrlOutputFile.addSubordinates( minionPars );						
 				}
@@ -1950,7 +1965,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			if ( isRecording 
 					|| isWaitingForStartCommand )
 			{	
-				trial.stopThread( IStoppableThread.FORCE_STOP );
+				if( trial != null )
+				{
+					trial.stopThread( IStoppableThread.FORCE_STOP );
+				}
 				
 				isRecording = false;
 				isWaitingForStartCommand = false;

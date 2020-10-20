@@ -32,11 +32,14 @@ public class TrialPluginRegistrar
 	
 		try
 		{
-			test = trial.getClass().newInstance();
-			
-			List< Parameter< String > > pars = trial.getSettings();
-			
-			test.loadSettings( pars  );
+			if( trial != null )
+			{
+				test = trial.getClass().newInstance();
+				
+				List< Parameter< String > > pars = trial.getSettings();
+				
+				test.loadSettings( pars  );
+			}
 		}
 		catch( Exception e )
 		{			

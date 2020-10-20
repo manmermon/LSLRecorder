@@ -48,10 +48,15 @@ public abstract class LSLRecPluginDataProcessing
 				}
 
 				processedData = this.processData( processedData );
+				
+				for( Number val : processedData )
+				{
+					result.add( val );
+				}
 			}
 		}
 
-		return result.toArray( new Number[0] );
+		return result.toArray( new Number[0]);
 	}
 	
 	public DataStreamSetting getDataStreamSetting()
