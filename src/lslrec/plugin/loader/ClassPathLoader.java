@@ -19,8 +19,8 @@ public class ClassPathLoader
 	private static final String ADD_URL = "addURL";
 	private static final Class[] METHODS = new Class[]{ URL.class };
 	
-	//private final URLClassLoader loader;
-	private final ClassLoader loader;
+	private final URLClassLoader loader;
+	
 	private final Method method;
 
 	public ClassPathLoader() throws NoSuchMethodException 

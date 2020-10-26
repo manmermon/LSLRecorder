@@ -222,7 +222,7 @@ public class Language
 	public static final String LANGUAGE_TEXT = "LANGUAGE_TEXT";
 	
 	public static final String SETTING_PLUGIN = "SETTING_PLUGIN";	
-	public static final String TEST_TEXT = "TEST_TEXT";
+	public static final String TRIALS_TEXT = "TEST_TEXT";
 	public static final String ENCODER_TEXT = "ENCODER_TEXT";	
 	
 	public static final String MSG_DATA_PROCESSING_STREAMS_CHANGED = "MSG_DATA_PROCESSING_STREAMS_CHANGED"; 
@@ -443,8 +443,8 @@ public class Language
 		captions.put(OTHERS_TEXT,
 				new Caption(OTHERS_TEXT, defaultLanguage, "Others"));
 		
-		captions.put(TEST_TEXT,
-				new Caption(TEST_TEXT, defaultLanguage, "Test"));
+		captions.put(TRIALS_TEXT,
+				new Caption(TRIALS_TEXT, defaultLanguage, "Trials"));
 		
 		captions.put(ENCODER_TEXT,
 				new Caption(ENCODER_TEXT, defaultLanguage, "Encoder"));

@@ -19,7 +19,7 @@ lslrec
 	.dataStream
 				.family
 						.lsl
-							.*
+							.LSLUtils.java
 							
 				.outputDataFile
 								.compress										

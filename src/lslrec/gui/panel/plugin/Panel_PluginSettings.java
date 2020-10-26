@@ -114,7 +114,7 @@ public class Panel_PluginSettings extends JPanel
 					}
 					case TRIAL:
 					{
-						pluginCategory = Language.getLocalCaption( Language.TEST_TEXT );						
+						pluginCategory = Language.getLocalCaption( Language.TRIALS_TEXT );						
 						break;
 					}
 					case ENCODER:

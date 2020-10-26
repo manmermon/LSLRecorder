@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
 <jardesc>
-    <jar path="LSLRecorder/LSLRecPluginInterface.jar"/>
+    <jar path="LSLRecorder/binaries/LSLRecPluginInterface.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/LSLRecorder/lslRecPlugin.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
     <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
     <selectedProjects/>
@@ -23,6 +23,7 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{ByteBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{IParameter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{IOutZip.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{OutputFileFormatParameters.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.compressor"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{SettingOptions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{ParameterList.java"/>
@@ -38,7 +39,9 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{Parameter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.processing"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.controls.messages{EventType.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{Encoder.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{FloatBlock.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{IOutputDataFileWriter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync{SyncMarker.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>

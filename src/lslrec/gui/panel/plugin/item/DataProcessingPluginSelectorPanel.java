@@ -909,7 +909,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				
 				p.add( streamPanel, BorderLayout.NORTH );
 								
-				JPanel p2 = process.getSettingPanel();				
+				JPanel p2 = process.getSettingPanel();
+				p.setPreferredSize( p.getPreferredSize() );
 				p.add( p2, BorderLayout.CENTER );
 			}
 			
