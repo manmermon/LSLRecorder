@@ -134,7 +134,7 @@ public class mainLSLRecorder
 			}
 			finally
 			{
-				GuiManager.getInstance().getAppUI().loadConfigValues();
+				GuiManager.loadConfigValues2GuiComponents();
 				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			}
 		}

@@ -35,6 +35,7 @@ import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 
+import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -54,6 +55,11 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.swing.JComboBox;
+import javax.swing.JTable;
+import javax.swing.JToggleButton;
+import javax.swing.table.DefaultTableModel;
+
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
@@ -65,7 +71,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 20 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 27 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -119,8 +125,7 @@ public class ConfigApp
 	 */
 
 	public static final String LSL_ID_DEVICES = "LSL_ID_DEVICES";
-
-	
+		
 	/****
 	 * 
 	 * 
@@ -139,6 +144,8 @@ public class ConfigApp
 	public static final String OUTPUT_ENCRYPT_DATA = "OUTPUT_ENCRYPT_DATA";
 	
 	public static final String OUTPUT_PARALLELIZE = "OUTPUT_PARALLELIZE";
+	
+	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
 	
 	////////////////////////
 	
@@ -166,7 +173,7 @@ public class ConfigApp
 	{
 		create_Key_Value();
 		create_Key_Type_Set();
-		create_Key_RankValues();
+		create_Key_RankValues(); 
 	}
 
 	private static void create_Key_Value()
@@ -199,13 +206,15 @@ public class ConfigApp
 		
 		list_Key_Type.put( OUTPUT_COMPRESSOR, String.class );
 		list_Key_Type.put( OUTPUT_PARALLELIZE, Boolean.class );
+		
+		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
 	{
 		list_Key_RankValues.clear();
 	}
-	
+		
 	public static void saveConfig( File f ) throws Exception
 	{		
 		defaultNameFileConfig = f.getName();
@@ -841,6 +850,11 @@ public class ConfigApp
 				loadDefaultLSLOutputParallelize();
 				break;
 			}
+			case OUTPUT_SAVE_DATA_PROCESSING:
+			{
+				loadDefaultSaveOutputDataProcessing();
+				break;
+			}
 		}
 	}
 
@@ -863,6 +877,8 @@ public class ConfigApp
 		loadDefaultLSLEncryptData();
 		loadDefaultOutputCompressor();
 		loadDefaultLSLOutputParallelize();
+		
+		loadDefaultSaveOutputDataProcessing();
 	}
 
 	private static void loadDefaultLanguage()
@@ -980,5 +996,10 @@ public class ConfigApp
 	private static void loadDefaultLSLOutputParallelize()
 	{
 		listConfig.put( OUTPUT_PARALLELIZE, true );
+	}
+	
+	private static void loadDefaultSaveOutputDataProcessing()
+	{
+		listConfig.put( OUTPUT_SAVE_DATA_PROCESSING, false );
 	}
 }

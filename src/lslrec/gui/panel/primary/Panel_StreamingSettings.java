@@ -77,12 +77,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.border.BevelBorder;
@@ -93,7 +90,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -111,6 +107,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -141,8 +138,8 @@ public class Panel_StreamingSettings extends JPanel
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private static final String LSL_STREAM_NAME = "LSL_STREAM_NAME";
-	private static final String LSL_STREAM_SYNC = "LSL_STREAM_SYNC";
+	public static final String LSL_STREAM_NAME = "LSL_STREAM_NAME";
+	public static final String LSL_STREAM_SYNC = "LSL_STREAM_SYNC";
 	
 	// Tabs
 	private JTabbedPane tabStreams;
@@ -192,7 +189,7 @@ public class Panel_StreamingSettings extends JPanel
 	private JTree devInfoTree;
 	
 	//Map
-	private Map< String, Component > parameters;
+	//private Map< String, Component > parameters;
 	
 	// SplitPanel
 	private JSplitPane splitPanelDevices;
@@ -213,7 +210,7 @@ public class Panel_StreamingSettings extends JPanel
 
 		super.setLayout( new BorderLayout( 0, 0 ) );
 
-		this.parameters = new HashMap< String, Component >();
+		//this.parameters = new HashMap< String, Component >();
 
 		this.selectedDeviceGroup = this.getRadioButtonGroup();
 		this.syncDeviceGroup = this.getSynDeviceGroup();
@@ -253,90 +250,6 @@ public class Panel_StreamingSettings extends JPanel
 		return this.disPanel;
 	}
 	
-	public void loadConfigValues()
-	{
-		this.refreshLSLStreamings();
-		
-		Set< String > IDs = this.parameters.keySet();
-
-		for( String id : IDs )
-		{
-			Component c = this.parameters.get( id );
-			c.setVisible( false );			
-
-			if( c instanceof JToggleButton )
-			{
-				JToggleButton b = (JToggleButton)c;
-				if( b.isEnabled() )
-				{
-					b.setSelected( (Boolean)ConfigApp.getProperty( id ) );
-				}
-			}
-			else if( c instanceof JTextComponent )
-			{
-				((JTextComponent)c).setText( ConfigApp.getProperty( id ).toString() );
-			}
-			else if( c instanceof JComboBox )
-			{
-				((JComboBox)c).setSelectedItem( ConfigApp.getProperty( id ).toString() );
-			}			
-			else if( c instanceof SelectedButtonGroup )
-			{
-				SelectedButtonGroup gr = (SelectedButtonGroup)c;
-
-				HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( id );
-				if( devs != null )
-				{
-					Iterator< MutableDataStreamSetting > itDevs = devs.iterator();
-	
-					while( itDevs.hasNext() )
-					{
-						MutableDataStreamSetting dev = itDevs.next();
-						boolean find = false;
-	
-						if( c.isEnabled() )
-						{
-							if( dev.isSelected() || dev.isSynchronationStream() )
-							{
-								String devID = dev.getSourceID();
-		
-								find = searchButton( gr, devID );
-		
-								Enumeration< AbstractButton > bts = gr.getElements();
-		
-								while( bts.hasMoreElements() && !find )
-								{
-									AbstractButton b = bts.nextElement();
-									find = b.getName().equals( devID );
-		
-									if( b.isEnabled() )
-									{									
-										b.setSelected( find );
-									}
-									else
-									{
-										if( dev.isSelected() )
-										{
-											dev.setSelected( false );
-										}
-										else if( dev.isSynchronationStream() )
-										{
-											dev.setSynchronizationStream( false );
-										}
-									}
-								}
-							}
-						}
-					}
-					
-					ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, devs );
-				}
-			}
-
-			c.setVisible( true );
-		}		
-	}
-
 	public void deselectSyncDevices()
 	{
 		for( ButtonModel bm : this.syncDeviceGroup.getSelections() )
@@ -530,7 +443,7 @@ public class Panel_StreamingSettings extends JPanel
 		
 		return find;
 	}
-
+	
 	private JPanel getJPanelOutFile()
 	{
 		if( this.jOutFile == null )
@@ -618,7 +531,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 
-			this.parameters.put( ID, this.generalDescrOutFile );
+			GuiManager.setGUIComponent( ID, this.generalDescrOutFile );
 		}
 		
 		return this.generalDescrOutFile;
@@ -666,7 +579,7 @@ public class Panel_StreamingSettings extends JPanel
 			});
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
-			this.parameters.put( ID, this.encryptKeyActive );
+			GuiManager.setGUIComponent( ID, this.encryptKeyActive );
 									
 		}
 		
@@ -869,7 +782,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 
-			this.parameters.put( ID, this.fileName );
+			GuiManager.setGUIComponent( ID, this.fileName );
 		}
 
 		return this.fileName;
@@ -975,7 +888,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 			
-			this.parameters.put( ID, this.fileFormat );
+			GuiManager.setGUIComponent( ID, this.fileFormat );
 		}
 
 		return this.fileFormat;
@@ -1889,7 +1802,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.selectedDeviceGroup = new SelectedButtonGroup();
 			//this.selectedDeviceGroup.setLayout( new BoxLayout( this.selectedDeviceGroup, BoxLayout.Y_AXIS ) );
 
-			this.parameters.put( LSL_STREAM_NAME, this.selectedDeviceGroup );
+			GuiManager.setGUIComponent( LSL_STREAM_NAME, this.selectedDeviceGroup );
 		}
 
 		return this.selectedDeviceGroup;
@@ -1901,7 +1814,7 @@ public class Panel_StreamingSettings extends JPanel
 		{
 			this.syncDeviceGroup = new SelectedButtonGroup();
 
-			this.parameters.put( LSL_STREAM_SYNC, this.syncDeviceGroup );
+			GuiManager.setGUIComponent( LSL_STREAM_SYNC, this.syncDeviceGroup );
 		}
 
 		return this.syncDeviceGroup;

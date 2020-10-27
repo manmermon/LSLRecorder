@@ -11,6 +11,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +42,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -52,6 +55,7 @@ import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -67,6 +71,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JPanel panelUpDownControl;
 	private JPanel panelMoveCtr;
 	private JPanel panelPluginSetting;
+	private JPanel panelSaveDataProcessing;
 	
 	private JTable tablePluginList;
 	private JTable tableSelectedPluginList;
@@ -77,10 +82,13 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JButton buttonUp;
 	private JButton buttonDown;
 	
+	private JCheckBox saveOutpuDataProcessing;
+	
 	public DataProcessingPluginSelectorPanel( Collection< ILSLRecPluginDataProcessing > plugins )
 	{		
 		super.setLayout( new BorderLayout() );
 		
+		this.add( this.getSaveOutputDataProcessingPanel(), BorderLayout.NORTH );
 		this.add( this.getPluginPanel(), BorderLayout.WEST );		
 		this.add( this.getPluginSettingPanel(), BorderLayout.CENTER );
 		
@@ -96,7 +104,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
 		ExceptionDialog.createExceptionDialog( w );
 	}
-		
+				
 	public void setPluginIDs( List< String > ids )
 	{
 		if( ids != null )
@@ -127,6 +135,43 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			t.clearSelection();
 			t.setRowSelectionInterval( sel, sel );
 		}
+	}
+	
+	private JPanel getSaveOutputDataProcessingPanel()
+	{
+		if( this.panelSaveDataProcessing == null )
+		{
+			this.panelSaveDataProcessing = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			
+			this.panelSaveDataProcessing .add( this.getJChkSaveOutputDataProcessing() );
+		}
+		
+		return this.panelSaveDataProcessing;
+	}
+	
+	private JCheckBox getJChkSaveOutputDataProcessing()
+	{
+		if( this.saveOutpuDataProcessing == null )
+		{
+			this.saveOutpuDataProcessing = new JCheckBox( Language.getLocalCaption( Language.SAVE_DATA_PROCESSING_TEXT ) );
+			
+			String ID = ConfigApp.OUTPUT_SAVE_DATA_PROCESSING;
+			
+			this.saveOutpuDataProcessing.addItemListener( new ItemListener()
+			{	
+				@Override
+				public void itemStateChanged(ItemEvent e) 
+				{
+					JCheckBox c = (JCheckBox)e.getSource();
+					
+					ConfigApp.setProperty( ID, c.isSelected() );
+				}
+			});
+			
+			GuiManager.setGUIComponent( ID, this.saveOutpuDataProcessing );
+		}
+		
+		return this.saveOutpuDataProcessing;
 	}
 	
 	private JPanel getPluginSettingPanel()

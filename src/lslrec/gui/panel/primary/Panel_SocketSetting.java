@@ -70,6 +70,7 @@ import javax.swing.table.TableModel;
 import lslrec.config.language.Language;
 import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.IPAddressCellEditor;
 import lslrec.gui.miscellany.SpinnerNumberCellEditor;
@@ -110,7 +111,7 @@ public class Panel_SocketSetting extends JPanel
 	private JScrollPane jScrollPaneServerCommands;
 	
 	//Map
-	private Map< String, Component > parameters;
+	//private Map< String, Component > parameters;
 	
 	//JFrame
 	private JFrame winOwner;
@@ -125,12 +126,10 @@ public class Panel_SocketSetting extends JPanel
 	{
 		this.winOwner = owner;
 		
-		this.parameters = new HashMap<String, Component>();
+		//this.parameters = new HashMap<String, Component>();
 		
 		this.init( );
-		
-		this.loadConfigValues();
-		
+				
 		super.validate();
 	}
 	
@@ -138,58 +137,8 @@ public class Panel_SocketSetting extends JPanel
 	{
 		this.getDisabledPanel().setEnabled( enable );
 	}
-	
-	public void loadConfigValues()
-	{
-		Set< String > IDs = this.parameters.keySet();
 		
-		for( String id : IDs )
-		{
-			Component c = this.parameters.get( id );
-			c.setVisible( false );			
-			
-			if( c instanceof JToggleButton )
-			{
-				((JToggleButton)c).setSelected( (Boolean)ConfigApp.getProperty( id ) );
-			}
-			else if( c instanceof JTable )
-			{
-				Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( id );
-				
-				JTable tableSocket = this.getTableServerSockets();
-								
-				DefaultTableModel socketModel = (DefaultTableModel)tableSocket.getModel();
-				int nRowBefore = socketModel.getRowCount();
-				
-				for( int i = nRowBefore - 1 ; i >= 0; i-- )
-				{
-					socketModel.removeRow( i );
-				}
-				
-				for( String socket : SOCKETS )
-				{
-					Object[] socketInfo = new Object[3];
-					
-					System.arraycopy( socket.split( ":" ), 0, socketInfo, 0, 3 );
-					socketInfo[ 2 ] = new Integer( socketInfo[ 2 ].toString() );
-										
-					socketModel.addRow( socketInfo );					
-				}
-				
-				if( tableSocket.getRowCount() > 0 )
-				{
-					tableSocket.setRowSelectionInterval( 0, 0 );
-				}
-				
-			}
-			
-			c.setVisible( true );
-		}
-		
-		this.loadRegisteredSyncInputMessages();
-	}
-	
-	private void loadRegisteredSyncInputMessages()
+	public void loadRegisteredSyncInputMessages()
 	{
 		JTable t = this.getJTableServerCommandValues();
 		
@@ -569,7 +518,7 @@ public class Panel_SocketSetting extends JPanel
 				}
 			});			
 			
-			this.parameters.put( propertyID, this.jTableServerSocket );									
+			GuiManager.setGUIComponent( propertyID, this.jTableServerSocket );									
 		}
 		
 		return this.jTableServerSocket;

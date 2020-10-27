@@ -23,6 +23,7 @@
 package lslrec.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -30,20 +31,30 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
@@ -63,6 +74,7 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -70,7 +82,9 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_BinaryConverter;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.LevelIndicator;
+import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
+import lslrec.gui.panel.primary.Panel_StreamingSettings;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
@@ -89,6 +103,9 @@ public class GuiManager
 	private Date initSessionTime = null;
 	
 	//private OpeningDialog preparingRunDiag;
+	
+	//Map
+	private static Map< String, Component > guiParameters = new HashMap<String, Component>();
 	
 	private GuiManager()
 	{
@@ -372,6 +389,8 @@ public class GuiManager
 		try
 		{	
 			ConfigApp.loadConfig( f );
+			
+			loadConfigValues2GuiComponents();
 		}
 		catch (Exception e)
 		{
@@ -379,6 +398,162 @@ public class GuiManager
 			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
+	}
+	
+	public static void setGUIComponent( String id, Component c )
+	{
+		if( id != null && c != null ) 
+		{
+			guiParameters.put( id, c );
+		}
+	}
+	
+	public static void loadConfigValues2GuiComponents()
+	{	
+		Set< String > IDs = guiParameters.keySet();
+
+		for( String id : IDs )
+		{
+			Component c = guiParameters.get( id );
+			c.setVisible( false );			
+
+			if( c instanceof JComboBox )
+			{
+				//((JComboBox< String >)c).setSelectedItem( ConfigApp.getProperty( id ) );
+				((JComboBox)c).setSelectedItem( ConfigApp.getProperty( id ).toString() );
+			}
+			else if( c instanceof JToggleButton )
+			{
+				//((JToggleButton)c).setSelected( (Boolean)ConfigApp.getProperty( id ) );
+				
+				JToggleButton b = (JToggleButton)c;
+				if( b.isEnabled() )
+				{
+					b.setSelected( (Boolean)ConfigApp.getProperty( id ) );
+				}
+			}
+			else if( c instanceof JTextComponent )
+			{
+				((JTextComponent)c).setText( ConfigApp.getProperty( id ).toString() );
+			}
+			else if( c instanceof JTable )
+			{
+				Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( id );
+				
+				JTable tableSocket = (JTable)c;
+								
+				DefaultTableModel socketModel = (DefaultTableModel)tableSocket.getModel();
+				int nRowBefore = socketModel.getRowCount();
+				
+				for( int i = nRowBefore - 1 ; i >= 0; i-- )
+				{
+					socketModel.removeRow( i );
+				}
+				
+				for( String socket : SOCKETS )
+				{
+					Object[] socketInfo = new Object[3];
+					
+					System.arraycopy( socket.split( ":" ), 0, socketInfo, 0, 3 );
+					socketInfo[ 2 ] = new Integer( socketInfo[ 2 ].toString() );
+										
+					socketModel.addRow( socketInfo );					
+				}
+				
+				if( tableSocket.getRowCount() > 0 )
+				{
+					tableSocket.setRowSelectionInterval( 0, 0 );
+				}
+				
+			}		
+			else if( c instanceof SelectedButtonGroup )
+			{
+				SelectedButtonGroup gr = (SelectedButtonGroup)c;
+
+				if( id.equals( Panel_StreamingSettings.LSL_STREAM_NAME ) 
+						|| id.equals( Panel_StreamingSettings.LSL_STREAM_SYNC ) )
+				{
+					HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+					if( devs != null )
+					{
+						Iterator< MutableDataStreamSetting > itDevs = devs.iterator();
+		
+						while( itDevs.hasNext() )
+						{
+							MutableDataStreamSetting dev = itDevs.next();
+							boolean find = false;
+		
+							if( c.isEnabled() )
+							{
+								if( dev.isSelected() || dev.isSynchronationStream() )
+								{
+									String devID = dev.getSourceID();
+			
+									find = searchButton( gr, devID );
+			
+									Enumeration< AbstractButton > bts = gr.getElements();
+			
+									while( bts.hasMoreElements() && !find )
+									{
+										AbstractButton b = bts.nextElement();
+										find = b.getName().equals( devID );
+			
+										if( b.isEnabled() )
+										{									
+											b.setSelected( find );
+										}
+										else
+										{
+											if( dev.isSelected() )
+											{
+												dev.setSelected( false );
+											}
+											else if( dev.isSynchronationStream() )
+											{
+												dev.setSynchronizationStream( false );
+											}
+										}
+									}
+								}
+							}
+						}
+						
+						ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, devs );
+					}
+				}
+			}
+
+			c.setVisible( true );
+		}
+	
+		AppUI.getInstance().getSocketSetting().loadRegisteredSyncInputMessages();		
+		
+		try 
+		{
+			AppUI.getInstance().getStreamSetting().refreshLSLStreamings();
+		}
+		catch (Exception e) 
+		{
+		}
+	}
+	
+	private static boolean searchButton( SelectedButtonGroup gr, String devID )
+	{
+		boolean find = false;
+		Enumeration< AbstractButton > BTS = gr.getElements();
+
+		while( BTS.hasMoreElements() && !find )
+		{
+			AbstractButton bt = BTS.nextElement();
+			find = bt.getName().equals( devID );
+
+			if( find )
+			{
+				bt.setSelected( true );
+			}
+		}
+		
+		return find;
 	}
 
 	private void enableGUI( boolean enable )

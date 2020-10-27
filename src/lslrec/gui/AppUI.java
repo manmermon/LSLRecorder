@@ -26,7 +26,6 @@ import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -39,7 +38,6 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.panel.primary.Panel_SocketSetting;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
-import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.config.ConfigApp;
 import lslrec.gui.miscellany.LevelIndicator;
 
@@ -69,10 +67,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -100,7 +95,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -186,14 +180,8 @@ public class AppUI extends JFrame
 	private JCheckBox checkActiveSpecialInputMsg;
 	private JCheckBox checkAutoScroll;
 
-	//Map
-	private Map< String, Component > parameters;
-
-
 	private AppUI() 
 	{
-		this.parameters = new HashMap<String, Component>();
-
 		initialize();
 	}
 
@@ -418,7 +406,7 @@ public class AppUI extends JFrame
 				}
 			});
 
-			this.parameters.put( ID, this.jComboxSyncMethod );			
+			GuiManager.setGUIComponent( ID, this.jComboxSyncMethod );
 		}
 
 		return this.jComboxSyncMethod;
@@ -461,8 +449,8 @@ public class AppUI extends JFrame
 			}
 			*/
 			
-			this.parameters.put( ID, this.checkActiveSpecialInputMsg );
-						
+			GuiManager.setGUIComponent( ID, this.checkActiveSpecialInputMsg );
+			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SPECIAL_IN_METHOD, this.checkActiveSpecialInputMsg );
 
 		}
@@ -1077,7 +1065,7 @@ public class AppUI extends JFrame
 
 					getGlassPane().setVisible( false );
 
-					loadConfigValues();
+					//loadConfigValues();
 				}
 			});
 
@@ -1085,49 +1073,7 @@ public class AppUI extends JFrame
 		}
 
 		return this.menuLoad;
-	}
-
-	public void loadConfigValues()
-	{	
-		Set< String > IDs = this.parameters.keySet();
-
-		for( String id : IDs )
-		{
-			Component c = this.parameters.get( id );
-			c.setVisible( false );			
-
-			if( c instanceof JComboBox )
-			{
-				((JComboBox< String >)c).setSelectedItem( ConfigApp.getProperty( id ) );
-			}
-
-			c.setVisible( true );
-		}
-		
-		for( String id : IDs )
-		{
-			Component c = this.parameters.get( id );
-			c.setVisible( false );			
-
-			if( c instanceof JToggleButton )
-			{
-				((JToggleButton)c).setSelected( (Boolean)ConfigApp.getProperty( id ) );
-			}
-
-			c.setVisible( true );
-		}
-
-		this.getSocketSetting().loadConfigValues();
-
-		try 
-		{
-			this.getStreamSetting().loadConfigValues();
-		} 
-		catch (Exception e) 
-		{
-			e.printStackTrace();
-		}
-	}
+	}	
 
 	protected JMenuItem getMenuSave()
 	{

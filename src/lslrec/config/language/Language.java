@@ -148,6 +148,7 @@ public class Language
 	public static final String INSERT_TEXT = "INSERT_TEXT";
 	public static final String DELETE_TEXT = "DELETE_TEXT";
 	public static final String PROCESS_TEXT = "PROCESS_TEXT";
+	public static final String SAVE_DATA_PROCESSING_TEXT = "DATA_PROCESSING_TEXT";
 
 	public static final String DIALOG_SAVE = "DIALOG_SAVE";
 	public static final String DIALOG_ERROR = "DIALOG_ERROR";
@@ -452,6 +453,8 @@ public class Language
 		captions.put( MSG_DATA_PROCESSING_STREAMS_CHANGED
 						, new Caption( MSG_DATA_PROCESSING_STREAMS_CHANGED, defaultLanguage, "The streams selected to be processed have changed. Check that everything is correct." ) );
 
+		captions.put(SAVE_DATA_PROCESSING_TEXT,
+				new Caption(SAVE_DATA_PROCESSING_TEXT, defaultLanguage, "Save output data processing"));
 	}
 
 	public static void loadLanguages() {
