@@ -48,11 +48,12 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 
 	private BufferedOutputStream out; 
 
-	private String ext = ".temp";
+	private final String ext = ".temp";
 	
 	private OutputFileFormatParameters outputFormat;
 	
 	private DataProcessingExecutor datProcessingExec = null;
+	private final String outDatProcessInfix = "_processedData_";
 	
 	public TemporalOutDataFileWriter( DataStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
@@ -72,27 +73,30 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
 	}
 
-	public void setDataProcessing( LSLRecPluginDataProcessing process )
+	public void setDataProcessing( LSLRecPluginDataProcessing process, boolean save ) throws Exception
 	{
 		if( super.getState().equals( State.NEW ) )
 		{
-			this.datProcessingExec = new DataProcessingExecutor( process );
+			String outFile = null;
+			
+			if( save )
+			{
+				outFile = this.file.getAbsolutePath();
+				
+				int index = outFile.lastIndexOf( this.ext );
+				
+				outFile = outFile.substring( 0, index ) + this.outDatProcessInfix + outFile.substring( index );				
+			}
+					
+			this.datProcessingExec = new DataProcessingExecutor( process, outFile );
 		}
 	}
 	
 	protected void preStart() throws Exception
 	{
 		super.preStart();
-
-		if (!this.file.exists())
-		{
-			this.file.createNewFile();
-		}
-
-		if (( !this.file.isFile() ) || ( !this.file.canWrite() )  )
-		{
-			throw new FilerException(this.file.getAbsolutePath() + " is not a file or is only read mode");
-		}
+		
+		FileUtils.CreateTemporalBinFile( this.file );
 
 		this.out = new BufferedOutputStream( new FileOutputStream( this.file ) );
 	}
@@ -158,19 +162,32 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	
 	protected void postCleanUp() throws Exception
 	{	
-		if( this.notifTask != null )
-		{
-			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData() );
-
-			super.notifTask.addEvent( event );
-			
-			super.closeNotifierThread();
-		}
+		EventInfo processingEvent = null;		
 		
 		if( this.datProcessingExec != null )
 		{
 			this.datProcessingExec.stopThread( IStoppableThread.FORCE_STOP );
+			
+			File processfile = this.datProcessingExec.getOutputBinaryFile();			
+			
+			if( processfile != null )
+			{
+				processingEvent = new EventInfo( this.datProcessingExec.getID(), GetFinalOutEvent(), this.getTemporalFileData( processfile, super.streamSetting, this.outputFormat ) );
+			}
+			
 			this.datProcessingExec = null;
+		}
+		
+		if( this.notifTask != null )
+		{
+			super.notifTask.addEvent( processingEvent );
+			;
+			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat ) );
+
+			super.notifTask.addEvent( event );
+					
+			
+			super.closeNotifierThread();
 		}
 	}
 	
@@ -179,11 +196,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		return EventType.SAVED_OUTPUT_TEMPORAL_FILE;
 	}
 				
-	private TemporalBinData getTemporalFileData() throws Exception
+	private TemporalBinData getTemporalFileData( File file, DataStreamSetting setting, OutputFileFormatParameters formatPars ) throws Exception
 	{		
-		TemporalBinData data = new TemporalBinData( this.file
-													, this.streamSetting
-													, this.outputFormat );
+		TemporalBinData data = new TemporalBinData( file, setting, formatPars );
 		
 		return data;
 	}

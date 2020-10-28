@@ -531,7 +531,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 
-			GuiManager.setGUIComponent( ID, this.generalDescrOutFile );
+			GuiManager.setGUIComponent( ID, ID, this.generalDescrOutFile );
 		}
 		
 		return this.generalDescrOutFile;
@@ -579,7 +579,7 @@ public class Panel_StreamingSettings extends JPanel
 			});
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
-			GuiManager.setGUIComponent( ID, this.encryptKeyActive );
+			GuiManager.setGUIComponent( ID, ID, this.encryptKeyActive );
 									
 		}
 		
@@ -782,7 +782,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 
-			GuiManager.setGUIComponent( ID, this.fileName );
+			GuiManager.setGUIComponent( ID, ID, this.fileName );
 		}
 
 		return this.fileName;
@@ -888,7 +888,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, this.fileFormat );
+			GuiManager.setGUIComponent( ID, ID, this.fileFormat );
 		}
 
 		return this.fileFormat;
@@ -1802,7 +1802,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.selectedDeviceGroup = new SelectedButtonGroup();
 			//this.selectedDeviceGroup.setLayout( new BoxLayout( this.selectedDeviceGroup, BoxLayout.Y_AXIS ) );
 
-			GuiManager.setGUIComponent( LSL_STREAM_NAME, this.selectedDeviceGroup );
+			GuiManager.setGUIComponent( LSL_STREAM_NAME, ConfigApp.LSL_ID_DEVICES, this.selectedDeviceGroup );
 		}
 
 		return this.selectedDeviceGroup;
@@ -1814,7 +1814,7 @@ public class Panel_StreamingSettings extends JPanel
 		{
 			this.syncDeviceGroup = new SelectedButtonGroup();
 
-			GuiManager.setGUIComponent( LSL_STREAM_SYNC, this.syncDeviceGroup );
+			GuiManager.setGUIComponent( LSL_STREAM_SYNC, ConfigApp.LSL_ID_DEVICES, this.syncDeviceGroup );
 		}
 
 		return this.syncDeviceGroup;

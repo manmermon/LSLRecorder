@@ -35,7 +35,6 @@ import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -55,11 +54,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
-import javax.swing.JComboBox;
-import javax.swing.JTable;
-import javax.swing.JToggleButton;
-import javax.swing.table.DefaultTableModel;
-
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
@@ -71,7 +65,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 27 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 28 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute

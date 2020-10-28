@@ -1,8 +1,9 @@
-package testing.Auxiliar;
+package lslrec.testing.Auxiliar;
 
 import java.util.Arrays;
 
-import Auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.extra.ConvertTo;
+
 
 public class testConvertToInterleaved 
 {
@@ -22,6 +23,18 @@ public class testConvertToInterleaved
 		Integer[] array12 = new Integer[] { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12, 13, 16, 19, 22, 14, 17, 20, 23, 15, 18, 21, 24, 31, 32, 33, 34, 35 };
 		Integer[] array14 = new Integer[] { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12, 13, 16, 19, 22, 14, 17, 20, 23, 15, 18, 21, 24, 31, 32, 33, 34, 35, 36 };
 		
+		
+		int ch = 4, chunk = 5;
+		String[] array15 = new String[ ch * chunk ];
+		for( int i = 0; i < ch; i++)
+		{
+			char tx = (char)('A' + i );
+			for( int j = 0; j < chunk; j++ )
+			{
+				array15[ i * chunk + j ] = tx + "" + j;
+			}
+		}
+		
 		System.out.println("testConvertToInterleaved.main() 1 " + Arrays.toString( ConvertTo.Interleaved( array1, 4 ) ) );
 		System.out.println("testConvertToInterleaved.main() 3 " + Arrays.toString( ConvertTo.Interleaved( array3, 4 ) ) );
 		System.out.println("testConvertToInterleaved.main() 5 " + Arrays.toString( ConvertTo.Interleaved( array5, 4 ) ) );
@@ -37,5 +50,8 @@ public class testConvertToInterleaved
 		System.out.println("testConvertToInterleaved.main() 14 " + Arrays.toString( ConvertTo.Interleaved( array14, 3, 4 ) ) );
 		
 		System.out.println("testConvertToInterleaved.main() 14-14 " + Arrays.toString( ConvertTo.Interleaved( ConvertTo.Interleaved( array14, 3, 4 ), 4, 3 ) ) );
+		
+		System.out.println("testConvertToInterleaved.main() 15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Interleaved( array15, ch, chunk ) ) );
+		System.out.println("testConvertToInterleaved.main() 15-15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Interleaved( ConvertTo.Interleaved( array15, ch, chunk ), chunk, ch ) ) );
 	}
 }

@@ -518,7 +518,7 @@ public class Panel_SocketSetting extends JPanel
 				}
 			});			
 			
-			GuiManager.setGUIComponent( propertyID, this.jTableServerSocket );									
+			GuiManager.setGUIComponent( propertyID, propertyID, this.jTableServerSocket );									
 		}
 		
 		return this.jTableServerSocket;

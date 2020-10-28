@@ -406,7 +406,7 @@ public class AppUI extends JFrame
 				}
 			});
 
-			GuiManager.setGUIComponent( ID, this.jComboxSyncMethod );
+			GuiManager.setGUIComponent( ID, ID, this.jComboxSyncMethod );
 		}
 
 		return this.jComboxSyncMethod;
@@ -449,7 +449,7 @@ public class AppUI extends JFrame
 			}
 			*/
 			
-			GuiManager.setGUIComponent( ID, this.checkActiveSpecialInputMsg );
+			GuiManager.setGUIComponent( ID, ID, this.checkActiveSpecialInputMsg );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SPECIAL_IN_METHOD, this.checkActiveSpecialInputMsg );
 

@@ -38,7 +38,6 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.sync.lsl.InputSyncData;
 import lslrec.dataStream.writingSystemTester.WritingTest;
-import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
@@ -80,6 +79,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	public static final String PARAMETER_LSL_SETTING = "LSL settings";
 	public static final String PARAMETER_WRITE_TEST = "Writing test";
 	public static final String PARAMETER_DATA_PROCESSING = "data processing";
+	public static final String PARAMETER_SAVE_DATA_PROCESSING = "save data processing";
 	
 	private static OutputDataFileHandler ctr = null;
 
@@ -337,6 +337,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				processes = (Map< DataStreamSetting, LSLRecPluginDataProcessing >) parProcesses.getValue();
 			}
 			
+			Parameter saveProcessedDat = parameters.getParameter( PARAMETER_SAVE_DATA_PROCESSING );
+			boolean saveProcDat = false;
+			if( saveProcessedDat != null )
+			{
+				saveProcDat = (Boolean)saveProcessedDat.getValue();
+			}
+			
 			//
 			//
 			// Clear control list
@@ -423,7 +430,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								LSLRecPluginDataProcessing p = processes.get( t );
 								if( p != null )
 								{
-									temp.setDataProcessing( p );
+									temp.setDataProcessing( p, saveProcDat );
 								}
 							}
 						}

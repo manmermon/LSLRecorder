@@ -485,6 +485,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					Parameter datProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_PROCESSING, DataProcesses );
 					StreamPars.addParameter( datProcesses );
 					
+					Parameter savePprocessedDat = new Parameter( this.ctrlOutputFile.PARAMETER_SAVE_DATA_PROCESSING, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_SAVE_DATA_PROCESSING ) );
+					StreamPars.addParameter( savePprocessedDat );
+					
 					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
 					StreamPars.addParameter( writingTest );
 					

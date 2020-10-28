@@ -46,19 +46,18 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.Timer;
 import javax.swing.UIManager;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.tasks.NotificationTask;
 import lslrec.config.ConfigApp;
@@ -86,7 +85,6 @@ import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
 import lslrec.plugin.loader.PluginLoader;
-import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.stoppableThread.IStoppableThread;
@@ -105,7 +103,7 @@ public class GuiManager
 	//private OpeningDialog preparingRunDiag;
 	
 	//Map
-	private static Map< String, Component > guiParameters = new HashMap<String, Component>();
+	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
 	
 	private GuiManager()
 	{
@@ -400,27 +398,30 @@ public class GuiManager
 		}
 	}
 	
-	public static void setGUIComponent( String id, Component c )
+	public static void setGUIComponent( String guiID, String cfgPropertyID, Component c )
 	{
-		if( id != null && c != null ) 
+		if( guiID != null && c != null && cfgPropertyID != null ) 
 		{
-			guiParameters.put( id, c );
+			guiParameters.put( new StringTuple( guiID, cfgPropertyID ), c );
 		}
 	}
 	
 	public static void loadConfigValues2GuiComponents()
 	{	
-		Set< String > IDs = guiParameters.keySet();
+		Set< StringTuple > IDs = guiParameters.keySet();
 
-		for( String id : IDs )
+		for( StringTuple id : IDs )
 		{
+			String guiID = id.x;
+			String propID = id.y;
+			
 			Component c = guiParameters.get( id );
 			c.setVisible( false );			
 
 			if( c instanceof JComboBox )
 			{
 				//((JComboBox< String >)c).setSelectedItem( ConfigApp.getProperty( id ) );
-				((JComboBox)c).setSelectedItem( ConfigApp.getProperty( id ).toString() );
+				((JComboBox)c).setSelectedItem( ConfigApp.getProperty( propID ).toString() );
 			}
 			else if( c instanceof JToggleButton )
 			{
@@ -429,16 +430,16 @@ public class GuiManager
 				JToggleButton b = (JToggleButton)c;
 				if( b.isEnabled() )
 				{
-					b.setSelected( (Boolean)ConfigApp.getProperty( id ) );
+					b.setSelected( (Boolean)ConfigApp.getProperty( propID ) );
 				}
 			}
 			else if( c instanceof JTextComponent )
 			{
-				((JTextComponent)c).setText( ConfigApp.getProperty( id ).toString() );
+				((JTextComponent)c).setText( ConfigApp.getProperty( propID ).toString() );
 			}
 			else if( c instanceof JTable )
 			{
-				Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( id );
+				Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( propID );
 				
 				JTable tableSocket = (JTable)c;
 								
@@ -470,10 +471,10 @@ public class GuiManager
 			{
 				SelectedButtonGroup gr = (SelectedButtonGroup)c;
 
-				if( id.equals( Panel_StreamingSettings.LSL_STREAM_NAME ) 
-						|| id.equals( Panel_StreamingSettings.LSL_STREAM_SYNC ) )
+				if( guiID.equals( Panel_StreamingSettings.LSL_STREAM_NAME ) 
+						|| guiID.equals( Panel_StreamingSettings.LSL_STREAM_SYNC ) )
 				{
-					HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+					HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( propID );
 					if( devs != null )
 					{
 						Iterator< MutableDataStreamSetting > itDevs = devs.iterator();
@@ -518,7 +519,7 @@ public class GuiManager
 							}
 						}
 						
-						ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, devs );
+						ConfigApp.setProperty( propID, devs );
 					}
 				}
 			}
