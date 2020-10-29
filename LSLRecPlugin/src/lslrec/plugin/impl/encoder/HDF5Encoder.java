@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lslrec.plugin.impl.test;
+package lslrec.plugin.impl.encoder;
 
 import java.util.List;
 

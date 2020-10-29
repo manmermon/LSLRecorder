@@ -103,11 +103,11 @@ public class SyncMarkerBinFileReader
 					
 					if( i == 0 )
 					{						
-						markValue = ( ConvertTo.ByteArrayTo( val.getData(), this.markDataType )[0] );
+						markValue = ( ConvertTo.Transform.ByteArrayTo( val.getData(), this.markDataType )[0] );
 					}
 					else if( i == 1 )
 					{
-						timeValue = ( ConvertTo.ByteArrayTo( val.getData(), this.timeDataType )[0] );
+						timeValue = ( ConvertTo.Transform.ByteArrayTo( val.getData(), this.timeDataType )[0] );
 					}						
 				}
 				

@@ -164,7 +164,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 		
 		if( block != null )
 		{	
-			this.clisWriter.saveCompressedData( ConvertTo.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
+			this.clisWriter.saveCompressedData( ConvertTo.Casting.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
 			
 			this.compressDataList.remove( this.nextNumSeqCompressedDataBlock );
 			

@@ -48,7 +48,7 @@ public class ReaderBinayData
 			
 			if( bb != null )
 			{
-				Number[] lens = ConvertTo.ByteArrayTo( bb.getData(), dataFormat.getLengthFormat().getDataType() );
+				Number[] lens = ConvertTo.Transform.ByteArrayTo( bb.getData(), dataFormat.getLengthFormat().getDataType() );
 				
 				long L = 0;
 				for( Number l : lens )
@@ -84,7 +84,7 @@ public class ReaderBinayData
 		while( count < dataFormat.getChunckSize()
 				&& binStream.read( aux ) > 0 )
 		{
-			data.add( ConvertTo.byteArray2ByteArray( aux ) );				
+			data.add( ConvertTo.Casting.byteArray2ByteArray( aux ) );				
 
 			count++;
 		}

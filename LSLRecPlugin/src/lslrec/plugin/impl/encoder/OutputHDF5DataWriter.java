@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.impl.test;
+package lslrec.plugin.impl.encoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

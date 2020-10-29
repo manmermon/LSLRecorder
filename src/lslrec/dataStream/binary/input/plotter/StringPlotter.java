@@ -110,7 +110,7 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 	{
 		System.arraycopy( dataArrayOfBytes, 0, this.strLenBytes, 0, this.strLenBytes.length );
 		
-		Number[] lens = ConvertTo.ByteArray2ArrayOf( this.strLenBytes, super.streamSetting.getStringLegthType() );
+		Number[] lens = ConvertTo.Transform.ByteArray2ArrayOf( this.strLenBytes, super.streamSetting.getStringLegthType() );
 		
 		int init = strLenBytes.length;
 			
@@ -133,7 +133,7 @@ public class StringPlotter extends LSLInStreamDataReceiverTemplate
 		Object[] dat = strs.toArray();
 		if( super.streamSetting.isInterleavedData() )
 		{
-			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
+			dat = ConvertTo.Transform.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
 		}
 		
 		if( dat != null )

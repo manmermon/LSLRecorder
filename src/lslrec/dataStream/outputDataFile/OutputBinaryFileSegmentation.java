@@ -247,7 +247,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 			else
 			{
-				Number NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, streamSettings.getStringLegthType() );
+				Number NonSyncMarker = ConvertTo.Casting.NumberTo( SyncMarker.NON_MARK, streamSettings.getStringLegthType() );
 				
 				this.setMaxNumElements( LSLUtils.getDataTypeBytes( streamSettings.getDataType() ), 1 );
 				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, NonSyncMarker, true );
@@ -307,7 +307,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	{			
 		if( xml != null && nodeRoot != null && name != null )
 		{
-			Document doc = ConvertTo.xmlStringToXMLDocument( xml );
+			Document doc = ConvertTo.Transform.xmlStringToXMLDocument( xml );
 
 			if( doc != null )
 			{
@@ -365,7 +365,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 			*/
 			
-			Number NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataStreamSetting().getDataType() );
+			Number NonSyncMarker = ConvertTo.Casting.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataStreamSetting().getDataType() );
 									
 			SyncMarker marker = null;
 			
@@ -393,7 +393,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 						if( !this.DATA.getDataStreamSetting().isInterleavedData() )
 						{
-							dat = ConvertTo.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getChunkSize() );
+							dat = ConvertTo.Transform.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getChunkSize() );
 						}
 	
 						Number[] Data = new Number[ dat.length + this.DATA.getDataStreamSetting().getChunkSize() ];
@@ -432,7 +432,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 							if( time.doubleValue() > marker.getTimeMarkValue() )
 							{
-								Data[ ( index + 1 ) * ( this.DATA.getDataStreamSetting().getStreamInfo().channel_count() + 1 ) - 1] = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().getDataType() );
+								Data[ ( index + 1 ) * ( this.DATA.getDataStreamSetting().getStreamInfo().channel_count() + 1 ) - 1] = ConvertTo.Casting.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().getDataType() );
 	
 								marker = null;
 								if( aux != null  )
@@ -512,7 +512,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 							if( !this.DATA.getDataStreamSetting().isInterleavedData() )
 							{
-								dat = ConvertTo.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getDataType() );
+								dat = ConvertTo.Transform.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getDataType() );
 							}
 
 							Number[] Data = new Number[ dat.length + this.DATA.getDataStreamSetting().getDataType() ];
@@ -551,7 +551,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 								if( time.doubleValue() > marker.getTimeMarkValue() )
 								{
-									Number m = ConvertTo.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().getStringLegthType() );
+									Number m = ConvertTo.Casting.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().getStringLegthType() );
 									Data[ ( index + 1 ) * ( this.DATA.getDataStreamSetting().getStreamInfo().channel_count() + 1 ) - 1] = m;
 
 									marker = null;
@@ -585,7 +585,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 							
 							if( !this.DATA.getDataStreamSetting().isInterleavedData() )
 							{
-								dat = ConvertTo.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getDataType() );
+								dat = ConvertTo.Transform.Interleaved( dat, this.DATA.getDataStreamSetting().getStreamInfo().channel_count(), this.DATA.getDataStreamSetting().getDataType() );
 							}
 							
 							for( Object d : dat )
@@ -742,11 +742,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					
 					if( index == 0 )
 					{
-						data = ConvertTo.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getDataType() );
+						data = ConvertTo.Transform.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getDataType() );
 					}
 					else if( index == 1 )
 					{
-						time = ConvertTo.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getTimeDataType() );
+						time = ConvertTo.Transform.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getTimeDataType() );
 					}
 				}
 				
@@ -781,15 +781,15 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					
 					if( index == 0 )
 					{
-						lens = ConvertTo.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getStringLegthType() );
+						lens = ConvertTo.Transform.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getStringLegthType() );
 					}
 					else if( index == 1 )
 					{
-						strs = new String( ConvertTo.ByterArray2byteArray( bytes.getData() ) );
+						strs = new String( ConvertTo.Casting.ByterArray2byteArray( bytes.getData() ) );
 					}						
 					else if( index == 2 )
 					{
-						time = ConvertTo.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getTimeDataType() );
+						time = ConvertTo.Transform.ByteArrayTo( bytes.getData(), temp.getDataStreamSetting().getTimeDataType() );
 					}
 				}
 				

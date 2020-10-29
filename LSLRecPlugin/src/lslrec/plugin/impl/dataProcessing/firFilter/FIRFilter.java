@@ -26,7 +26,7 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	
 	protected Object lock = new Object();
 	
-	protected double[] h = null;
+	protected double[] h = new double[ 0 ];
 	
 	/**
 	 * @param setting
@@ -41,10 +41,10 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 		Parameter par = new Parameter< Integer >( FILTER_LENGTH, 100 );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< Integer >( CUT_FREQ1, 48 );
+		par = new Parameter< Double >( CUT_FREQ1, 48D );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< Integer >( CUT_FREQ2, 52 );
+		par = new Parameter< Double >( CUT_FREQ2, 52D );
 		this.pars.addParameter( par );
 		
 		par = new Parameter< FilterWindow.WindowType >( WINDOW_TYPE, FilterWindow.WindowType.HAMMING );
@@ -57,12 +57,6 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	}
 
 	@Override
-	public int getMinDataLength2Process() 
-	{
-		return 0;
-	}
-
-	@Override
 	public void loadProcessingSettings(List<Parameter<String>> arg0) 
 	{
 		if( arg0 != null )
@@ -71,7 +65,8 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 			{
 				String id = p.getID();
 				String val = p.getValue();
-				
+
+				System.out.println("FIRFilter.loadProcessingSettings() < " + id + ", " + val + " >" );
 				switch( id ) 
 				{
 					case FILTER_LENGTH:
@@ -217,5 +212,16 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 				this.h = new double[ 0 ];
 			}
 		}
+	}
+
+	@Override
+	public int getBufferLength() 
+	{
+		int len = 0;
+		if( this.h != null )
+		{
+			len = this.h.length;
+		}
+		return len;
 	}
 }

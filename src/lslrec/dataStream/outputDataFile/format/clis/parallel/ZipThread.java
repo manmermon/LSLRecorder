@@ -231,7 +231,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 
 			if( compressData != null )
 			{
-				this.compressedData = new DataInByteFormatBlock( n, this.varName, this.DataType, this.numChannels, ConvertTo.byteArray2ByteArray( compressData ) );				
+				this.compressedData = new DataInByteFormatBlock( n, this.varName, this.DataType, this.numChannels, ConvertTo.Casting.byteArray2ByteArray( compressData ) );				
 				this.collector.SaveZipData( this );
 			}
 		}

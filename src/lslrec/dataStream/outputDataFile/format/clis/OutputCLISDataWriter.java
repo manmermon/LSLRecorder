@@ -144,7 +144,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			ByteBlock d = (ByteBlock)dataBlock;
 			Byte[] dat = d.getData();
 
-			byte[] copy = ConvertTo.ByterArray2byteArray( dat );
+			byte[] copy = ConvertTo.Casting.ByterArray2byteArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -153,7 +153,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			ShortBlock d = (ShortBlock)dataBlock;
 			Short[] dat = d.getData();
 
-			short[] copy = ConvertTo.ShortArray2shortArray( dat );
+			short[] copy = ConvertTo.Casting.ShortArray2shortArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -162,7 +162,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			IntegerBlock d = (IntegerBlock)dataBlock;
 			Integer[] dat = d.getData();
 
-			int[] copy = ConvertTo.IntegerArray2intArray( dat );
+			int[] copy = ConvertTo.Casting.IntegerArray2intArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -171,7 +171,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			LongBlock d = (LongBlock)dataBlock;
 			Long[] dat = d.getData();
 
-			long[] copy = ConvertTo.LongArray2longArray( dat );
+			long[] copy = ConvertTo.Casting.LongArray2longArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -180,7 +180,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			FloatBlock d = (FloatBlock)dataBlock;
 			Float[] dat = d.getData();
 
-			float[] copy = ConvertTo.FloatArray2floatArray( dat );
+			float[] copy = ConvertTo.Casting.FloatArray2floatArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -189,7 +189,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			DoubleBlock d = (DoubleBlock)dataBlock;
 			Double[] dat = d.getData();
 
-			double[] copy = ConvertTo.DoubleArray2doubleArray( dat );
+			double[] copy = ConvertTo.Casting.DoubleArray2doubleArray( dat );
 
 			this.storeData( dataBlock.getName(), copy, dataBlock.getNumCols() );
 		}
@@ -198,7 +198,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			CharBlock d = (CharBlock)dataBlock;
 			Character[] dat = d.getData();
 
-			char[] copy = ConvertTo.CharacterArray2charArray( dat );
+			char[] copy = ConvertTo.Casting.CharacterArray2charArray( dat );
 
 			this.storeData( dataBlock.getName(), copy );
 		}
@@ -207,7 +207,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 			StringBlock d = (StringBlock)dataBlock;
 			Character[] dat = d.getData();
 
-			char[] copy = ConvertTo.CharacterArray2charArray( dat );
+			char[] copy = ConvertTo.Casting.CharacterArray2charArray( dat );
 
 			this.storeData( dataBlock.getName(), copy );
 		}

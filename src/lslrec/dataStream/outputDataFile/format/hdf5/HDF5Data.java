@@ -113,7 +113,7 @@ public class HDF5Data
 	public void addData( Number[] values )
 	{		
 		values = ArrayUtils.addAll( this.remainingData, values );
-		Tuple< Number[][], Number[] > data = ConvertTo.Array2Matrix( values, this.maxCol );
+		Tuple< Number[][], Number[] > data = ConvertTo.Transform.Array2Matrix( values, this.maxCol );
 		
 		this.writeData( this.name, data.x, this.blockIndex );
 		
@@ -125,7 +125,7 @@ public class HDF5Data
 	public void addData( String[] values )
 	{		
 		values = ArrayUtils.addAll( this.remainingStringData, values );
-		Tuple< String[][], String[] > data = ConvertTo.StringArray2Matrix( values, this.maxCol );
+		Tuple< String[][], String[] > data = ConvertTo.Transform.StringArray2Matrix( values, this.maxCol );
 		
 		if( data.x.length > 0 )
 		{	
@@ -157,32 +157,32 @@ public class HDF5Data
 		{
 			case LSLUtils.double64:
 			{
-				this.writer.float64().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2doubleMatrix( values ), blockIndex, 0 );
+				this.writer.float64().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2doubleMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSLUtils.float32:
 			{
-				this.writer.float32().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2floatMatrix( values ), blockIndex, 0 );
+				this.writer.float32().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2floatMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSLUtils.int8:
 			{
-				this.writer.int8().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2byteMatrix( values ), blockIndex, 0 );
+				this.writer.int8().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2byteMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSLUtils.int16:
 			{
-				this.writer.int16().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2shortMatrix( values ), blockIndex, 0 );
+				this.writer.int16().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2shortMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSLUtils.int32:
 			{
-				this.writer.int32().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2integerMatrix( values ), blockIndex, 0 );
+				this.writer.int32().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2integerMatrix( values ), blockIndex, 0 );
 				break;
 			}
 			case LSLUtils.int64:
 			{
-				this.writer.int64().writeMatrixBlockWithOffset( name, ConvertTo.NumberMatrix2longMatrix( values ), blockIndex, 0 );
+				this.writer.int64().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2longMatrix( values ), blockIndex, 0 );
 				break;
 			}
 		}
@@ -199,7 +199,7 @@ public class HDF5Data
 		{
 			String newName = this.name + "Remaining";
 			this.createMatrix( newName );
-			Number[][] d = ConvertTo.Array2Matrix( this.remainingData, this.remainingData.length ).x;
+			Number[][] d = ConvertTo.Transform.Array2Matrix( this.remainingData, this.remainingData.length ).x;
 			this.writeData( newName, d, 0L );
 		}
 		
@@ -207,7 +207,7 @@ public class HDF5Data
 		{
 			String newName = this.name + "Remaining";
 			this.createMatrix( newName );
-			String[][] d = ConvertTo.StringArray2Matrix( this.remainingStringData, this.remainingStringData.length ).x;
+			String[][] d = ConvertTo.Transform.StringArray2Matrix( this.remainingStringData, this.remainingStringData.length ).x;
 			this.writeStringData( newName, StringMatrix2MDStringArray( d ), 0 );
 			
 		}

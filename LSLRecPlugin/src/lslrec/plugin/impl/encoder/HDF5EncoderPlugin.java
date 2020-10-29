@@ -1,4 +1,4 @@
-package lslrec.plugin.impl.test;
+package lslrec.plugin.impl.encoder;
 
 import javax.swing.JPanel;
 

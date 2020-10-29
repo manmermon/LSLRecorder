@@ -383,7 +383,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				this.timer.stop();
 			}
 						
-			this.managerData( data, ConvertTo.doubleArray2byteArray( this.timeMark ) );
+			this.managerData( data, ConvertTo.Transform.doubleArray2byteArray( this.timeMark ) );
 			
 			/*
 			if (this.timer != null)
@@ -1329,7 +1329,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			
 			if( out != null )
 			{
-				this.managerData( out, ConvertTo.doubleArray2byteArray( this.timeMark ) );
+				this.managerData( out, ConvertTo.Transform.doubleArray2byteArray( this.timeMark ) );
 			}
 			
 			rep = !this.tempSampleBytes.isEmpty();

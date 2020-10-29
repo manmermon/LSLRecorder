@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -17,6 +18,7 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 public class DataProcessingExecutor extends AbstractStoppableThread implements ITaskIdentity
 {
 	private ConcurrentLinkedQueue< Byte[] > inputs;
+	private ConcurrentLinkedQueue< Byte[] > inputTimes;
 	private List< Number > data;
 	private LSLRecPluginDataProcessing process;
 	
@@ -31,6 +33,8 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 	public DataProcessingExecutor( LSLRecPluginDataProcessing processes, String outputFileName )  throws Exception 
 	{
 		this.inputs = new ConcurrentLinkedQueue< Byte[] >();
+		this.inputTimes = new ConcurrentLinkedQueue< Byte[] >();
+		
 		this.data = new ArrayList< Number >();
 		this.process = processes;
 		
@@ -76,7 +80,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 	{
 		super.stopThread = ( this.process == null );
 		
-		if( !super.stopThread )
+		if( !super.stopThread && this.out != null )
 		{
 			String binHeader = StreamBinaryHeader.getStreamBinHeader( this.process.getDataStreamSetting() );
 			
@@ -101,7 +105,8 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		{
 			while( !this.inputs.isEmpty() )
 			{
-				Number[] vals = ConvertTo.ByteArrayTo( this.inputs.poll(), this.process.getDataStreamSetting().getDataType() );
+				Number[] vals = ConvertTo.Transform.ByteArrayTo( this.inputs.poll(), this.process.getDataStreamSetting().getDataType() );
+				Byte[] times = this.inputTimes.poll(); 
 				
 				synchronized ( this.data )
 				{
@@ -120,13 +125,25 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 						this.data.subList( 0, this.dataBlockSize ).clear();
 					}
 									
-					Number[] proccessedData = this.process.processDataBlock( d );
-					
-					if( this.out != null && proccessedData != null )
+					Number[] processedData = this.process.processDataBlock( d );
+					//
+					// No interleaved data, that is:
+					// [A0, B0, C0, .., A1, B1, C2, ..., An, Bn, Cn, ...]  
+					//
+										
+					if( this.out != null && processedData != null )
 					{
-						byte[] DAT = ConvertTo.NumberArray2ByteArray( proccessedData );
+						if( this.process.getDataStreamSetting().isInterleavedData() )
+						{
+							processedData = ConvertTo.Transform.Interleaved( processedData
+																	, this.process.getDataStreamSetting().getStreamInfo().channel_count()
+																	, this.process.getDataStreamSetting().getChunkSize() );
+						}
+						
+						byte[] DAT = ConvertTo.Transform.NumberArray2byteArra( processedData, this.process.getDataStreamSetting().getDataType() );
 						
 						this.out.write( DAT );
+						this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );
 					}
 				}
 			}	
@@ -142,11 +159,12 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		}
 	} 
 
-	public final void processData( byte[] inputs )
+	public final void processData( byte[] inputs, byte[] times )
 	{
 		if( this.process != null && inputs != null )
 		{
-			this.inputs.add( ConvertTo.byteArray2ByteArray( inputs ) );
+			this.inputs.add( ConvertTo.Casting.byteArray2ByteArray( inputs ) );
+			this.inputTimes.add( ConvertTo.Casting.byteArray2ByteArray( times ) );
 						
 			synchronized ( this ) 
 			{

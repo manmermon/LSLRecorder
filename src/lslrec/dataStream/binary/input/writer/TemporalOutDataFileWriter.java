@@ -147,7 +147,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			
 			if( this.datProcessingExec != null )
 			{
-				this.datProcessingExec.processData( data );
+				this.datProcessingExec.processData( data, time );
 			}
 		}
 	}		
@@ -181,7 +181,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		if( this.notifTask != null )
 		{
 			super.notifTask.addEvent( processingEvent );
-			;
+			
 			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat ) );
 
 			super.notifTask.addEvent( event );

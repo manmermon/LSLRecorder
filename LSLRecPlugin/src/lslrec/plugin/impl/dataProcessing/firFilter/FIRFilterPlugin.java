@@ -65,6 +65,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 {
 	private ParameterList pars = null;
 	
+	private double prevFm = 128;
 	/**
 	 * 
 	 */
@@ -140,7 +141,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			}
 		}
 		
-		FilterType ft = (FilterType)this.pars.getParameter( FIRFilter.FILTER_LENGTH ).getValue();
+		FilterType ft = (FilterType)this.pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
 		
 		if( fq < 0 && ( ft == FilterType.BANDPASS_FILTER || ft == FilterType.NOTCH_FILTER  ) )
 		{
@@ -160,7 +161,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 		JPanel preview = new JPanel( new BorderLayout() );
 		preview.setBorder( BorderFactory.createEtchedBorder() );
 				
-		JSpinner fmSp = new JSpinner( new SpinnerNumberModel( 128D, 0.000001D, null, 1D ) );
+		JSpinner fmSp = new JSpinner( new SpinnerNumberModel( prevFm, 0.000001D, null, 1D ) );
 		fmSp.setPreferredSize( new Dimension( 75, 20 ) );
 		fmSp.addMouseWheelListener( new MouseWheelListener()
 		{
@@ -201,6 +202,8 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 				
 				FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
 				updateFilterPreview( preview, Fm, ft );
+				
+				prevFm = Fm;
 			}
 		});
 		
@@ -357,7 +360,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 						}
 					});
 					
-					cb.setSelectedItem( WindowType.HAMMING );
+					cb.setSelectedItem( this.pars.getParameter( idPar ).getValue() );
 					
 					cmp = cb;
 					
@@ -417,7 +420,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 						}
 					});
 					
-					cb.setSelectedItem( FilterType.LOWPASS_FILTER );
+					cb.setSelectedItem( this.pars.getParameter( idPar ).getValue() );
 					
 					cmp = cb;
 					
@@ -684,7 +687,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 		
 		for( String idPar : this.pars.getParameterIDs() )
 		{
-			Parameter< String > p = new Parameter<String>( idPar, this.pars.getParameter( idPar ).toString() );
+			Parameter< String > p = new Parameter<String>( idPar, this.pars.getParameter( idPar ).getValue().toString() );
 			
 			parList.add( p );
 		}

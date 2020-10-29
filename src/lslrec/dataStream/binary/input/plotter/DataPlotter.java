@@ -75,16 +75,16 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 		
 		if( super.streamSetting.getDataType() != LSLUtils.string )
 		{
-			dat = ConvertTo.ByteArrayTo( ConvertTo.byteArray2ByteArray( data ), super.streamSetting.getDataType() );
+			dat = ConvertTo.Transform.ByteArrayTo( ConvertTo.Casting.byteArray2ByteArray( data ), super.streamSetting.getDataType() );
 		}
 		else
 		{
-			dat = ConvertTo.byteArray2ByteArray( data );
+			dat = ConvertTo.Casting.byteArray2ByteArray( data );
 		}
 		
 		if( super.streamSetting.isInterleavedData() )
 		{
-			dat = ConvertTo.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
+			dat = ConvertTo.Transform.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
 		}
 
 		if( dat != null )
