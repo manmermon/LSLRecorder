@@ -17,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -72,6 +73,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JPanel panelMoveCtr;
 	private JPanel panelPluginSetting;
 	private JPanel panelSaveDataProcessing;
+	private JPanel panelWarningMsg;
+	
 	
 	private JTable tablePluginList;
 	private JTable tableSelectedPluginList;
@@ -84,6 +87,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	
 	private JCheckBox saveOutpuDataProcessing;
 	
+	private JLabel lbWarningMsg;
+	
 	public DataProcessingPluginSelectorPanel( Collection< ILSLRecPluginDataProcessing > plugins )
 	{		
 		super.setLayout( new BorderLayout() );
@@ -91,6 +96,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		this.add( this.getSaveOutputDataProcessingPanel(), BorderLayout.NORTH );
 		this.add( this.getPluginPanel(), BorderLayout.WEST );		
 		this.add( this.getPluginSettingPanel(), BorderLayout.CENTER );
+		this.add( this.getWarningMessagePanel(), BorderLayout.SOUTH );
 		
 		JTable t = this.getProcessListTable();
 		
@@ -104,7 +110,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
 		ExceptionDialog.createExceptionDialog( w );
 	}
-				
+						
 	public void setPluginIDs( List< String > ids )
 	{
 		if( ids != null )
@@ -136,6 +142,42 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			t.setRowSelectionInterval( sel, sel );
 		}
 	}
+	
+	private JPanel getWarningMessagePanel()
+	{
+		if( this.panelWarningMsg == null )
+		{
+			this.panelWarningMsg  = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			this.panelWarningMsg.setBackground( Color.WHITE );
+			this.panelWarningMsg.setBorder( BorderFactory.createEtchedBorder() );
+			
+			this.panelWarningMsg.add( this.getJlabelWarningMsg() );
+		}
+		
+		return this.panelWarningMsg;
+	}
+	
+	private JLabel getJlabelWarningMsg()
+	{
+		if( this.lbWarningMsg == null )
+		{
+			this.lbWarningMsg = new JLabel();
+			
+			this.lbWarningMsg.setText( Language.getLocalCaption( Language.MSG_WARNING_DATA_PROCESSING  ) );
+			
+			Font f = this.lbWarningMsg.getFont();
+			this.lbWarningMsg.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
+			
+			this.lbWarningMsg.setForeground( Color.ORANGE.darker() );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+												, Language.MSG_WARNING_DATA_PROCESSING
+												, this.lbWarningMsg );
+		}
+		
+		return this.lbWarningMsg;
+	}
+	
 	
 	private JPanel getSaveOutputDataProcessingPanel()
 	{
@@ -270,6 +312,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					opts.add( str.getStreamName() + " (" + str.getUID() + ")" );
 				}
 
+				Collections.sort( opts );
+				
 				Dialog_OptionList dial = new Dialog_OptionList();
 
 				dial.setIconImage( GeneralAppIcon.getIconoAplicacion( 32, 32 ).getImage() );
@@ -947,7 +991,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			if( process != null )
 			{
-				JPanel streamPanel = getStreamPanel( process );
+				JPanel streamPanel = this.getStreamPanel( process );
 				streamPanel.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) ) );
 				
 				//GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.SETTING_LSL_DEVICES, streamPanel.getBorder() );

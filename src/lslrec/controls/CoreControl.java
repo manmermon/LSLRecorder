@@ -385,7 +385,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 						UIManager.getString( "OptionPane.noButtonText" ) };
 
-				int actionDialog = JOptionPane.showOptionDialog( this.managerGUI.getAppUI(), this.warnMsg.getMessage() + "\n"
+				String msg = this.warnMsg.getMessage();
+				
+				if( !msg.endsWith( "\n" ) )
+				{
+					msg += "\n";
+				}
+				
+				int actionDialog = JOptionPane.showOptionDialog( this.managerGUI.getAppUI(), msg + "\n"
 										+ Language.getLocalCaption( Language.CONTINUE_TEXT) + "?" 
 										, Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE 
 										, null, opts, opts[1]);
@@ -778,8 +785,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{
 			if( !DataProcessingPluginRegistrar.getDataStreams( process ).isEmpty() )
 			{
-				WarningMessage w = process.checkSettings();
-				this.warnMsg.addMessage( w.getMessage(), w.getWarningType() );
+				WarningMessage w = process.checkSettings();			
+				String msg = w.getMessage();
+								
+				this.warnMsg.addMessage( msg, w.getWarningType() );
 			}
 		}
 		

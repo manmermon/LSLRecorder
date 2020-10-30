@@ -142,14 +142,14 @@ public class OutputHDF5DataWriter implements IOutputDataFileWriter
 				CharBlock d = (CharBlock)dataBlock;
 				Character[] dat = d.getData();
 
-				wr.addData( new String( ConvertTo.CharacterArray2charArray( dat ) ).split( "(?!^)" ) );
+				wr.addData( new String( ConvertTo.Casting.CharacterArray2charArray( dat ) ).split( "(?!^)" ) );
 			}
 			else if( dataBlock instanceof StringBlock )
 			{
 				StringBlock d = (StringBlock)dataBlock;
 				Character[] dat = d.getData();
 
-				wr.addData( new String[] { new String( ConvertTo.CharacterArray2charArray( dat ) ) } );
+				wr.addData( new String[] { new String( ConvertTo.Casting.CharacterArray2charArray( dat ) ) } );
 			}
 			else
 			{

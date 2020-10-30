@@ -69,42 +69,11 @@ public class Language
 	
 	public static final String OTHERS_TEXT = "OTHERS_TEXT";
 
-	
-
-	// public static final String SETTING_TASK = "SETTING_TASK";
 
 	public static final String SETTING_SOCKET_TAB_INPUT_PANEL = "SETTING_SOCKET_TAB_INPUT_PANEL";
-	// public static final String SETTING_SOCKET_TAB_INPUT_ACTIVE =
-	// "SETTING_SOCKET_TAB_INPUT_ACTIVE";
 	public static final String SETTING_SOCKET_TAB_INPUT_IP_TABLE_ADDRESS = "SETTING_SOCKET_TAB_INPUT_IP_TABLE_ADDRESS";
 	public static final String SETTING_SOCKET_TAB_INPUT_IP_TABLE_PORT = "SETTING_SOCKET_TAB_INPUT_IP_TABLE_PORT";
-	// public static final String SETTING_SOCKET_TAB_INPUT_COMMAND_ENABLE =
-	// "SETTING_SOCKET_TAB_INPUT_COMMAND_ENABLE";
-	// public static final String SETTING_SOCKET_TAB_INPUT_COMMAND_EVENT =
-	// "SETTING_SOCKET_TAB_INPUT_COMMAND_EVENT";
-	// public static final String SETTING_SOCKET_TAB_INPUT_COMMAND_MESSAGE =
-	// "SETTING_SOCKET_TAB_INPUT_MESSAGE";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_PANEL =
-	// "SETTING_SOCKET_TAB_OUTPUT_PANEL";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_ACTIVE =
-	// "SETTING_SOCKET_TAB_OUTPUT_ACTIVE";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_IP_TABLE_ADDRESS =
-	// "SETTING_SOCKET_TAB_OUTPUT_IP_TABLE_ADDRESS";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_IP_TABLE_PORT =
-	// "SETTING_SOCKET_TAB_OUTPUT_IP_TABLE_PORT";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_COMMAND_ENABLE =
-	// "SETTING_SOCKET_TAB_OUTPUT_COMMAND_ENABLE";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_COMMAND_EVENT =
-	// "SETTING_SOCKET_TAB_OUTPUT_COMMAND_EVENT";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_COMMAND_MESSAGE =
-	// "SETTING_SOCKET_TAB_OUTPUT_MESSAGE";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_NEW_SOCKET =
-	// "SETTING_SOCKET_TAB_OUTPUT_NEW_SOCKET";
-	// public static final String SETTING_SOCKET_TAB_OUTPUT_DELETE_SOCKET =
-	// "SETTING_SOCKET_TAB_OUTPUT_DELETE_SOCKET";
-
-	// public static final String SETTING_LSL_TAB = "SETTING_LABSTREMINGLAYER_TAB";
-	// public static final String SETTING_LSL_EVENT = "SETTING_LSL_EVENT";
+	
 	public static final String SETTING_LSL_MARK = "SETTING_LSL_MARK";
 	public static final String SETTING_LSL_FILE = "SETTING_LSL_FILE";
 	public static final String SETTING_LSL_OUTPUT_FORMAT = "SETTING_LSL_OUTPUT_FORMAT";
@@ -166,6 +135,7 @@ public class Language
 	public static final String MSG_WARNING = "MSG_WARNING";
 	public static final String MSG_SELECTED_LSL_SYNC_STREAM_ERROR = "MSG_SELECTED_LSL_SYNC_STREAM_ERROR"; 
 	public static final String MSG_LSL_PLOT_ERROR = "SETTING_LSL_PLOT_ERROR";
+	public static final String MSG_WARNING_DATA_PROCESSING = "MSG_WARNING_DATA_PROCESSING";
 
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -232,6 +202,10 @@ public class Language
 
 	static {
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put( MSG_WARNING_DATA_PROCESSING
+						, new Caption( MSG_WARNING_DATA_PROCESSING, defaultLanguage
+										, "Warning: data processing can reduce system efficiency."));
 		
 		captions.put(SETTING_SYNC_METHOD, new Caption(SETTING_SYNC_METHOD, defaultLanguage, "Sync Method"));
 		captions.put(SETTING_SPECIAL_IN_METHOD,

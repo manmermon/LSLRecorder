@@ -27,6 +27,7 @@ import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
@@ -37,8 +38,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import javax.annotation.processing.FilerException;
 
 import lslrec.auxiliar.extra.FileUtils;
 
@@ -53,7 +52,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	private OutputFileFormatParameters outputFormat;
 	
 	private DataProcessingExecutor datProcessingExec = null;
-	private final String outDatProcessInfix = "_processedData_";
+	private final String outDatProcessInfix = "_processedData";
 	
 	public TemporalOutDataFileWriter( DataStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
@@ -172,7 +171,43 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			
 			if( processfile != null )
 			{
-				processingEvent = new EventInfo( this.datProcessingExec.getID(), GetFinalOutEvent(), this.getTemporalFileData( processfile, super.streamSetting, this.outputFormat ) );
+				OutputFileFormatParameters procFormat = new OutputFileFormatParameters();
+				
+				for( String idPar : this.outputFormat.getAllParameters().getParameterIDs() )
+				{	
+					procFormat.setParameter( idPar, this.outputFormat.getParameter( idPar ).getValue() );
+				}
+				
+				String filename = procFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString();
+				
+				int index = filename.lastIndexOf( File.separator );
+				String prefix = "";
+				String sufix = filename;
+				
+				if( index >= 0 )
+				{
+					prefix = filename.substring( 0, index );
+					sufix = filename.substring( index );
+				}
+				
+				index = sufix.lastIndexOf( "." );
+				
+				if( index >= 0 )
+				{
+					sufix = sufix.substring( 0, index ) + this.outDatProcessInfix + sufix.substring( index );
+				}
+				else
+				{
+					sufix += this.outDatProcessInfix; 
+				}
+				
+				filename = prefix + sufix;
+				
+				procFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, filename );
+				
+				processingEvent = new EventInfo( this.datProcessingExec.getID()
+													, GetFinalOutEvent()
+													, this.getTemporalFileData( processfile, super.streamSetting, procFormat ) );
 			}
 			
 			this.datProcessingExec = null;

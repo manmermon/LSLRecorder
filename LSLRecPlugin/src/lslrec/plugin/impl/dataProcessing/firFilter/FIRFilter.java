@@ -66,7 +66,6 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 				String id = p.getID();
 				String val = p.getValue();
 
-				System.out.println("FIRFilter.loadProcessingSettings() < " + id + ", " + val + " >" );
 				switch( id ) 
 				{
 					case FILTER_LENGTH:

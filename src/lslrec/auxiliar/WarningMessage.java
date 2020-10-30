@@ -73,7 +73,7 @@ public class WarningMessage
    */
   public void addMessage( String message, int type )
   {
-	  if( !this.msg.isEmpty() )
+	  if( !this.msg.isEmpty() && !message.isEmpty() )
 	  {
 		  this.msg += "\n"; 
 	  }

@@ -40,10 +40,10 @@ public abstract class LSLRecPluginDataProcessing
 		
 		Number zero = ConvertTo.Casting.NumberTo( 0D, this.streamSetting.getDataType() );
 		
-		this.bufferCapacity = this.getBufferLength() * channels;
+		this.bufferCapacity = this.getBufferLength();
 		if( this.bufferCapacity < 1 )
 		{
-			this.bufferCapacity = channels;
+			this.bufferCapacity = 1;
 		}
 		
 		for( int c = 0; c < channels; c++ )
@@ -90,6 +90,7 @@ public abstract class LSLRecPluginDataProcessing
 				
 				int channels = this.streamSetting.getStreamInfo().channel_count();
 				
+				
 				//
 				// data block size = channels * chunkSize
 				//
@@ -102,10 +103,9 @@ public abstract class LSLRecPluginDataProcessing
 						
 					this.putInBuffer( inputs, this.streamSetting.isInterleavedData() );
 					
-								
+					result.addAll( this.applyProcess2DataBuffers() );
 				}
 				
-				result.addAll( this.applyProcess2DataBuffers() );	
 			}
 		}
 		else
