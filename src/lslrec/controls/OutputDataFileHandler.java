@@ -206,7 +206,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			{
 				Tuple t = (Tuple)info;
 				
-				String act = (String)t.x;
+				String act = (String)t.t1;
 				
 				if( act.equals( ACTION_START_SYNC ) )
 				{					
@@ -235,7 +235,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{						
 					if( this.saveSyncMarker.get() )
 					{
-						this.syncCollector.SaveSyncMarker( (SyncMarker)t.y );
+						this.syncCollector.SaveSyncMarker( (SyncMarker)t.t2 );
 					}
 				}
 			}
@@ -567,9 +567,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 						Tuple< String, SyncMarkerBinFileReader > t = (Tuple< String, SyncMarkerBinFileReader >)event.getEventInformation();
 						
-						if( t.y != null )
+						if( t.t2 != null )
 						{
-							t.y.closeStream();
+							t.t2.closeStream();
 						}
 						
 						if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
@@ -582,11 +582,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 							this.savingPercentage.clear();
 							
-							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.x )  );
+							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.t1 )  );
 							
-							if( t.y != null )
+							if( t.t2 != null )
 							{
-								t.y.closeAndRemoveTempBinaryFile();
+								t.t2.closeAndRemoveTempBinaryFile();
 							}
 							
 							if( this.syncCollector != null )
@@ -705,8 +705,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							
 							try
 							{										
-								TemporalBinData dat = set.x;
-								SyncMarkerBinFileReader reader = set.y;
+								TemporalBinData dat = set.t1;
+								SyncMarkerBinFileReader reader = set.t2;
 
 								if( dat == null )
 								{		
@@ -734,12 +734,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 										}
 									}
 
-									if (!((Boolean)res.y).booleanValue())
+									if (!((Boolean)res.t2).booleanValue())
 									{
-										dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
+										dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 									}
 
-									dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
+									dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 
 									saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
 									saveOutFileThread.taskMonitor( this );
@@ -751,9 +751,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 										saveOutFileThread.startThread();		
 									}
 
-									if (!((Boolean)res.y).booleanValue())
+									if (!((Boolean)res.t2).booleanValue())
 									{
-										super.event = new EventInfo( event.getIdSource(), EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.x);
+										super.event = new EventInfo( event.getIdSource(), EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.t1);
 										super.supervisor.eventNotification( this, super.event );
 									}
 								}
@@ -832,20 +832,20 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							}
 						}
 						
-						if (!((Boolean)res.y).booleanValue())
+						if (!((Boolean)res.t2).booleanValue())
 						{
-							dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
+							dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 						}
 						
-						dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.x );
+						dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 						
 						launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
 
 						launch.startThread();
 
-						if (!((Boolean)res.y).booleanValue())
+						if (!((Boolean)res.t2).booleanValue())
 						{
-							super.event = new EventInfo( event.getIdSource(), EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.x);
+							super.event = new EventInfo( event.getIdSource(), EventType.WARNING, "The output data file exist. It was renamed as " + (String)res.t1);
 							super.supervisor.eventNotification( this, super.event );
 						}
 					}

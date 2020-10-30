@@ -116,11 +116,11 @@ public class HDF5Data
 		values = ArrayUtils.addAll( this.remainingData, values );
 		Tuple< Number[][], Number[] > data = ConvertTo.Transform.Array2Matrix( values, this.maxCol );
 		
-		this.writeData( this.name, data.x, this.blockIndex );
+		this.writeData( this.name, data.t1, this.blockIndex );
 		
-		this.blockIndex += data.x.length;
+		this.blockIndex += data.t1.length;
 		
-		this.remainingData = data.y;
+		this.remainingData = data.t2;
 	}
 			
 	public void addData( String[] values )
@@ -128,14 +128,14 @@ public class HDF5Data
 		values = ArrayUtils.addAll( this.remainingStringData, values );
 		Tuple< String[][], String[] > data = ConvertTo.Transform.StringArray2Matrix( values, this.maxCol );
 		
-		if( data.x.length > 0 )
+		if( data.t1.length > 0 )
 		{	
-			this.writeStringData( this.name, this.StringMatrix2MDStringArray( data.x ), this.blockIndex );
+			this.writeStringData( this.name, this.StringMatrix2MDStringArray( data.t1 ), this.blockIndex );
 			
-			this.blockIndex += data.x.length;
+			this.blockIndex += data.t1.length;
 		}
 		
-		this.remainingStringData = data.y;
+		this.remainingStringData = data.t2;
 	}
 	
 	private MDArray< String > StringMatrix2MDStringArray( String[][] data )
@@ -200,7 +200,7 @@ public class HDF5Data
 		{
 			String newName = this.name + "Remaining";
 			this.createMatrix( newName );
-			Number[][] d = ConvertTo.Transform.Array2Matrix( this.remainingData, this.remainingData.length ).x;
+			Number[][] d = ConvertTo.Transform.Array2Matrix( this.remainingData, this.remainingData.length ).t1;
 			this.writeData( newName, d, 0L );
 		}
 		
@@ -208,7 +208,7 @@ public class HDF5Data
 		{
 			String newName = this.name + "Remaining";
 			this.createMatrix( newName );
-			String[][] d = ConvertTo.Transform.StringArray2Matrix( this.remainingStringData, this.remainingStringData.length ).x;
+			String[][] d = ConvertTo.Transform.StringArray2Matrix( this.remainingStringData, this.remainingStringData.length ).t1;
 			this.writeStringData( newName, StringMatrix2MDStringArray( d ), 0 );
 			
 		}

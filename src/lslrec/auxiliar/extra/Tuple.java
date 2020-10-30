@@ -24,13 +24,13 @@ package lslrec.auxiliar.extra;
 
 public class Tuple<X, Y> 
 {
-	public final X x;
-	public final Y y;
+	public final X t1;
+	public final Y t2;
 	
-	public Tuple( X x, Y y)
+	public Tuple( X t1, Y t2)
 	{
-		this.x = x;
-		this.y = y;
+		this.t1 = t1;
+		this.t2 = t2;
 	}
 	
 	public static boolean isCorrectTypes( Object obj, Class xClass, Class yClass )
@@ -42,7 +42,7 @@ public class Tuple<X, Y>
 			if( obj instanceof Tuple )
 			{
 				Tuple t = (Tuple)obj;
-				correct = ( xClass.isInstance( t.x ) ) && ( yClass.isInstance( t.y ) );
+				correct = ( xClass.isInstance( t.t1 ) ) && ( yClass.isInstance( t.t2 ) );
 			}
 		}
 		
@@ -63,7 +63,7 @@ public class Tuple<X, Y>
 		{
 			Tuple tin = (Tuple)obj;
 			
-			eq = tin.x.equals( this.x ) && tin.y.equals( this.y );
+			eq = tin.t1.equals( this.t1 ) && tin.t2.equals( this.t2 );
 		}
 				
 		return eq;		
@@ -73,16 +73,16 @@ public class Tuple<X, Y>
 	public String toString() 
 	{
 		String out = "<";
-		if( x != null )
+		if( t1 != null )
 		{
-			out += x;
+			out += t1;
 		}
 		
 		out += ",";
 		
-		if( y != null )
+		if( t2 != null )
 		{
-			out += " " + y; 
+			out += " " + t2; 
 		}
 		
 		out += ">";

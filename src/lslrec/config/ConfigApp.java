@@ -32,6 +32,12 @@ import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
+import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 
@@ -54,6 +60,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
@@ -140,6 +147,15 @@ public class ConfigApp
 	public static final String OUTPUT_PARALLELIZE = "OUTPUT_PARALLELIZE";
 	
 	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
+
+	/****
+	 * 
+	 * 
+	 * Plugin
+	 * 
+	 */
+	
+	public static final String PLUGINS = "PLUGINS";
 	
 	////////////////////////
 	
@@ -202,6 +218,8 @@ public class ConfigApp
 		list_Key_Type.put( OUTPUT_PARALLELIZE, Boolean.class );
 		
 		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
+		
+		list_Key_Type.put( PLUGINS, HashMap.class);
 	}
 	
 	private static void create_Key_RankValues()
@@ -273,6 +291,26 @@ public class ConfigApp
 				
 				String p = toSave.toString();
 				p = p.replace( ">, <", ">; <" );
+				prop.setProperty( key, p );
+			}
+			else if( key.equals( PLUGINS ) )
+			{
+				HashMap< Tuple< PluginType, String >, ParameterList > pluginSettings = (HashMap< Tuple< PluginType, String >, ParameterList >)listConfig.get( key );
+				
+				String p = "[";
+				
+				for( Tuple< PluginType, String > pl : pluginSettings.keySet() )
+				{
+					p += pl.toString() + "=" + pluginSettings.get( pl ).toString() + ";" ;
+				}
+				
+				if( !pluginSettings.isEmpty() )
+				{
+					p = p.substring( 0, p.length() - 1 );
+				}
+				
+				p += "]";
+				
 				prop.setProperty( key, p );
 			}
 			else
@@ -618,8 +656,6 @@ public class ConfigApp
 									{
 									}
 									
-									
-									
 									boolean found = false;
 									
 									for( MutableDataStreamSetting lslCfg : lslDevs )
@@ -694,13 +730,185 @@ public class ConfigApp
 					listConfig.put( SELECTED_SYNC_METHOD, p );
 				}
 			}
+			else if( clase.getCanonicalName().equals( HashMap.class.getCanonicalName() ) )
+			{
+				if( key.equals( PLUGINS ) )
+				{	
+					try
+					{
+						/*
+						 * Format data:
+						 * 
+						 * [<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...;<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>}]
+						 * 
+						 */
+						
+						String[] Plugins = p.split( "};" );
+						if( Plugins.length > 0 )
+						{
+							Plugins[ 0 ] = Plugins[ 0 ].replace( "[<", "<" );
+							Plugins[ Plugins.length - 1 ] = Plugins[ Plugins.length - 1 ].replace( "}]", "" );
+							
+						}
+						
+						/*
+						 * Plugins[] =
+						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+						 */
+						
+						PluginLoader loader = PluginLoader.getInstance();
+						
+						ArrayTreeMap< PluginType, Tuple< String, ParameterList > > reg = new ArrayTreeMap< PluginType, Tuple< String, ParameterList > >(); 
+						for( String plugin : Plugins )
+						{
+							
+							// plugin = <type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+							
+							String[] pl = plugin.split( "={" );
+							
+							/*
+							 * pl[] =
+							 * 		<type,id>
+							 * 		<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+							 */
+							
+							if( pl.length == 2 )
+							{
+								String idPlugin = pl[ 0 ]; // <type,id>
+								String pluginSetting = pl[ 1 ].trim(); //<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+								
+								String[] ids = idPlugin.split( "," ); 
+								// ids[] = 
+								//			<type
+								//			id> 
+								
+								PluginType plT = null;
+								String pluginID  = null;
+								if( ids.length == 2 )
+								{
+									String pluginType = ids[ 0 ].replace( "<", "" ); // type
+									pluginID = ids[ 1 ].replace( ">", "" ); // id
+									
+									try
+									{
+										plT = PluginType.valueOf( pluginType.toUpperCase() );
+									}
+									catch( Exception e )
+									{									
+									}
+								}
+								
+								if( plT != null )
+								{
+									String[] settings = pluginSetting.replaceAll( ">\\s+,\\s+<", ">,<" ).split( ">,<" );
+									if( settings.length > 0 )
+									{
+										String aux  = settings[ 0 ];
+										if( !aux.isEmpty() )
+										{
+											settings[ 0 ] = aux.substring( 1 );
+										}
+										
+										aux  = settings[ settings.length - 1 ];										
+										if( !aux.isEmpty() )
+										{
+											settings[ settings.length - 1 ] = aux.substring( 0, aux.length() - 1 ); 
+										}
+									}
+									//
+									//settings[]= 
+									//			idParameter,value
+									//			idParameter,value
+									//			...
+									//			idParameter,value
+									
+									ParameterList pars = new ParameterList();
+									
+									for( String cfg : settings )
+									{
+										// cfg = idParameter,value
+										
+										String[] par = cfg.split( "," );
+										// 
+										// par[] = 
+										//			idParameter
+										//			value
+										
+										if( par.length == 2 )
+										{
+											String parID = par[ 0 ].trim(); // idParameter
+											String val = par[ 1 ]; // value
+											
+											pars.addParameter( new Parameter<String>( parID, val ) );
+										}
+									}
+									
+									reg.putElement( plT, new Tuple<String, ParameterList>( pluginID, pars ) );
+								}
+							}
+							else
+							{
+								
+							}
+						}
+						
+						for( PluginType plType : reg.keySet() )
+						{
+							for( Tuple< String, ParameterList > plg : reg.get( plType ) )
+							{
+								String idPlg = plg.t1;
+								ParameterList pars = plg.t2;
+								
+								List< Parameter< String > > parlist = new ArrayList< Parameter< String > >();
+								
+								for( String idPar : pars.getParameterIDs() )
+								{
+									parlist.add( pars.getParameter( idPar ) );
+								}
+								
+								if( plType == PluginType.DATA_PROCESSING )
+								{									
+									DataProcessingPluginRegistrar.clear();
+																		
+									ILSLRecPluginDataProcessing newPr = (ILSLRecPluginDataProcessing)loader.createNewPluginInstance( plType, idPlg, false );									
+									newPr.loadSettings( parlist );
+									
+									DataProcessingPluginRegistrar.addDataProcessing( newPr );
+								}
+								else
+								{										
+									List< ILSLRecPlugin > pluginList = loader.getAllPlugins( plType, idPlg );
+
+									if( pluginList != null )
+									{
+										for( ILSLRecPlugin rp : pluginList )
+										{
+											if( rp instanceof ILSLRecConfigurablePlugin )
+											{
+												((ILSLRecConfigurablePlugin) rp).loadSettings( parlist );
+											}
+										}
+									}
+								}
+						}
+						}						
+					}
+					catch (Exception e) 
+					{				
+						// TODO
+					}
+				}
+			}
 			else 
 			{
 				System.out.println(key + ": non-defined parameter.");
 			}
 		}
 		
-		if( !prop.keySet().containsAll(list_Key_Type.keySet() ) )
+		if( !prop.keySet().containsAll( list_Key_Type.keySet() ) )
 		{
 			defaultValue = true;
 						
@@ -849,6 +1057,11 @@ public class ConfigApp
 				loadDefaultSaveOutputDataProcessing();
 				break;
 			}
+			case PLUGINS:
+			{
+				loadDefaultPlugins();
+				break;
+			}
 		}
 	}
 
@@ -873,6 +1086,8 @@ public class ConfigApp
 		loadDefaultLSLOutputParallelize();
 		
 		loadDefaultSaveOutputDataProcessing();
+		
+		loadDefaultPlugins();
 	}
 
 	private static void loadDefaultLanguage()
@@ -995,5 +1210,10 @@ public class ConfigApp
 	private static void loadDefaultSaveOutputDataProcessing()
 	{
 		listConfig.put( OUTPUT_SAVE_DATA_PROCESSING, false );
+	}
+	
+	private static void loadDefaultPlugins()
+	{
+		listConfig.put( PLUGINS, new HashMap< Tuple< PluginType, String>, ParameterList >() );
 	}
 }

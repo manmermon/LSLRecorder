@@ -1630,7 +1630,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					List< Tuple< String, List< Long > > > testValues = (List)eventObject;
 					for( Tuple< String, List< Long > > times : testValues )
 					{				
-						WriteTestCalculator cal = new WriteTestCalculator(  times.x, times.y );
+						WriteTestCalculator cal = new WriteTestCalculator(  times.t1, times.t2 );
 						cal.start();
 					}
 				}

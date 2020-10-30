@@ -171,7 +171,7 @@ public class LSLUtils
 		{
 			XMLElement parent = stream.desc();
 
-			parent.append_child_value( child.x, child.y );
+			parent.append_child_value( child.t1, child.t2 );
 		}
 	}
 	

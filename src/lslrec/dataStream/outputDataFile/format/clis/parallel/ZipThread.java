@@ -116,8 +116,8 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 		{
 			if( this.DataBlock != null )
 			{				
-				n = this.DataBlock.x;
-				data = this.DataBlock.y;
+				n = this.DataBlock.t1;
+				data = this.DataBlock.t2;
 
 				this.DataBlock = null;			
 			}

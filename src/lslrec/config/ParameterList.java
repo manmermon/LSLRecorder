@@ -81,4 +81,26 @@ public class ParameterList
 	{
 		return this.lst.keySet();
 	}
+	
+	@Override
+	public String toString() 
+	{
+		String str = "{";
+		
+		String sep = ",";
+		
+		for( Parameter par : this.lst.values() )
+		{
+			str += par.toString() + sep;
+		}
+		
+		if( this.lst.size() > 0 )
+		{
+			str = str.substring( 0, str.length() - 1 );
+		}
+		
+		str += "}";
+		
+		return str;
+	}
 }

@@ -263,14 +263,14 @@ public class GuiManager
 			List< Tuple< TemporalBinData, SyncMarkerBinFileReader > > STREAMS = new ArrayList<Tuple< TemporalBinData, SyncMarkerBinFileReader >>();
 			for( Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > files : binFiles )
 			{
-				Tuple< BinaryFileStreamSetting, OutputFileFormatParameters> dat = files.x;
+				Tuple< BinaryFileStreamSetting, OutputFileFormatParameters> dat = files.t1;
 			
 				//
 				// Data binary files
 				//
 				
-				BinaryFileStreamSetting binSetting = dat.x;
-				OutputFileFormatParameters format = dat.y;
+				BinaryFileStreamSetting binSetting = dat.t1;
+				OutputFileFormatParameters format = dat.t2;
 				
 				String folder = (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue();
 				if( !folder.endsWith( File.separator ) )
@@ -293,7 +293,7 @@ public class GuiManager
 				// Sync markers
 				//
 				
-				BinaryFileStreamSetting sync = files.y;
+				BinaryFileStreamSetting sync = files.t2;
 				File syncFile = null;
 				if( sync != null )
 				{
@@ -412,8 +412,8 @@ public class GuiManager
 
 		for( StringTuple id : IDs )
 		{
-			String guiID = id.x;
-			String propID = id.y;
+			String guiID = id.t1;
+			String propID = id.t2;
 			
 			Component c = guiParameters.get( id );
 			c.setVisible( false );			

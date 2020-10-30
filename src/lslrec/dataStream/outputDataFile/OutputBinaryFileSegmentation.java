@@ -388,8 +388,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 					if( block != null )
 					{
-						Number[] dat = block.x;
-						Number[] timeData = block.y;
+						Number[] dat = block.t1;
+						Number[] timeData = block.t2;
 	
 						if( !this.DATA.getDataStreamSetting().isInterleavedData() )
 						{
@@ -501,14 +501,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					
 					if( block != null )
 					{
-						String[] str = block.x;						
+						String[] str = block.t1;						
 						
 						if( !saveString )
 						{
-							Tuple< Number[], Number[] > lenTime = block.y;
+							Tuple< Number[], Number[] > lenTime = block.t2;
 
-							Number[] dat = lenTime.x;
-							Number[] timeData = lenTime.y;
+							Number[] dat = lenTime.t1;
+							Number[] timeData = lenTime.t2;
 
 							if( !this.DATA.getDataStreamSetting().isInterleavedData() )
 							{
@@ -839,7 +839,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					
 					if( block != null )
 					{
-						times = block.y;
+						times = block.t2;
 						
 						if( times != null )
 						{
@@ -856,7 +856,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					
 					if( block != null )
 					{
-						times = block.y.y;
+						times = block.t2.t2;
 						
 						if( times != null )
 						{

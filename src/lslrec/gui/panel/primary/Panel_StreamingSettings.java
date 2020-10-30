@@ -287,11 +287,11 @@ public class Panel_StreamingSettings extends JPanel
 						}
 						else
 						{
-							eq = o1.x.compareTo( o2.x );
+							eq = o1.t1.compareTo( o2.t1 );
 							
 							if( eq == 0 )
 							{
-								eq = o1.y - o2.y;
+								eq = o1.t2 - o2.t2;
 							}
 						}
 					}
@@ -320,7 +320,7 @@ public class Panel_StreamingSettings extends JPanel
 			{
 				Tuple< String, Integer > t = itStreamNames.next();
 				
-				this.deviceInfo[ index ] = streams[ t.y ]; 
+				this.deviceInfo[ index ] = streams[ t.t2 ]; 
 						
 				index++;
 			}
@@ -372,7 +372,7 @@ public class Panel_StreamingSettings extends JPanel
 		JScrollPane scr = this.getScrollPanelSelectDevPanel();
 		scr.setVisible( false );
 		
-		scr.setViewportView( update.x );
+		scr.setViewportView( update.t1 );
 		
 		boolean findDevice = false;
 
@@ -924,11 +924,11 @@ public class Panel_StreamingSettings extends JPanel
 			
 			JScrollPane scr = this.getScrollPanelSelectDevPanel();
 			scr.setVisible( false );
-			scr.setViewportView( deviceInfo.x );
+			scr.setViewportView( deviceInfo.t1 );
 			scr.setVisible( true );
 						
 			this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
-			this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.y ) );
+			this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.t2 ) );
 			
 		}
 

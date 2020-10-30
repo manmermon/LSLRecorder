@@ -67,7 +67,7 @@ public class CreatorDefaultSettingPanel
 					JPanel p = new JPanel( new BorderLayout( 0, 0) );										
 					p.add( comp, BorderLayout.CENTER );					
 					
-					p.setBorder( BorderFactory.createTitledBorder( par.getText() ) );
+					p.setBorder( BorderFactory.createTitledBorder( par.getDescriptorText() ) );
 
 					panel.add( p, gbc );
 				}
@@ -164,7 +164,7 @@ public class CreatorDefaultSettingPanel
 						}
 						case BOOLEAN:
 						{
-							JCheckBox ch = new JCheckBox( par.getText() );
+							JCheckBox ch = new JCheckBox( par.getDescriptorText() );
 							ch.setSelected( Boolean.parseBoolean( val ) );
 							
 							ch.setHorizontalTextPosition( SwingConstants.LEFT );

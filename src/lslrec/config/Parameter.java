@@ -49,8 +49,13 @@ public class Parameter< T > implements IParameter< T >
 		{
 			throw new IllegalArgumentException( "Parameter ID and/or value are null or empty" );
 		}
+		
+		if( id.trim().isEmpty() )
+		{
+			throw new IllegalArgumentException( "Parameter ID and/or value are null or empty" );
+		}
 
-		this.ID = id;
+		this.ID = id.trim();
 		this.value = defaultValue;
 		
 		this.listenerList = new EventListenerList();
@@ -78,7 +83,8 @@ public class Parameter< T > implements IParameter< T >
 		{
 			throw new IllegalArgumentException( "ID is null, whitespace, or empty.");
 		}
-		this.ID = id;
+		
+		this.ID = id.trim();
 	}
 	
 	/**
@@ -88,9 +94,15 @@ public class Parameter< T > implements IParameter< T >
 	 * @param newValue: new value
 	 * @return previous value
 	 * @throws ClassCastException: Class new value is different
+	 * @throws NullPointerException: newValue null
 	 */
-	public T setValue( T newValue ) throws ClassCastException
+	public T setValue( T newValue ) throws ClassCastException, NullPointerException
 	{
+		if( newValue == null )
+		{
+			throw new NullPointerException( "New value null." );
+		}
+		
 		String parClass = this.value.getClass().getCanonicalName();
 		if ( !parClass.equals( newValue.getClass().getCanonicalName() ) )
 		{
@@ -124,7 +136,7 @@ public class Parameter< T > implements IParameter< T >
 		return this.txtID;
 	}
 	
-	public String getText()
+	public String getDescriptorText()
 	{
 		String t = Language.getLocalCaption( this.txtID );
 		
@@ -156,4 +168,10 @@ public class Parameter< T > implements IParameter< T >
 		}
 	}
 	
+	@Override
+	public String toString() 
+	{
+		
+		return "<" + this.ID + ", " + this.value.toString() + ">";
+	}
 }
