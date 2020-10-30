@@ -132,6 +132,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private LSLRecPluginTrial trial = null;
 	private JFrame trialWindows = null;
+	
+	private LSLRecPluginSyncMethod syncPluginMet = null;
 		
 	/**
 	 * Create main control unit.
@@ -533,14 +535,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 			
-			LSLRecPluginSyncMethod syncMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
-
-			if( syncMet != null )
-			{
-				//TODO
-				
-			}
-			
 			this.isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
 			
 			if( !testWriting )
@@ -587,6 +581,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					
 					this.trial.taskMonitor( this.ctrlOutputFile );
 				}
+			}
+			
+			if( this.syncPluginMet != null )
+			{
+				this.syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
+			}
+			
+			 this.syncPluginMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
+
+			if( this.syncPluginMet != null )
+			{
+				this.syncPluginMet.taskMonitor( this.ctrlOutputFile );				
 			}
 			
 			this.waitStartCommand();
@@ -822,6 +828,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{	
 			this.trialWindows.setVisible( true );
 			this.trial.startThread();
+		}
+		
+		if( this.syncPluginMet != null )
+		{
+			this.syncPluginMet.startThread();
 		}
 	}
 
@@ -1977,6 +1988,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			if ( isRecording 
 					|| isWaitingForStartCommand )
 			{	
+				if( syncPluginMet != null )
+				{
+					syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
+				}
+				
 				if( trial != null )
 				{
 					trial.stopThread( IStoppableThread.FORCE_STOP );
