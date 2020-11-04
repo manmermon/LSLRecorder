@@ -257,6 +257,8 @@ public class GuiManager
 		if( binFiles.size() > 0 )
 		{ 
 			this.setAppState( AppState.SAVING, 0, true );
+			
+			enablePlayButton( false );
 		}
 						
 		try 
@@ -375,6 +377,7 @@ public class GuiManager
 		}
 		catch (Exception e) 
 		{
+			enablePlayButton( true );
 		}			
 		finally 
 		{
@@ -581,6 +584,8 @@ public class GuiManager
 		ui.getJComboxSyncMethod().setEnabled( enable );
 		ui.getJCheckActiveSpecialInputMsg().setEnabled( enable );
 		
+		ui.getPreferenceMenu().setEnabled( enable );
+		
 		//ui.getJButtonInfo().setEnabled( enable );
 				
 		try 
@@ -597,9 +602,14 @@ public class GuiManager
 		
 	public void restoreGUI()
 	{
-		JButton btnStart = AppUI.getInstance().getJButtonPlay();
+		JToggleButton btnStart = AppUI.getInstance().getJButtonPlay();
+		/*
 		btnStart.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );		
 		btnStart.setIcon( START_ICO );
+		btnStart.setEnabled( true );
+		*/
+		btnStart.setSelected( false );
+		
 		
 		this.StopSessionTimer();
 		
@@ -608,7 +618,7 @@ public class GuiManager
 		this.getAppUI().getFileMenu().requestFocusInWindow();
 	}
 
-	private void enablePlayButton( boolean enable )
+	public void enablePlayButton( boolean enable )
 	{
 		AppUI.getInstance().getJButtonPlay().setEnabled( enable );
 	}
@@ -626,7 +636,7 @@ public class GuiManager
 				
 				enablePlayButton( false );
 				
-				JButton playBtn = AppUI.getInstance().getJButtonPlay();
+				JToggleButton playBtn = AppUI.getInstance().getJButtonPlay();
 								
 				try 
 				{						
@@ -692,7 +702,9 @@ public class GuiManager
 	
 	public void stopTest()
 	{
-		JButton btnStart = AppUI.getInstance().getJButtonPlay();
+		enablePlayButton( false );
+		
+		JToggleButton btnStart = AppUI.getInstance().getJButtonPlay();
 		btnStart.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );		
 		btnStart.setIcon( START_ICO );
 		
@@ -822,7 +834,9 @@ public class GuiManager
 					
 			String title = Language.getLocalCaption( Language.SETTING_PLUGIN );
 			
-			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );		
+			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, pps );
 		}
 	}
 	

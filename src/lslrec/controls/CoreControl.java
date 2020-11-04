@@ -24,6 +24,7 @@ package lslrec.controls;
 
 import lslrec.auxiliar.tasks.INotificationTask;
 import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.thread.DeadlockDetector;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -134,6 +135,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private JFrame trialWindows = null;
 	
 	private LSLRecPluginSyncMethod syncPluginMet = null;
+	
+	private DeadlockDetector deadlockDetector = null;
 		
 	/**
 	 * Create main control unit.
@@ -594,6 +597,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				this.syncPluginMet.taskMonitor( this.ctrlOutputFile );				
 			}
+			
+			if( this.deadlockDetector != null )
+			{
+				this.deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );				
+			}
+			
+			this.deadlockDetector = new DeadlockDetector( 10000L, 10 ); // 10 s, 10 iteractions
+			this.deadlockDetector.startThread();
 			
 			this.waitStartCommand();
 		}
@@ -1582,6 +1593,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					savingDataProgress = 0;
 					//managerGUI.enablePlayButton( true );
 					
+					if( deadlockDetector != null )
+					{ 
+						deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
+						deadlockDetector = null;
+					}
+					
+					managerGUI.enablePlayButton( true );
+					
 					if( closeWhenDoingNothing && !isDoingSomething() )
 					{
 						System.exit( 0 );
@@ -1590,6 +1609,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
 				{	
 					managerGUI.setAppState( AppState.SAVING, 0, true );
+					
+					managerGUI.enablePlayButton( false );
 				}		
 				else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
 				{

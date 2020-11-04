@@ -937,7 +937,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 		else
 		{
-			this.checkOutWriterTimer.restart();
+			if( this.checkOutWriterTimer != null )
+			{
+				this.checkOutWriterTimer.restart();
+			}
 		}
 		
 	}

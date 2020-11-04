@@ -140,7 +140,13 @@ public class TrialPluginSelectorPanel extends JPanel
 				                }
 				
 				                return tip;
-				            }				            
+				            }
+				            
+				            public void changeSelection(int rowIndex, int columnIndex, boolean toggle, boolean extend)
+				            {
+				                //Always toggle on single selection
+				                super.changeSelection( rowIndex, columnIndex, !extend, extend );
+				            }
 				        };
 				        
 		table.setDefaultRenderer( Object.class, new DefaultTableCellRenderer()
@@ -206,7 +212,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			this.tablePluginList = this.getCreateJTable();
 			this.tablePluginList.setModel( this.createTablemodel( Language.SETTING_PLUGIN ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getTableHeader() );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getColumnModel().getColumn( 0 ) );
 			
 			this.tablePluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 						

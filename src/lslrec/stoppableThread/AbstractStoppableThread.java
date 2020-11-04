@@ -24,7 +24,7 @@ package lslrec.stoppableThread;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.event.EventListenerList;
+//import javax.swing.event.EventListenerList;
 
 public abstract class AbstractStoppableThread extends Thread implements IStoppableThread//, IStoppableThreadEventControl
 {
@@ -32,8 +32,10 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
     protected volatile AtomicBoolean stopWhenTaskDone = new AtomicBoolean( false );
     protected boolean d ;
     
-    private EventListenerList listenerList = new EventListenerList();
+    //private EventListenerList listenerList = new EventListenerList();
    
+    private ThreadStopException stopExc = null;
+    
     /*
      * (non-Javadoc)
      * @see StoppableThread.IStoppableThread#startThread()
@@ -109,6 +111,8 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
         	 //this.fireEndLoopInteractionEvent();
         }
         
+        this.throwThreadStopException();
+        
         //this.fireFinishedLoopEvent();
         
     	try 
@@ -121,6 +125,18 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
 		}
     	
     	//this.fireTerminedEvent();
+    }
+    
+    /**
+     * Call runExceptionManager( e ) if thread was stopped by an ERROR_STOP.
+     * 
+     */
+    protected void throwThreadStopException()
+    {
+    	if( this.stopExc != null )
+    	{
+    		this.runExceptionManager( this.stopExc );
+    	}
     }
     
     /**
@@ -155,21 +171,26 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
 			e.printStackTrace();
 		}
     	
-    	if( friendliness < 0 )
+    	if( friendliness == STOP_WITH_TASKDONE )
     	{
     		synchronized ( this.stopWhenTaskDone )
     		{
     			this.stopWhenTaskDone.set( true );
 			}    		
     	}
-    	else
+    	else 
     	{
     		this.stopThread = true;
     	}
     	
-    	if( friendliness > 0 )
+    	if( friendliness > 0 && friendliness < -1 )
     	{
     		super.interrupt();
+    	}
+    	
+    	if( friendliness < -1 )
+    	{
+    		this.stopExc = new ThreadStopException();
     	}
         
     	try 
@@ -211,7 +232,8 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
      * Action before to stop execution.  
      * 
      * @param friendliness: 
-     * - if friendliness < 0: stop execution when task is done.
+     * - if friendliness < -1: interrupt immediately task and then execution is stopped. An exception is thrown.
+     * - if friendliness = -1: stop execution when task is done.
      * - if friendliness = 0: stop execution before the next loop interaction.
      * - if friendliness > 0: interrupt immediately task and then execution is stopped.
      */
@@ -220,7 +242,8 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
     /**
      * Action after to stop execution.  
      * @param friendliness:
-     * - if friendliness < 0: stop execution when task is done.
+     * - if friendliness < -1: interrupt immediately task and then execution is stopped. An exception is thrown.
+     * - if friendliness = -1: stop execution when task is done.
      * - if friendliness = 0: stop execution before the next loop interaction.
      * - if friendliness > 0: interrupt immediately task and then execution is stopped.
      */

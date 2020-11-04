@@ -577,7 +577,9 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			this.tablePluginList = this.getCreateJTable();
 			this.tablePluginList.setModel( this.createTablemodel( Language.SETTING_PLUGIN ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getTableHeader() );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+											, Language.SETTING_PLUGIN
+											, this.tablePluginList.getColumnModel().getColumn( 0 ) );
 			
 			this.tablePluginList.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 			
@@ -597,7 +599,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 											, Language.SELECTED_TEXT
-											,	this.tableSelectedPluginList.getTableHeader() );
+											,	this.tableSelectedPluginList.getColumnModel().getColumn( 0 ) );
 			
 			this.tableSelectedPluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 			

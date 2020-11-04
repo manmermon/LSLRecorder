@@ -73,7 +73,6 @@ import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ButtonGroup;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
@@ -95,6 +94,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
@@ -124,7 +124,8 @@ public class AppUI extends JFrame
 	private JButton jButtonClearLog;
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
-	private JButton jButtomPlayStop = null;
+		
+	private JToggleButton jButtomPlayStop = null;
 
 	// ScrollPanel
 	private JScrollPane scrollPane_2;
@@ -778,7 +779,7 @@ public class AppUI extends JFrame
 		return this.jFileMenu;
 	}
 
-	private JMenu getPreferenceMenu()
+	protected JMenu getPreferenceMenu()
 	{
 		if( this.menuPreference == null )
 		{
@@ -963,47 +964,48 @@ public class AppUI extends JFrame
 	 * 	
 	 * @return javax.swing.JMenu	
 	 */
-	protected JButton getJButtonPlay()
+	protected JToggleButton getJButtonPlay()
 	{
 		if (this.jButtomPlayStop == null)
 		{					
 			String txt = Language.getLocalCaption( Language.ACTION_PLAY ) ;
 
-			this.jButtomPlayStop = new JButton( txt );
+			this.jButtomPlayStop = new JToggleButton( txt );
 			
 			this.jButtomPlayStop.setFocusable(false);
 			this.jButtomPlayStop.setFocusPainted(false);
 			this.jButtomPlayStop.setFocusCycleRoot(false);
-			this.jButtomPlayStop.setForeground(null);
+			this.jButtomPlayStop.setForeground( null );
 
 			this.jButtomPlayStop.setBackground(this.jJMenuBar.getBackground());
 
-			this.jButtomPlayStop.addActionListener( new ActionListener() 
-			{		
+			this.jButtomPlayStop.addItemListener( new ItemListener( )
+			{	
 				@Override
-				public void actionPerformed(ActionEvent arg0) 
-				{
-					JButton b = (JButton) arg0.getSource();
+				public void itemStateChanged(ItemEvent e)  
+				{						
+					JToggleButton b = (JToggleButton) e.getSource();
 
-					String actText = Language.getLocalCaption( Language.ACTION_PLAY );
-
-					if ( b.getText().equals( actText ) )
+					if ( b.isSelected() )
 					{
+						/*
 						b.setText(Language.getCaption( Language.ACTION_STOP, ConfigApp.getProperty( ConfigApp.LANGUAGE ).toString()));
 						Icon aux = b.getIcon();
-						b.setIcon( jButtomPlayStop.getSelectedIcon());
+						b.setIcon( jButtomPlayStop.getSelectedIcon() );
 						b.setSelectedIcon(aux);
-
+						*/
+						
 						GuiManager.getInstance().startTest( false );
-
 					}
 					else
 					{
+						/*
 						b.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );
 						Icon aux = b.getSelectedIcon();
 						b.setSelectedIcon(b.getIcon());
 						b.setIcon(aux);
-
+						 */
+						
 						GuiManager.getInstance().stopTest();
 
 						jButtomPlayStop.transferFocus();

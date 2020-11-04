@@ -24,15 +24,18 @@ package lslrec.stoppableThread;
 
 public interface IStoppableThread extends Runnable
 {
+	public final int ERROR_STOP = -2;
 	public final int STOP_WITH_TASKDONE = -1;
 	public final int STOP_IN_NEXT_LOOP = 0;
-	public final int FORCE_STOP = 1;
+	public final int FORCE_STOP = 1;	
+	
 	
 	/**
      * Stop thread execution. 
      * 
      * @param friendliness:
-     * - if friendliness < 0: stop execution when task is done.
+     * - if friendliness < -1: interrupt immediately task and then execution is stopped. An exception is thrown.
+     * - if friendliness = -1: stop execution when task is done.
      * - if friendliness = 0: stop execution before the next loop interaction.
      * - if friendliness > 0: interrupt immediately task and then execution is stopped.     
      */

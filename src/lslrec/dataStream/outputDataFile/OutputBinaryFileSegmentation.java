@@ -93,7 +93,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 	//private List< EventInfo > events;
 	
-	private long totalReadedBlock = 0;
+	//private long totalReadedBlock = 0;
+	private long maxSequenceNumber = 1;
 	
 	private double totalSampleByChannels = 0;
 		
@@ -221,6 +222,20 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			String lslName = streamSettings.getStreamName(); // LSL streaming name
 			String lslXML = streamSettings.getStreamInfo().as_xml(); // LSL description
 
+			//
+			// set number of total expected sequences
+			//
+			this.maxSequenceNumber = 0;
+			
+			int dbSize = LSLUtils.getDataTypeBytes( streamSettings.getDataType() );			
+			this.setMaxNumElements( dbSize, nChannel  );
+			
+			this.maxSequenceNumber += Math.ceil( this.DATA.getDataBinaryFileSize() / ( this.maxNumElements * dbSize * 1D ) ) + 1;
+			
+			//
+			// Convertion
+			//
+			
 			Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
 			if( addInfo != null )
 			{
@@ -640,7 +655,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 		DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, Nchannels, dataBuffer.subList( from, to ).toArray() );
 		
-		this.totalReadedBlock += ( to - from ) * LSLUtils.getDataTypeBytes( dataType );
+		//this.totalReadedBlock += ( to - from ) * LSLUtils.getDataTypeBytes( dataType );
 		
 		/*
 		synchronized ( this )
@@ -709,7 +724,10 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		{
 			//EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * seqNum ) / totalBlock ) );
 			
-			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * this.totalReadedBlock) / this.DATA.getDataBinaryFileSize() ) );
+			//EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * this.totalReadedBlock) / this.DATA.getDataBinaryFileSize() ) );
+			
+			double perc = ( 100.0D * seqNum) / this.maxSequenceNumber;
+			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)perc );
 			
 			this.notifTask.addEvent( ev );
 			synchronized ( this.notifTask )
@@ -925,8 +943,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 				}
 				finally 
-				{
-					
+				{					
 				}
 			}			
 		}		

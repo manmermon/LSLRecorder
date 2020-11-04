@@ -229,6 +229,26 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	@Override
 	protected void CloseWriterActions() throws Exception 
 	{	
+		while( !this.finished() )
+		{
+			while( this.DataBlockAvailable() )
+			{ 
+				this.ProcessDataBlock();
+			}
+			
+			this.compressDataList.clear();
+			
+			//*
+			try
+			{
+				super.wait( 1000L );
+			}
+			catch (Exception e) 
+			{
+			}
+			//*/
+		}
+		
 		this.clisWriter.saveMetadata();
 		this.clisWriter.close();		
 	}

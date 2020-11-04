@@ -197,7 +197,7 @@ public class mainLSLRecorder
 		// Load Controllers
 		createAppCoreControl();
 		
-		//ConfigApp.setTesting( true );
+		ConfigApp.setTesting( true );
 	}
 	
 	private static void registerPlugins() throws Exception
