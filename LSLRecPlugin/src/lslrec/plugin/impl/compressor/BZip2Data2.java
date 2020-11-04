@@ -15,14 +15,14 @@ import lslrec.dataStream.outputDataFile.compress.ZipDataTemplate;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 
-public class BZip2Data extends LSLRecPluginCompressor 
+public class BZip2Data2 extends LSLRecPluginCompressor 
 {	
 	private String t = getID();
 	
 	@Override
 	public String getID() 
 	{	
-		return "BZIP2 test";
+		return "BZIP2 test 2";
 	}
 
 	@Override

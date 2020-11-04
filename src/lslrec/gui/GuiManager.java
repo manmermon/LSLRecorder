@@ -87,6 +87,7 @@ import lslrec.gui.panel.primary.Panel_StreamingSettings;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
+import lslrec.plugin.register.TrialPluginRegistrar;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class GuiManager
@@ -386,9 +387,16 @@ public class GuiManager
 	{
 		try
 		{	
+			DataProcessingPluginRegistrar.clear();
+			TrialPluginRegistrar.removeTrialPlugin();
+			
+			refreshPlugins();
+			
 			ConfigApp.loadConfig( f );
 			
 			loadConfigValues2GuiComponents();
+			
+			refreshPlugins();
 		}
 		catch (Exception e)
 		{
@@ -822,26 +830,24 @@ public class GuiManager
 	{
 		HashSet< DataStreamSetting > streams = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 		Set< DataStreamSetting > plgStr = DataProcessingPluginRegistrar.getAllDataStreams();
+		
 		boolean del = false;
 		for( DataStreamSetting dss : plgStr )
 		{
 			if( !streams.contains( dss ) )
 			{
 				DataProcessingPluginRegistrar.removeDataStreamInAllProcess( dss );
-				
+		
 				del = true;
 			}
 		}
 		
-		if( del )
+		try 
 		{
-			try 
-			{
-				AppUI.getInstance().getStreamSetting().refreshPlugins();
-			}
-			catch (Exception e) 
-			{
-			}
+			AppUI.getInstance().getStreamSetting().refreshPlugins();
+		}
+		catch (Exception e) 
+		{
 		}
 		
 		return del;

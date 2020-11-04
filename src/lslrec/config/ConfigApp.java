@@ -28,6 +28,7 @@ import lslrec.dataStream.family.lsl.LSL;
 import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.DefaultValueException;
@@ -37,7 +38,9 @@ import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
+import lslrec.plugin.register.TrialPluginRegistrar;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 
@@ -60,6 +63,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
+
 import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
@@ -72,7 +77,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 10 - 1, 30 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 4 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -219,7 +224,7 @@ public class ConfigApp
 		
 		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
 		
-		list_Key_Type.put( PLUGINS, HashMap.class);
+		//list_Key_Type.put( PLUGINS, ArrayTreeMap.class);
 	}
 	
 	private static void create_Key_RankValues()
@@ -292,32 +297,130 @@ public class ConfigApp
 				String p = toSave.toString();
 				p = p.replace( ">, <", ">; <" );
 				prop.setProperty( key, p );
-			}
-			else if( key.equals( PLUGINS ) )
-			{
-				HashMap< Tuple< PluginType, String >, ParameterList > pluginSettings = (HashMap< Tuple< PluginType, String >, ParameterList >)listConfig.get( key );
-				
-				String p = "[";
-				
-				for( Tuple< PluginType, String > pl : pluginSettings.keySet() )
-				{
-					p += pl.toString() + "=" + pluginSettings.get( pl ).toString() + ";" ;
-				}
-				
-				if( !pluginSettings.isEmpty() )
-				{
-					p = p.substring( 0, p.length() - 1 );
-				}
-				
-				p += "]";
-				
-				prop.setProperty( key, p );
-			}
+			}		
 			else
 			{
 				prop.setProperty(key, listConfig.get(key).toString());
 			}
 		}
+		
+				
+		/*
+		 * Plugin setting format:
+		 * 
+		 * [<type,id,V>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...;<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>}]
+		 * 
+		 */
+		String p = "[";
+		try
+		{
+			PluginLoader loader = PluginLoader.getInstance();
+			
+			for( PluginType pt : PluginType.values() )
+			{
+				String setPl = "";
+				
+				if( pt == PluginType.DATA_PROCESSING )
+				{	
+					for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
+					{
+						String extra = "";
+						
+						for( DataStreamSetting sst : DataProcessingPluginRegistrar.getDataStreams( process ) )
+						{
+							extra += sst.getStreamName() + "@@@" + sst.getSourceID() + "," ;
+						}
+								
+						if( !extra.isEmpty() )
+						{
+							extra = extra.substring( 0, extra.length() - 1 );
+						}
+						
+						extra = "(" + extra + ")";
+						
+						String setting = "";
+						for( Parameter< String > par : process.getSettings() )
+						{
+							setting += par + ",";
+						}
+						
+						if( !setting.isEmpty() )
+						{
+							setting = setting.substring( 0, setting.length() - 1 );
+						}
+						
+						extra += ",{" + setting + "}" ;
+						
+						String plgHeader = getPluginPropertyFormatHeader( pt, process.getID(), extra );
+						
+						setPl += plgHeader + ";";
+					}
+				}
+				else 
+				{				
+					List< ILSLRecPlugin > plgs = loader.getPluginsByType( pt );
+							
+					if( plgs != null )
+					{
+						for( ILSLRecPlugin plg : plgs )
+						{
+							if( plg instanceof ILSLRecConfigurablePlugin )
+							{
+								ILSLRecConfigurablePlugin plcfg = (ILSLRecConfigurablePlugin) plg;
+								
+								String extra = "";
+								
+								if( pt == PluginType.TRIAL )
+								{
+									extra += "(" + TrialPluginRegistrar.isSelected( plcfg.getID() ) + ")";
+								}
+								
+								String setting = "";
+							
+								List< Parameter< String > > pars = plcfg.getSettings();
+								if( pars != null )
+								{
+									for( Parameter< String > par : pars )
+									{
+										setting += par + ",";
+									}
+								}
+								
+								if( !setting.isEmpty() )
+								{
+									setting = setting.substring( 0, setting.length() - 1 );
+								}
+								
+								extra += ",{" + setting + "}" ;
+								
+								String plgHeader = getPluginPropertyFormatHeader( pt, plcfg.getID(), extra );
+								
+								setPl += plgHeader + ";";
+								
+							}
+						}
+					}
+				}
+				
+				if( !setPl.isEmpty() )
+				{
+					setPl = setPl.substring( 0, setPl.length() - 1 );
+					p += setPl + ";" ;
+				}
+			}
+		}
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+		
+		p = p.substring( 0, p.length() - 1 ) + "]";
+		
+		prop.setProperty( ConfigApp.PLUGINS, p );
+		//
+		//
+		//
+		
 
 		FileOutputStream fOut = new FileOutputStream(f, false);
 
@@ -325,6 +428,11 @@ public class ConfigApp
 		fOut.close();
 	}
 
+	private static String getPluginPropertyFormatHeader( PluginType type, String id, String extra )
+	{
+		return "<" + type.name() + "," + id + "," + extra + ">";
+	}
+	
 	public static boolean loadConfig( File f ) throws Exception
 	{
 		defaultNameFileConfig = f.getName();
@@ -730,177 +838,290 @@ public class ConfigApp
 					listConfig.put( SELECTED_SYNC_METHOD, p );
 				}
 			}
-			else if( clase.getCanonicalName().equals( HashMap.class.getCanonicalName() ) )
-			{
-				if( key.equals( PLUGINS ) )
-				{	
-					try
+			else if( key.equals( PLUGINS ) )
+			{	
+				try
+				{
+					/*
+					 * Format data:
+					 * 
+					 * [<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>;<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>;...;<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>]
+					 * 
+					 */
+
+					p = p.replaceAll( ">\\s+;\\s+<", ">;<" );
+
+					String[] Plugins = p.split( ";" );
+					if( Plugins.length > 0 )
 					{
-						/*
-						 * Format data:
-						 * 
-						 * [<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...;<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>}]
-						 * 
-						 */
+						Plugins[ 0 ] = Plugins[ 0 ].replace( "[", "" ).trim();
+						Plugins[ Plugins.length - 1 ] = Plugins[ Plugins.length - 1 ].replace( "]", "" ).trim();
+
+					}
+
+					/*
+					 * Plugins[] =
+					 * 				<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+					 * 				<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+					 * 				<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+					 * 				<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+					 */
+
+					PluginLoader loader = PluginLoader.getInstance();
+
+					boolean parErrorFormat = false;
+					
+					ArrayTreeMap< Tuple< PluginType, String >, Tuple< String, ParameterList > > reg = new ArrayTreeMap< Tuple< PluginType, String >, Tuple< String, ParameterList > >(); 
+					for( String plugin : Plugins )
+					{
+
+						// plugin = <type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+
+						String[] pl = new String[] { "", "", "", "" };
 						
-						String[] Plugins = p.split( "};" );
-						if( Plugins.length > 0 )
+						for( int indexCut = 0, ind = 0; indexCut >= 0 && ind < pl.length-1; )
 						{
-							Plugins[ 0 ] = Plugins[ 0 ].replace( "[<", "<" );
-							Plugins[ Plugins.length - 1 ] = Plugins[ Plugins.length - 1 ].replace( "}]", "" );
-							
-						}
-						
-						/*
-						 * Plugins[] =
-						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-						 * 				<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-						 */
-						
-						PluginLoader loader = PluginLoader.getInstance();
-						
-						ArrayTreeMap< PluginType, Tuple< String, ParameterList > > reg = new ArrayTreeMap< PluginType, Tuple< String, ParameterList > >(); 
-						for( String plugin : Plugins )
-						{
-							
-							// plugin = <type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-							
-							String[] pl = plugin.split( "={" );
-							
-							/*
-							 * pl[] =
-							 * 		<type,id>
-							 * 		<idParameter,value>,<idParameter,value>,..,<idParameter,value>
-							 */
-							
-							if( pl.length == 2 )
+							if( ind < 2 )
 							{
-								String idPlugin = pl[ 0 ]; // <type,id>
-								String pluginSetting = pl[ 1 ].trim(); //<idParameter,value>,<idParameter,value>,..,<idParameter,value>
+								indexCut = plugin.indexOf( "," );
 								
-								String[] ids = idPlugin.split( "," ); 
-								// ids[] = 
-								//			<type
-								//			id> 
-								
-								PluginType plT = null;
-								String pluginID  = null;
-								if( ids.length == 2 )
+								if( indexCut >= 0 )
 								{
-									String pluginType = ids[ 0 ].replace( "<", "" ); // type
-									pluginID = ids[ 1 ].replace( ">", "" ); // id
-									
-									try
-									{
-										plT = PluginType.valueOf( pluginType.toUpperCase() );
-									}
-									catch( Exception e )
-									{									
-									}
-								}
+									pl[ ind ] = plugin.substring( 0, indexCut );
 								
-								if( plT != null )
-								{
-									String[] settings = pluginSetting.replaceAll( ">\\s+,\\s+<", ">,<" ).split( ">,<" );
-									if( settings.length > 0 )
-									{
-										String aux  = settings[ 0 ];
-										if( !aux.isEmpty() )
-										{
-											settings[ 0 ] = aux.substring( 1 );
-										}
-										
-										aux  = settings[ settings.length - 1 ];										
-										if( !aux.isEmpty() )
-										{
-											settings[ settings.length - 1 ] = aux.substring( 0, aux.length() - 1 ); 
-										}
-									}
-									//
-									//settings[]= 
-									//			idParameter,value
-									//			idParameter,value
-									//			...
-									//			idParameter,value
 									
-									ParameterList pars = new ParameterList();
-									
-									for( String cfg : settings )
-									{
-										// cfg = idParameter,value
-										
-										String[] par = cfg.split( "," );
-										// 
-										// par[] = 
-										//			idParameter
-										//			value
-										
-										if( par.length == 2 )
-										{
-											String parID = par[ 0 ].trim(); // idParameter
-											String val = par[ 1 ]; // value
-											
-											pars.addParameter( new Parameter<String>( parID, val ) );
-										}
-									}
-									
-									reg.putElement( plT, new Tuple<String, ParameterList>( pluginID, pars ) );
+									plugin = plugin.substring( indexCut + 1 );
 								}
 							}
 							else
 							{
+								pl[ ind ] = StringUtils.substringBetween( plugin, "(", ")" );
+								plugin = plugin.replaceAll( "\\((.*?)\\)", "" ).replaceFirst( ",", "" );	
 								
+								if( pl[ ind ] == null )
+								{
+									pl[ ind ] = "";
+								}
+							}
+							
+							ind++;
+							
+							if( ind == pl.length - 1 )
+							{
+								pl[ ind ] = plugin;
 							}
 						}
-						
-						for( PluginType plType : reg.keySet() )
-						{
-							for( Tuple< String, ParameterList > plg : reg.get( plType ) )
-							{
-								String idPlg = plg.t1;
-								ParameterList pars = plg.t2;
-								
-								List< Parameter< String > > parlist = new ArrayList< Parameter< String > >();
-								
-								for( String idPar : pars.getParameterIDs() )
-								{
-									parlist.add( pars.getParameter( idPar ) );
-								}
-								
-								if( plType == PluginType.DATA_PROCESSING )
-								{									
-									DataProcessingPluginRegistrar.clear();
-																		
-									ILSLRecPluginDataProcessing newPr = (ILSLRecPluginDataProcessing)loader.createNewPluginInstance( plType, idPlg, false );									
-									newPr.loadSettings( parlist );
-									
-									DataProcessingPluginRegistrar.addDataProcessing( newPr );
-								}
-								else
-								{										
-									List< ILSLRecPlugin > pluginList = loader.getAllPlugins( plType, idPlg );
 
-									if( pluginList != null )
+						/*
+						 * pl[] =
+						 * 		<type
+						 * 		,id
+						 * 		,V
+						 * 		,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+						 */
+
+						String pType = pl[ 0 ].trim().replace("<", ""); // type
+						String idPlugin = pl[ 1 ].trim(); // id
+						String extra = pl[ 2 ].trim(); // V
+						String pluginSetting = pl[ 3 ].trim(); //{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>
+
+						PluginType plgType = null;
+						try
+						{
+							plgType = PluginType.valueOf( pType.toUpperCase() );
+						}
+						catch( Exception e )
+						{						
+							defaultValue = true;
+							defaultMsg += key + ": plugin type unknow (" + pType + ").\n";
+						}
+						
+						if( plgType != null )
+						{
+							pluginSetting = pluginSetting.replaceAll( "\\{(.*?)\\}",  "$1");
+							pluginSetting = pluginSetting.replaceFirst( "<", "" );
+							pluginSetting = pluginSetting.replaceAll( ">\\s+,\\s+<", ">,<" );
+							String[] settings = pluginSetting.split( ">,<" );
+															
+															
+							if( settings.length > 0 )
+							{
+								settings[ settings.length - 1 ] = settings[ settings.length - 1 ].replaceAll( ">", "" ).trim();
+							}
+							
+							//
+							//settings[]= 
+							//			idParameter,value
+							//			idParameter,value
+							//			...
+							//			idParameter,value
+							
+							ParameterList pars = new ParameterList();
+
+							for( String cfg : settings )
+							{
+								// cfg = idParameter,value
+
+								if( !cfg.isEmpty() )
+								{
+									String[] par = cfg.split( "," );
+									// 
+									// par[] = 
+									//			idParameter
+									//			value
+	
+									if( par.length == 2 )
 									{
-										for( ILSLRecPlugin rp : pluginList )
+										String parID = par[ 0 ].trim(); // idParameter
+										String val = par[ 1 ].trim(); // value
+	
+										pars.addParameter( new Parameter<String>( parID, val ) );
+									}
+									else 
+									{
+										parErrorFormat = true;
+									}
+								}								
+							}
+
+							reg.putElement( new Tuple< PluginType, String >( plgType, idPlugin ), new Tuple<String, ParameterList>( extra, pars ) );
+						}
+					}
+					
+					for( Tuple< PluginType, String > plType : reg.keySet() )
+					{
+						PluginType pt = plType.t1;
+						String idPlg = plType.t2;
+
+						for( Tuple< String, ParameterList > plg : reg.get( plType ) )
+						{
+							String extra = plg.t1;
+							ParameterList pars = plg.t2;
+
+							List< Parameter< String > > parlist = new ArrayList< Parameter< String > >();
+
+							for( String idPar : pars.getParameterIDs() )
+							{
+								parlist.add( pars.getParameter( idPar ) );
+							}
+
+							if( pt == PluginType.DATA_PROCESSING )
+							{
+								ILSLRecPluginDataProcessing newPr = (ILSLRecPluginDataProcessing)loader.createNewPluginInstance( pt, idPlg, false );									
+								newPr.loadSettings( parlist );
+
+								DataProcessingPluginRegistrar.addDataProcessing( newPr );
+
+								HashSet< DataStreamSetting > dss = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+
+								//
+								// extra = (streamName@@@sourceID;streamName@@@sourceID;...;streamName@@@sourceID)
+								//
+								String[] streams = extra.replaceAll( "\\((.*)\\)", "$1" ).split( "," );
+
+								//
+								// streams =
+								//			streamName@@@sourceID
+								//			streamName@@@sourceID
+								//			...
+								//			streamName@@@sourceID
+
+								for( String str : streams )
+								{
+									String[] stInfo = str.split( "@@@" );
+									//
+									// stInfo =
+									//			streamName
+									//			sourceID
+
+									String name = "";
+									String sId = "";
+									
+									if( ( 2 - stInfo.length ) >= 0 )
+									{
+										name = stInfo[ 0 ].trim();
+										
+										if( stInfo.length == 2 )
 										{
-											if( rp instanceof ILSLRecConfigurablePlugin )
+											sId = stInfo[ 1 ].trim();
+										}
+
+										for( DataStreamSetting s : dss )
+										{
+											if( s.getStreamName().equalsIgnoreCase( name ) && s.getSourceID().equalsIgnoreCase( sId ) )
 											{
-												((ILSLRecConfigurablePlugin) rp).loadSettings( parlist );
+												DataProcessingPluginRegistrar.addDataStream( newPr, s );
+
+												break;
 											}
+										}													
+									}
+									else
+									{
+										parErrorFormat = true;
+									}
+								}									
+							}
+							else if( pt == PluginType.TRIAL )
+							{
+								boolean sel = false;
+
+								try
+								{
+									sel = Boolean.parseBoolean( extra );
+								}
+								catch (Exception e) 
+								{
+									parErrorFormat = true;
+								}
+
+								List< ILSLRecPlugin> pluginList = loader.getAllPlugins( pt, idPlg );
+								
+								if( pluginList != null && !pluginList.isEmpty() )
+								{
+									if( sel )
+									{
+										TrialPluginRegistrar.setTrialPlugin( (ILSLRecPluginTrial)pluginList.get( 0 ) );
+									}
+									
+									for( ILSLRecPlugin rp : pluginList )
+									{
+										if( rp instanceof ILSLRecConfigurablePlugin )
+										{
+											((ILSLRecConfigurablePlugin) rp).loadSettings( parlist );
 										}
 									}
 								}
+							}
+							else
+							{										
+								List< ILSLRecPlugin > pluginList = loader.getAllPlugins( pt, idPlg );
+
+								if( pluginList != null )
+								{
+									for( ILSLRecPlugin rp : pluginList )
+									{
+										if( rp instanceof ILSLRecConfigurablePlugin )
+										{
+											((ILSLRecConfigurablePlugin) rp).loadSettings( parlist );
+										}
+									}
+								}
+							}
 						}
-						}						
-					}
-					catch (Exception e) 
-					{				
-						// TODO
+					}						
+					
+					if( parErrorFormat )
+					{
+						defaultValue = true;
+						defaultMsg += key + ": plugins' settings error.\n";	
 					}
 				}
+				catch (Exception e) 
+				{
+					defaultValue = true;
+					defaultMsg += key + ": plugins' settings error.\n"; 
+				}				
 			}
 			else 
 			{
@@ -1214,6 +1435,6 @@ public class ConfigApp
 	
 	private static void loadDefaultPlugins()
 	{
-		listConfig.put( PLUGINS, new HashMap< Tuple< PluginType, String>, ParameterList >() );
+		listConfig.put( PLUGINS, new ArrayTreeMap< Tuple< PluginType, String>, ParameterList >() );
 	}
 }

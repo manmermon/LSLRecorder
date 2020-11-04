@@ -290,9 +290,51 @@ public class PluginMemoryTest implements ILSLRecPluginTrial
 	{
 		if( arg0 != null )
 		{
-			for( Parameter< String > p : arg0 )
-			{
-				this.pars.addParameter( p );
+			for( Parameter< String > par: arg0 )
+			{				
+				Parameter p = this.pars.getParameter( par.getID() );
+				
+				if( p != null )
+				{				
+					Number val = null;
+					switch( par.getID() )
+					{
+						case MemoryTest.REPETITIONS:
+						case MemoryTest.DIFFICULTY:
+						{
+							try
+							{
+								val = Integer.parseInt( par.getValue() );
+							}
+							catch (Exception e) 
+							{
+								e.printStackTrace();
+							}
+							
+							break;
+						}
+						case MemoryTest.TASK_TIME:
+						case MemoryTest.MEMORY_TIME:
+						case MemoryTest.ANSWER_TIME:
+						{
+							try
+							{
+								val = Double.parseDouble( par.getValue() );
+							}
+							catch (Exception e) 
+							{
+								e.printStackTrace();
+							}
+							
+							break;
+						}						
+					}
+					
+					if( val != null )
+					{
+						p.setValue( val );
+					}
+				}
 			}
 		}
 	}

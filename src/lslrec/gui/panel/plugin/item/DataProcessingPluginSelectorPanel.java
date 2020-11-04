@@ -136,10 +136,47 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	{
 		JTable t = this.getSelectedProcessTable();
 		
-		for( int sel : t.getSelectedRows() )
+		int[] selections = t.getSelectedRows();
+		for( int sel : selections )
 		{
 			t.clearSelection();
 			t.setRowSelectionInterval( sel, sel );
+		}
+		
+		List< ILSLRecPluginDataProcessing> processes = DataProcessingPluginRegistrar.getDataProcesses();
+		
+		if( processes != null && !processes.isEmpty() )
+		{
+			DefaultTableModel tm = (DefaultTableModel)t.getModel();
+			for( ILSLRecPluginDataProcessing process : processes  )
+			{
+				boolean find = false;
+				
+				for( int r = 0; r < t.getRowCount(); r++ )
+				{
+					ILSLRecPluginDataProcessing pr = (ILSLRecPluginDataProcessing)t.getValueAt( r, 0);
+					
+					find = ( pr == process );
+							
+					if( find )
+					{
+						break;
+					}
+				}
+				
+				if( !find )
+				{
+					this.addProcess2Table( tm, process );
+				}
+			}
+		}
+		else
+		{
+			for( int i = t.getRowCount() - 1; i >= 0; i-- )
+			{
+				t.setRowSelectionInterval( i, i );
+				removePlugins( t );
+			}
 		}
 	}
 	
@@ -860,14 +897,14 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				int index = selIndex[ i ];
 				
 				ILSLRecPluginDataProcessing process = (ILSLRecPluginDataProcessing)source.getValueAt( index, 0 );
-							
+											
 				try 
 				{
 					ILSLRecPluginDataProcessing pr = process.getClass().newInstance();
 					
 					DataProcessingPluginRegistrar.addDataProcessing( pr );
 					
-					tmDest.addRow( new ILSLRecPluginDataProcessing[] { pr } );
+					this.addProcess2Table( tmDest, pr );
 				} 
 				catch (Exception e) 
 				{
@@ -877,6 +914,14 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					ExceptionDialog.showMessageDialog( msg, true, true );
 				}								
 			}
+		}
+	}
+	
+	private void addProcess2Table( DefaultTableModel tmDest, ILSLRecPluginDataProcessing pr )
+	{
+		if( tmDest != null && pr != null )
+		{
+			tmDest.addRow( new ILSLRecPluginDataProcessing[] { pr } );
 		}
 	}
 	

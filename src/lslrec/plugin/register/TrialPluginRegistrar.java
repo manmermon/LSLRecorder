@@ -21,6 +21,23 @@ public class TrialPluginRegistrar
 		trial = test;
 	}
 	
+	public static boolean isSelectedTrialPlugin()
+	{
+		return ( trial != null );
+	}
+	
+	public static boolean isSelected( String trialID )	
+	{
+		boolean eq = false;
+		
+		if( trialID != null && isSelectedTrialPlugin() )
+		{
+			eq = trial.getID().equals( trialID );
+		}
+		
+		return eq;
+	}
+	
 	public static void removeTrialPlugin()
 	{
 		trial = null;

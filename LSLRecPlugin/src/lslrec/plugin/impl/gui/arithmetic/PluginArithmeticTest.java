@@ -349,13 +349,27 @@ public class PluginArithmeticTest implements ILSLRecPluginTrial
 						case ArithmeticTest.REPETITIONS:
 						case ArithmeticTest.DIFFICULTY:
 						{
-							val = Integer.parseInt( par.getValue().toString() );
+							try
+							{
+								val = Integer.parseInt( par.getValue().toString() );
+							}
+							catch (Exception e) 
+							{
+							}
+							
 							break;
 						}
 						case ArithmeticTest.TASK_TIME:							
 						case ArithmeticTest.ANSWER_TIME:
 						{
-							val = Double.parseDouble( par.getValue() );
+							try
+							{
+								val = Double.parseDouble( par.getValue() );
+							}
+							catch (Exception e) 
+							{
+							}
+							
 							break;
 						}						
 					}

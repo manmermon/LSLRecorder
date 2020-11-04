@@ -176,13 +176,15 @@ public class Panel_PluginSettings extends JPanel
 									if( indTab < 0 )
 									{			
 										plugingTabPanel.addTab( pluginCategory, subTab );
+										indTab = 0;
 									}
 									else
 									{
 										subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
 									}
 									
-									subTab.addTab( p.getID(), new JScrollPane( settingPanel ) );
+									String t = p.getID();
+									subTab.addTab( t, new JScrollPane( settingPanel ) );
 								}
 							}
 						}
@@ -199,7 +201,7 @@ public class Panel_PluginSettings extends JPanel
 			e1.printStackTrace();
 		}		
 	}
-	
+		
 	public void refreshSelectedPlugins()
 	{
 		JTabbedPane plugingTabPanel = this.getTabbedPanel();
@@ -213,7 +215,92 @@ public class Panel_PluginSettings extends JPanel
 				{
 					( (DataProcessingPluginSelectorPanel) c2 ).refreshSelectedProcessTable();
 				}
+				else if( c2 instanceof TrialPluginSelectorPanel )
+				{
+					( (TrialPluginSelectorPanel) c2 ).refreshSelectedTrial();
+				}					
 			}
+		}
+		
+		try
+		{
+			PluginLoader loader = PluginLoader.getInstance();
+		
+			for( PluginType t : PluginType.values() )
+			{
+				if( t != PluginType.DATA_PROCESSING && t != PluginType.TRIAL )
+				{
+					String pluginCategory = Language.getLocalCaption( Language.OTHERS_TEXT );						
+					switch( t )
+					{
+						case SYNC:
+						{
+							pluginCategory = Language.getLocalCaption( Language.SETTING_LSL_SYNC );
+							break;
+						}
+						case COMPRESSOR:
+						{
+							pluginCategory = Language.getLocalCaption( Language.SETTING_COMPRESSOR );
+							break;
+						}
+						case ENCODER:
+						{
+							pluginCategory = Language.getLocalCaption( Language.ENCODER_TEXT );
+							break;
+						}
+					}
+					
+					try
+					{
+						int indTab = plugingTabPanel.indexOfTab( pluginCategory );
+						//plugingTabPanel.removeTabAt( indTab );
+						
+						List< ILSLRecPlugin > list = loader.getPluginsByType( t );
+						if( list != null )
+						{	
+							JTabbedPane categoryTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+														
+							for( ILSLRecPlugin val : list )
+							{
+								if( !( val instanceof ILSLRecConfigurablePlugin ) )
+								{
+									break;
+								}
+								
+								ILSLRecConfigurablePlugin p = (ILSLRecConfigurablePlugin) val;
+								
+								int indSubTab = categoryTab.indexOfTab( p.getID() );
+								
+								if( indSubTab >= 0 )
+								{
+									categoryTab.removeTabAt( indSubTab );
+								}
+								else
+								{
+									indSubTab = 0;
+								}
+								
+								JPanel settingPanel = p.getSettingPanel();
+								
+								if( settingPanel != null )
+								{
+									//JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT );
+									categoryTab.insertTab( p.getID(), null,  new JScrollPane( settingPanel ), null, indSubTab );
+									
+									//subTab.addTab( p.getID(), new JScrollPane( settingPanel ) );
+								}
+							}
+						}
+					}			
+					catch ( ClassCastException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+		catch (Exception e) 
+		{
 		}
 	}
 }

@@ -53,7 +53,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		this.add( this.getPluginPanel(), BorderLayout.WEST );		
 		this.add( this.getPluginSettingPanel(), BorderLayout.CENTER );
 		
-		JTable t = this.getProcessListTable();
+		JTable t = this.getTrialListTable();
 		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
 		
@@ -70,7 +70,7 @@ public class TrialPluginSelectorPanel extends JPanel
 	{
 		if( ids != null )
 		{		
-			JTable processList = this.getProcessListTable();
+			JTable processList = this.getTrialListTable();
 			
 			processList.addRowSelectionInterval( 0, processList.getRowCount() );
 			processList.clearSelection();
@@ -107,7 +107,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			this.contentPanel.add( aux, BorderLayout.WEST );
 			
 			// Adding			
-			JTable tab = this.getProcessListTable();
+			JTable tab = this.getTrialListTable();
 			aux.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER ) );
 			
 			this.setPluginTableSelectionEvents( tab );
@@ -199,7 +199,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		return tm;
 	}
 
-	private JTable getProcessListTable()
+	private JTable getTrialListTable()
 	{
 		if( this.tablePluginList == null )
 		{	
@@ -230,7 +230,6 @@ public class TrialPluginSelectorPanel extends JPanel
 					{
 						int sel = table.getSelectedRow();
 						
-						// TODO
 						if( sel < 0 )
 						{
 							getPluginSettingPanel().setVisible( false );
@@ -310,25 +309,23 @@ public class TrialPluginSelectorPanel extends JPanel
 		}	
 	}
 	
-	/*
-	private int getNumPluginInstances( JTable refTable, int selectIndex, String idProcess )
+	public void refreshSelectedTrial()
 	{
-		int index = -1;
-		
-		if( refTable != null )
+		if( TrialPluginRegistrar.isSelectedTrialPlugin() )
 		{
-			for( int r = 0; r <= selectIndex; r++ )
+			JTable t = this.getTrialListTable();
+			
+			for( int r = 0; r < t.getRowCount(); r++ )
 			{
-				String id = refTable.getValueAt( r, 0 ).toString();
-				
-				if( id.equals( idProcess ) )
+				ILSLRecPluginTrial trial = (ILSLRecPluginTrial)t.getValueAt( r, 0 );
+		
+				if( TrialPluginRegistrar.isSelected( trial.getID() ) )
 				{
-					index++;
+					t.setRowSelectionInterval( r, 0 );
+					
+					break;
 				}
 			}
 		}
-		
-		return index;
 	}
-	*/
 }

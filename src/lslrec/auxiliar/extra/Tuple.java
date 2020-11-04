@@ -22,7 +22,7 @@
 
 package lslrec.auxiliar.extra;
 
-public class Tuple<X, Y> 
+public class Tuple<X, Y> implements Comparable< Tuple<X, Y> > 
 {
 	public final X t1;
 	public final Y t2;
@@ -88,5 +88,25 @@ public class Tuple<X, Y>
 		out += ">";
 		
 		return out;
+	}
+
+	@Override
+	public int compareTo( Tuple<X, Y> o) 
+	{
+		int comp = 0;
+		
+		if( o != null )
+		{
+			X t1 = o.t1;
+			Y t2 = o.t2;
+			 
+			String st1 = "" + this.t1 + this.t2;
+			
+			String st2 = "" + t1 + t2;
+			
+			comp = st1.compareTo( st2 );
+		}
+		
+		return comp;
 	}  
 }
