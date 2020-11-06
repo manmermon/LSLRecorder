@@ -1,3 +1,22 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
@@ -24,11 +43,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -67,7 +88,8 @@ public class CreatorDefaultSettingPanel
 					JPanel p = new JPanel( new BorderLayout( 0, 0) );										
 					p.add( comp, BorderLayout.CENTER );					
 					
-					p.setBorder( BorderFactory.createTitledBorder( par.getDescriptorText() ) );
+					String title = par.getDescriptorText();
+					p.setBorder( BorderFactory.createTitledBorder( title ) );
 
 					panel.add( p, gbc );
 				}
@@ -108,7 +130,7 @@ public class CreatorDefaultSettingPanel
 						{
 							Double v = Double.parseDouble( val );
 							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null, 1D ) );
-							
+														
 							sp.addChangeListener( new ChangeListener()
 							{								
 								@Override
@@ -118,7 +140,9 @@ public class CreatorDefaultSettingPanel
 
 									try
 									{
-										saveValue( par, sp.getValue() );
+										Object val = convertValue( sp.getValue(), par.getValue() );
+										
+										saveValue( par, val );
 									} 
 									catch ( Exception e1)
 									{
@@ -272,7 +296,9 @@ public class CreatorDefaultSettingPanel
 							
 							try 
 							{
-								saveValue( par, select );
+								Object val = convertValue( select, par.getValue() );
+								
+								saveValue( par, val );
 							} 
 							catch (Exception e1) 
 							{
@@ -297,6 +323,23 @@ public class CreatorDefaultSettingPanel
 		}
 
 		return c;
+	}
+
+	private static Object convertValue( Object value, Object cast )
+	{		
+		Object res = value;
+		
+		if( cast != null && value != null)
+		{
+			int dataType = LSLUtils.getDataTypeByClass( cast );
+			
+			if( dataType != LSLUtils.string && dataType != LSLUtils.undefined )
+			{
+				res = ConvertTo.Casting.NumberTo( (Number)value, dataType );
+			}
+		}
+		
+		return res;
 	}
 	
 	private static void saveValue( Parameter par, Object value ) throws Exception

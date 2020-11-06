@@ -175,14 +175,18 @@ public class mainLSLRecorder
 		// Load plugins
 		//
 
-		//if( false )		
+		//if( false )
+		boolean plgOK = true;
+		
 		try
 		{
 			registerPlugins();
 		}
 		catch( Exception | Error e )
 		{
+			plgOK = false;
 			showError( e, false );
+			e.printStackTrace( );
 		}
 		
 		
@@ -190,14 +194,17 @@ public class mainLSLRecorder
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
 		
-		GuiManager.getInstance().LoadPluginSetting();
+		if( plgOK )
+		{
+			GuiManager.getInstance().LoadPluginSetting();
+		}
 		
 		open.dispose();
 		
 		// Load Controllers
 		createAppCoreControl();
 		
-		ConfigApp.setTesting( true );
+		ConfigApp.setTesting( false );
 	}
 	
 	private static void registerPlugins() throws Exception

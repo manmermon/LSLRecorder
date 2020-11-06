@@ -25,9 +25,11 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.dataStream.family.lsl.LSL.StreamInfo;
 import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
 import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
+import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -72,7 +74,8 @@ public class guiProcessingTest extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);		
 		
-		ILSLRecPluginDataProcessing pl = new FIRFilterPlugin();
+		//ILSLRecPluginDataProcessing pl = new FIRFilterPlugin();
+		ILSLRecConfigurablePlugin pl = new DownSamplingPlugin();
 		
 		contentPane.add( pl.getSettingPanel(), BorderLayout.CENTER );
 		
@@ -84,6 +87,7 @@ public class guiProcessingTest extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{	
+				/*
 				DataStreamSetting dset = new DataStreamSetting( new StreamInfo( "test", "value", 1,  256, LSLUtils.double64 ) );
 				
 				LSLRecPluginDataProcessing process = pl.getProcessing( dset, null );
@@ -140,6 +144,7 @@ public class guiProcessingTest extends JFrame {
 						
 					}
 				};
+				*/
 				
 				try {
 					t.startThread();

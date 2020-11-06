@@ -223,4 +223,10 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 		}
 		return len;
 	}
+
+	@Override
+	public int getOverlapOffset() 
+	{	
+		return 1;
+	}
 }

@@ -16,6 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
+ *   
  */
 package lslrec.dataStream.family.lsl;
 
@@ -31,6 +32,13 @@ public class LSLUtils
 	 /**
      * Data format of a channel (each transmitted sample holds an array of channels).
      */
+	
+	/*
+	 * 
+	 * Static variable from:
+	 *  https://github.com/labstreaminglayer/liblsl-Java/blob/39799dae02edf34e138d2a67ae768dc38a0248a9/src/edu/ucsd/sccn/LSL.java
+	 * 
+	 */
 	
 	public static final int float32 = 1;    /** For up to 24-bit precision measurements in the appropriate physical unit
 	 *  (e.g., microvolts). Integers from -16777216 to 16777216 are represented accurately. */
@@ -51,6 +59,46 @@ public class LSLUtils
 	public static String getAdditionalInformationLabelInXml()
 	{
 		return "desc";
+	}
+
+	public static int getDataTypeByClass( Object classType )
+	{
+		int dataType = undefined;
+		
+		if( classType instanceof Double )
+		{
+			dataType = double64;			
+		}
+		else if( classType instanceof Float )
+		{
+			dataType = float32;
+		}
+		else if( classType instanceof Long )
+		{
+			dataType = int64;
+		}
+		else if( classType instanceof Integer )
+		{
+			dataType = int32;
+		}
+		else if( classType instanceof Short )
+		{
+			dataType = int16;
+		}
+		else if( classType instanceof Byte )
+		{
+			dataType = int8;
+		}
+		else if( classType instanceof String )
+		{
+			dataType = string;
+		}
+		else if ( classType instanceof Character )
+		{
+			dataType = string;
+		}
+		
+		return dataType;
 	}
 	
 	public static int getDataTypeBytes( int type )

@@ -7,6 +7,6 @@
 	<classpathentry kind="lib" path="/LSLRecorder/lib/commons-compress-1.19.jar"/>
 	<classpathentry kind="lib" path="/LSLRecorder/lib/jfreechart-1.5.0.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/LSLRecorder"/>
-	<classpathentry kind="lib" path="/LSLRecorder/lib/jna-5.3.1.jar"/>
+	<classpathentry kind="lib" path="/LSLRecorder/lib/sis-jhdf5-19.04.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

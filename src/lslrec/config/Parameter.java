@@ -140,7 +140,7 @@ public class Parameter< T > implements IParameter< T >
 	{
 		String t = Language.getLocalCaption( this.txtID );
 		
-		if( t == null )
+		if( t == null || t.isEmpty() )
 		{
 			t = this.ID;
 		}

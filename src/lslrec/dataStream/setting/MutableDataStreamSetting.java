@@ -1,7 +1,5 @@
-/*
- * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
- * 
- * Copyright 2018-2019 by Manuel Merino Monge <manmermon@dte.us.es>
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.
  *

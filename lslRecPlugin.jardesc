@@ -47,6 +47,7 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.sync"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.encoder"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item{CreatorDefaultSettingPanel.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{ShortBlock.java"/>
     </selectedElements>
 </jardesc>

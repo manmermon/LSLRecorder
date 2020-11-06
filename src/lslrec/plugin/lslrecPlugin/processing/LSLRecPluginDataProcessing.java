@@ -1,3 +1,22 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package lslrec.plugin.lslrecPlugin.processing;
 
 import java.util.ArrayList;
@@ -16,6 +35,9 @@ public abstract class LSLRecPluginDataProcessing
 	private LinkedList< Number >[] dataBuffer = null;
 	private int bufferCapacity = 1;
 	
+	private int overlapOffset = 1;
+	private int[] overlapCounter = null;
+	
 	private ArrayList< Number > tempBuffer = new ArrayList<Number>();
 	
 	private LSLRecPluginDataProcessing prevProcess = null;
@@ -30,6 +52,15 @@ public abstract class LSLRecPluginDataProcessing
 		this.prevProcess = prevProc;
 		
 		this.streamSetting = setting;
+		
+		this.overlapOffset = this.getOverlapOffset();
+		
+		if( this.overlapOffset <= 0 )
+		{
+			this.overlapOffset = 1;
+		}
+		
+		this.overlapCounter = new int[ this.streamSetting.getStreamInfo().channel_count() ];
 	}
 	
 	private void setBuffer()
@@ -176,21 +207,28 @@ public abstract class LSLRecPluginDataProcessing
 			{
 				buffer.remove( 0 );
 				
-				//
-				// Data processing
-				//
+				this.overlapCounter[ c ]++;
 				
-				Number[] processedData = buffer.subList( 0, this.bufferCapacity ).toArray( new Number[ 0 ] );		
-
-				processedData = this.processData( processedData );
-				
-				if( processedData != null && processedData.length > 0 )
+				if( this.overlapCounter[ c ] >= this.overlapOffset )
 				{
-					for( Number dat : processedData )
+					this.overlapCounter[ c ] = 0;
+				
+					//
+					// Data processing
+					//
+					
+					Number[] processedData = buffer.subList( 0, this.bufferCapacity ).toArray( new Number[ 0 ] );		
+	
+					processedData = this.processData( processedData );
+					
+					if( processedData != null && processedData.length > 0 )
 					{
-						result.add( dat );
-						// no interleaved processed data, that is:
-						// [PA0, PA1, .., PAn, PB0, PB1, ..., PBn, PC0, PC1, ..., PCn, ...]
+						for( Number dat : processedData )
+						{
+							result.add( dat );
+							// no interleaved processed data, that is:
+							// [PA0, PA1, .., PAn, PB0, PB1, ..., PBn, PC0, PC1, ..., PCn, ...]
+						}
 					}
 				}
 			}
@@ -223,7 +261,9 @@ public abstract class LSLRecPluginDataProcessing
 	
 	public abstract void loadProcessingSettings( List< Parameter< String > > pars);
 	
-	public abstract int getBufferLength();	
+	public abstract int getBufferLength();
+	
+	public abstract int getOverlapOffset();
 	
 	protected abstract Number[] processData( Number[] inputs );
 }
