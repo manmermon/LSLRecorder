@@ -46,7 +46,7 @@ LSLRecorder
 |-- plugins: .jar files. LSLRecorder's plugins. 
 |
 |-- binaries:
-|	|
+|   |
 |   |-- LSLRecorder.zip: zip file with LSLRecorder.jar (runnable) and the folder systemLib.
 |   |-- LSLRecPluginInterface.jar: plugin's library. 
 ```
