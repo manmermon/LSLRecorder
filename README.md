@@ -1,10 +1,27 @@
 # LSL Recorder
 
-LSL Recorder is a multi-thread, cross-platform software developed using Java technology (version 1.7) and [Lab Streaming Layer](https://github.com/sccn/labstreaminglayer) based on [CLIS](https://github.com/manmermon/CLIS) focused on recording digital signals for offline data analysis.
+LSL Recorder is a multi-thread, cross-platform software developed using Java technology (version 1.7) and [Lab Streaming Layer](https://github.com/sccn/labstreaminglayer) based on [CLIS](https://github.com/manmermon/CLIS) focused on recording digital signals for offline data analysis. More details in this [IEEE's paper](www.doi.org/10.1109/ACCESS.2020.3034770).
 
 <div align="center">
     <img src="./Readme/LSLRecorderGui.png", width="500">
 </div>
+
+LSL Recorder employs the next Java libraries:
+
+- [jcommon-1.0.23.jar](https://sourceforge.net/projects/jfreechart/files/3.%20JCommon/1.0.23/) (graphic; License LGPL).
+- [jfreechart-1.0.19.jar](https://sourceforge.net/projects/jfreechart/files/1.%20JFreeChart/1.0.19/) (graphic; License LGPL).
+- [jna-5.3.1.jar](repo1.maven.org/maven2/net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar) (LSL requirement; Licenses LGPL 2.1 or later).
+- [jna-platform-5.5.0.jar](https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform/5.5.0) (License LGPL 2.1; Apache License 2.0).
+- [commons-compress-1.19.jar](https://mvnrepository.com/artifact/org.apache.commons/commons-compress/1.19) (Apache License 2.0): bzip2 compressor.
+- [icmp4j.jar](https://mvnrepository.com/artifact/sheltekio.javalibs/icmp4j/1.2) (License LGPL 3.0): It was modificed to calculate network delay in nano-seconds. 
+- [commons-lang3-3.7.jar](https://mvnrepository.com/artifact/org.apache.commons/commons-lang3/3.7) (Apache License 2.0).
+- [mfl-core-0.5.7-SNAPSHOT.jar](https://github.com/diffplug/MatFileIO) (Apache License 2.0): matlab output format.
+- [sis-jhdf5-19.04.0.jar](https://wiki-bsse.ethz.ch/display/JHDF5/Download+Page) (Apache License 2.0): hdf5 output format.
+Apache License 2.0).
+<!-- - [jgt-jgrassgears-0.7.6.jar](https://mvnrepository.com/artifact/org.jgrasstools/jgt-jgrassgears/0.7.6)-->
+<!-- - [jts-1.12.jar](https://mvnrepository.com/artifact/com.vividsolutions/jts/1.12)--> 
+
+
 
 The project's struct:
 ```
@@ -26,7 +43,12 @@ LSLRecorder
 |
 |-- systemLib: libraries of functions dependent on the operating system.
 |
-|-- LSLRecorder.zip: zip file with LSLRecorder.jar (runnable) and the folder systemLib.
+|-- plugins: .jar files. LSLRecorder's plugins. 
+|
+|-- binaries:
+|   |
+|   |-- LSLRecorder.zip: zip file with LSLRecorder.jar (runnable) and the folder systemLib.
+|   |-- LSLRecPluginInterface.jar: plugin's library. 
 ```
 
 To use LSLRecorder, you have to download and unzip LSLRecorder.zip. This contains two file: *LSLRecorder.jar* and the folder *systemLib*. They both must be the same directory. The sentence to run LSLRecorder is: 
@@ -34,8 +56,21 @@ To use LSLRecorder, you have to download and unzip LSLRecorder.zip. This contain
 >> java -jar LSLRecorder.jar
 ```
 
+# Plugins
 
-## File Format
+From LSLRecorder version 3, it is possible to extend the functionality adding plugins. The file [binaries/LSLRecPluginInterface.jar](https://github.com/manmermon/LSLRecorder/tree/master/binaries) must be imported in your project. This contains 5 type of plugins:
+
+- <u>Compressor</u>: new compressor to CLIS format. The plugin must be extends from LSLRecPluginCompressor class.
+- <u>Encoder</u>: new output format encoder. The plugin must be extends from LSLRecPluginEncoder class.
+- <u>Data processing</u>: adding data processing to input data stream. The plugin must implement ILSLPluginDataProcessing interface and extends LSLRecPluginDataProcessing class.
+- <u>Sync method</u>: new sync marker method. The plugin must implement ILSLRecPluginSyncMethod interface and extends LSLRecPluginSynMethod class.
+- <u>Trial interface</u>: adding trial interface. The plugin must implement ILSLRecPluginTrial interfacee and extends LSLRecPluginTrial class.
+
+If the plugin needs parameters, this can extends the LSLRecConfigurablePlugin template.
+
+<u><i><b>Note</b></i></u>: The current LSLRecorder version requires JRE/JDK 1.8 for the plugins to work. For Java 9 o greater, LSLRecorder works but without plugins. 
+
+# File Format
 
 The output file format of LSL Recorder is the version 2.1 from [CLIS](https://github.com/manmermon/CLIS). The import data files are available in the folder [ImportClisData](https://github.com/manmermon/LSLRecorder/tree/master/ImportClisData). The next <a href="#file_format">figure</a> shows its struct. This is split in two parts: data block (binary values) and header (text in UTF-8 format). 
 
