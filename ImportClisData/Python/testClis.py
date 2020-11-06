@@ -11,6 +11,10 @@ f = 'D:/NextCloud/WorkSpace/GitHub/LSLRecorder/' + name + '.clis'
 f2 = 'D:/NextCloud/WorkSpace/GitHub/LSLRecorder/' + nameProc + '.clis'
 clis = ClisData.ClisData()
 
+f = 'C:/Users/Manuel Merino Monge/Desktop/Experimentos_Septiembre/';
+f = f + 'Lecy/TR1/';
+f = f + 'data_SESSION_N.clis';
+
 d = clis.importData( f )
 d2 = clis.importData( f2 )
 
