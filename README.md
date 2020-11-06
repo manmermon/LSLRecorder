@@ -47,8 +47,6 @@ The output file format of LSL Recorder is the version 2.1 from [CLIS](https://gi
 
 Header contains all information to restore original data. This is split in 3 parts: restoration fields, data information, and padding. The <a href="file_format">previous figure</a> shows this scheme. 
 
-
-
 #### Restoration Fields
 
 Block of restoration fields is a single text line ending with the special character *end of line* (*\n*). This contain all information to restore original data. Each field is split by a semicolon. The three firsts identify version, compression technique, and byte size of header, and the last one indicates if data information block is present. The other middle fields are referenced to data blocks. In these, the different subfields are separated by a comma, such that, the meaning (in order) is: 
