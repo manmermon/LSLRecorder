@@ -1,0 +1,2 @@
+lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin
+lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin
