@@ -27,9 +27,11 @@ import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.IStoppableThread;
 
@@ -40,6 +42,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.auxiliar.extra.StringTuple;
 
 public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 {
@@ -205,9 +208,21 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 				
 				procFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, filename );
 				
+				MutableDataStreamSetting dss = new MutableDataStreamSetting( super.streamSetting );
+				
+				String info = dss.getAdditionalInfo();
+				if( !info.isEmpty() )
+				{
+					info += ";" ;
+				}
+				info += "ProcessingBufferLengths=" + this.datProcessingExec.getTotalBufferLengths();
+				
+				dss.setAdditionalInfo( info );
+				LSLUtils.addNode( dss.getStreamInfo(), new StringTuple( "DataProcessingInfo", info ) );
+				
 				processingEvent = new EventInfo( this.datProcessingExec.getID()
 													, GetFinalOutEvent()
-													, this.getTemporalFileData( processfile, super.streamSetting, procFormat ) );
+													, this.getTemporalFileData( processfile, dss, procFormat ) );
 			}
 			
 			this.datProcessingExec = null;

@@ -428,7 +428,7 @@ public class Language
 						, new Caption( MSG_DATA_PROCESSING_STREAMS_CHANGED, defaultLanguage, "The streams selected to be processed have changed. Check that everything is correct." ) );
 
 		captions.put(SAVE_DATA_PROCESSING_TEXT,
-				new Caption(SAVE_DATA_PROCESSING_TEXT, defaultLanguage, "Save output data processing"));
+				new Caption(SAVE_DATA_PROCESSING_TEXT, defaultLanguage, "Save output data processing."));
 	}
 
 	public static void loadLanguages() {
