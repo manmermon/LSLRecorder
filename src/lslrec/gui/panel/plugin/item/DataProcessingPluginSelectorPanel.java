@@ -107,6 +107,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JCheckBox saveOutpuDataProcessing;
 	
 	private JLabel lbWarningMsg;
+	private JLabel lbDelayMessage;
 	
 	public DataProcessingPluginSelectorPanel( Collection< ILSLRecPluginDataProcessing > plugins )
 	{		
@@ -242,6 +243,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			this.panelSaveDataProcessing = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			
 			this.panelSaveDataProcessing .add( this.getJChkSaveOutputDataProcessing() );
+			
+			this.panelSaveDataProcessing.add( this.getJLabelProcessingDelay() );
 		}
 		
 		return this.panelSaveDataProcessing;
@@ -270,6 +273,31 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 		
 		return this.saveOutpuDataProcessing;
+	}
+	
+	private JLabel getJLabelProcessingDelay()
+	{
+		if( this.lbDelayMessage == null )
+		{
+			this.lbDelayMessage = new JLabel();
+			this.lbDelayMessage.setForeground( Color.ORANGE.darker() );
+		}
+		
+		return this.lbDelayMessage;
+	}
+	
+	private void setProcessingDelayMessage( boolean show )
+	{
+		JLabel lb = this.getJLabelProcessingDelay();
+		
+		String msg = "";
+		
+		if( show )
+		{
+			msg = "<html><b>Processed data may be delayed with respect to stream timestamps.</b></html>";
+		}
+		
+		lb.setText( msg );
 	}
 	
 	private JPanel getPluginSettingPanel()
@@ -797,7 +825,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					{
 						refTable.setRowSelectionInterval( i, i );
 						removePlugins( refTable );
-					}
+					}					
 				}
 			});
 		}
@@ -926,6 +954,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					DataProcessingPluginRegistrar.addDataProcessing( pr );
 					
 					this.addProcess2Table( tmDest, pr );
+					
+					setProcessingDelayMessage( true );
 				} 
 				catch (Exception e) 
 				{
@@ -972,6 +1002,8 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				ExceptionDialog.showMessageDialog( msg, true, true );
 			}					
 		}
+		
+		setProcessingDelayMessage( tm.getRowCount() > 0 );
 	}
 		
 	private void reorderPlugin( JTable source, int shift )
@@ -1071,7 +1103,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			p.setVisible( true );			
 		}
-		catch (Exception e) 
+		catch (Exception | Error e) 
 		{
 			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1

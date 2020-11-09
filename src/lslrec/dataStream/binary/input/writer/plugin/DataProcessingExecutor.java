@@ -194,7 +194,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
-	{	
+	{
 	}
 
 	@Override
@@ -211,5 +211,17 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		{
 			this.out.close();
 		}
+	}
+	
+	public List< Integer > getTotalBufferLengths()
+	{
+		List< Integer > res = new ArrayList<Integer>();
+		
+		if( this.process != null )
+		{
+			res = this.process.getAllDataBufferLengths();
+		}
+		
+		return res;
 	}
 }

@@ -183,7 +183,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
     		this.stopThread = true;
     	}
     	
-    	if( friendliness > 0 && friendliness < -1 )
+    	if( friendliness > 0 || friendliness < -1 )
     	{
     		super.interrupt();
     	}

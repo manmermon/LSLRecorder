@@ -284,8 +284,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			// Header info
 			
-			
-			
 			lslXML = this.addElementToXml( lslXML, LSLUtils.getAdditionalInformationLabelInXml()
 													, MutableDataStreamSetting.ID_RECORDED_SAMPLES_BY_CHANNELS
 													, "" + ( this.totalSampleByChannels / ( nChannel + 2 ) ) ); // nChannel + 2: channels + marker column + time ;			

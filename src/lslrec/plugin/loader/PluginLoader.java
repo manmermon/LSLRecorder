@@ -158,10 +158,12 @@ public class PluginLoader
     					}
     				}
     				
+    				/*
     				if( c == pluginCount )
     				{
     					cp.removeFile( jar );
     				}
+    				*/
     			}
     			catch (Exception e) 
     			{

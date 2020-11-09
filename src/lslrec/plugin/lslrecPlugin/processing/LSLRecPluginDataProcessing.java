@@ -259,6 +259,20 @@ public abstract class LSLRecPluginDataProcessing
 		return len;
 	}
 	
+	public final List< Integer > getAllDataBufferLengths()
+	{
+		List< Integer > lens = new ArrayList<Integer>();
+		
+		if( this.prevProcess != null )
+		{
+			lens.addAll( this.prevProcess.getAllDataBufferLengths() );
+		}
+		
+		lens.add( this.getBufferLength() );
+		
+		return lens;
+	}
+	
 	public abstract void loadProcessingSettings( List< Parameter< String > > pars);
 	
 	public abstract int getBufferLength();
