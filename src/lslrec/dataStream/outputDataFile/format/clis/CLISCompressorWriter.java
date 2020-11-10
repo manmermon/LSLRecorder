@@ -169,7 +169,7 @@ public class CLISCompressorWriter
 		{
 			this.metadata.addMetadataProtocolInfo(  this.currentVarName
 												, this.getDataTypeIdentifier( this.currentType )
-												, LSLUtils.getDataTypeBytes( this.currentType ) // this.getBytesCurrentDataType( this.currentType )
+												, this.metadata.getDataTypeBytes( this.currentType ) // this.getBytesCurrentDataType( this.currentType )
 												, this.currentNumCols, this.blockSizes );
 			
 			/*

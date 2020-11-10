@@ -390,7 +390,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						if ( found )
 						{								
 							// copy extra information
-							stt.getStreamInfo().desc().append_child_value( stt.getExtraInfoLabel(), stt.getAdditionalInfo() );
+							//stt.getStreamInfo().desc().append_child_value( stt.getExtraInfoLabel(), stt.getExtraInfo() );
 							
 							// Save selected and alive stream
 							streamSettings.add( stt );

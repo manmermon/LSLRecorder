@@ -3,6 +3,7 @@
  */
 package lslrec.dataStream.family.setting;
 
+import java.io.IOException;
 import java.io.StringWriter;
 
 import javax.xml.transform.OutputKeys;
@@ -17,7 +18,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.IStreamSetting.Library;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
 
 /**
  * @author Manuel Merino Monge
@@ -89,7 +92,7 @@ public class StreamSettingUtils
 		return dataType;
 	}
 	
-	public static String addElementToXml( String xml, String nodeRoot, String name, String value )
+	public static String addElementToXmlStreamDescription( String xml, String nodeRoot, String name, String value )
 	{			
 		if( xml != null && nodeRoot != null && name != null )
 		{
@@ -131,4 +134,28 @@ public class StreamSettingUtils
 		
 		return xml;
 	}	
+
+	public static String getDeepXmlStreamDescription( IStreamSetting streamsetting )
+	{
+		String xml = "";
+		
+		if( streamsetting != null )
+		{
+			if( streamsetting.getLibraryID() == Library.LSL )
+			{
+				try 
+				{
+					StreamInlet in = new StreamInlet( (LSLStreamInfo)streamsetting );
+					
+					xml = in.info().description();
+				}
+				catch ( Exception e) 
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		return xml;
+	}
 }

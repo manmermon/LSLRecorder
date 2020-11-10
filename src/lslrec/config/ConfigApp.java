@@ -27,6 +27,7 @@ import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -284,18 +285,22 @@ public class ConfigApp
 			else if( key.equals( LSL_ID_DEVICES ) )
 			{
 				HashSet< IMutableStreamSetting > lsl = (HashSet< IMutableStreamSetting >)listConfig.get( key );
-				HashSet< IMutableStreamSetting > toSave = new HashSet< IMutableStreamSetting >();
+				//HashSet< IMutableStreamSetting > toSave = new HashSet< IMutableStreamSetting >();
 				
+				String p = "[";
 				for( IMutableStreamSetting setting : lsl )
 				{
 					if( setting.isSelected() || setting.isSynchronationStream() )
 					{
-						toSave.add( setting );
+						//toSave.add( setting );
+						p += setting.getShortToString() + ";";
 					}
 				}
 				
-				String p = toSave.toString();
-				p = p.replace( ">, <", ">; <" );
+				p += "]";
+				
+				//String p = toSave.toString();
+				//p = p.replace( ">, <", ">; <" );
 				prop.setProperty( key, p );
 			}		
 			else
@@ -777,7 +782,7 @@ public class ConfigApp
 										
 										if( found )
 										{
-											lslCfg.setAdditionalInfo( info );
+											lslCfg.setAdditionalInfo( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL, info );
 											lslCfg.setSelected( select );
 											lslCfg.setChunckSize( chunckSize );
 											lslCfg.setInterleaveadData( interleaved );

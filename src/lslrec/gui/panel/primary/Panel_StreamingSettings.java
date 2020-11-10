@@ -80,6 +80,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 import javax.swing.border.BevelBorder;
@@ -98,9 +99,10 @@ import lslrec.controls.CoreControl;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lsl.LSL;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.sync.SyncMethod;
@@ -1116,7 +1118,7 @@ public class Panel_StreamingSettings extends JPanel
 				final IMutableStreamSetting dev = auxDev;
 				
 				String idNode = deviceName + " (" + uid + ")";
-				DefaultMutableTreeNode t = this.getDeviceInfo( info, dev, dev.getAdditionalInfo() );	
+				DefaultMutableTreeNode t = this.getDeviceInfo( info, dev );//, dev.getExtraInfo() );	
 				if( idNode != null && t != null )
 				{
 					t.setUserObject( idNode );
@@ -1249,7 +1251,19 @@ public class Panel_StreamingSettings extends JPanel
 					@Override
 					public void actionPerformed(ActionEvent arg0) 
 					{						
-						String textInfo = dev.getAdditionalInfo();
+						Map< String, String > extInfo = dev.getExtraInfo();
+						String textInfo = "";
+						
+						if( extInfo != null )
+						{
+							textInfo = extInfo.get( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL );
+						}
+						
+						if( textInfo == null )
+						{
+							textInfo = "";
+						}
+						
 	
 						String txInfo = JOptionPane.showInputDialog( deviceName + " (" + uid + ").\n" + Language.getLocalCaption( Language.SETTING_LSL_EXTRA_TOOLTIP ) + ":", textInfo );
 						if( txInfo != null )
@@ -1257,10 +1271,12 @@ public class Panel_StreamingSettings extends JPanel
 							textInfo = txInfo;
 						}
 	
-						dev.setAdditionalInfo( textInfo );
+						dev.setAdditionalInfo( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
 	
+						/*
 						info.desc().remove_child( dev.getExtraInfoLabel() );
 						info.desc().append_child_value( dev.getExtraInfoLabel(), textInfo );
+						*/
 	
 						getJTabDevice( null ).setVisible( false );
 	
@@ -1274,7 +1290,7 @@ public class Panel_StreamingSettings extends JPanel
 							{
 								tmodel.remove( i );
 	
-								DefaultMutableTreeNode t = getDeviceInfo( info, dev, textInfo );
+								DefaultMutableTreeNode t = getDeviceInfo( info, dev );//, textInfo );
 								t.setUserObject( idNode );
 								tmodel.insert( t, i );								
 							}
@@ -1821,7 +1837,7 @@ public class Panel_StreamingSettings extends JPanel
 		return this.syncDeviceGroup;
 	}
 	
-	private DefaultMutableTreeNode getDeviceInfo( IStreamSetting inInfo, IMutableStreamSetting dev, String extra )  
+	private DefaultMutableTreeNode getDeviceInfo( IStreamSetting inInfo, IMutableStreamSetting dev )//, String extra )  
 	{		 	
 		DefaultMutableTreeNode tree = null;
 
@@ -1834,6 +1850,7 @@ public class Panel_StreamingSettings extends JPanel
 				StreamInfo inInfo = in.info();
 				*/
 				
+				/*
 				while( this.hasDescLabelNode( inInfo.desc(), dev.getExtraInfoLabel() ) )
 				{
 					dev.increaseExtraCountLabel();
@@ -1841,7 +1858,21 @@ public class Panel_StreamingSettings extends JPanel
 				
 				inInfo.desc().append_child_value( dev.getExtraInfoLabel(), extra );
 				String xml = inInfo.as_xml();
+				*/
 				
+				String xml = StreamSettingUtils.getDeepXmlStreamDescription( inInfo );
+				String rootNode = inInfo.getRootNode2ExtraInfoLabel();
+				
+				Map< String, String > extraInfo = dev.getExtraInfo();
+				if( extraInfo != null )
+				{
+					for( String id : extraInfo.keySet() )
+					{
+						String value = extraInfo.get( id );
+						xml = StreamSettingUtils.addElementToXmlStreamDescription( xml, rootNode, id,  value );
+					}
+				}
+								
 				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 				DocumentBuilder db = dbf.newDocumentBuilder();
 				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes() );
@@ -1857,6 +1888,7 @@ public class Panel_StreamingSettings extends JPanel
 		return tree;
 	}
 
+	/*
 	private boolean hasDescLabelNode( XMLElement desc, String lab )
 	{
 		boolean has = false;
@@ -1879,6 +1911,7 @@ public class Panel_StreamingSettings extends JPanel
 		
 		return has;
 	}
+	*/
 	
 	private DefaultMutableTreeNode builtTreeNode( Node root )
 	{		 
@@ -1900,6 +1933,12 @@ public class Panel_StreamingSettings extends JPanel
 					dmtNode.add( new DefaultMutableTreeNode( this.getXMLAttributes( tempNode ) ) );					 
 				}
 			}
+			/*
+			else if( tempNode.getNodeType() == Node.TEXT_NODE )
+			{
+				dmtNode.add( new DefaultMutableTreeNode( this.getXMLAttributes( tempNode ) ) );
+			}
+			*/
 		}
 
 		return dmtNode;

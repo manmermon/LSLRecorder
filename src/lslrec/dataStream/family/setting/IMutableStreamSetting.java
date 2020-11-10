@@ -28,12 +28,20 @@ package lslrec.dataStream.family.setting;
 public interface IMutableStreamSetting extends IStreamSetting
 {		
 	/**
-	 * Set addtional information.
+	 * Add additional information.
 	 * 
+	 * @param id
 	 * @param info
 	 */
-	public void setAdditionalInfo( String info );
+	public void setAdditionalInfo( String id, String info );
 
+	/**
+	 * Remove additional information.
+	 * 
+	 * @param id
+	 */
+	public void removeAdditionalInfo( String id );
+	
 	/**
 	 * Set if the LSL streaming is selected.
 	 * @param select

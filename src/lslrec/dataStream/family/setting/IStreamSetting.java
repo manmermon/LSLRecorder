@@ -3,9 +3,10 @@
  */
 package lslrec.dataStream.family.setting;
 
+import java.util.Map;
+
 import com.sun.jna.Pointer;
 
-import lslrec.auxiliar.extra.StringTuple;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 /**
@@ -40,17 +41,15 @@ public interface IStreamSetting
 	 * 
 	 * @return additional information.
 	 */
-	public String getAdditionalInfo();
+	public Map< String, String > getExtraInfo();
 	
 	/**
 	 * 
-	 * @return Tuple with root node and node name where adding information.
-	 * 			rootNode = Tuple.t1;
-	 * 			nodeName = Tuple.t2;
-	 * 			result: <rootNode><nodeName>getAdditionalInfo()</nodeName></rootNode>
+	 * @return root node where adding information.
+	 * 			result: <rootNode>AdditionalInfo</rootNode>
 	 * @see this.description()
 	 */
-	public StringTuple getAdditionInfoLabel();
+	public String getRootNode2ExtraInfoLabel();
 	
 	/**
 	 * 
@@ -215,4 +214,30 @@ public interface IStreamSetting
     	
     	return t.hashCode();
     }
+    
+    public default String getShortToString()
+    {
+    	String extra = "";
+    	Map< String, String > extraInfo = this.getExtraInfo();
+    	
+    	if( extraInfo != null )
+    	{
+    		extra = extraInfo.get( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL );
+    		
+    		if( extra == null )
+    		{
+    			extra = "";
+    		}
+    	}
+    	
+    	return "<" 	+ this.source_id() 						// 1
+					+ 	", " 	+ this.name() 				// 2
+					+ 	", " 	+ this.content_type() 		// 3
+					+ 	", " 	+ extra						// 4
+					+ 	", " 	+ this.isSelected() 		// 5
+					+ 	", " 	+ this.getChunkSize() 		// 6
+					+ 	", " 	+ this.isInterleavedData()	// 7
+					+ 	", " 	+ this.isSynchronationStream()	// 8
+					+ 	">";
+    }    
 }

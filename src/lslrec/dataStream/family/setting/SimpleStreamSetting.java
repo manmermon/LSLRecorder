@@ -4,6 +4,8 @@
 package lslrec.dataStream.family.setting;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.sun.jna.Pointer;
 
@@ -23,7 +25,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	
 	private StreamDataType stringLenDataType = StreamDataType.int64;
 	
-	private String extraInfo = "";
+	private Map< String, String > extraInfo = new HashMap<String, String>();
 	private int chunkSize = 1;
 	
 	private boolean interleaved = false;
@@ -72,7 +74,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int ver
 								, double createdAt
 								, String desc
-								, String extraInfo
+								, Map< String, String > extraInfo
 								, int chunkSize
 								, boolean interleaved
 								, boolean selected
@@ -89,6 +91,10 @@ public class SimpleStreamSetting implements IStreamSetting
 		this.stringLenDataType = stringLenType;
 		
 		this.extraInfo = extraInfo;
+		if( this.extraInfo == null )
+		{
+			this.extraInfo = new HashMap<String, String>();
+		}
 		
 		this.chunkSize = chunkSize;
 
@@ -114,7 +120,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	}		
 
 	@Override
-	public String getAdditionalInfo() 
+	public Map< String, String > getExtraInfo() 
 	{
 		return this.extraInfo;
 	}
@@ -299,9 +305,9 @@ public class SimpleStreamSetting implements IStreamSetting
 	}
 
 	@Override
-	public StringTuple getAdditionInfoLabel() 
+	public String getRootNode2ExtraInfoLabel() 
 	{
-		return new StringTuple( StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL );
+		return StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
 	}
 
 }

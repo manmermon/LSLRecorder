@@ -19,17 +19,19 @@
  */
 package lslrec.dataStream.binary.setting;
 
+import java.io.File;
+
 import lslrec.dataStream.family.setting.IStreamSetting;
 
 public class BinaryFileStreamSetting 
 {
-	private String streamBinFile = null;
+	private File streamBinFile = null;
 	private IStreamSetting sstr = null;
 			
-	public BinaryFileStreamSetting( IStreamSetting dataStream, String file ) 
+	public BinaryFileStreamSetting( IStreamSetting dataStream, File file ) 
 	{
 		
-		if( dataStream == null || file == null || file.isEmpty() )
+		if( dataStream == null || file == null )
 		{
 			throw new IllegalArgumentException( "Input(s) null or empty." );
 		}
@@ -43,13 +45,13 @@ public class BinaryFileStreamSetting
 		return this.sstr;
 	}
 	
-	public void setStreamBinFile(String streamBinFile) 
+	public void setStreamBinFile( File streamBinFile) 
 	{
 		this.streamBinFile = streamBinFile;
 	}
 	
-	public String getStreamBinFile() 
+	public File getStreamBinFile() 
 	{
-		return streamBinFile;
+		return this.streamBinFile;
 	}
 }

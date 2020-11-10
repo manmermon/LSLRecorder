@@ -27,10 +27,9 @@ import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
-import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.IStoppableThread;
@@ -42,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.extra.StringTuple;
 
 public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 {
@@ -210,14 +208,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 				
 				MutableStreamSetting dss = new MutableStreamSetting( super.streamSetting );
 				
-				String info = dss.getAdditionalInfo();
-				if( !info.isEmpty() )
-				{
-					info += ";" ;
-				}
-				info += "ProcessingBufferLengths=" + this.datProcessingExec.getTotalBufferLengths();
-				
-				dss.setAdditionalInfo( info );
+				dss.setAdditionalInfo( "ProcessingBufferLengths", this.datProcessingExec.getTotalBufferLengths().toString() );
 				//LSLUtils.addNode( dss.getStreamInfo(), new StringTuple( "DataProcessingInfo", info ) );
 				
 				processingEvent = new EventInfo( this.datProcessingExec.getID()
@@ -248,7 +239,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 				
 	private TemporalBinData getTemporalFileData( File file, IStreamSetting setting, OutputFileFormatParameters formatPars ) throws Exception
 	{		
-		TemporalBinData data = new TemporalBinData( file, setting, formatPars );
+		BinaryFileStreamSetting bin = new BinaryFileStreamSetting( setting, file );
+		
+		TemporalBinData data = new TemporalBinData( bin, formatPars );
 		
 		return data;
 	}

@@ -30,7 +30,6 @@ import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.sync.SyncMarker;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
@@ -129,7 +128,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		}
 		
 		int mark = ByteBuffer.wrap( markBuffer ).order( ByteOrder.BIG_ENDIAN ).getInt();
-		double time = ConvertTo.Transform.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, LSLUtils.getTimeMarkBytes() ) );		
+		double time = ConvertTo.Transform.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, super.streamSetting.getDataTypeBytes( super.streamSetting.getTimestampDataType() ) ) );		
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
 		EventInfo event = new EventInfo( this.getID(), EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );

@@ -3,9 +3,11 @@
  */
 package lslrec.dataStream.family.stream.lsl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jna.Pointer;
 
-import lslrec.auxiliar.extra.StringTuple;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
@@ -40,7 +42,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	
 	private Pointer obj;
 	
-	private String additionalInfo;
+	private Map< String, String > additionalInfo = new HashMap<String, String>();
 	
 	private boolean selectedStream;
 	
@@ -238,7 +240,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
     public Pointer handle() { return this.obj; }
 
 	@Override
-	public String getAdditionalInfo() 
+	public Map< String, String > getExtraInfo() 
 	{
 		return this.additionalInfo;
 	}
@@ -280,9 +282,21 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	}
 	
 	@Override
-	public void setAdditionalInfo(String info) 
+	public void setAdditionalInfo( String id, String info) 
 	{
-		this.additionalInfo = info;
+		if( id != null && info != null )
+		{
+			this.additionalInfo.put( id, info );
+		}
+	}
+	
+	@Override
+	public void removeAdditionalInfo(String id) 
+	{
+		if( id != null )
+		{
+			this.additionalInfo.remove( id );
+		}
 	}
 	
 	@Override
@@ -316,13 +330,11 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	}
 	
 	@Override
-	public StringTuple getAdditionInfoLabel() 
+	public String getRootNode2ExtraInfoLabel() 
 	{
 		String root = "desc";
 		
-		
-		
-		return null;
+		return root;
 	}
 }
 

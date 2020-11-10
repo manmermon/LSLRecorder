@@ -285,10 +285,10 @@ public class GuiManager
 				File dataFile = null;
 				if( dat != null )
 				{
-					dataFile = new File( binSetting.getStreamBinFile() );
+					dataFile = binSetting.getStreamBinFile();
 				}
 
-				TemporalBinData binData = new TemporalBinData( dataFile, binSetting, format );
+				TemporalBinData binData = new TemporalBinData( binSetting, format );
 
 				
 				// 
@@ -299,15 +299,14 @@ public class GuiManager
 				File syncFile = null;
 				if( sync != null )
 				{
-					syncFile = new File( sync.getStreamBinFile() );
+					syncFile = sync.getStreamBinFile();
 				}
 				
 				SyncMarkerBinFileReader reader = null;
 
 				if( syncFile != null )
 				{
-					reader = new SyncMarkerBinFileReader( syncFile
-														, sync
+					reader = new SyncMarkerBinFileReader( sync
 														, StreamBinaryHeader.HEADER_END
 														, (Boolean)format.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue() );
 				}

@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.dataStream.binary.BinaryDataFormat;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 
@@ -47,8 +47,7 @@ public class TemporalBinData
 	private IStreamSetting streamSetting;
 	private OutputFileFormatParameters outputFormat;
 	
-	public TemporalBinData( File dataBin
-							, IStreamSetting strSetting
+	public TemporalBinData( BinaryFileStreamSetting strSetting
 							, OutputFileFormatParameters outFormat ) throws Exception
 	{	
 		if( strSetting == null || outFormat == null )
@@ -56,14 +55,14 @@ public class TemporalBinData
 			throw new IllegalArgumentException( "DataStreamSetting and/or OutputFileFormatParameters null");
 		}
 		
-		this.streamSetting = strSetting;
+		this.streamSetting = strSetting.getStreamSetting();
 		this.outputFormat = outFormat;
 		
 		this.deleteBinaries = (Boolean)this.outputFormat.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue();
 		
-		this.binFile = dataBin;
+		this.binFile = strSetting.getStreamBinFile();
 		
-		this.dataTypeBytes = strSetting.getDataTypeBytes( strSetting.data_type() );
+		this.dataTypeBytes = this.streamSetting.getDataTypeBytes( this.streamSetting.data_type() );
 		
 		if( this.dataTypeBytes < 1 )
 		{
@@ -72,22 +71,22 @@ public class TemporalBinData
 		
 		this.formats = new ArrayList<BinaryDataFormat>();
 		
-		int len = strSetting.channel_count() * strSetting.getChunkSize();
+		int len = this.streamSetting.channel_count() * this.streamSetting.getChunkSize();
 		
-		if( strSetting.data_type() != StreamDataType.string )
+		if( this.streamSetting.data_type() != StreamDataType.string )
 		{
-			this.formats.add( new BinaryDataFormat( strSetting.data_type(), this.dataTypeBytes, len ) );
+			this.formats.add( new BinaryDataFormat( this.streamSetting.data_type(), this.dataTypeBytes, len ) );
 		}
 		else
 		{
-			BinaryDataFormat strLenFormat = new BinaryDataFormat( strSetting.getStringLegthDataType(), LSLUtils.getDataTypeBytes( strSetting.getStringLegthDataType() ), len );
-			this.formats.add( new BinaryDataFormat( strSetting.data_type(), this.dataTypeBytes, strLenFormat ) );
+			BinaryDataFormat strLenFormat = new BinaryDataFormat( this.streamSetting.getStringLegthDataType(), this.streamSetting.getDataTypeBytes( this.streamSetting.getStringLegthDataType() ), len );
+			this.formats.add( new BinaryDataFormat( this.streamSetting.data_type(), this.dataTypeBytes, strLenFormat ) );
 		}
 		
 		
-		this.formats.add( new BinaryDataFormat( strSetting.getTimestampDataType(), LSLUtils.getDataTypeBytes( strSetting.getTimestampDataType() ), strSetting.getChunkSize() ) );
+		this.formats.add( new BinaryDataFormat( this.streamSetting.getTimestampDataType(), this.streamSetting.getDataTypeBytes( this.streamSetting.getTimestampDataType() ), this.streamSetting.getChunkSize() ) );
 		
-		this.reader = new ReaderBinaryFile( dataBin, this.formats, '\n' );
+		this.reader = new ReaderBinaryFile( this.binFile, this.formats, '\n' );
 	}
 	
 	public IStreamSetting getDataStreamSetting()

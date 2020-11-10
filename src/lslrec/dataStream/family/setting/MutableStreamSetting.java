@@ -3,9 +3,11 @@
  */
 package lslrec.dataStream.family.setting;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.sun.jna.Pointer;
 
-import lslrec.auxiliar.extra.StringTuple;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 /**
@@ -16,7 +18,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 {
 	private IStreamSetting str = null;
 	
-	private String addInfo = null;
+	private Map< String, String > extraInfo = null;
 	
 	private int chunkSize = 1;
 	
@@ -40,7 +42,13 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		
 		this.str = streamSetting;
 		
-		this.addInfo = this.str.getAdditionalInfo();
+		this.extraInfo = this.str.getExtraInfo();
+		
+		if( this.extraInfo == null )
+		{
+			this.extraInfo = new HashMap<String, String>();
+		}
+		
 		this.chunkSize = this.str.getChunkSize();
 		this.selected = this.str.isSelected();
 		this.syncStream = this.str.isSynchronationStream();
@@ -48,15 +56,15 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	}
 	
 	@Override
-	public String getAdditionalInfo()
+	public Map< String, String> getExtraInfo()
 	{
-		return this.addInfo;
+		return this.extraInfo;
 	}
 
 	@Override
-	public StringTuple getAdditionInfoLabel() 
+	public String getRootNode2ExtraInfoLabel() 
 	{
-		return this.str.getAdditionInfoLabel();
+		return this.str.getRootNode2ExtraInfoLabel();
 	}
 	
 	@Override
@@ -142,9 +150,13 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	{
 		String desc = this.str.description();
 		
-		StringTuple nodeIds = this.getAdditionInfoLabel();
+		String rootNode = this.getRootNode2ExtraInfoLabel();
 		
-		desc = StreamSettingUtils.addElementToXml( desc, nodeIds.t1, nodeIds.t2, this.addInfo );
+		for( String nodeName : this.extraInfo.keySet() )
+		{
+			String info = this.extraInfo.get( nodeName );
+			desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, nodeName, info );
+		}
 		
 		return desc;
 	}
@@ -186,9 +198,15 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	}
 
 	@Override
-	public void setAdditionalInfo(String info) 
+	public void setAdditionalInfo( String id, String info ) 
 	{
-		this.addInfo = info;
+		this.extraInfo.put( id, info );
+	}
+	
+	@Override
+	public void removeAdditionalInfo( String id ) 
+	{
+		this.extraInfo.remove( id );
 	}
 
 	@Override

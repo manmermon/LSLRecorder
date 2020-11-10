@@ -42,6 +42,7 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.Library;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
@@ -97,7 +98,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, 1
 																	, System.nanoTime()
 																	, ""
-																	, ""
+																	, null
 																	, 1
 																	, false
 																	, true
@@ -251,15 +252,14 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, 1
 																	, System.nanoTime()
 																	, ""
-																	, ""
+																	, null
 																	, 1
 																	, false
 																	, true
 																	, false );
 		
 
-		return new SyncMarkerBinFileReader( new File( file )
-											, stream
+		return new SyncMarkerBinFileReader( new BinaryFileStreamSetting( stream, new File( file ) )
 											, StreamBinaryHeader.HEADER_END
 											, !ConfigApp.isTesting() );		
 	}

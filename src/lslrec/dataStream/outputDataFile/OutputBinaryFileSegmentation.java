@@ -227,12 +227,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			// Convertion
 			//
 			
+			String rootNode = streamSettings.getRootNode2ExtraInfoLabel();
 			Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
 			if( addInfo != null )
 			{
 				for( String id : addInfo.keySet() )
 				{
-					lslXML = StreamSettingUtils.addElementToXml( lslXML, LSLUtils.getAdditionalInformationLabelInXml(), id, addInfo.get( id ) );
+					lslXML = StreamSettingUtils.addElementToXmlStreamDescription( lslXML, rootNode, id, addInfo.get( id ) );
 				}
 			}
 			
@@ -275,9 +276,10 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			// Header info
 			
-			lslXML = StreamSettingUtils.addElementToXml( lslXML, LSLUtils.getAdditionalInformationLabelInXml()
-														, StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
-														, "" + ( this.totalSampleByChannels / ( nChannel + 2 ) ) ); // nChannel + 2: channels + marker column + time ;			
+			lslXML = StreamSettingUtils.addElementToXmlStreamDescription( lslXML
+																			, rootNode
+																			, StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
+																			, "" + ( this.totalSampleByChannels / ( nChannel + 2 ) ) ); // nChannel + 2: channels + marker column + time ;			
 			
 			this.writer.addMetadata( info + lslName, lslXML ); // output file header
 		}
