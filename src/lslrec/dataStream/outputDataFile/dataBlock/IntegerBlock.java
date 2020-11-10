@@ -19,13 +19,13 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class IntegerBlock extends DataBlock<Integer> 
 {
 	public IntegerBlock(int seqNum,String name, int nCols, Integer[] data) 
 	{
-		super(seqNum,name, LSLUtils.int32, nCols, data);
+		super(seqNum,name, StreamDataType.int32, nCols, data);
 	}
 
 }

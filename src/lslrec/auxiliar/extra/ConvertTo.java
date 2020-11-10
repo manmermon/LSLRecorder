@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class ConvertTo 
 {
@@ -638,7 +638,7 @@ public class ConvertTo
 			return vals;
 		}
 
-		public static Number NumberTo( Number value, int type )
+		public static Number NumberTo( Number value, StreamDataType type )
 		{
 			Number val = null;
 
@@ -646,46 +646,46 @@ public class ConvertTo
 			{
 				switch ( type ) 
 				{
-				case LSLUtils.double64:
-				{
-					val = value.doubleValue();
-
-					break;
-				}
-				case LSLUtils.float32:
-				{
-					val = value.floatValue();
-
-					break;
-				}
-				case LSLUtils.int8:
-				{
-					val = value.byteValue();
-
-					break;
-				}
-				case LSLUtils.int16:
-				{
-					val = value.shortValue();
-
-					break;
-				}
-				case LSLUtils.int32:
-				{
-					val = value.intValue();
-
-					break;
-				}
-				case LSLUtils.int64:
-				{
-					val = value.longValue();
-
-					break;
-				}
-				default:
-				{
-					break;
-				}
+					case double64:
+					{
+						val = value.doubleValue();
+	
+						break;
+					}
+					case float32:
+					{
+						val = value.floatValue();
+	
+						break;
+					}
+					case int8:
+					{
+						val = value.byteValue();
+	
+						break;
+					}
+					case int16:
+					{
+						val = value.shortValue();
+	
+						break;
+					}
+					case int32:
+					{
+						val = value.intValue();
+	
+						break;
+					}
+					case int64:
+					{
+						val = value.longValue();
+	
+						break;
+					}
+					default:
+					{
+						break;
+					}
 				}
 			}
 
@@ -1067,7 +1067,7 @@ public class ConvertTo
 			return out;
 		}
 		
-		public static byte[] NumberArray2byteArra( Number[] values, int dataType )
+		public static byte[] NumberArray2byteArra( Number[] values, StreamDataType dataType )
 		{
 			byte[] out = null;
 			
@@ -1075,30 +1075,30 @@ public class ConvertTo
 			{
 				switch( dataType )
 				{
-					case LSLUtils.double64:
+					case double64:
 					{
 						out = doubleArray2byteArray( Casting.NumberArray2DoubleArray( values ) );
 						
 						break;
 					}
-					case LSLUtils.float32:
+					case float32:
 					{
 						out = floatArray2byteArray( Casting.NumberArray2FloatArray( values ) );
 						
 						break;
 					}
-					case LSLUtils.int64:
+					case int64:
 					{
 						out = longArray2byteArray( Casting.NumberArray2LongArray( values ) );
 						
 						break;
 					}
-					case LSLUtils.int32:
+					case int32:
 					{
 						out = intArray2byteArray( Casting.NumberArray2IntegerArray( values ) );
 						break;
 					}
-					case LSLUtils.int16:
+					case int16:
 					{
 						out = shortArray2byteArray( Casting.NumberArray2ShortArray( values ) );
 						
@@ -1114,57 +1114,57 @@ public class ConvertTo
 			return out;
 		}
 
-		public static Number[] ByteArrayTo( Byte[] bytes, int dataType )
+		public static Number[] ByteArrayTo( Byte[] bytes, StreamDataType dataType )
 		{
 			return ByteArray2ArrayOf( Casting.ByterArray2byteArray( bytes ), dataType );
 		}
 
-		public static Number[] ByteArray2ArrayOf( byte[] bytes, int toDataType )
+		public static Number[] ByteArray2ArrayOf( byte[] bytes, StreamDataType toDataType )
 		{
 			Number[] out = null;
 
 			switch ( toDataType ) 
 			{
-			case LSLUtils.int8:
-			{
-				out = Casting.byteArray2ByteArray( bytes );
-
-				break;
-			}
-			case LSLUtils.int16:
-			{
-				out = Casting.shortArray2ShortArray( ByteArray2ShortArray( bytes ) );
-
-				break;
-			}
-			case LSLUtils.int32:
-			{
-				out = Casting.intArray2IntegerArray( ByteArray2IntegerArray( bytes ) );
-
-				break;
-			}
-			case LSLUtils.int64:
-			{
-				out = Casting.longArray2LongArray( ByteArray2LongArray( bytes ) );
-
-				break;
-			}
-			case LSLUtils.float32:
-			{			
-				out = Casting.floatArray2FloatArray( ByteArray2FloatArray( bytes ) );
-
-				break;
-			}	
-			case LSLUtils.double64:
-			{			
-				out = Casting.doubleArray2DoubleArray( ByteArray2DoubleArray( bytes ) );
-
-				break;
-			}			
-			default:
-			{
-				break;
-			}
+				case int8:
+				{
+					out = Casting.byteArray2ByteArray( bytes );
+	
+					break;
+				}
+				case int16:
+				{
+					out = Casting.shortArray2ShortArray( ByteArray2ShortArray( bytes ) );
+	
+					break;
+				}
+				case int32:
+				{
+					out = Casting.intArray2IntegerArray( ByteArray2IntegerArray( bytes ) );
+	
+					break;
+				}
+				case int64:
+				{
+					out = Casting.longArray2LongArray( ByteArray2LongArray( bytes ) );
+	
+					break;
+				}
+				case float32:
+				{			
+					out = Casting.floatArray2FloatArray( ByteArray2FloatArray( bytes ) );
+	
+					break;
+				}	
+				case double64:
+				{			
+					out = Casting.doubleArray2DoubleArray( ByteArray2DoubleArray( bytes ) );
+	
+					break;
+				}			
+				default:
+				{
+					break;
+				}
 			}
 
 			return out;

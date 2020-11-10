@@ -14,7 +14,7 @@ public class testLSLString
 			{
 				try
 				{
-			        LSL.StreamInfo[] results = LSL.resolve_stream("name","stringTets");
+			        IStreamSetting.StreamInfo[] results = LSL.resolve_stream("name","stringTets");
 	
 			        // open an inlet
 			        LSL.StreamInlet inlet = new LSL.StreamInlet(results[0]);
@@ -46,7 +46,7 @@ public class testLSLString
 			{
 				try
 				{
-					LSL.StreamInfo info = new LSL.StreamInfo( "stringTets", "value", 5, 0, LSL.ChannelFormat.string
+					IStreamSetting.StreamInfo info = new IStreamSetting.StreamInfo( "stringTets", "value", 5, 0, LSL.ChannelFormat.string
 																, "TEST-LSLRec" );
 
 					LSL.StreamOutlet out = new LSL.StreamOutlet( info );

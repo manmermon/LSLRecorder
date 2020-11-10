@@ -20,29 +20,27 @@
 
 package lslrec.dataStream.binary.input.writer;
 
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 
 public class StreamBinaryHeader
 {	
 	public static final String HEADER_BINARY_SEPARATOR = ";"; 
 	public static final char HEADER_END = '\n';
 	
-	public static String getStreamBinHeader( DataStreamSetting streamSetting )
+	public static String getStreamBinHeader( IStreamSetting streamSetting )
 	{
 		String binHeader = "";
 		
 		if( streamSetting != null )
 		{
-			StreamInfo strInfo = streamSetting.getStreamInfo();
-			binHeader = streamSetting.getStreamName() + HEADER_BINARY_SEPARATOR
-						+ strInfo.channel_format() + HEADER_BINARY_SEPARATOR
-						+ strInfo.channel_count() + HEADER_BINARY_SEPARATOR
+			binHeader = streamSetting.name()+ HEADER_BINARY_SEPARATOR
+						+ streamSetting.data_type() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.channel_count() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.getChunkSize()+ HEADER_BINARY_SEPARATOR
-						+ streamSetting.getTimeDataType() + HEADER_BINARY_SEPARATOR
-						+ streamSetting.getStringLegthType() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.getTimestampDataType() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.getStringLegthDataType() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.isInterleavedData() + HEADER_BINARY_SEPARATOR
-						+ strInfo.as_xml();
+						+ streamSetting.description();
 
 			binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + HEADER_END;
 		}

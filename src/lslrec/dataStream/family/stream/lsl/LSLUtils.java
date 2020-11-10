@@ -18,90 +18,62 @@
  *   
  *   
  */
-package lslrec.dataStream.family.lsl;
+package lslrec.dataStream.family.stream.lsl;
 
 import java.nio.charset.Charset;
 import java.util.List;
 
 import lslrec.auxiliar.extra.StringTuple;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.family.lsl.LSL.XMLElement;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class LSLUtils 
-{
-	 /**
-     * Data format of a channel (each transmitted sample holds an array of channels).
-     */
-	
-	/*
-	 * 
-	 * Static variable from:
-	 *  https://github.com/labstreaminglayer/liblsl-Java/blob/39799dae02edf34e138d2a67ae768dc38a0248a9/src/edu/ucsd/sccn/LSL.java
-	 * 
-	 */
-	
-	public static final int float32 = 1;    /** For up to 24-bit precision measurements in the appropriate physical unit
-	 *  (e.g., microvolts). Integers from -16777216 to 16777216 are represented accurately. */
-	public static final int double64 = 2;   /** For universal numeric data as long as permitted by network & disk budget.
-	 *  The largest representable integer is 53-bit. */
-	public static final int string = 3; /** For variable-length ASCII strings or data blobs, such as video frames,
-	 *  complex event descriptions, etc. */
-	public static final int int32 = 4;  /** For high-rate digitized formats that require 32-bit precision. Depends critically on
-	 *  meta-data to represent meaningful units. Useful for application event codes or other coded data. */
-	public static final int int16 = 5;      /** For very high rate signals (40KHz+) or consumer-grade audio
-	 *  (for professional audio float is recommended). */
-	public static final int int8 = 6;       /** For binary signals or other coded data.
-	 *  Not recommended for encoding string data. */
-	public static final int int64 = 7;      /** For now only for future compatibility. Support for this type is not yet exposed in all languages.
-	 *  Also, some builds of liblsl will not be able to send or receive data of this type. */
-	public static final int undefined = 0;  /** Can not be transmitted. */
-	
+{	
 	public static String getAdditionalInformationLabelInXml()
 	{
 		return "desc";
 	}
 
-	public static int getDataTypeByClass( Object classType )
+	public static StreamDataType getDataTypeByClass( Object classType )
 	{
-		int dataType = undefined;
+		StreamDataType dataType = StreamDataType.undefined;
 		
 		if( classType instanceof Double )
 		{
-			dataType = double64;			
+			dataType = StreamDataType.double64;			
 		}
 		else if( classType instanceof Float )
 		{
-			dataType = float32;
+			dataType = StreamDataType.float32;
 		}
 		else if( classType instanceof Long )
 		{
-			dataType = int64;
+			dataType = StreamDataType.int64;
 		}
 		else if( classType instanceof Integer )
 		{
-			dataType = int32;
+			dataType = StreamDataType.int32;
 		}
 		else if( classType instanceof Short )
 		{
-			dataType = int16;
+			dataType = StreamDataType.int16;
 		}
 		else if( classType instanceof Byte )
 		{
-			dataType = int8;
+			dataType = StreamDataType.int8;
 		}
 		else if( classType instanceof String )
 		{
-			dataType = string;
+			dataType = StreamDataType.string;
 		}
 		else if ( classType instanceof Character )
 		{
-			dataType = string;
+			dataType = StreamDataType.string;
 		}
 		
 		return dataType;
 	}
 	
-	public static int getDataTypeBytes( int type )
+	public static int getDataTypeBytes( StreamDataType type )
 	{
 		int len = -1;
 		
@@ -162,9 +134,9 @@ public class LSLUtils
 		return getDataTypeBytes( getTimeMarkType() );
 	}
 	
-	public static int getTimeMarkType( )
+	public static StreamDataType getTimeMarkType( )
 	{
-		return double64;
+		return StreamDataType.double64;
 	}
 	
 	public static int numberOfRepeatedtNodoName( XMLElement child , String label )
@@ -203,7 +175,7 @@ public class LSLUtils
 		return child;
 	}
 	
-	public static void removeNode( StreamInfo stream, String childNode )
+	public static void removeNode( LSLStreamInfo stream, String childNode )
 	{
 		if( stream != null )
 		{
@@ -213,7 +185,7 @@ public class LSLUtils
 		}
 	}
 	
-	public static void addNode( StreamInfo stream, StringTuple child )
+	public static void addNode( LSLStreamInfo stream, StringTuple child )
 	{
 		if( child != null && stream != null )
 		{
@@ -223,7 +195,7 @@ public class LSLUtils
 		}
 	}
 	
-	public static void addNodes( StreamInfo stream, List< StringTuple > childNodes )
+	public static void addNodes( LSLStreamInfo stream, List< StringTuple > childNodes )
 	{
 		if( childNodes != null && stream != null )
 		{

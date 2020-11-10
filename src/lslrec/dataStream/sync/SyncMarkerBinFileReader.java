@@ -27,9 +27,10 @@ import java.util.List;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class SyncMarkerBinFileReader
 {
@@ -39,19 +40,19 @@ public class SyncMarkerBinFileReader
 	
 	private boolean CloseStream = false;
 	
-	private int markDataType;
-	private int timeDataType;
+	private StreamDataType markDataType;
+	private StreamDataType timeDataType;
 	
 	private ReaderBinaryFile reader = null;
 	
-	public SyncMarkerBinFileReader( File syncFile, DataStreamSetting streamSetting, char headerEnd, boolean delBinaries ) throws Exception 
+	public SyncMarkerBinFileReader( File syncFile, IStreamSetting streamSetting, char headerEnd, boolean delBinaries ) throws Exception 
 	{	
 		this.deleteBinFile = delBinaries;
 		
 		this.file = syncFile;
 		
-		this.markDataType = streamSetting.getDataType();
-		this.timeDataType = streamSetting.getTimeDataType();
+		this.markDataType = streamSetting.data_type();
+		this.timeDataType = streamSetting.getTimestampDataType();
 		
 		List< BinaryDataFormat > formats = new ArrayList< BinaryDataFormat >();
 		

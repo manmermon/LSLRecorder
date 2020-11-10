@@ -25,11 +25,11 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 
 public abstract class LSLRecPluginDataProcessing																
 {		
-	protected final DataStreamSetting streamSetting;
+	protected final IStreamSetting streamSetting;
 
 	// Data buffers 
 	private LinkedList< Number >[] dataBuffer = null;
@@ -42,7 +42,7 @@ public abstract class LSLRecPluginDataProcessing
 	
 	private LSLRecPluginDataProcessing prevProcess = null;
 		
-	public LSLRecPluginDataProcessing( DataStreamSetting setting, LSLRecPluginDataProcessing prevProc )
+	public LSLRecPluginDataProcessing( IStreamSetting setting, LSLRecPluginDataProcessing prevProc )
 	{
 		if( setting == null )
 		{
@@ -60,16 +60,16 @@ public abstract class LSLRecPluginDataProcessing
 			this.overlapOffset = 1;
 		}
 		
-		this.overlapCounter = new int[ this.streamSetting.getStreamInfo().channel_count() ];
+		this.overlapCounter = new int[ this.streamSetting.channel_count() ];
 	}
 	
 	private void setBuffer()
 	{
-		int channels = this.streamSetting.getStreamInfo().channel_count();
+		int channels = this.streamSetting.channel_count();
 		
 		this.dataBuffer = new  LinkedList[ channels ];
 		
-		Number zero = ConvertTo.Casting.NumberTo( 0D, this.streamSetting.getDataType() );
+		Number zero = ConvertTo.Casting.NumberTo( 0D, this.streamSetting.data_type() );
 		
 		this.bufferCapacity = this.getBufferLength();
 		if( this.bufferCapacity < 1 )
@@ -117,9 +117,9 @@ public abstract class LSLRecPluginDataProcessing
 				}
 				
 				int from = 0;
-				int to = this.tempBuffer.size() / ( this.streamSetting.getStreamInfo().channel_count() * this.streamSetting.getChunkSize() );
+				int to = this.tempBuffer.size() / ( this.streamSetting.channel_count() * this.streamSetting.getChunkSize() );
 				
-				int channels = this.streamSetting.getStreamInfo().channel_count();
+				int channels = this.streamSetting.channel_count();
 				
 				
 				//
@@ -160,7 +160,7 @@ public abstract class LSLRecPluginDataProcessing
 	{
 		if( inputs != null && inputs.length > 0)
 		{
-			int channels = this.streamSetting.getStreamInfo().channel_count();
+			int channels = this.streamSetting.channel_count();
 			int chunk = this.streamSetting.getChunkSize();
 			
 			//
@@ -197,7 +197,7 @@ public abstract class LSLRecPluginDataProcessing
 	{
 		List< Number > result = new ArrayList< Number >();
 		
-		int channels = this.streamSetting.getStreamInfo().channel_count();
+		int channels = this.streamSetting.channel_count();
 		
 		// Remove oldest values
 		for( int c = 0; c < channels; c++ )
@@ -237,7 +237,7 @@ public abstract class LSLRecPluginDataProcessing
 		return result;
 	}
 	
-	public DataStreamSetting getDataStreamSetting()
+	public IStreamSetting getDataStreamSetting()
 	{
 		return this.streamSetting;
 	}

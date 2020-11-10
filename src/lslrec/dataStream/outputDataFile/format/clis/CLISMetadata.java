@@ -36,12 +36,12 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
-
 
 public class CLISMetadata 
 {
@@ -94,7 +94,9 @@ public class CLISMetadata
 	
 	private byte[] encrpytKeyMetadata = null;
 	
-	public CLISMetadata( OutputFileFormatParameters pars, DataStreamSetting settings  ) throws Exception 
+	private IStreamSetting streamSetting;
+	
+	public CLISMetadata( OutputFileFormatParameters pars, IStreamSetting settings  ) throws Exception 
 	{	
 		this.zip_id = pars.getParameter( OutputFileFormatParameters.ZIP_ID ).getValue().toString();
 		
@@ -157,13 +159,15 @@ public class CLISMetadata
 			numBlocks = 2L;
 		}
 
-		String xml = settings.getStreamInfo().as_xml();
+		this.streamSetting = settings;
+		
+		String xml = this.streamSetting.description();
 		if( xml == null )
 		{
 			xml = "";
 		}
 		
-		int chs = settings.getStreamInfo().channel_count();
+		int chs = this.streamSetting.channel_count();
 		if( chs < 1 )
 		{
 			chs = 1;
@@ -234,6 +238,11 @@ public class CLISMetadata
 		}
 		
 		this.headerInfo += ( this.headerSize * padding.length ) + this.GrpSep;
+	}
+		
+	public int getDataTypeBytes( StreamDataType type )
+	{
+		return this.streamSetting.getDataTypeBytes( type );
 	}
 	
 	public long getHeaderSize() 

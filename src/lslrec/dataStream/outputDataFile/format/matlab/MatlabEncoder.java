@@ -24,10 +24,10 @@ import java.util.List;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class MatlabEncoder implements Encoder 
 {
@@ -39,7 +39,7 @@ public class MatlabEncoder implements Encoder
 	}
 
 	@Override
-	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, DataStreamSetting streamSettings, ITaskMonitor monitor )
+	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, ITaskMonitor monitor )
 			throws Exception 
 	{
 		return new OutputMatDataWriter( (String)pars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), monitor );

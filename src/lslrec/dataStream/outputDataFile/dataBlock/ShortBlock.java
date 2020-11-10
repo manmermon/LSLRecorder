@@ -19,13 +19,13 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class ShortBlock extends DataBlock<Short> 
 {
 	public ShortBlock(int seqNum,String name, int nCols, Short[] data) 
 	{
-		super(seqNum, name, LSLUtils.int16, nCols, data);
+		super(seqNum, name, StreamDataType.int16, nCols, data);
 	}
 
 }

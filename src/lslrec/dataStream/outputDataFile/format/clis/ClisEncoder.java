@@ -29,12 +29,12 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputCLISDataParallelWriter;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class ClisEncoder implements Encoder 
 {
@@ -89,7 +89,7 @@ public class ClisEncoder implements Encoder
 	}
 
 	@Override
-	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, DataStreamSetting streamSettings, ITaskMonitor monitor )
+	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, ITaskMonitor monitor )
 			throws Exception 
 	{
 		IOutputDataFileWriter wr = null;

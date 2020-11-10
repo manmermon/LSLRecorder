@@ -4,7 +4,7 @@ import java.util.List;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.stream.lsl.DataStreamSetting;
 import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 

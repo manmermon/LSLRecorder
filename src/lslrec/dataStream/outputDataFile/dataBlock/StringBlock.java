@@ -22,7 +22,7 @@ package lslrec.dataStream.outputDataFile.dataBlock;
 public class StringBlock extends CharBlock 
 {
 
-	public StringBlock(int seqNum,String name, int nCols, String data) 
+	public StringBlock( int seqNum, String name, int nCols, String data) 
 	{	
 		super( seqNum, name, nCols, toCharacterArray( data ) );
 	}

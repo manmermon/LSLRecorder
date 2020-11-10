@@ -32,14 +32,13 @@ import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.UnsupportedTypeException;
 import lslrec.controls.messages.EventType;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.stream.lsl.LSL;
+import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
-import lslrec.dataStream.family.lsl.LSL;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.family.lsl.LSL.StreamInlet;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -115,42 +114,39 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 	private AtomicBoolean postCleanDone = new AtomicBoolean( false );
 
-	protected DataStreamSetting streamSetting = null;
-	
+	protected IStreamSetting streamSetting = null;
 		
-	public LSLInStreamDataReceiverTemplate( DataStreamSetting lslCfg ) throws Exception
+	public LSLInStreamDataReceiverTemplate( IStreamSetting lslCfg ) throws Exception
 	{		
 		if( lslCfg == null )
 		{
-			throw new IllegalArgumentException( "LSL parameters is null" );
+			throw new IllegalArgumentException( "Stream setting null" );
 		}
 		
 		this.streamSetting = lslCfg;
-		
-		StreamInfo stInfo = this.streamSetting.getStreamInfo();
-		
-		this.chunckLength = lslCfg.getChunkSize();
+				
+		this.chunckLength = this.streamSetting.getChunkSize();
 		if( this.chunckLength < 1 )
 		{
 			this.chunckLength = 1;
 		}
 				
-		int nBytes = LSLUtils.getDataTypeBytes( this.streamSetting.getDataType() );
+		int nBytes = this.streamSetting.getDataTypeBytes( this.streamSetting.data_type() );
 		
 		long maxMem = Runtime.getRuntime().maxMemory() / 2;
 		maxMem /= nBytes;
 		
 		int bufSize = 1000_000;
 		
-		double samplingRate = this.streamSetting.getSamplingRate();
+		double samplingRate = this.streamSetting.sampling_rate();
 		
-		if( samplingRate != LSL.IRREGULAR_RATE )
+		if( samplingRate != IStreamSetting.IRREGULAR_RATE )
 		{
 			bufSize = 360; // 360 s
 			
-			if( bufSize * samplingRate * stInfo.channel_count() * this.streamSetting.getChunkSize() > maxMem )
+			if( bufSize * samplingRate * this.streamSetting.channel_count() * this.streamSetting.getChunkSize() > maxMem )
 			{
-				bufSize = (int)( maxMem / ( samplingRate * stInfo.channel_count() * this.streamSetting.getChunkSize() ) ) ;
+				bufSize = (int)( maxMem / ( samplingRate * this.streamSetting.channel_count() * this.streamSetting.getChunkSize() ) ) ;
 				
 				if( bufSize < 1 )
 				{
@@ -175,8 +171,23 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			chunk = this.streamSetting.getChunkSize();
 		}
 		
-		this.inLet = new StreamInlet( stInfo, bufSize, chunk, false );
+		this.inLet = null;
+		
+		switch( this.streamSetting.getLibraryID() )
+		{
+			case LSL:
+			{
+				this.inLet = new StreamInlet( (LSLStreamInfo)this.streamSetting, bufSize, chunk, false );
+				
+				break;
+			}			
+		}
 
+		if( this.inLet == null)
+		{
+			throw new SettingException( "Unsupported Library.");
+		}
+		
 		try
 		{			
 			this.timeCorrection = this.inLet.time_correction( );
@@ -196,52 +207,52 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	{
 		int nBytes = 1;
 		
-		this.arrayLen = this.inLet.info().channel_count() *  this.chunckLength;
+		this.arrayLen = this.streamSetting.channel_count() *  this.chunckLength;
 		
-		switch ( this.inLet.info().channel_format() )
+		switch ( this.streamSetting.data_type() )
 		{
-			case( LSLUtils.int8 ):
+			case int8:
 			{
 				this.byteData = new byte[ this.arrayLen ];			
 				break;
 	
 			}
-			case( LSLUtils.int16 ):
+			case int16:
 			{
 				nBytes = Short.BYTES;
 	
 				this.shortData = new short[ this.arrayLen ];
 				break;
 			}
-			case( LSLUtils.int32 ):
+			case int32:
 			{
 				nBytes = Integer.BYTES;
 	
 				this.intData = new int[ this.arrayLen ];
 				break;
 			}
-			case( LSLUtils.int64 ):
+			case int64:
 			{
 				nBytes = Long.BYTES;
 	
 				this.longData = new long[ this.arrayLen ];
 				break;
 			}	
-			case( LSLUtils.float32 ):
+			case float32:
 			{
 				nBytes = Float.BYTES;
 	
 				this.floatData = new float[ this.arrayLen ];
 				break;
 			}
-			case( LSLUtils.double64 ):
+			case double64:
 			{
 				nBytes = Double.BYTES;
 	
 				this.doubleData = new double[ this.arrayLen ];
 				break;
 			}
-			case( LSLUtils.string ):
+			case string:
 			{
 				nBytes = Character.BYTES;
 	
@@ -250,7 +261,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			}
 			default:
 			{
-				String msg = "Data type (" + this.inLet.info().channel_format() + ") of stream input " + this.inLet.info().name() + " unsupported.";
+				String msg = "Data type (" + this.streamSetting.data_type()  + ") of stream input " + this.streamSetting.name() + " unsupported.";
 				throw new UnsupportedTypeException( msg );
 			}
 		}
@@ -290,11 +301,11 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		this.tempSampleBytes = new ArrayList();
 		this.tempTimeMark = new ArrayList< Double >();
 
-		double samplingRate = this.inLet.info().nominal_srate();
+		double samplingRate = this.streamSetting.sampling_rate();
 		
 		this.blockTimer = 0.5D; // 0.5 s
 		
-		if ( samplingRate != LSL.IRREGULAR_RATE )
+		if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
 		{
 			this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
 			
@@ -344,7 +355,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	protected void preStopThread(int friendliness) throws Exception
 	{		
 		if( friendliness == IStoppableThread.FORCE_STOP 
-				|| ( this.streamSetting.getSamplingRate() == LSL.IRREGULAR_RATE ))
+				|| ( this.streamSetting.sampling_rate() == IStreamSetting.IRREGULAR_RATE ))
 		{
 			if( this.timer != null )
 			{
@@ -421,9 +432,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		double timestamp_buffer[] = new double[ this.chunckLength ];
 		int nReadData = 0;
 		
-		switch (this.streamSetting.getStreamInfo().channel_format() )
+		switch (this.streamSetting.data_type() )
 		{
-			case( LSLUtils.int8 ):
+			case int8:
 			{				
 				nReadData = this.inLet.pull_chunk( this.byteData, timestamp_buffer, this.blockTimer );
 				
@@ -480,7 +491,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
-			case( LSLUtils.int16 ):
+			case int16:
 			{
 				nReadData = this.inLet.pull_chunk( this.shortData, timestamp_buffer, this.blockTimer );
 				
@@ -544,7 +555,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
-			case( LSLUtils.int32 ):
+			case int32:
 			{					
 				nReadData = this.inLet.pull_chunk( this.intData, timestamp_buffer, this.blockTimer );
 				
@@ -608,7 +619,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
-			case( LSLUtils.float32 ):
+			case float32:
 			{
 				nReadData = this.inLet.pull_chunk( this.floatData, timestamp_buffer, this.blockTimer );
 				
@@ -671,7 +682,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
-			case( LSLUtils.double64 ):
+			case double64:
 			{
 				nReadData = this.inLet.pull_chunk( doubleData, timestamp_buffer, this.blockTimer  );
 				
@@ -734,7 +745,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
-			case( LSLUtils.string ):
+			case string:
 			{
 				nReadData = this.inLet.pull_chunk( this.stringData, timestamp_buffer, this.blockTimer  );
 				
@@ -923,7 +934,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		double timeout = 0.0D;
 				
 		boolean rep = true;
-		int rerun = (int)this.inLet.info().nominal_srate() / 2;
+		int rerun = (int)this.streamSetting.sampling_rate() / 2;
 		if( rerun < 10 )
 		{
 			rerun = 10;
@@ -936,9 +947,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			ByteBuffer data = null;
 			byte[] out = null;			
 			
-			switch ( this.streamSetting.getStreamInfo().channel_format() )
+			switch ( this.streamSetting.data_type() )
 			{
-				case( LSLUtils.int8 ):
+				case int8:
 				{
 					nReadData = this.inLet.pull_chunk( this.byteData, timestamp_buffer, timeout );
 					
@@ -995,7 +1006,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 					break;
 				}
-				case( LSLUtils.int16 ):
+				case int16:
 				{
 					nReadData = this.inLet.pull_chunk( this.shortData, timestamp_buffer, timeout );
 					
@@ -1059,7 +1070,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 					break;
 				}
-				case( LSLUtils.int32 ):
+				case int32:
 				{				
 					nReadData = this.inLet.pull_chunk( this.intData, timestamp_buffer, timeout );
 					
@@ -1123,7 +1134,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 					break;
 				}
-				case( LSLUtils.float32 ):
+				case float32:
 				{
 					nReadData = this.inLet.pull_chunk( this.floatData, timestamp_buffer, timeout );
 					
@@ -1186,7 +1197,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 					break;
 				}
-				case( LSLUtils.double64 ):
+				case double64:
 				{
 					nReadData = this.inLet.pull_chunk( doubleData, timestamp_buffer, timeout );
 					
@@ -1249,7 +1260,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		
 					break;
 				}
-				case( LSLUtils.string ):
+				case string:
 				{
 					nReadData = this.inLet.pull_chunk( this.stringData, timestamp_buffer, timeout );
 					//nChunck = nBytes / this.lslChannelCounts;
@@ -1461,7 +1472,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 			}
 		}		
 		
-		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.streamSetting.getStreamName() + "> was exceeded." ) );		
+		this.notifyProblem( new TimeoutException( "Waiting time for input data from device <" + this.streamSetting.name() + "> was exceeded." ) );		
 	}
 	
 	private void timeOver2( )
@@ -1491,7 +1502,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				}
 				finally 
 				{
-					notifyProblem( new DestroyFailedException( "The input stream " + streamSetting.getStreamName() 
+					notifyProblem( new DestroyFailedException( "The input stream " + streamSetting.name() 
 																+ " is blocked. It is not possible released/closed. "
 																+ "Quit " + ConfigApp.shortNameApp + " is recommended.") );
 				}

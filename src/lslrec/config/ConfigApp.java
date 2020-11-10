@@ -24,12 +24,12 @@
 package lslrec.config;
 
 import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.dataStream.family.lsl.LSL;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
-import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
@@ -77,7 +77,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 9 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 10 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -283,10 +283,10 @@ public class ConfigApp
 			}
 			else if( key.equals( LSL_ID_DEVICES ) )
 			{
-				HashSet< MutableDataStreamSetting > lsl = (HashSet< MutableDataStreamSetting >)listConfig.get( key );
-				HashSet< MutableDataStreamSetting > toSave = new HashSet< MutableDataStreamSetting >();
+				HashSet< IMutableStreamSetting > lsl = (HashSet< IMutableStreamSetting >)listConfig.get( key );
+				HashSet< IMutableStreamSetting > toSave = new HashSet< IMutableStreamSetting >();
 				
-				for( MutableDataStreamSetting setting : lsl )
+				for( IMutableStreamSetting setting : lsl )
 				{
 					if( setting.isSelected() || setting.isSynchronationStream() )
 					{
@@ -326,9 +326,9 @@ public class ConfigApp
 					{
 						String extra = "";
 						
-						for( DataStreamSetting sst : DataProcessingPluginRegistrar.getDataStreams( process ) )
+						for( IStreamSetting sst : DataProcessingPluginRegistrar.getDataStreams( process ) )
 						{
-							extra += sst.getStreamName() + "@@@" + sst.getSourceID() + "," ;
+							extra += sst.name() + "@@@" + sst.source_id() + "," ;
 						}
 								
 						if( !extra.isEmpty() )
@@ -701,7 +701,7 @@ public class ConfigApp
 					{
 						loadDefaultLSLDeviceInfo();
 						
-						HashSet< MutableDataStreamSetting > lslDevs = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+						HashSet< IMutableStreamSetting > lslDevs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 						
 						p = p.replace("[",  "").replace("]", "");
 						if( !p.isEmpty() )
@@ -766,13 +766,13 @@ public class ConfigApp
 									
 									boolean found = false;
 									
-									for( MutableDataStreamSetting lslCfg : lslDevs )
+									for( IMutableStreamSetting lslCfg : lslDevs )
 									{
-										found = lslCfg.getSourceID().equals( sourceID );
+										found = lslCfg.source_id().equals( sourceID );
 										
 										if( !found )
 										{	
-											found = lslCfg.getDeviceType().equals( type ) && lslCfg.getStreamName().equals( name );
+											found = lslCfg.content_type().equals( type ) && lslCfg.name().equals( name );
 										}
 										
 										if( found )
@@ -1012,7 +1012,7 @@ public class ConfigApp
 
 								DataProcessingPluginRegistrar.addDataProcessing( newPr );
 
-								HashSet< DataStreamSetting > dss = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+								HashSet< IStreamSetting > dss = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 
 								//
 								// extra = (streamName@@@sourceID;streamName@@@sourceID;...;streamName@@@sourceID)
@@ -1046,9 +1046,9 @@ public class ConfigApp
 											sId = stInfo[ 1 ].trim();
 										}
 
-										for( DataStreamSetting s : dss )
+										for( IStreamSetting s : dss )
 										{
-											if( s.getStreamName().equalsIgnoreCase( name ) && s.getSourceID().equalsIgnoreCase( sId ) )
+											if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
 											{
 												DataProcessingPluginRegistrar.addDataStream( newPr, s );
 
@@ -1380,17 +1380,17 @@ public class ConfigApp
 
 	private static void loadDefaultLSLDeviceInfo()
 	{
-		StreamInfo[] devices = null;
+		IStreamSetting[] devices = null;
 
 		LSL lsl = new LSL();
 
-		LSL.StreamInfo[] deviceInfo = lsl.resolve_streams( );
+		IStreamSetting[] deviceInfo = lsl.resolve_streams( );
 		
-		HashSet< MutableDataStreamSetting > settings = new HashSet< MutableDataStreamSetting >();
+		HashSet< IMutableStreamSetting > settings = new HashSet< IMutableStreamSetting >();
 		
-		for( StreamInfo info : deviceInfo )
+		for( IStreamSetting info : deviceInfo )
 		{
-			MutableDataStreamSetting cfg = new MutableDataStreamSetting( info );
+			MutableStreamSetting cfg = new MutableStreamSetting( info );
 			settings.add( cfg );
 		}
 		

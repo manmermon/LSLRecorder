@@ -870,13 +870,13 @@ public class testLSLRecorder
 		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT, outFileFormat );
 		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_NAME, outFilePath );
 		
-		HashSet< MutableDataStreamSetting > lslCfg = (HashSet< MutableDataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		HashSet< IMutableStreamSetting > lslCfg = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 		
 		if( testType == testLSLSync )
 		{	
 			for( int i = 0; i < numSynStream; i++ )
 			{
-				for( MutableDataStreamSetting cfg : lslCfg )
+				for( IMutableStreamSetting cfg : lslCfg )
 				{
 					if( cfg.getStreamName().equals( testSyncLSL.PREFIX + i ) )
 					{
@@ -901,7 +901,7 @@ public class testLSLRecorder
 			ConfigApp.setProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, true);
 		}
 		
-		for( MutableDataStreamSetting cfg : lslCfg )
+		for( IMutableStreamSetting cfg : lslCfg )
 		{
 			if( !cfg.isSynchronationStream() )
 			{

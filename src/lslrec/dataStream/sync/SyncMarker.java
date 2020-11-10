@@ -19,12 +19,12 @@
  */
 package lslrec.dataStream.sync;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class SyncMarker implements Comparable< SyncMarker >
 {	
-	public static final int MARK_DATA_TYPE = LSLUtils.int32;
-	public static final int MARK_TIME_TYPE = LSLUtils.double64;
+	public static final StreamDataType MARK_DATA_TYPE = StreamDataType.int32;
+	public static final StreamDataType MARK_TIME_TYPE = StreamDataType.double64;
 	
 	public static final int NON_MARK = 0;
 	public static final int START_MARK = 1;

@@ -38,7 +38,7 @@ public class cpuLoadThread extends AbstractStoppableThread
 {
 	private long time = 1000L;
 	private StreamOutlet outLet = null;
-	private StreamInfo info = null;
+	private IStreamSetting info = null;
 	
 	private double[] loadPrev = new double[ 8 ];
 	private double[] loads = new double[ 8 ];
@@ -52,7 +52,7 @@ public class cpuLoadThread extends AbstractStoppableThread
 	
 	public cpuLoadThread() throws Exception
 	{
-		this.info = new LSL.StreamInfo( ConfigApp.shortNameApp + "-" + this.getClass().getSimpleName()
+		this.info = new IStreamSetting.StreamInfo( ConfigApp.shortNameApp + "-" + this.getClass().getSimpleName()
 												, "value"
 												, loads.length
 												, 1000D / time
@@ -66,7 +66,7 @@ public class cpuLoadThread extends AbstractStoppableThread
 		this();
 		
 		this.time  = timeCheck;
-		this.info = new StreamInfo( info.name()
+		this.info = new IStreamSetting( info.name()
 									, info.type()
 									, info.channel_count()
 									, LSL.IRREGULAR_RATE

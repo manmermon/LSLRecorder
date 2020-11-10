@@ -19,9 +19,11 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+
 public class DataInByteFormatBlock extends DataBlock< Byte >
 {
-	public DataInByteFormatBlock(int seqNum, String name, int dataType, long nCols, Byte[] data) 
+	public DataInByteFormatBlock(int seqNum, String name, StreamDataType dataType, long nCols, Byte[] data) 
 	{
 		super(seqNum, name, dataType, nCols, data);
 	}

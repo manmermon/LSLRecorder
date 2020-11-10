@@ -13,7 +13,7 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.stream.lsl.DataStreamSetting;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;

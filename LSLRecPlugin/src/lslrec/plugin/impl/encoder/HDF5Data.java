@@ -23,7 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.exceptions.UnsupportedTypeException;
 import ch.systemsx.cisd.base.mdarray.MDArray;
 //import ch.systemsx.cisd.hdf5.IHDF5Writer;

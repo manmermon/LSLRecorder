@@ -102,13 +102,13 @@ public class testingTemporalOutDataFileWriter
 				stream.startThread();				
 			}
 			
-			List< Tuple< StreamInfo, MutableDataStreamSetting > > LSLthreadList = new ArrayList< Tuple< StreamInfo, MutableDataStreamSetting > >();
+			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
 			
-			LSL.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
 			
 			if( results.length >= 0 )
 			{
-				for( LSL.StreamInfo info : results )
+				for( IStreamSetting.StreamInfo info : results )
 				{
 					int chuckSize = 1;
 					
@@ -128,7 +128,7 @@ public class testingTemporalOutDataFileWriter
 						i++;
 					}
 					
-					MutableDataStreamSetting par = new MutableDataStreamSetting( info.uid()
+					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
 																		, info.name()
 																		, info.type()
 																		, info.source_id()
@@ -139,14 +139,14 @@ public class testingTemporalOutDataFileWriter
 																		, false
 																		, info.nominal_srate() );	
 					
-					LSLthreadList.add( new Tuple<LSL.StreamInfo, MutableDataStreamSetting>( info, par ) );
+					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );
 				}
 			}
 			
 			List< TemporalOutDataFileWriter > writers = new ArrayList< TemporalOutDataFileWriter>();
 			for( int i = 0; i < LSLthreadList.size(); i++ )
 			{
-				Tuple< LSL.StreamInfo, MutableDataStreamSetting > cfg = LSLthreadList.get( i );
+				Tuple< IStreamSetting.StreamInfo, IMutableStreamSetting > cfg = LSLthreadList.get( i );
 				
 				TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( "G:/test" + i + ".bin" , cfg.x, cfg.y, i );
 				

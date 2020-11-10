@@ -28,7 +28,9 @@ import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 
 public class TemporalDataStream
 {
@@ -37,23 +39,28 @@ public class TemporalDataStream
 	
 	private boolean isSkipDataBinHeader = false;
 	
-	private int dataType;
+	private StreamDataType dataType;
 	
 	private int maxNumElements;
 	
 	private byte[] buf = new byte[ Float.BYTES ];
 		
-	public TemporalDataStream( int datType, int streamDataLength, BufferedInputStream inStream ) throws Exception
+	public TemporalDataStream( IStreamSetting stream, int streamDataLength, BufferedInputStream inStream ) throws Exception
 	{
-		this.dataType = datType;
+		if( stream == null )
+		{
+			throw new IllegalArgumentException( "Stream setting null.");
+		}
+		
+		this.dataType = stream.data_type();
 		this.maxNumElements = streamDataLength;
 		
 		this.data = inStream;
 		
-		this.buf = new byte[ LSLUtils.getDataTypeBytes( this.dataType ) ];
+		this.buf = new byte[ stream.getDataTypeBytes( stream.data_type() ) ];
 	}
 	
-	public int getDataType()
+	public StreamDataType getDataType()
 	{
 		return this.dataType;
 	}
@@ -109,7 +116,7 @@ public class TemporalDataStream
 		
 		switch( this.dataType ) 
 		{
-			case( LSLUtils.double64 ):
+			case double64:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{
@@ -122,7 +129,7 @@ public class TemporalDataStream
 				}
 				break;
 			}
-			case( LSLUtils.float32 ):
+			case float32:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{
@@ -135,7 +142,7 @@ public class TemporalDataStream
 				}
 				break;
 			}
-			case( LSLUtils.int8 ):
+			case int8:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{
@@ -149,7 +156,7 @@ public class TemporalDataStream
 				
 				break;
 			}
-			case( LSLUtils.int16 ):
+			case int16:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{
@@ -163,7 +170,7 @@ public class TemporalDataStream
 				
 				break;
 			}
-			case( LSLUtils.int32 ):
+			case int32:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{
@@ -176,7 +183,7 @@ public class TemporalDataStream
 				}
 				break;
 			}
-			case( LSLUtils.int64 ):
+			case int64:
 			{
 				while( this.data.read( this.buf ) > 0 )
 				{

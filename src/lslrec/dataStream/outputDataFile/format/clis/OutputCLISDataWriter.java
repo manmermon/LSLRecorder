@@ -25,6 +25,8 @@ package lslrec.dataStream.outputDataFile.format.clis;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
@@ -37,7 +39,6 @@ import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class OutputCLISDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
 {	
@@ -45,7 +46,7 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 		
 	private CLISCompressorWriter clisWriter = null;
 	
-	public OutputCLISDataWriter( OutputFileFormatParameters formatPars, DataStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
+	public OutputCLISDataWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
 		
@@ -78,49 +79,49 @@ public class OutputCLISDataWriter implements IOutputDataFileWriter //extends Out
 	{
 		byte[] compressData = this.zipProcess.zipData( data );
 				
-		this.clisWriter.saveCompressedData(  compressData, text, BYTE_TYPE, nCols );
+		this.clisWriter.saveCompressedData(  compressData, text, StreamDataType.int8, nCols );
 	}
 	
 	private void storeData( String text, short[] data, long nCols ) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
-		this.clisWriter.saveCompressedData(  compressData, text, SHORT_TYPE, nCols );
+		this.clisWriter.saveCompressedData(  compressData, text, StreamDataType.int16, nCols );
 	}
 	
 	private void storeData( String text, int[] data, long nCols ) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
-		this.clisWriter.saveCompressedData( compressData, text, INT_TYPE, nCols );
+		this.clisWriter.saveCompressedData( compressData, text, StreamDataType.int32, nCols );
 	}
 
 	private void storeData(String text, long[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
-		this.clisWriter.saveCompressedData( compressData, text, LONG_TYPE, nCols );
+		this.clisWriter.saveCompressedData( compressData, text, StreamDataType.int64, nCols );
 	}
 
 	private void storeData(String text, double[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
-		this.clisWriter.saveCompressedData( compressData, text, DOUBLE_TYPE, nCols );
+		this.clisWriter.saveCompressedData( compressData, text, StreamDataType.double64, nCols );
 	}
 
 	private void storeData(String text, float[] data, long nCols) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data );
 		
-		this.clisWriter.saveCompressedData( compressData, text, FLOAT_TYPE, nCols );
+		this.clisWriter.saveCompressedData( compressData, text, StreamDataType.float32, nCols );
 	}
 
 	private void storeData(String text, char[] data) throws Exception
 	{		
 		byte[] compressData = this.zipProcess.zipData( data, this.clisWriter.getCharCode() );
 		
-		this.clisWriter.saveCompressedData( compressData, text, STRING_TYPE, 1 );
+		this.clisWriter.saveCompressedData( compressData, text, StreamDataType.string, 1 );
 	}
 
 	private void storeData(String text, String data) throws Exception

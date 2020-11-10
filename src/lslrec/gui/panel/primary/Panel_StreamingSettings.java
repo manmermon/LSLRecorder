@@ -95,13 +95,14 @@ import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
-import lslrec.dataStream.family.lsl.LSL;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.family.lsl.LSL.XMLElement;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSL;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -176,8 +177,8 @@ public class Panel_StreamingSettings extends JPanel
 	// JScrollPanel
 	private JScrollPane scrollPanelSelectDevPanel;
 	
-	//LSL.STREAMINFO
-	private StreamInfo[] deviceInfo;
+	//ISTREAMSETTINGS
+	private IStreamSetting[] deviceInfo;
 
 	//JFrame
 	private JFrame winOwner;
@@ -219,7 +220,7 @@ public class Panel_StreamingSettings extends JPanel
 
 		if( this.deviceInfo == null || this.deviceInfo.length < 1 )
 		{
-			ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, new HashSet< MutableDataStreamSetting >() );
+			ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, new HashSet< IMutableStreamSetting >() );
 		}
 
 		super.add( this.getContentPanel(), BorderLayout.CENTER );
@@ -266,7 +267,7 @@ public class Panel_StreamingSettings extends JPanel
 		{
 			LSL lsl = new LSL();
 
-			StreamInfo[] streams = lsl.resolve_streams( );
+			IStreamSetting[] streams = lsl.resolve_streams( );
 			
 			Comparator< Tuple< String, Integer > > comp = new Comparator<Tuple<String,Integer>>() 
 			{	
@@ -304,14 +305,14 @@ public class Panel_StreamingSettings extends JPanel
 			
 			for( int i = 0; i < streams.length; i++ )
 			{	
-				StreamInfo st = streams[ i ];
+				IStreamSetting st = streams[ i ];
 								
 				Tuple< String, Integer > t = new Tuple< String, Integer>( st.name() + st.source_id() + st.uid(), i );
 				
 				streamsNames.add( t );
 			}
 			
-			this.deviceInfo = new StreamInfo[ streams.length ];
+			this.deviceInfo = new IStreamSetting[ streams.length ];
 			
 			int index = 0;
 			Iterator< Tuple< String, Integer> > itStreamNames = streamsNames.iterator();
@@ -381,15 +382,15 @@ public class Panel_StreamingSettings extends JPanel
 			//updateDeviceInfos();						
 			//p.add( getContentPanelDeviceInfo() );
 
-			HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+			HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 
-			for( MutableDataStreamSetting dev : devs )
+			for( IMutableStreamSetting dev : devs )
 			{
 				boolean find = false;
 				
 				if( dev.isSelected() )
 				{	
-					find = this.searchButton( this.selectedDeviceGroup, dev.getSourceID() );					
+					find = this.searchButton( this.selectedDeviceGroup, dev.source_id() );					
 					findDevice = findDevice || find;
 					
 					if( !find )
@@ -400,7 +401,7 @@ public class Panel_StreamingSettings extends JPanel
 				
 				if( dev.isSynchronationStream() )
 				{
-					find = this.searchButton( this.syncDeviceGroup, dev.getSourceID() );					
+					find = this.searchButton( this.syncDeviceGroup, dev.source_id() );					
 					findDevice = findDevice || find;
 					
 					if( !find )
@@ -992,7 +993,7 @@ public class Panel_StreamingSettings extends JPanel
 			GuiLanguageManager.removeComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, tmodel );
 	
-			final HashSet< MutableDataStreamSetting > deviceIDs = ( HashSet< MutableDataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+			final HashSet< IMutableStreamSetting > deviceIDs = ( HashSet< IMutableStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
 	
 			//GridBagLayout bl = new GridBagLayout();			
 			//panelLSLSettings.setLayout( bl );	
@@ -1014,17 +1015,17 @@ public class Panel_StreamingSettings extends JPanel
 			
 			
 			//Remove unplugged devices
-			Iterator< MutableDataStreamSetting > itLSL = deviceIDs.iterator();
+			Iterator< IMutableStreamSetting > itLSL = deviceIDs.iterator();
 			while ( itLSL.hasNext() )
 			{
-				MutableDataStreamSetting lslcfg = itLSL.next();
+				IMutableStreamSetting lslcfg = itLSL.next();
 				boolean enc = false;
 				for ( int i = 0; i < this.deviceInfo.length && !enc; i++ )
 				{
-					StreamInfo info = this.deviceInfo[ i ];
+					IStreamSetting info = this.deviceInfo[ i ];
 					String uid = info.uid();
 	
-					enc = uid.equals( lslcfg.getUID() );
+					enc = uid.equals( lslcfg.uid() );
 				}
 	
 				if( !enc )
@@ -1037,10 +1038,10 @@ public class Panel_StreamingSettings extends JPanel
 			int devLen = this.deviceInfo.length;
 			for( int i = 0; i < devLen; i++ )
 			{
-				StreamInfo info = this.deviceInfo[ i ];
+				IStreamSetting info = this.deviceInfo[ i ];
 				
 				String deviceName = info.name();
-				String deviceType = info.type();
+				String deviceType = info.content_type();
 				String uid = info.uid();
 				String sourceID = info.source_id(); 
 	
@@ -1048,8 +1049,8 @@ public class Panel_StreamingSettings extends JPanel
 				boolean enc = false;
 				while( itLSL.hasNext() && !enc )
 				{
-					MutableDataStreamSetting lslCfg = itLSL.next();
-					enc = lslCfg.getUID().equals( uid );
+					IMutableStreamSetting lslCfg = itLSL.next();
+					enc = lslCfg.uid().equals( uid );
 				}
 	
 				if( !enc )
@@ -1059,7 +1060,7 @@ public class Panel_StreamingSettings extends JPanel
 						sourceID = deviceName + deviceType;
 					}
 	
-					MutableDataStreamSetting newLSL = new MutableDataStreamSetting( info  );
+					MutableStreamSetting newLSL = new MutableStreamSetting( info  );
 					
 					deviceIDs.add( newLSL );
 				}
@@ -1084,21 +1085,21 @@ public class Panel_StreamingSettings extends JPanel
 						
 			for( int i = 0; i < this.deviceInfo.length; i++ )
 			{
-				final StreamInfo info = this.deviceInfo[ i ];
+				final IStreamSetting info = this.deviceInfo[ i ];
 	
 				String uid = info.uid();
 				String deviceName = info.name();
-				String deviceType = info.type();
+				String deviceType = info.content_type();
 				String sourceID = info.source_id();
 	
 				itLSL = deviceIDs.iterator();
 				boolean enc = false;
-				MutableDataStreamSetting auxDev = null;
+				IMutableStreamSetting auxDev = null;
 				while( itLSL.hasNext() && !enc )
 				{
 					auxDev = itLSL.next();
 	
-					enc = auxDev.getUID().equals( uid );
+					enc = auxDev.uid().equals( uid );
 				}
 	
 				if( !enc )
@@ -1108,11 +1109,11 @@ public class Panel_StreamingSettings extends JPanel
 						sourceID = deviceName + deviceType;
 					}
 	
-					auxDev = new MutableDataStreamSetting( info );
+					auxDev = new MutableStreamSetting( info );
 					deviceIDs.add( auxDev );
 				}
 				
-				final MutableDataStreamSetting dev = auxDev;
+				final IMutableStreamSetting dev = auxDev;
 				
 				String idNode = deviceName + " (" + uid + ")";
 				DefaultMutableTreeNode t = this.getDeviceInfo( info, dev, dev.getAdditionalInfo() );	
@@ -1169,7 +1170,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 	
 				Sync.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_SYNC_TOOLTIP ) );				
-				Sync.setEnabled( info.channel_count() == 1 && info.channel_format() == LSLUtils.int32 && devLen > 1 );
+				Sync.setEnabled( info.channel_count() == 1 && info.data_type() == StreamDataType.int32 && devLen > 1 );
 				
 				GuiLanguageManager.addComponent( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP, Sync );
 	
@@ -1820,16 +1821,18 @@ public class Panel_StreamingSettings extends JPanel
 		return this.syncDeviceGroup;
 	}
 	
-	private DefaultMutableTreeNode getDeviceInfo( StreamInfo info, MutableDataStreamSetting dev, String extra )  
+	private DefaultMutableTreeNode getDeviceInfo( IStreamSetting inInfo, IMutableStreamSetting dev, String extra )  
 	{		 	
 		DefaultMutableTreeNode tree = null;
 
-		if( info != null )
+		if( inInfo != null )
 		{
 			try
 			{  
+				/*
 				LSL.StreamInlet in = new LSL.StreamInlet( info );
 				StreamInfo inInfo = in.info();
+				*/
 				
 				while( this.hasDescLabelNode( inInfo.desc(), dev.getExtraInfoLabel() ) )
 				{

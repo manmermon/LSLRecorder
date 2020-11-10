@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
 
 import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
@@ -131,43 +131,43 @@ public class OutputMatDataWriter implements IOutputDataFileWriter
 		return res;
 	}
 	
-	private MatlabType getMatlabDataType( int type )
+	private MatlabType getMatlabDataType( StreamDataType type )
 	{
 		MatlabType mtype = MatlabType.Double;
 		
 		switch ( type ) 
 		{
-			case LSLUtils.double64:
+			case double64:
 			{
 				mtype = MatlabType.Double;
 				break;
 			}
-			case LSLUtils.float32:
+			case float32:
 			{
 				mtype = MatlabType.Single;
 				break;
 			}
-			case LSLUtils.int64:
+			case int64:
 			{
 				mtype = MatlabType.Int64;
 				break;
 			}
-			case LSLUtils.int32:
+			case int32:
 			{
 				mtype = MatlabType.Int32;
 				break;
 			}
-			case LSLUtils.int16:
+			case int16:
 			{
 				mtype = MatlabType.Int16;
 				break;
 			}
-			case LSLUtils.int8:
+			case int8:
 			{
 				mtype = MatlabType.Int8;
 				break;
 			}
-			case LSLUtils.string:
+			case string:
 			{
 				mtype = MatlabType.Character;
 				break;

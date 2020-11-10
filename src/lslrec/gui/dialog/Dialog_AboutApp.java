@@ -54,7 +54,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
 import lslrec.config.language.Language;
-import lslrec.dataStream.family.lsl.LSL;
+import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.config.ConfigApp;
 import lslrec.gui.AppUI;
 import lslrec.gui.KeyActions;

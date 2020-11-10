@@ -19,14 +19,14 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class FloatBlock extends DataBlock<Float> 
 {
 
 	public FloatBlock(int seqNum,String name, int nCols, Float[] data) 
 	{
-		super( seqNum, name, LSLUtils.float32, nCols, data);
+		super( seqNum, name, StreamDataType.float32, nCols, data);
 	}
 
 }

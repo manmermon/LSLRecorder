@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 
 /**
@@ -36,7 +36,7 @@ import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 public class DataProcessingPluginRegistrar 
 {
 	private static List< ILSLRecPluginDataProcessing > processRegister = new ArrayList< ILSLRecPluginDataProcessing >();
-	private static Map< String, Set< DataStreamSetting > > streamPluginRegister = new HashMap<String, Set< DataStreamSetting > >(); 
+	private static Map< String, Set< IStreamSetting > > streamPluginRegister = new HashMap<String, Set< IStreamSetting > >(); 
 	
 	public static void addDataProcessing( ILSLRecPluginDataProcessing process )
 	{
@@ -57,7 +57,7 @@ public class DataProcessingPluginRegistrar
 		return process.getID() + ((Object)process).toString();
 	}
 	
-	public static int addDataStream( ILSLRecPluginDataProcessing process, DataStreamSetting stream )
+	public static int addDataStream( ILSLRecPluginDataProcessing process, IStreamSetting stream )
 	{
 		int num = 0;
 		
@@ -67,11 +67,11 @@ public class DataProcessingPluginRegistrar
 			
 			String id = getDataProcessPluginID( process );
 			
-			Set< DataStreamSetting > dss = streamPluginRegister.get( id );
+			Set< IStreamSetting > dss = streamPluginRegister.get( id );
 			
 			if( dss == null )
 			{
-				dss = new HashSet< DataStreamSetting >();
+				dss = new HashSet< IStreamSetting >();
 				streamPluginRegister.put( id, dss );
 			}	
 			
@@ -94,13 +94,13 @@ public class DataProcessingPluginRegistrar
 		}
     }
 	
-	public static void removeDataStream( ILSLRecPluginDataProcessing process, DataStreamSetting stream )
+	public static void removeDataStream( ILSLRecPluginDataProcessing process, IStreamSetting stream )
 	{
 		if( process != null && stream != null )
 		{
 			String id = getDataProcessPluginID( process );
 			
-			Set< DataStreamSetting > list = streamPluginRegister.get( id );
+			Set< IStreamSetting > list = streamPluginRegister.get( id );
 			
 			if( list != null )
 			{
@@ -109,9 +109,9 @@ public class DataProcessingPluginRegistrar
 		}
 	}
 	
-	public static void removeDataStreamInAllProcess( DataStreamSetting stream )
+	public static void removeDataStreamInAllProcess( IStreamSetting stream )
 	{
-		for( Set< DataStreamSetting > strs : streamPluginRegister.values() )
+		for( Set< IStreamSetting > strs : streamPluginRegister.values() )
 		{
 			strs.remove( stream );
 		}
@@ -123,9 +123,9 @@ public class DataProcessingPluginRegistrar
 		streamPluginRegister.clear();
 	}	
 	
-	public static Set< DataStreamSetting > getDataStreams( ILSLRecPluginDataProcessing process )
+	public static Set< IStreamSetting > getDataStreams( ILSLRecPluginDataProcessing process )
 	{
-		Set< DataStreamSetting > streams = null;
+		Set< IStreamSetting > streams = null;
 		
 		if( process != null )
 		{
@@ -135,20 +135,20 @@ public class DataProcessingPluginRegistrar
 		
 		if( streams == null )
 		{
-			streams = new HashSet<DataStreamSetting>();
+			streams = new HashSet< IStreamSetting >();
 		}
 		
 		return streams;
 	}
 	
-	public static List< ILSLRecPluginDataProcessing > getDataProcessing( DataStreamSetting stream )
+	public static List< ILSLRecPluginDataProcessing > getDataProcessing( IStreamSetting stream )
 	{
 		List< ILSLRecPluginDataProcessing > processes = new ArrayList< ILSLRecPluginDataProcessing >();
 		
 		for( ILSLRecPluginDataProcessing process : processRegister  )
 		{
 			String id = getDataProcessPluginID( process );
-			Set< DataStreamSetting > dss = streamPluginRegister.get( id );
+			Set< IStreamSetting > dss = streamPluginRegister.get( id );
 			if( dss != null )
 			{
 				if( dss.contains( stream ) )
@@ -161,7 +161,7 @@ public class DataProcessingPluginRegistrar
 		return processes;
 	}
 	
-	public static List< ILSLRecPluginDataProcessing > getNewInstanceOfDataProcessing( DataStreamSetting stream )
+	public static List< ILSLRecPluginDataProcessing > getNewInstanceOfDataProcessing( IStreamSetting stream )
 	{
 		List< ILSLRecPluginDataProcessing > processes = new ArrayList< ILSLRecPluginDataProcessing >();
 		
@@ -185,11 +185,11 @@ public class DataProcessingPluginRegistrar
 		return processes;
 	}
 
-	public static Set< DataStreamSetting > getAllDataStreams()
+	public static Set< IStreamSetting > getAllDataStreams()
 	{
-		Set< DataStreamSetting > strs = new HashSet<DataStreamSetting>();
+		Set< IStreamSetting > strs = new HashSet< IStreamSetting >();
 		
-		for( Set< DataStreamSetting > dss : streamPluginRegister.values() )
+		for( Set< IStreamSetting > dss : streamPluginRegister.values() )
 		{
 			strs.addAll( dss );
 		}
