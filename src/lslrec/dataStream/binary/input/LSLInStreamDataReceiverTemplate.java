@@ -32,10 +32,9 @@ import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.UnsupportedTypeException;
 import lslrec.controls.messages.EventType;
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.stream.lsl.LSL;
-import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
-import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
@@ -62,7 +61,8 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 {
 	protected ITaskMonitor monitor = null;
 
-	private LSL.StreamInlet inLet = null;
+	//private LSL.StreamInlet inLet = null;
+	private IDataStream inLet = null;
 
 	private Timer timer = null;
 
@@ -130,7 +130,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		{
 			this.chunckLength = 1;
 		}
-				
+		
+
+		/*
 		int nBytes = this.streamSetting.getDataTypeBytes( this.streamSetting.data_type() );
 		
 		long maxMem = Runtime.getRuntime().maxMemory() / 2;
@@ -152,27 +154,22 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				{
 					throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available memory." );
 				}
-			}
-				
-			/*
-			long freePhysicalMemorySize = ((OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getFreePhysicalMemorySize();
-			
-			if( bufSize > freePhysicalMemorySize / nBytes )
-			{
-				throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available free physical memory." );
-			}
-			*/
+			}				
 		}
+		*/
 				
+		/*
 		int chunk = 0;
 		
 		if( this.streamSetting.getChunkSize() > 1 )
 		{
 			chunk = this.streamSetting.getChunkSize();
 		}
+		*/
 		
 		this.inLet = null;
 		
+		/*
 		switch( this.streamSetting.getLibraryID() )
 		{
 			case LSL:
@@ -182,6 +179,9 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 				break;
 			}			
 		}
+		*/
+				
+		this.inLet = DataStreamFactory.createDataStream( this.streamSetting );
 
 		if( this.inLet == null)
 		{

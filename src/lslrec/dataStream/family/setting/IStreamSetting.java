@@ -8,6 +8,7 @@ import java.util.Map;
 import com.sun.jna.Pointer;
 
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.exceptions.ReadInputDataException;
 
 /**
  * @author Manuel Merino Monge
@@ -30,7 +31,7 @@ import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
  */
 public interface IStreamSetting 
 {
-	enum Library { LSL };
+	public enum StreamLibrary { LSL };
 	
 	 /**
      * Constant to indicate that a stream has variable sampling rate.
@@ -57,7 +58,7 @@ public interface IStreamSetting
 	 */
 	public boolean isSelected();	
 	
-    public abstract Library getLibraryID();
+    public abstract StreamLibrary getLibraryID();
     
     // ========================
     // === Core Information ===
@@ -206,7 +207,54 @@ public interface IStreamSetting
      */
     public abstract Pointer handle();
  
+    /**
+     * 
+     * @param stream data type  
+     * @return number of data type bytes 
+     */
     public int getDataTypeBytes( StreamDataType type );
+    
+    /**
+     * The maximum amount of data to buffer.
+     * Recording applications want to use a fairly large buffer size here, while real-time applications would only buffer
+     * as much as they need to perform their next calculation.
+     * 
+     * @return buffer size: 360 seconds if there is a nominal sampling rate, otherwise 1000000 in samples.
+     * @throws ReadInputDataException if buffer length is greater than available memory.
+     */
+    public default int getStreamBufferLength() throws ReadInputDataException
+    {
+    	int nBytes = this.getDataTypeBytes( this.data_type() );
+		
+		long maxMem = Runtime.getRuntime().maxMemory() / 2;
+		maxMem /= nBytes;
+		
+    	double samplingRate = this.sampling_rate();
+		
+    	int bufSize = 1000_000;
+    	
+		if( samplingRate != IStreamSetting.IRREGULAR_RATE )
+		{
+			bufSize = 360; // 360 s
+			
+			if( bufSize * samplingRate * this.channel_count() * this.getChunkSize() > maxMem )
+			{
+				bufSize = (int)( maxMem / ( samplingRate * this.channel_count() * this.getChunkSize() ) ) ;
+				
+				if( bufSize < 1 )
+				{
+					throw new ReadInputDataException( "Buffer length is greater than available memory." );
+				}
+			}			
+		}
+		
+		return bufSize;
+    }
+    
+    public default boolean recoverLostStream()
+    {
+    	return false;
+    }
     
     public default int streamHashCode()
     {

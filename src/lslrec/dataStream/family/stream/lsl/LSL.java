@@ -8,8 +8,7 @@ import com.sun.jna.Pointer;
 
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.stream.INumberStream;
-import lslrec.dataStream.family.stream.IStringtream;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.exceptions.LostException;
 import lslrec.exceptions.TimeoutException;
 
@@ -152,8 +151,8 @@ public class LSL
             res[k] = new LSLStreamInfo(buf[k]);
         return res;
     }
-    public static LSLStreamInfo[] resolve_stream(String prop, String value, int minimum) { return resolve_stream(prop, value, minimum, INumberStream.TIME_FOREVER); }
-    public static LSLStreamInfo[] resolve_stream(String prop, String value) { return resolve_stream(prop, value, 1, INumberStream.TIME_FOREVER); }
+    public static LSLStreamInfo[] resolve_stream(String prop, String value, int minimum) { return resolve_stream(prop, value, minimum, IDataStream.TIME_FOREVER); }
+    public static LSLStreamInfo[] resolve_stream(String prop, String value) { return resolve_stream(prop, value, 1, IDataStream.TIME_FOREVER); }
 
     /**
      * Resolve all streams that match a given predicate.
@@ -174,8 +173,8 @@ public class LSL
             res[k] = new LSLStreamInfo(buf[k]);
         return res;
     }
-    public static LSLStreamInfo[] resolve_stream(String pred, int minimum) { return resolve_stream(pred, minimum, INumberStream.TIME_FOREVER); }
-    public static LSLStreamInfo[] resolve_stream(String pred) { return resolve_stream(pred, 1, INumberStream.TIME_FOREVER); }
+    public static LSLStreamInfo[] resolve_stream(String pred, int minimum) { return resolve_stream(pred, minimum, IDataStream.TIME_FOREVER); }
+    public static LSLStreamInfo[] resolve_stream(String pred) { return resolve_stream(pred, 1, IDataStream.TIME_FOREVER); }
 
 
     // ======================
@@ -186,7 +185,7 @@ public class LSL
      * A stream inlet.
      * Inlets are used to receive streaming data (and meta-data) from the lab network.
      */
-    public static class StreamInlet implements INumberStream, IStringtream
+    public static class StreamInlet implements IDataStream
     {
         /**
          * Construct a new stream inlet from a resolved stream info.
@@ -235,7 +234,7 @@ public class LSL
         
         public IStreamSetting info() throws Exception 
         { 
-        	return info( INumberStream.TIME_FOREVER ); 
+        	return info( IDataStream.TIME_FOREVER ); 
         }
         
 
@@ -248,7 +247,7 @@ public class LSL
          * @throws TimeoutException (if the timeout expires), or LostException (if the stream source has been lost).
          */
         public void open_stream(double timeout) throws Exception { int[] ec = {0}; inst.lsl_open_stream(obj, timeout, ec); check_error(ec); }
-        public void open_stream() throws Exception { open_stream( INumberStream.TIME_FOREVER ); }
+        public void open_stream() throws Exception { open_stream( IDataStream.TIME_FOREVER ); }
 
         /**
          * Drop the current data stream.
@@ -271,7 +270,7 @@ public class LSL
          * @throws TimeoutException (if the timeout expires), or LostException (if the stream source has been lost).
          */
         public double time_correction(double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_time_correction(obj, timeout, ec); check_error(ec); return res; }
-        public double time_correction() throws Exception { return time_correction( INumberStream.TIME_FOREVER  ); }
+        public double time_correction() throws Exception { return time_correction( IDataStream.TIME_FOREVER  ); }
 
         // =======================================
         // === Pulling a sample from the inlet ===
@@ -287,17 +286,17 @@ public class LSL
          * @throws LostException (if the stream source has been lost).
          */
         public double pull_sample(float[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_f(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(float[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER );  }
+        public double pull_sample(float[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER );  }
         public double pull_sample(double[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_d(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(double[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER ); }
+        public double pull_sample(double[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(int[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_i(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(int[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER ); }
+        public double pull_sample(int[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(short[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_s(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(short[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER ); }
+        public double pull_sample(short[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(byte[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_c(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(byte[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER ); }
+        public double pull_sample(byte[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(String[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_str(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(String[] sample) throws Exception { return pull_sample(sample, INumberStream.TIME_FOREVER ); }
+        public double pull_sample(String[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
 
 
 

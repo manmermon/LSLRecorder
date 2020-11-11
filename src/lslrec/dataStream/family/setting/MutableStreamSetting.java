@@ -9,6 +9,7 @@ import java.util.Map;
 import com.sun.jna.Pointer;
 
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.exceptions.ReadInputDataException;
 
 /**
  * @author Manuel Merino Monge
@@ -74,7 +75,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	}
 
 	@Override
-	public Library getLibraryID() 
+	public StreamLibrary getLibraryID() 
 	{
 		return this.str.getLibraryID();
 	}
@@ -237,4 +238,15 @@ public class MutableStreamSetting implements IMutableStreamSetting
     {
     	return this.str.getDataTypeBytes( type );
     }
+
+	@Override
+	public int getStreamBufferLength() throws ReadInputDataException 
+	{
+		return this.str.getStreamBufferLength();
+	}
+	
+	public IStreamSetting getStreamSetting()
+	{
+		return this.str;
+	}
 }

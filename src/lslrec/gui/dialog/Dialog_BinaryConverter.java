@@ -62,7 +62,7 @@ import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.IStreamSetting.Library;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
@@ -991,9 +991,9 @@ public class Dialog_BinaryConverter extends JDialog
 							{
 								IMutableStreamSetting prevInfo = currentBinFile;
 								
-								SimpleStreamSetting strSetting = new  SimpleStreamSetting( Library.LSL
+								SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
 																						, nm
-																						, prevInfo.content_type()
+																						//, prevInfo.content_type()
 																						, prevInfo.data_type()
 																						, prevInfo.getTimestampDataType()
 																						, prevInfo.getStringLegthDataType()
@@ -1001,16 +1001,17 @@ public class Dialog_BinaryConverter extends JDialog
 																						, prevInfo.sampling_rate()
 																						, prevInfo.source_id()
 																						, prevInfo.uid()
-																						, prevInfo.hostname()
-																						, prevInfo.session_id()
-																						, prevInfo.version()
-																						, prevInfo.created_at()
+																						//, prevInfo.hostname()
+																						//, prevInfo.session_id()
+																						//, prevInfo.version()
+																						//, prevInfo.created_at()
 																						, prevInfo.description()
 																						, prevInfo.getExtraInfo()
 																						, prevInfo.getChunkSize()
-																						, prevInfo.isInterleavedData()
-																						, prevInfo.isSelected()
-																						, prevInfo.isSynchronationStream() );
+																						//, prevInfo.isInterleavedData()
+																						//, prevInfo.isSelected()
+																						//, prevInfo.isSynchronationStream() 
+																						);
 								
 								/*
 								List< String > parentNodes = new ArrayList< String >();
@@ -1333,7 +1334,7 @@ public class Dialog_BinaryConverter extends JDialog
 					
 			String name = "", type = "", timeType = ""
 					, chs = "", chunk = "", xml = ""
-					, interleave = "", strLenType = "";
+					, interleaved = "", strLenType = "";
 						
 			for( int i = 0; i < parts.length; i++ )
 			{
@@ -1363,7 +1364,7 @@ public class Dialog_BinaryConverter extends JDialog
 				}
 				else if( i == 6 )
 				{
-					interleave = parts[ i ]; // intereleavd
+					interleaved = parts[ i ]; // intereleavd
 				}
 				else
 				{
@@ -1401,26 +1402,28 @@ public class Dialog_BinaryConverter extends JDialog
 			
 			//StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );		
 			
-			SimpleStreamSetting strSetting = new  SimpleStreamSetting( Library.LSL
+			SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
 																, name
-																, stType
-																, StreamDataType.values()[ Integer.parseInt( type ) ]
-																, StreamDataType.values()[ Integer.parseInt( timeType ) ]
-																, StreamDataType.values()[ Integer.parseInt( strLenType ) ]
+																//, stType
+																, StreamDataType.valueOf( type )
+																, StreamDataType.valueOf( timeType )
+																, StreamDataType.valueOf( strLenType )
 																, Integer.parseInt( chs )
 																, frq
 																, sid
 																, System.nanoTime() + ""
-																, ""
-																, System.nanoTime() + ""
-																, 1
-																, System.nanoTime()
+																//, ""
+																//, System.nanoTime() + ""
+																//, 1
+																//, System.nanoTime()
 																, xml
 																, null
 																, Integer.parseInt( chunk )
-																, Boolean.parseBoolean( interleave )
-																, false
-																, false );
+																//, Boolean.parseBoolean( interleaved )
+																//, false
+																//, false 
+																);
+			strSetting.setInterleaveadData( Boolean.parseBoolean( interleaved ) );
 			
 			
 			/*

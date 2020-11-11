@@ -96,13 +96,14 @@ import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.sync.SyncMethod;
@@ -141,8 +142,8 @@ public class Panel_StreamingSettings extends JPanel
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public static final String LSL_STREAM_NAME = "LSL_STREAM_NAME";
-	public static final String LSL_STREAM_SYNC = "LSL_STREAM_SYNC";
+	public static final String STREAM_NAME = "LSL_STREAM_NAME";
+	public static final String STREAM_SYNC = "LSL_STREAM_SYNC";
 	
 	// Tabs
 	private JTabbedPane tabStreams;
@@ -222,7 +223,7 @@ public class Panel_StreamingSettings extends JPanel
 
 		if( this.deviceInfo == null || this.deviceInfo.length < 1 )
 		{
-			ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, new HashSet< IMutableStreamSetting >() );
+			ConfigApp.setProperty( ConfigApp.ID_STREAMS, new HashSet< IMutableStreamSetting >() );
 		}
 
 		super.add( this.getContentPanel(), BorderLayout.CENTER );
@@ -267,9 +268,10 @@ public class Panel_StreamingSettings extends JPanel
 
 		try
 		{
-			LSL lsl = new LSL();
+			//LSL lsl = new LSL();
 
-			IStreamSetting[] streams = lsl.resolve_streams( );
+			///IStreamSetting[] streams = lsl.resolve_streams( );
+			IStreamSetting[] streams = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
 			
 			Comparator< Tuple< String, Integer > > comp = new Comparator<Tuple<String,Integer>>() 
 			{	
@@ -384,7 +386,7 @@ public class Panel_StreamingSettings extends JPanel
 			//updateDeviceInfos();						
 			//p.add( getContentPanelDeviceInfo() );
 
-			HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+			HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 			for( IMutableStreamSetting dev : devs )
 			{
@@ -995,7 +997,7 @@ public class Panel_StreamingSettings extends JPanel
 			GuiLanguageManager.removeComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, tmodel );
 	
-			final HashSet< IMutableStreamSetting > deviceIDs = ( HashSet< IMutableStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+			final HashSet< IMutableStreamSetting > deviceIDs = ( HashSet< IMutableStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 	
 			//GridBagLayout bl = new GridBagLayout();			
 			//panelLSLSettings.setLayout( bl );	
@@ -1068,7 +1070,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			}
 	
-			ConfigApp.setProperty( ConfigApp.LSL_ID_DEVICES, deviceIDs  );
+			ConfigApp.setProperty( ConfigApp.ID_STREAMS, deviceIDs  );
 	
 			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_EXTRA );
 			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_STREAM_PLOT );
@@ -1207,7 +1209,7 @@ public class Panel_StreamingSettings extends JPanel
 						
 						if( e.getStateChange() == ItemEvent.SELECTED )
 						{	
-							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_LSL ) )
+							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_STREAM ) )
 							{
 								/*
 								JOptionPane.showMessageDialog( winOwner
@@ -1819,7 +1821,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.selectedDeviceGroup = new SelectedButtonGroup();
 			//this.selectedDeviceGroup.setLayout( new BoxLayout( this.selectedDeviceGroup, BoxLayout.Y_AXIS ) );
 
-			GuiManager.setGUIComponent( LSL_STREAM_NAME, ConfigApp.LSL_ID_DEVICES, this.selectedDeviceGroup );
+			GuiManager.setGUIComponent( STREAM_NAME, ConfigApp.ID_STREAMS, this.selectedDeviceGroup );
 		}
 
 		return this.selectedDeviceGroup;
@@ -1831,7 +1833,7 @@ public class Panel_StreamingSettings extends JPanel
 		{
 			this.syncDeviceGroup = new SelectedButtonGroup();
 
-			GuiManager.setGUIComponent( LSL_STREAM_SYNC, ConfigApp.LSL_ID_DEVICES, this.syncDeviceGroup );
+			GuiManager.setGUIComponent( STREAM_SYNC, ConfigApp.ID_STREAMS, this.syncDeviceGroup );
 		}
 
 		return this.syncDeviceGroup;

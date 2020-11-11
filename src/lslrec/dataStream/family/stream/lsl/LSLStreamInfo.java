@@ -79,9 +79,9 @@ public class LSLStreamInfo implements IMutableStreamSetting
 
 
     @Override
-    public Library getLibraryID() 
+    public StreamLibrary getLibraryID() 
     {
-    	return Library.LSL;
+    	return StreamLibrary.LSL;
     }
     
     // ========================

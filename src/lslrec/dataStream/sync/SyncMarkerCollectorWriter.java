@@ -43,7 +43,7 @@ import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
-import lslrec.dataStream.family.setting.IStreamSetting.Library;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
@@ -86,23 +86,27 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		this.events = new ArrayList< EventInfo >();
 		
 		
-		SimpleStreamSetting streamSettings = new SimpleStreamSetting( Library.LSL
+		SimpleStreamSetting streamSettings = new SimpleStreamSetting( StreamLibrary.LSL
 																	, "sync"
-																	, "value"
+																	//, "value"
 																	, SyncMarker.MARK_DATA_TYPE
 																	, SyncMarker.MARK_TIME_TYPE
 																	, StreamDataType.int64
 																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
-																	, "", "", "", ""
-																	, 1
-																	, System.nanoTime()
+																	, ""
+																	, ""
+																	//, ""
+																	//, ""
+																	//, 1
+																	//, System.nanoTime()
 																	, ""
 																	, null
 																	, 1
-																	, false
-																	, true
-																	, false );
+																	//, false
+																	//, true
+																	//, false 
+																	);
 		
 		
 		this.header = StreamBinaryHeader.getStreamBinHeader( streamSettings );
@@ -240,23 +244,27 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		stream.setTimeDataType( SyncMarker.MARK_TIME_TYPE );
 		*/
 		
-		SimpleStreamSetting stream = new SimpleStreamSetting( Library.LSL
+		SimpleStreamSetting stream = new SimpleStreamSetting( StreamLibrary.LSL
 																	, "sync"
-																	, "value"
+																	//, "value"
 																	, SyncMarker.MARK_DATA_TYPE
 																	, SyncMarker.MARK_TIME_TYPE
 																	, StreamDataType.int64
 																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
-																	, "", "", "", ""
-																	, 1
-																	, System.nanoTime()
+																	, ""
+																	, ""
+																	//, ""
+																	//, ""
+																	//, 1
+																	//, System.nanoTime()
 																	, ""
 																	, null
 																	, 1
-																	, false
-																	, true
-																	, false );
+																	//, false
+																	//, true
+																	//, false 
+																	);
 		
 
 		return new SyncMarkerBinFileReader( new BinaryFileStreamSetting( stream, new File( file ) )

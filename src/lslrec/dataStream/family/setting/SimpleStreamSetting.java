@@ -9,14 +9,13 @@ import java.util.Map;
 
 import com.sun.jna.Pointer;
 
-import lslrec.auxiliar.extra.StringTuple;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 /**
  * @author Manuel Merino Monge
  *
  */
-public class SimpleStreamSetting implements IStreamSetting 
+public class SimpleStreamSetting implements IMutableStreamSetting 
 {	
 	private String name = "", content = "";
 	private StreamDataType data_type = StreamDataType.float32;
@@ -34,15 +33,16 @@ public class SimpleStreamSetting implements IStreamSetting
 	
 	private boolean selected = false;
 	
-	private Library lib_type = Library.LSL;
+	private StreamLibrary lib_type = StreamLibrary.LSL;
 	
 	private int numChannels = 1;
 	
 	private double samplint_rate = 0D;
 	 
-	private String sourceID = "", uid = ""
-					, hostname = "", desc = ""
-					, sessionID = "";
+	private String sourceID = "", uid = "", desc = "";
+	
+	private String hostname = "", sessionID = "";
+	
 	private int ver;
 	
 	private double createdAt;
@@ -59,9 +59,9 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param selected
 	 * @param syncStream
 	 */
-	public SimpleStreamSetting( Library libType
+	public SimpleStreamSetting( StreamLibrary libType
 								, String name
-								, String content_type
+								//, String content_type
 								, StreamDataType dataType 
 								, StreamDataType timeDataType
 								, StreamDataType stringLenType
@@ -69,20 +69,21 @@ public class SimpleStreamSetting implements IStreamSetting
 								, double samplingRate
 								, String sourceID
 								, String uid
-								, String hostname
-								, String sessionID
-								, int ver
-								, double createdAt
+								//, String hostname
+								//, String sessionID
+								//, int ver
+								//, double createdAt
 								, String desc
 								, Map< String, String > extraInfo
 								, int chunkSize
-								, boolean interleaved
-								, boolean selected
-								, boolean syncStream  )
+								//, boolean interleaved
+								//, boolean selected
+								//, boolean syncStream  
+								)
 	{
 		this.name = name;
 		
-		this.content = content_type;
+		//this.content = content_type;
 		
 		this.data_type = dataType;
 		
@@ -98,11 +99,11 @@ public class SimpleStreamSetting implements IStreamSetting
 		
 		this.chunkSize = chunkSize;
 
-		this.interleaved = interleaved;
+		this.interleaved = false;
 		
-		this.selected = selected;
+		this.selected = false;
 		
-		this.syncStream = syncStream;
+		this.syncStream = false;
 		
 		this.lib_type = libType;
 		
@@ -112,11 +113,13 @@ public class SimpleStreamSetting implements IStreamSetting
 
 		this.sourceID = sourceID;
 		this.uid = uid;
-		this.hostname = hostname;
-		this.ver = ver;
-		this.createdAt = createdAt;
+		
+		this.hostname = "";
+		this.ver = 1;
+		this.createdAt = System.nanoTime();
+		
 		this.desc = desc;
-		this.sessionID = sessionID;
+		this.sessionID = createdAt + "";
 	}		
 
 	@Override
@@ -132,7 +135,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	}
 
 	@Override
-	public Library getLibraryID() 
+	public StreamLibrary getLibraryID() 
 	{
 		return this.lib_type;
 	}
@@ -308,6 +311,42 @@ public class SimpleStreamSetting implements IStreamSetting
 	public String getRootNode2ExtraInfoLabel() 
 	{
 		return StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
+	}
+
+	@Override
+	public void setAdditionalInfo(String id, String info) 
+	{	
+		this.extraInfo.put( id, info );
+	}
+
+	@Override
+	public void removeAdditionalInfo(String id) 
+	{
+		this.extraInfo.remove( id );
+	}
+
+	@Override
+	public void setSelected( boolean select ) 
+	{
+		this.selected = select;
+	}
+
+	@Override
+	public void setSynchronizationStream(boolean sync) 
+	{
+		this.syncStream = sync;
+	}
+
+	@Override
+	public void setChunckSize(int size) 
+	{
+		this.chunkSize = size;
+	}
+
+	@Override
+	public void setInterleaveadData( boolean interleaved ) 
+	{
+		this.interleaved = interleaved;
 	}
 
 }

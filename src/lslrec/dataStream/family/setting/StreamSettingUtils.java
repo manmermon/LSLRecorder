@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.dataStream.family.setting.IStreamSetting.Library;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
 
@@ -141,18 +141,20 @@ public class StreamSettingUtils
 		
 		if( streamsetting != null )
 		{
-			if( streamsetting.getLibraryID() == Library.LSL )
+			IStreamSetting stream = streamsetting;
+			
+			try 
 			{
-				try 
+				if( streamsetting.getLibraryID() == StreamLibrary.LSL )
 				{
-					StreamInlet in = new StreamInlet( (LSLStreamInfo)streamsetting );
-					
+					StreamInlet in = new StreamInlet( (LSLStreamInfo)stream );
+
 					xml = in.info().description();
 				}
-				catch ( Exception e) 
-				{
-					e.printStackTrace();
-				}
+			}
+			catch ( Exception e) 
+			{
+				xml = streamsetting.description();
 			}
 		}
 		

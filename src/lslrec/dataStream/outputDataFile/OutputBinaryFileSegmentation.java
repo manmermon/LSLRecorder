@@ -39,6 +39,7 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
@@ -211,7 +212,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			int nChannel = streamSettings.channel_count(); // number of channels
 			String lslName = streamSettings.name(); // LSL streaming name
 			
-			String lslXML = streamSettings.description(); // LSL description //TODO
+			String lslXML = streamSettings.description();
+			if( streamSettings instanceof MutableStreamSetting )
+			{
+				lslXML = StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)streamSettings).getStreamSetting() ); // LSL description //TODO
+			}
 
 			//
 			// set number of total expected sequences

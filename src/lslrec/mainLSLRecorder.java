@@ -204,7 +204,10 @@ public class mainLSLRecorder
 		// Load Controllers
 		createAppCoreControl();
 		
-		ConfigApp.setTesting( false );
+		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
+			    			getInputArguments().toString().indexOf("jdwp") >= 0;
+					
+		ConfigApp.setTesting( isDebug );
 	}
 	
 	private static void registerPlugins() throws Exception

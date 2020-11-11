@@ -28,7 +28,9 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.OutputBinaryFileSegmentation;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -47,6 +49,7 @@ import lslrec.auxiliar.tasks.NotificationTask;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
+import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 
@@ -364,7 +367,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			// Check LSL streamings
 			//
 			
-			IStreamSetting[] results = LSL.resolve_streams();
+			//IStreamSetting[] results = LSL.resolve_streams();
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
 
 			// To check alive stream
 			List< IStreamSetting > streamSettings = new ArrayList< IStreamSetting >();

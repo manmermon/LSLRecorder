@@ -36,11 +36,13 @@ import lslrec.controls.messages.SocketInformations;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
@@ -268,9 +270,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * Create a plot.
 	 *  
 	 * @param PlotPanel 	-> plot panel.
-	 * @param lslSetting	-> LSL setting to plot data.
+	 * @param streamSetting	-> LSL setting to plot data.
 	 */
-	public void createLSLDataPlot( JPanel PlotPanel, IStreamSetting lslSetting )
+	public void createLSLDataPlot( JPanel PlotPanel, IStreamSetting streamSetting )
 	{
 		try
 		{
@@ -281,7 +283,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			PlotPanel.removeAll();
 						
 			// Get alive LSL streaming
+			/*
 			IStreamSetting[] results = LSL.resolve_streams();
+			*/
+			
+			IStreamSetting stream = streamSetting;
+			
+			if( streamSetting instanceof MutableStreamSetting )
+			{
+				stream = ((MutableStreamSetting)streamSetting).getStreamSetting(); 
+			}
+			
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( streamSetting.getLibraryID() ); 
 
 			IStreamSetting inletInfo = null;
 
@@ -289,7 +302,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			for (int i = 0; i < results.length && inletInfo == null; i++)
 			{
 				IStreamSetting info = results[i];
-				if ( info.uid().equals( lslSetting.uid() ) )
+				if ( info.uid().equals( streamSetting.uid() ) )
 				{
 					inletInfo = results[i];
 				}
@@ -301,7 +314,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				double frq = inletInfo.sampling_rate();
 
 				// Data plot queue length								
-				int queueLength = ((int)(5.0D * frq)) * lslSetting.getChunkSize();
+				int queueLength = ((int)(5.0D * frq)) * streamSetting.getChunkSize();
 				if (queueLength < 10)
 				{
 					queueLength = 100;
@@ -317,7 +330,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PlotPanel.add( LSLCanvaPlot, BorderLayout.CENTER );
 					
 					// Plot data
-					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, lslSetting );
+					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, stream );
 					this.ctrLSLDataPlot.startThread();
 				}
 				else
@@ -327,7 +340,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PlotPanel.add( new JScrollPane( log ), BorderLayout.CENTER );
 					
 					// String data plot
-					this.ctrLSLDataStringPlot = new StringPlotter( log, lslSetting );
+					this.ctrLSLDataStringPlot = new StringPlotter( log, stream );
 					this.ctrLSLDataStringPlot.startThread();
 				}
 				
@@ -448,14 +461,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{						
 				String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
 
-				HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+				HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
-				HashSet< IMutableStreamSetting > DEV_ID = new HashSet< IMutableStreamSetting >();
+				HashSet< IStreamSetting > DEV_ID = new HashSet< IStreamSetting >();
 				Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
 				for( IMutableStreamSetting dev : deviceIDs )
 				{
 					if( dev.isSelected() )
-					{
+					{						
 						DEV_ID.add( dev );
 						
 						LSLRecPluginDataProcessing process = null;
@@ -469,10 +482,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 					else
 					{
-						if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_LSL ) 
+						if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_STREAM ) 
 								&& dev.isSynchronationStream() )
 						{
 							DEV_ID.add( dev );
+							
 							isSyncLSL = isSyncLSL | dev.isSynchronationStream();
 						}
 					}
@@ -713,9 +727,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 		}
 		
-		HashSet< IStreamSetting > lslPars = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		HashSet< IStreamSetting > lslPars = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 				
-		IStreamSetting[] results = LSL.resolve_streams();
+		//IStreamSetting[] results = LSL.resolve_streams();
+		IStreamSetting[] results = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
 				
 		boolean existSelectedSyncLSL = false;
 		
@@ -756,18 +771,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			if( !selected )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_LSL_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
 			}
 			
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			
-			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_LSL ) && specialInMsg && !existSelectedSyncLSL )
+			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_STREAM ) && specialInMsg && !existSelectedSyncLSL )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_UNSELECTABLE_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
 			}
-			else if( existSelectedSyncLSL && !ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_LSL ) )
+			else if( existSelectedSyncLSL && !ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_STREAM ) )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			}
 			
 			boolean change = false;
@@ -794,7 +809,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			if( change )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE );
+				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE );
 			}
 		}
 		

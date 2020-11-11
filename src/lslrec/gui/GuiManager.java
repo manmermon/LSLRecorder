@@ -480,8 +480,8 @@ public class GuiManager
 			{
 				SelectedButtonGroup gr = (SelectedButtonGroup)c;
 
-				if( guiID.equals( Panel_StreamingSettings.LSL_STREAM_NAME ) 
-						|| guiID.equals( Panel_StreamingSettings.LSL_STREAM_SYNC ) )
+				if( guiID.equals( Panel_StreamingSettings.STREAM_NAME ) 
+						|| guiID.equals( Panel_StreamingSettings.STREAM_SYNC ) )
 				{
 					HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
 					if( devs != null )
@@ -840,7 +840,7 @@ public class GuiManager
 	
 	public boolean refreshPlugins()
 	{
-		HashSet< IStreamSetting > streams = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		HashSet< IStreamSetting > streams = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 		Set< IStreamSetting > plgStr = DataProcessingPluginRegistrar.getAllDataStreams();
 		
 		boolean del = false;

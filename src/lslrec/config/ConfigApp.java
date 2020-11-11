@@ -24,8 +24,10 @@
 package lslrec.config;
 
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.stream.lsl.LSL;
@@ -78,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 10 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 11 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -124,6 +126,8 @@ public class ConfigApp
 	public static final String IS_ACTIVE_SPECIAL_INPUTS = "IS_ACTIVE_SPECIAL_INPUTS";
 
 	public static final String SERVER_SOCKET = "SERVER_SOCKET_TABLE";
+	
+	public static final String STREAM_LIBRARY = "STREAM_LIBRARY";
 
 	/****************
 	 * 
@@ -131,7 +135,7 @@ public class ConfigApp
 	 * 
 	 */
 
-	public static final String LSL_ID_DEVICES = "LSL_ID_DEVICES";
+	public static final String ID_STREAMS = "LSL_ID_DEVICES";
 		
 	/****
 	 * 
@@ -207,12 +211,11 @@ public class ConfigApp
  		
 		list_Key_Type.put( SERVER_SOCKET, Set.class);
 
-		//list_Key_Type.put( IS_SOCKET_SERVER_ACTIVE, Boolean.class);
 		list_Key_Type.put( SELECTED_SYNC_METHOD, String.class );
 		
 		list_Key_Type.put( IS_ACTIVE_SPECIAL_INPUTS, Boolean.class );
 
-		list_Key_Type.put( LSL_ID_DEVICES, HashSet.class);
+		list_Key_Type.put( ID_STREAMS, HashSet.class);
 
 		list_Key_Type.put( OUTPUT_FILE_FORMAT, String.class);
 		list_Key_Type.put( OUTPUT_FILE_NAME, String.class);
@@ -225,7 +228,7 @@ public class ConfigApp
 		
 		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
 		
-		//list_Key_Type.put( PLUGINS, ArrayTreeMap.class);
+		list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -282,7 +285,7 @@ public class ConfigApp
 
 				prop.setProperty(key, s);
 			}
-			else if( key.equals( LSL_ID_DEVICES ) )
+			else if( key.equals( ID_STREAMS ) )
 			{
 				HashSet< IMutableStreamSetting > lsl = (HashSet< IMutableStreamSetting >)listConfig.get( key );
 				//HashSet< IMutableStreamSetting > toSave = new HashSet< IMutableStreamSetting >();
@@ -518,27 +521,27 @@ public class ConfigApp
 			String key = (String)it.next();
 			Class clase = list_Key_Type.get(key);
 
-			String p = prop.getProperty(key);
+			String value = prop.getProperty(key);
 
 			if (clase != null)
 			{
 				if (clase.isInstance(new Boolean(false)))
 				{
-					if ((p == null) || ((!p.toLowerCase().equals( "true" )) && 
-							(!p.toLowerCase().equals( "false" ))))
+					if ((value == null) || ((!value.toLowerCase().equals( "true" )) && 
+							(!value.toLowerCase().equals( "false" ))))
 					{
 						defaultValue = true;
 						
 						defaultMsg += key + "; ";
 					}
 
-					listConfig.put(key, new Boolean(p));
+					listConfig.put(key, new Boolean(value));
 				}
 				else if ( (clase.isInstance(new Integer(0))) || (clase.isInstance(new Long(0L))))
 				{
 					try
 					{
-						double v = new Double(p);
+						double v = new Double(value);
 
 						NumberRange rank = list_Key_RankValues.get(key);
 
@@ -584,13 +587,13 @@ public class ConfigApp
 					
 					boolean allOK = true;
 
-					if (p == null)
+					if (value == null)
 					{
 						allOK = false;
 					}
 					else
 					{
-						String[] strings = p.replace( " ", "" ).replace( "}}", "}").split( "}" );
+						String[] strings = value.replace( " ", "" ).replace( "}}", "}").split( "}" );
 
 						Set< String > sockets = new TreeSet< String >();
 						
@@ -643,12 +646,12 @@ public class ConfigApp
 				{
 					List<String> values = new ArrayList<String>();
 
-					p = p.replaceAll( "\\[", "");
-					p = p.replaceAll( "\\]", "");
-					p = p.replaceAll( "\\<", "");
-					p = p.replaceAll( "\\>", "");
+					value = value.replaceAll( "\\[", "");
+					value = value.replaceAll( "\\]", "");
+					value = value.replaceAll( "\\<", "");
+					value = value.replaceAll( "\\>", "");
 
-					String[] paths = p.split( "," );
+					String[] paths = value.split( "," );
 
 					for (int i = 0; i < paths.length; i++)
 					{
@@ -663,7 +666,7 @@ public class ConfigApp
 				}
 				else if (clase.isInstance(new String()))
 				{
-					if (p == null)
+					if (value == null)
 					{
 						loadDefaultValue(key);
 						defaultValue = true;
@@ -672,20 +675,20 @@ public class ConfigApp
 					}
 					else
 					{
-						listConfig.put(key, p);
+						listConfig.put(key, value);
 
 					}
 				}
 				else if ( clase.getCanonicalName().equals(Tuple.class.getCanonicalName() ) )
 				{
-					if (p.equals(new Tuple(null, null).toString()))
+					if (value.equals(new Tuple(null, null).toString()))
 					{
 						loadDefaultValue( key );
 					}
 					else
 					{
-						p = p.replace( "<", "").replace( ">", "").replace( " ", "");
-						String[] values = p.split( ",");
+						value = value.replace( "<", "").replace( ">", "").replace( " ", "");
+						String[] values = value.split( ",");
 
 						if (values.length != 2)
 						{
@@ -702,16 +705,16 @@ public class ConfigApp
 				}
 				else if( clase.getCanonicalName().equals( HashSet.class.getCanonicalName() ) )
 				{
-					if( key.equals( LSL_ID_DEVICES ) )
+					if( key.equals( ID_STREAMS ) )
 					{
 						loadDefaultLSLDeviceInfo();
 						
-						HashSet< IMutableStreamSetting > lslDevs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+						HashSet< IMutableStreamSetting > lslDevs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 						
-						p = p.replace("[",  "").replace("]", "");
-						if( !p.isEmpty() )
+						value = value.replace("[",  "").replace("]", "");
+						if( !value.isEmpty() )
 						{
-							String[] devices = p.split( ">;");
+							String[] devices = value.split( ">;");
 							
 							String msgDevNonFound = "";
 													
@@ -831,18 +834,18 @@ public class ConfigApp
 			{				
 				loadDefaultSyncMethod();
 				
-				if( !p.equals( SyncMethod.SYNC_NONE ) 
-						&& !p.equals( SyncMethod.SYNC_SOCKET ) 
-						&& !p.equals( SyncMethod.SYNC_LSL) )
+				if( !value.equals( SyncMethod.SYNC_NONE ) 
+						&& !value.equals( SyncMethod.SYNC_SOCKET ) 
+						&& !value.equals( SyncMethod.SYNC_STREAM) )
 				{
 					defaultValue = true;
 					defaultMsg +=  key + "; ";
 				}
 				else
 				{
-					listConfig.put( SELECTED_SYNC_METHOD, p );
+					listConfig.put( SELECTED_SYNC_METHOD, value );
 				}
-			}
+			}			
 			else if( key.equals( PLUGINS ) )
 			{	
 				try
@@ -854,9 +857,9 @@ public class ConfigApp
 					 * 
 					 */
 
-					p = p.replaceAll( ">\\s+;\\s+<", ">;<" );
+					value = value.replaceAll( ">\\s+;\\s+<", ">;<" );
 
-					String[] Plugins = p.split( ";" );
+					String[] Plugins = value.split( ";" );
 					if( Plugins.length > 0 )
 					{
 						Plugins[ 0 ] = Plugins[ 0 ].replace( "[", "" ).trim();
@@ -1017,7 +1020,7 @@ public class ConfigApp
 
 								DataProcessingPluginRegistrar.addDataProcessing( newPr );
 
-								HashSet< IStreamSetting > dss = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+								HashSet< IStreamSetting > dss = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 								//
 								// extra = (streamName@@@sourceID;streamName@@@sourceID;...;streamName@@@sourceID)
@@ -1128,6 +1131,20 @@ public class ConfigApp
 					defaultMsg += key + ": plugins' settings error.\n"; 
 				}				
 			}
+			else if( key.equalsIgnoreCase( STREAM_LIBRARY ) )
+			{
+				loadDefaultStreamLibrary();
+				
+				try
+				{
+					listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.valueOf( value ) );
+				}
+				catch( Exception e)
+				{
+					defaultValue = true;
+					defaultMsg += key + ": the library " + value + " unsupported.\n";
+				}
+			}
 			else 
 			{
 				System.out.println(key + ": non-defined parameter.");
@@ -1219,7 +1236,7 @@ public class ConfigApp
 		return socketInfo;
 	}
 
-	private static void loadDefaultValue(String prop)
+	private static void loadDefaultValue( String prop )
 	{
 		switch ( prop ) 
 		{
@@ -1233,7 +1250,7 @@ public class ConfigApp
 				loadDefaultValueServerSocketTable();
 				break;
 			}
-			case LSL_ID_DEVICES:
+			case ID_STREAMS:
 			{
 				loadDefaultLSLDeviceInfo();
 				break;
@@ -1288,6 +1305,12 @@ public class ConfigApp
 				loadDefaultPlugins();
 				break;
 			}
+			case STREAM_LIBRARY:
+			{
+				loadDefaultStreamLibrary();
+				
+				break;
+			}
 		}
 	}
 
@@ -1314,6 +1337,8 @@ public class ConfigApp
 		loadDefaultSaveOutputDataProcessing();
 		
 		loadDefaultPlugins();
+		
+		loadDefaultStreamLibrary();
 	}
 
 	private static void loadDefaultLanguage()
@@ -1335,13 +1360,6 @@ public class ConfigApp
 		listConfig.put( SELECTED_SYNC_METHOD, SyncMethod.SYNC_NONE );
 	}
 	
-	/*
-	private static void loadDefaultValueIsServerSocketActive()
-	{
-		listConfig.put( IS_SOCKET_SERVER_ACTIVE, false );
-	}
-	*/
-
 	private static void loadDefaultValueIsServerSocketActiveInputSpecialMsg()
 	{
 		listConfig.put( IS_ACTIVE_SPECIAL_INPUTS, false );
@@ -1387,9 +1405,13 @@ public class ConfigApp
 	{
 		IStreamSetting[] devices = null;
 
+		/*
 		LSL lsl = new LSL();
 
 		IStreamSetting[] deviceInfo = lsl.resolve_streams( );
+		*/
+		
+		IStreamSetting[] deviceInfo = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );		
 		
 		HashSet< IMutableStreamSetting > settings = new HashSet< IMutableStreamSetting >();
 		
@@ -1399,7 +1421,7 @@ public class ConfigApp
 			settings.add( cfg );
 		}
 		
-		listConfig.put( LSL_ID_DEVICES, settings );
+		listConfig.put( ID_STREAMS, settings );
 	}
 
 	private static void loadDefaultLSLOutputFileName()
@@ -1441,5 +1463,10 @@ public class ConfigApp
 	private static void loadDefaultPlugins()
 	{
 		listConfig.put( PLUGINS, new ArrayTreeMap< Tuple< PluginType, String>, ParameterList >() );
+	}
+	
+	private static void loadDefaultStreamLibrary()
+	{
+		listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.LSL );
 	}
 }

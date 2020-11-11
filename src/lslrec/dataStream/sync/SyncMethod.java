@@ -35,7 +35,7 @@ public class SyncMethod
 {
 	public static final String SYNC_NONE = "None";
 	public static final String SYNC_SOCKET = "Socket";
-	public static final String SYNC_LSL = "LabStreaming Layer";
+	public static final String SYNC_STREAM = "LabStreaming Layer";
 	
 	private static final Map< String, LSLRecPluginSyncMethod > syncs = new HashMap< String, LSLRecPluginSyncMethod >();
 	
@@ -45,7 +45,7 @@ public class SyncMethod
 		
 		met.add( SYNC_NONE );
 		met.add( SYNC_SOCKET );
-		met.add( SYNC_LSL );
+		met.add( SYNC_STREAM );
 		
 		for( String id : syncs.keySet() )
 		{

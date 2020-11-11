@@ -323,7 +323,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		
 		Set< IStreamSetting > selectedStreams = new HashSet< IStreamSetting >();
 		List< IStreamSetting > removeStream = new ArrayList< IStreamSetting >();
-		List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
+		List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS ) );
 		for( IStreamSetting STR : DataProcessingPluginRegistrar.getDataStreams( plugin ) )
 		{			
 			boolean del = true;
@@ -388,7 +388,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
+				List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS ) );
 				
 				List< String > opts = new ArrayList< String >();
 				for( IStreamSetting str : streams )

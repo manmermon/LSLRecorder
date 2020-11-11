@@ -275,7 +275,7 @@ public class Dialog_AboutApp extends JDialog
 			DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() );			
 			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.shortNameApp + " " + ConfigApp.version 
 										+ "</b><br/></font><font size='2' face='serif'>" + df.format( ConfigApp.buildDate.getTime() ) 
-										+"</font><font size='2' face='serif'> Library version: "  + LSL.library_version() 
+										+"</font><font size='2' face='serif'> LSL Library version: "  + LSL.library_version() 
 										+"</font></p></html>" );
 			
 			this.jLabelVersion.setIcon(new ImageIcon(AppUI.getInstance().getIconImage().getScaledInstance(32, 32, Image.SCALE_FAST )));
