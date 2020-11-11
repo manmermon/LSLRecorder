@@ -336,5 +336,14 @@ public class LSLStreamInfo implements IMutableStreamSetting
 		
 		return root;
 	}
+	
+	/**
+	 * Without effect.
+	 */
+	@Override
+	public void setDescription( String desc ) 
+	{
+		
+	}
 }
 

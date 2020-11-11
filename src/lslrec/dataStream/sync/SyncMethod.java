@@ -35,7 +35,7 @@ public class SyncMethod
 {
 	public static final String SYNC_NONE = "None";
 	public static final String SYNC_SOCKET = "Socket";
-	public static final String SYNC_STREAM = "LabStreaming Layer";
+	public static final String SYNC_STREAM = "Data stream";
 	
 	private static final Map< String, LSLRecPluginSyncMethod > syncs = new HashMap< String, LSLRecPluginSyncMethod >();
 	

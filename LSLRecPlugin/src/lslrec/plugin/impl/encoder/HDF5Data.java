@@ -23,7 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.exceptions.UnsupportedTypeException;
 import ch.systemsx.cisd.base.mdarray.MDArray;
 //import ch.systemsx.cisd.hdf5.IHDF5Writer;
@@ -38,14 +38,14 @@ public class HDF5Data
 	
 	private int blockIndex = 0;
 	
-	private int dataType = LSLUtils.float32;
+	private StreamDataType dataType = StreamDataType.float32;
 	
 	private String name = "";
 	
 	private Number[] remainingData = new Number[0];
 	private String[] remainingStringData = new String[0];
 				
-	public HDF5Data( IHDF5Writer wr, String varName, int dataformat, long numChannels ) throws Exception 
+	public HDF5Data( IHDF5Writer wr, String varName, StreamDataType dataformat, long numChannels ) throws Exception 
 	{
 		if( wr == null || varName == null )
 		{
@@ -60,7 +60,7 @@ public class HDF5Data
 		
 		this.writer = wr;
 				
-		if( this.dataType == LSLUtils.undefined )
+		if( this.dataType == StreamDataType.undefined )
 		{
 			throw new UnsupportedTypeException( );
 		}
@@ -72,37 +72,37 @@ public class HDF5Data
 	{
 		switch ( this.dataType ) 
 		{
-			case LSLUtils.double64:
+			case double64:
 			{
 				this.writer.float64().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.float32:
+			case float32:
 			{
 				this.writer.float32().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.int8:
+			case int8:
 			{
 				this.writer.int8().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.int16:
+			case int16:
 			{
 				this.writer.int16().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.int32:
+			case int32:
 			{
 				this.writer.int32().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.int64:
+			case int64:
 			{
 				this.writer.int64().createMatrix( name, 1, 1, 1, 1 );
 				break;
 			}
-			case LSLUtils.string:
+			case string:
 			{
 				//this.writer.int8().createMatrix( this.name, 1, 1, 1, 1 );
 				this.writer.string().createMDArray( name, 1, new long[] { 1 }, new int[] { 1 } );
@@ -156,32 +156,32 @@ public class HDF5Data
 	{
 		switch ( this.dataType ) 
 		{
-			case LSLUtils.double64:
+			case double64:
 			{
 				this.writer.float64().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2doubleMatrix( values ), blockIndex, 0 );
 				break;
 			}
-			case LSLUtils.float32:
+			case float32:
 			{
 				this.writer.float32().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2floatMatrix( values ), blockIndex, 0 );
 				break;
 			}
-			case LSLUtils.int8:
+			case int8:
 			{
 				this.writer.int8().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2byteMatrix( values ), blockIndex, 0 );
 				break;
 			}
-			case LSLUtils.int16:
+			case int16:
 			{
 				this.writer.int16().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2shortMatrix( values ), blockIndex, 0 );
 				break;
 			}
-			case LSLUtils.int32:
+			case int32:
 			{
 				this.writer.int32().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2integerMatrix( values ), blockIndex, 0 );
 				break;
 			}
-			case LSLUtils.int64:
+			case int64:
 			{
 				this.writer.int64().writeMatrixBlockWithOffset( name, ConvertTo.Casting.NumberMatrix2longMatrix( values ), blockIndex, 0 );
 				break;

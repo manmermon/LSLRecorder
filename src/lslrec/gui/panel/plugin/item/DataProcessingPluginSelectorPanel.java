@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -389,6 +390,18 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			public void actionPerformed(ActionEvent e) 
 			{
 				List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS ) );
+
+				Collections.sort( streams, new Comparator<IStreamSetting>() 
+											{	
+												@Override
+												public int compare(IStreamSetting o1, IStreamSetting o2) 
+												{
+													int eq = (o1.name()+o1.uid()).compareTo( o2.name()+o2.uid() );
+													
+													return eq;
+												}
+											}
+								);
 				
 				List< String > opts = new ArrayList< String >();
 				for( IStreamSetting str : streams )
@@ -396,7 +409,6 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					opts.add( str.name() + " (" + str.uid() + ")" );
 				}
 
-				Collections.sort( opts );
 				
 				Dialog_OptionList dial = new Dialog_OptionList();
 

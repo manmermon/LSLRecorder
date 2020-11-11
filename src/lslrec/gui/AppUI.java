@@ -171,8 +171,8 @@ public class AppUI extends JFrame
 	private JTextField sessionTimeText = null;
 
 	// Settings
-	private Panel_SocketSetting SocketSetting;
-	private Panel_StreamingSettings lslSetting;
+	private Panel_SocketSetting SocketSettingPanel;
+	private Panel_StreamingSettings streamSettingPanel;
 
 	// JCombox
 	private JComboBox< String > jComboxSyncMethod;
@@ -622,7 +622,7 @@ public class AppUI extends JFrame
 				
 				//JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );
 				ExceptionMessage msg = new  ExceptionMessage( e
-																, "LSL Exception" 
+																, "Stream Exception" 
 																, ExceptionDictionary.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog(msg, true, true );
 			}
@@ -653,22 +653,22 @@ public class AppUI extends JFrame
 
 	protected Panel_SocketSetting getSocketSetting()
 	{
-		if( this.SocketSetting == null )
+		if( this.SocketSettingPanel == null )
 		{
-			this.SocketSetting = new Panel_SocketSetting( this );
+			this.SocketSettingPanel = new Panel_SocketSetting( this );
 		}
 
-		return this.SocketSetting;
+		return this.SocketSettingPanel;
 	}
 
 	protected Panel_StreamingSettings getStreamSetting() throws Exception
 	{
-		if( this.lslSetting == null )
+		if( this.streamSettingPanel == null )
 		{
-			this.lslSetting = new Panel_StreamingSettings( this );
+			this.streamSettingPanel = new Panel_StreamingSettings( this );
 		}
 
-		return this.lslSetting;
+		return this.streamSettingPanel;
 	}
 
 	/**

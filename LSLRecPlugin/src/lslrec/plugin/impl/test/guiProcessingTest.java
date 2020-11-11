@@ -4,36 +4,18 @@
 package lslrec.plugin.impl.test;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.config.ConfigApp;
-import lslrec.controls.messages.EventInfo;
-import lslrec.dataStream.family.stream.lsl.DataStreamSetting;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
-import lslrec.dataStream.family.stream.lsl.LSL.StreamInfo;
 import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
-import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
-import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
-import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
-import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
-import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
-import lslrec.stoppableThread.IStoppableThread;
 
 /**
  * @author Manuel Merino Monge

@@ -210,13 +210,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			//int dataType = this.DATA.getDataStreamSetting().getDataType(); // LSL type data
 			IStreamSetting streamSettings = this.DATA.getDataStreamSetting();
 			int nChannel = streamSettings.channel_count(); // number of channels
-			String lslName = streamSettings.name(); // LSL streaming name
-			
-			String lslXML = streamSettings.description();
-			if( streamSettings instanceof MutableStreamSetting )
-			{
-				lslXML = StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)streamSettings).getStreamSetting() ); // LSL description //TODO
-			}
+			String lslName = streamSettings.name(); // LSL streaming name			
+			String lslXML = streamSettings.description();			
 
 			//
 			// set number of total expected sequences

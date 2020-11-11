@@ -46,7 +46,7 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 	private int ver;
 	
 	private double createdAt;
-	
+		
 	/**
 	 * 
 	 * @param name
@@ -347,6 +347,12 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 	public void setInterleaveadData( boolean interleaved ) 
 	{
 		this.interleaved = interleaved;
+	}
+
+	@Override
+	public void setDescription(String desc)
+	{
+		this.desc = desc;
 	}
 
 }

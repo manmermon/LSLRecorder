@@ -1463,20 +1463,23 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		Map< String, String > nodes = new HashMap<String, String>();
 		
-		Document doc = ConvertTo.Transform.xmlStringToXMLDocument( xml );
-	
-		Node n = doc.getFirstChild();
-		NodeList nl = n.getChildNodes();
-		Node an;
-
-		for (int i=0; i < nl.getLength(); i++) 
+		if( xml != null && !xml.isEmpty() ) 
 		{
-		    an = nl.item(i);
-		    
-		    if(an.getNodeType()==Node.ELEMENT_NODE) 
-		    {
-		    	nodes.put( an.getNodeName(), an.getTextContent() );
-		    }
+			Document doc = ConvertTo.Transform.xmlStringToXMLDocument( xml );
+		
+			Node n = doc.getFirstChild();
+			NodeList nl = n.getChildNodes();
+			Node an;
+	
+			for (int i=0; i < nl.getLength(); i++) 
+			{
+			    an = nl.item(i);
+			    
+			    if(an.getNodeType()==Node.ELEMENT_NODE) 
+			    {
+			    	nodes.put( an.getNodeName(), an.getTextContent() );
+			    }
+			}
 		}
 		
 		return nodes;

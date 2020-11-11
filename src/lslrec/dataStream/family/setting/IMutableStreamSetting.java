@@ -67,4 +67,9 @@ public interface IMutableStreamSetting extends IStreamSetting
 	 * @param interleaved
 	 */
 	public void setInterleaveadData( boolean interleaved );
+	
+	/**
+     * Set description 
+     */
+	public void setDescription( String desc );
 }

@@ -29,6 +29,8 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	
 	private boolean interleaved = false;
 	
+	private String description = null;
+	
 	/**
 	 * 
 	 * @param streamSetting
@@ -149,14 +151,18 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	@Override
 	public String description() 
 	{
-		String desc = this.str.description();
+		String desc = this.description;
 		
-		String rootNode = this.getRootNode2ExtraInfoLabel();
-		
-		for( String nodeName : this.extraInfo.keySet() )
+		if( desc == null )
 		{
-			String info = this.extraInfo.get( nodeName );
-			desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, nodeName, info );
+			desc = this.str.description();
+			String rootNode = this.getRootNode2ExtraInfoLabel();
+			
+			for( String nodeName : this.extraInfo.keySet() )
+			{
+				String info = this.extraInfo.get( nodeName );
+				desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, nodeName, info );
+			}
 		}
 		
 		return desc;
@@ -248,5 +254,11 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	public IStreamSetting getStreamSetting()
 	{
 		return this.str;
+	}
+
+	@Override
+	public void setDescription( String desc ) 
+	{
+		this.description = desc;
 	}
 }

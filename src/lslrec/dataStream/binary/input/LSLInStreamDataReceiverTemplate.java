@@ -33,7 +33,10 @@ import lslrec.exceptions.SettingException;
 import lslrec.exceptions.UnsupportedTypeException;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
@@ -186,6 +189,15 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 		if( this.inLet == null)
 		{
 			throw new SettingException( "Unsupported Library.");
+		}
+		
+		if( this.streamSetting instanceof MutableStreamSetting )
+		{
+			((IMutableStreamSetting)this.streamSetting).setDescription( StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)this.streamSetting ).getStreamSetting() ) );
+		}
+		else if( this.streamSetting instanceof IMutableStreamSetting )
+		{
+			((IMutableStreamSetting)this.streamSetting).setDescription( StreamSettingUtils.getDeepXmlStreamDescription( this.streamSetting ) );
 		}
 		
 		try

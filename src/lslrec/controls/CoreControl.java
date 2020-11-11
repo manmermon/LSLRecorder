@@ -140,7 +140,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private LSLRecPluginSyncMethod syncPluginMet = null;
 	
 	private DeadlockDetector deadlockDetector = null;
-		
+	
+	private Object lock = new Object();
+	
 	/**
 	 * Create main control unit.
 	 * 
@@ -901,7 +903,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	public void stopWorking( ) throws Exception
 	{	
-		synchronized ( this )
+		synchronized ( this.lock )
 		{
 			if( this.stopThread == null )
 			{
@@ -914,7 +916,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private void stopWorkingThreadEnd()
 	{
-		synchronized ( this )
+		synchronized ( this.lock )
 		{
 			if( this.stopThread != null )
 			{
