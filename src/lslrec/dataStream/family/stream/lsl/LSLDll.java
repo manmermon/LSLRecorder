@@ -1,18 +1,14 @@
-/**
+/*
+ * 
+ *
+ * From:
+ *  https://github.com/labstreaminglayer/liblsl-Java/blob/39799dae02edf34e138d2a67ae768dc38a0248a9/src/edu/ucsd/sccn/LSL.java
  * 
  */
 package lslrec.dataStream.family.stream.lsl;
 
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
-
-/**
- * @author Manuel Merino Monge
- *
- * From:
- *  https://github.com/labstreaminglayer/liblsl-Java/blob/39799dae02edf34e138d2a67ae768dc38a0248a9/src/edu/ucsd/sccn/LSL.java
- * 
- */
 
 /**
  * Internal: C library interface.

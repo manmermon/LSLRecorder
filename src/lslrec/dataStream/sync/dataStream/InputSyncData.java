@@ -1,7 +1,7 @@
 /* 
  * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of LSLRec.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder 
  *
  *   LSLRec is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  *   
  */
 
-package lslrec.dataStream.sync.lsl;
+package lslrec.dataStream.sync.dataStream;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -27,12 +27,12 @@ import java.util.Arrays;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
-import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.sync.SyncMarker;
 
-public class InputSyncData extends LSLInStreamDataReceiverTemplate
+public class InputSyncData extends InputDataStreamReceiverTemplate
 {	
 	//private BridgeNotifierThread notifierThread; // Notification thread. Avoid blocks.
 	

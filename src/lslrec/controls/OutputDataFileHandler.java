@@ -4,7 +4,7 @@
  * 
  * Copyright 2018-2019 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of LSLRec.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
  *   LSLRec is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
-import lslrec.dataStream.sync.lsl.InputSyncData;
+import lslrec.dataStream.sync.dataStream.InputSyncData;
 import lslrec.dataStream.writingSystemTester.WritingTest;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.auxiliar.extra.FileUtils;

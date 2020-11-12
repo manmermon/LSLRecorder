@@ -3,7 +3,7 @@
  * 
  * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of LSLRec and CLIS.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
  *   LSLRec is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ import javax.swing.Timer;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
+public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
 {
 	protected ITaskMonitor monitor = null;
 
@@ -119,7 +119,7 @@ public abstract class LSLInStreamDataReceiverTemplate extends AbstractStoppableT
 
 	protected IStreamSetting streamSetting = null;
 		
-	public LSLInStreamDataReceiverTemplate( IStreamSetting lslCfg ) throws Exception
+	public InputDataStreamReceiverTemplate( IStreamSetting lslCfg ) throws Exception
 	{		
 		if( lslCfg == null )
 		{

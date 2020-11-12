@@ -3,7 +3,7 @@
  * 
  * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of LSLRec and CLIS.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
  *   LSLRec is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,12 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 
-public class DataPlotter extends LSLInStreamDataReceiverTemplate
+public class DataPlotter extends InputDataStreamReceiverTemplate
 {
 	private CanvasStreamDataPlot plot;
 	private int nByteData;
