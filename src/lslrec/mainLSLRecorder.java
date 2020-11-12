@@ -1,4 +1,3 @@
-package lslrec;
 /*
  * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
@@ -20,6 +19,7 @@ package lslrec;
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
+package lslrec;
 
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
