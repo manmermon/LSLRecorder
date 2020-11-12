@@ -27,11 +27,10 @@ import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.IStoppableThread;
 
@@ -42,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.extra.StringTuple;
 
 public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 {
@@ -57,7 +55,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 	private DataProcessingExecutor datProcessingExec = null;
 	private final String outDatProcessInfix = "_processedData";
 	
-	public TemporalOutDataFileWriter( DataStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
+	public TemporalOutDataFileWriter( IStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
 		super( lslCfg );
 		
@@ -70,9 +68,9 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		
 		this.outputFormat = outFormat;
 		
-		super.setName( super.streamSetting.getStreamName() + "(" + super.streamSetting.getStreamInfo().uid() + ")");
+		super.setName( super.streamSetting.name() + "(" + super.streamSetting.uid() + ")");
 		
-		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.getStreamName() +  this.ext + Number );
+		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );
 	}
 
 	public void setDataProcessing( LSLRecPluginDataProcessing process, boolean save ) throws Exception
@@ -174,12 +172,16 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			
 			if( processfile != null )
 			{
+				/*
 				OutputFileFormatParameters procFormat = new OutputFileFormatParameters();
 				
 				for( String idPar : this.outputFormat.getAllParameters().getParameterIDs() )
 				{	
 					procFormat.setParameter( idPar, this.outputFormat.getParameter( idPar ).getValue() );
 				}
+				*/
+				
+				OutputFileFormatParameters procFormat = this.outputFormat.clone();
 				
 				String filename = procFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString();
 				
@@ -208,17 +210,10 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 				
 				procFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, filename );
 				
-				MutableDataStreamSetting dss = new MutableDataStreamSetting( super.streamSetting );
+				MutableStreamSetting dss = new MutableStreamSetting( super.streamSetting );
 				
-				String info = dss.getAdditionalInfo();
-				if( !info.isEmpty() )
-				{
-					info += ";" ;
-				}
-				info += "ProcessingBufferLengths=" + this.datProcessingExec.getTotalBufferLengths();
-				
-				dss.setAdditionalInfo( info );
-				LSLUtils.addNode( dss.getStreamInfo(), new StringTuple( "DataProcessingInfo", info ) );
+				dss.setAdditionalInfo( "ProcessingBufferLengths", this.datProcessingExec.getProcessingIDSequence() +"=" + this.datProcessingExec.getTotalBufferLengths().toString() );
+				//LSLUtils.addNode( dss.getStreamInfo(), new StringTuple( "DataProcessingInfo", info ) );
 				
 				processingEvent = new EventInfo( this.datProcessingExec.getID()
 													, GetFinalOutEvent()
@@ -246,9 +241,11 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 		return EventType.SAVED_OUTPUT_TEMPORAL_FILE;
 	}
 				
-	private TemporalBinData getTemporalFileData( File file, DataStreamSetting setting, OutputFileFormatParameters formatPars ) throws Exception
+	private TemporalBinData getTemporalFileData( File file, IStreamSetting setting, OutputFileFormatParameters formatPars ) throws Exception
 	{		
-		TemporalBinData data = new TemporalBinData( file, setting, formatPars );
+		BinaryFileStreamSetting bin = new BinaryFileStreamSetting( setting, file );
+		
+		TemporalBinData data = new TemporalBinData( bin, formatPars );
 		
 		return data;
 	}

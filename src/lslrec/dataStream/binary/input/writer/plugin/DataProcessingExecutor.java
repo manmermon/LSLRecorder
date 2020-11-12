@@ -64,7 +64,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		
 		if( this.process != null )
 		{
-			this.dataBlockSize = this.process.getDataStreamSetting().getChunkSize() * this.process.getDataStreamSetting().getStreamInfo().channel_count();
+			this.dataBlockSize = this.process.getDataStreamSetting().getChunkSize() * this.process.getDataStreamSetting().channel_count();
 		}
 		
 		super.setName( this.getID() );
@@ -78,7 +78,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 	@Override
 	public String getID() 
 	{
-		return this.getClass().getName() + "-" + this.process.getDataStreamSetting().getStreamName();
+		return this.getClass().getName() + "-" + this.process.getDataStreamSetting().name();
 	}
 	
 	@Override
@@ -124,7 +124,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		{
 			while( !this.inputs.isEmpty() )
 			{
-				Number[] vals = ConvertTo.Transform.ByteArrayTo( this.inputs.poll(), this.process.getDataStreamSetting().getDataType() );
+				Number[] vals = ConvertTo.Transform.ByteArrayTo( this.inputs.poll(), this.process.getDataStreamSetting().data_type() );
 				Byte[] times = this.inputTimes.poll(); 
 				
 				synchronized ( this.data )
@@ -155,11 +155,11 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 						if( this.process.getDataStreamSetting().isInterleavedData() )
 						{
 							processedData = ConvertTo.Transform.Interleaved( processedData
-																	, this.process.getDataStreamSetting().getStreamInfo().channel_count()
+																	, this.process.getDataStreamSetting().channel_count()
 																	, this.process.getDataStreamSetting().getChunkSize() );
 						}
 						
-						byte[] DAT = ConvertTo.Transform.NumberArray2byteArra( processedData, this.process.getDataStreamSetting().getDataType() );
+						byte[] DAT = ConvertTo.Transform.NumberArray2byteArra( processedData, this.process.getDataStreamSetting().data_type() );
 						
 						this.out.write( DAT );
 						this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );
@@ -223,5 +223,17 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		}
 		
 		return res;
+	}
+	
+	public List< String > getProcessingIDSequence()
+	{
+		List< String > processes = new ArrayList< String >();
+		
+		if( this.process != null )
+		{
+			processes.addAll( this.process.getProcessesList() );
+		}
+		
+		return processes;
 	}
 }

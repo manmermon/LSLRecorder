@@ -11,36 +11,29 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{DataInByteFormatBlock.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.trial"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.lsl{LSLUtils.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{ZipDataTemplate.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{DoubleBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.setting"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.controls.messages{EventInfo.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{ByteBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{IParameter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{IOutZip.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{OutputFileFormatParameters.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.compressor"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{SettingOptions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{ParameterList.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{CharBlock.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{LongBlock.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.test"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress.zip"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.parallelize"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.tasks"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{IntegerBlock.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{StringBlock.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{DataBlock.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions.handler"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{Parameter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.processing"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.controls.messages{EventType.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{Encoder.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{FloatBlock.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{IOutputDataFileWriter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync{SyncMarker.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
@@ -48,6 +41,6 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.sync"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.encoder"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item{CreatorDefaultSettingPanel.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock{ShortBlock.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
     </selectedElements>
 </jardesc>

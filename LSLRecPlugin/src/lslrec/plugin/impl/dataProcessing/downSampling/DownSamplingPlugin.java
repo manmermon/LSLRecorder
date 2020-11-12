@@ -13,7 +13,7 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
@@ -143,7 +143,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(DataStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
 	{
 		DownSampling ds = new DownSampling( arg0 , arg1 );			
 		ds.loadProcessingSettings( new ArrayList<Parameter<String>>( super.pars.values() ) );

@@ -19,13 +19,13 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class ByteBlock extends DataBlock<Byte>
 {
 	public ByteBlock(int seqNum, String name, long nCols, Byte[] data) 
 	{
-		super( seqNum, name, LSLUtils.int8, nCols, data);
+		super( seqNum, name, StreamDataType.int8, nCols, data);
 	}
 
 }

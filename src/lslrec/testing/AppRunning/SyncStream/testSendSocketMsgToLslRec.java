@@ -43,7 +43,7 @@ public class testSendSocketMsgToLslRec extends AbstractStoppableThread implement
 	private List< TCPClientSocketThread > tcpClients;
 	private List< UDPClientSocketThread > udpClients;
 	
-	private lslrec.dataStream.family.lsl.StreamInfo info;
+	private lslrec.dataStream.family.lsl.IStreamSetting info;
 	
 	private lslrec.dataStream.family.lsl.StreamOutlet out;
 
@@ -70,7 +70,7 @@ public class testSendSocketMsgToLslRec extends AbstractStoppableThread implement
 			timer.setTimerValue( time );
 			timer.setTimerMonitor( this );
 
-			info = new LSL.StreamInfo( this.getClass().getSimpleName()
+			info = new IStreamSetting.StreamInfo( this.getClass().getSimpleName()
 									, "time"
 									, 2
 									, 0

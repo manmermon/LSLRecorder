@@ -29,23 +29,13 @@ import lslrec.auxiliar.tasks.INotificationTask;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
 public class ZipThread extends AbstractStoppableThread implements INotificationTask  
 {
-	/*
-	public final static int BYTE_TYPE = 0;
-	public final static int SHORT_TYPE = 1;
-	public final static int INT_TYPE = 2;
-	public final static int LONG_TYPE = 3;
-	public final static int FLOAT_TYPE = 4;
-	public final static int DOUBLE_TYPE = 5;
-	public final static int STRING_TYPE = 6;
-	*/
-	
 	private IOutZip zip;
 	private ICompressDataCollector collector;
 	
@@ -53,7 +43,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 	private Object sync = new Object();
 	
-	private int DataType;
+	private StreamDataType DataType;
 	
 	private Charset charCode;
 	
@@ -68,7 +58,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 	private DataInByteFormatBlock compressedData = null;
 	
-	public ZipThread( String varName, int dataType, long nChannels, IOutZip zp, ICompressDataCollector col, Charset coding ) throws NullPointerException 
+	public ZipThread( String varName, StreamDataType dataType, long nChannels, IOutZip zp, ICompressDataCollector col, Charset coding ) throws NullPointerException 
 	{
 		if( zp == null || col == null )
 		{
@@ -131,7 +121,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 			// Save binary data
 			switch ( this.DataType )
 			{
-				case LSLUtils.float32:
+				case float32:
 				{
 					float[] aux = new float[data.length];
 					int i = 0;
@@ -145,7 +135,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 					break;
 				}
-				case LSLUtils.double64:
+				case double64:
 				{
 					double[] aux = new double[data.length];
 					int i = 0;
@@ -159,7 +149,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 					break;
 				}
-				case LSLUtils.int64:
+				case int64:
 				{
 					long[] aux = new long[data.length];
 					int i = 0;
@@ -174,7 +164,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 					break;
 				}
-				case  LSLUtils.string:
+				case  string:
 				{
 					String aux = new String();
 					for( Object value : data )
@@ -187,7 +177,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 					break;
 				}
-				case LSLUtils.int8:
+				case int8:
 				{
 					byte[] aux = new byte[data.length];
 					int i = 0;
@@ -201,7 +191,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	
 					break;
 				}
-				case LSLUtils.int16:
+				case int16:
 				{
 					short[] aux = new short[data.length];
 					int i = 0;

@@ -4,6 +4,7 @@ lslrec
 	.auxiliar
 			.extra.*
 			.tasks.*
+			.WarningMessage.java
 			
 	.config
 			.IParameter.java
@@ -18,16 +19,19 @@ lslrec
 					
 	.dataStream
 				.family
-						.lsl
-							.LSLUtils.java
+						.setting
+								.*
+						
+						.stream
+								.IDataStream.java
 							
 				.outputDataFile
-								.compress										
+								.compress							
 										.IOutZip.java
 										.OutputZipDataTemplate.java
 										.zip.*
 										
-								.dataBlock.* (menos DataBlockFactory.java)								
+								.dataBlock.*								
 								
 								.format
 										.Encoder.java
@@ -35,14 +39,15 @@ lslrec
 										.OuputFileFormatParameters.java
 										
 										.parallelize.*
-				.setting
-						.*	
 				
 				.sync
 					.SyncMarker.java
 				
 	.exceptions
 				.*.java
+				
+				.handler.*
+				
 				
 	.gui
 		.panel.

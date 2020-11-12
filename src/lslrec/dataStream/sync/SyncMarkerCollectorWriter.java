@@ -42,10 +42,10 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
-import lslrec.dataStream.family.lsl.LSL;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class SyncMarkerCollectorWriter extends AbstractStoppableThread implements INotificationTask
 {	
@@ -68,7 +68,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	private String ext = ".sync";
 	
 	private String header = null;
-	
+		
 	public SyncMarkerCollectorWriter( String file ) throws Exception 
 	{
 		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
@@ -85,21 +85,29 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		
 		this.events = new ArrayList< EventInfo >();
 		
-		StreamInfo stInfo = new StreamInfo( super.getClass().getSimpleName()
-											, ""
-											, 1
-											, LSL.IRREGULAR_RATE
-											, SyncMarker.MARK_DATA_TYPE
-											, "" );
 		
-		DataStreamSetting streamSettings = new DataStreamSetting( stInfo
-																, SyncMarker.MARK_TIME_TYPE
-																, -1
-																, ""
-																, 1
-																, false
-																, false
-																); 
+		SimpleStreamSetting streamSettings = new SimpleStreamSetting( StreamLibrary.LSL
+																	, "sync"
+																	//, "value"
+																	, SyncMarker.MARK_DATA_TYPE
+																	, SyncMarker.MARK_TIME_TYPE
+																	, StreamDataType.int64
+																	, 1
+																	, SimpleStreamSetting.IRREGULAR_RATE
+																	, ""
+																	, ""
+																	//, ""
+																	//, ""
+																	//, 1
+																	//, System.nanoTime()
+																	, ""
+																	, null
+																	, 1
+																	//, false
+																	//, true
+																	//, false 
+																	);
+		
 		
 		this.header = StreamBinaryHeader.getStreamBinHeader( streamSettings );
 	}
@@ -229,15 +237,39 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	
 	private static SyncMarkerBinFileReader getSyncMarkerBinFileReader( String file ) throws Exception
 	{
+		/*
 		StreamInfo str = new StreamInfo( "sync", "value", 1, LSL.IRREGULAR_RATE, SyncMarker.MARK_DATA_TYPE, "" );
 
-		MutableDataStreamSetting stream = new MutableDataStreamSetting( str );
+		IMutableStreamSetting stream = new IMutableStreamSetting( str );
 		stream.setTimeDataType( SyncMarker.MARK_TIME_TYPE );
+		*/
+		
+		SimpleStreamSetting stream = new SimpleStreamSetting( StreamLibrary.LSL
+																	, "sync"
+																	//, "value"
+																	, SyncMarker.MARK_DATA_TYPE
+																	, SyncMarker.MARK_TIME_TYPE
+																	, StreamDataType.int64
+																	, 1
+																	, SimpleStreamSetting.IRREGULAR_RATE
+																	, ""
+																	, ""
+																	//, ""
+																	//, ""
+																	//, 1
+																	//, System.nanoTime()
+																	, ""
+																	, null
+																	, 1
+																	//, false
+																	//, true
+																	//, false 
+																	);
+		
 
-		return new SyncMarkerBinFileReader( new File( file )
-				, stream
-				, StreamBinaryHeader.HEADER_END
-				, !ConfigApp.isTesting() );		
+		return new SyncMarkerBinFileReader( new BinaryFileStreamSetting( stream, new File( file ) )
+											, StreamBinaryHeader.HEADER_END
+											, !ConfigApp.isTesting() );		
 	}
 	
 	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader, boolean delInSyncFile ) throws Exception

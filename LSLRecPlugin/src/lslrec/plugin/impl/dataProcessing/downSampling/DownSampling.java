@@ -7,7 +7,7 @@ import java.util.List;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
 /**
@@ -24,12 +24,18 @@ public class DownSampling extends LSLRecPluginDataProcessing
 	 * @param setting
 	 * @param prevProc
 	 */
-	public DownSampling(DataStreamSetting setting, LSLRecPluginDataProcessing prevProc) 
+	public DownSampling( IStreamSetting setting, LSLRecPluginDataProcessing prevProc) 
 	{
 		super(setting, prevProc);
 		
 		this.pars.addParameter( new Parameter< Integer >( DECIMATION, 1 ) );
 	}	
+	
+	@Override
+	public String getID() 
+	{
+		return "Downsampling";
+	}
 	
 	@Override
 	public int getBufferLength() 

@@ -59,15 +59,16 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
-import lslrec.dataStream.family.lsl.LSL;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.family.lsl.LSL.XMLElement;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.BinaryFileStreamSetting;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -103,7 +104,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -188,8 +188,8 @@ public class Dialog_BinaryConverter extends JDialog
 	
 	private boolean clearBinaryFiles = true;
 	
-	private Map< String, MutableDataStreamSetting > binaryDataFiles;	
-	private MutableDataStreamSetting currentBinFile = null;
+	private Map< String, IMutableStreamSetting > binaryDataFiles;	
+	private IMutableStreamSetting currentBinFile = null;
 		
 	private OutputFileFormatParameters outFormat;
 	
@@ -202,7 +202,7 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		super( owner, modal );
 		
-		this.binaryDataFiles = new HashMap< String, MutableDataStreamSetting >( );
+		this.binaryDataFiles = new HashMap< String, IMutableStreamSetting >( );
 		this.outFormat = new OutputFileFormatParameters();
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
@@ -317,12 +317,12 @@ public class Dialog_BinaryConverter extends JDialog
 				syncFile = outFile;
 			}
 			
-			syncHeader = new BinaryFileStreamSetting( this.getBinaryFileInfo( syncFile ), syncFile );
+			syncHeader = new BinaryFileStreamSetting( this.getBinaryFileInfo( syncFile ), new File( syncFile ) );
 		}		
 				
 		for( String file : this.binaryDataFiles.keySet() )
 		{
-			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), file );
+			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), new File( file ) );
 			OutputFileFormatParameters format = this.outFormat.clone();
 						
 			binFiles.add( new Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >( new Tuple< BinaryFileStreamSetting, OutputFileFormatParameters >( datBin, format ), syncHeader ) );
@@ -570,7 +570,7 @@ public class Dialog_BinaryConverter extends JDialog
 					{
 						for( String file : FILES )
 						{	
-							MutableDataStreamSetting bh = getBinaryFileInfo( file );
+							IMutableStreamSetting bh = getBinaryFileInfo( file );
 							if( bh != null )
 							{								
 								insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
@@ -592,7 +592,7 @@ public class Dialog_BinaryConverter extends JDialog
 	}
 
 	
-	private void clearBinaryFiles( JTable t, Map< String, MutableDataStreamSetting > binaryFiles )	
+	private void clearBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles )	
 	{
 		this.clearInfoLabels( );
 			
@@ -989,12 +989,31 @@ public class Dialog_BinaryConverter extends JDialog
 							String nm = e.getDocument().getText( 0, e.getDocument().getLength() );
 							if( !nm.isEmpty() )
 							{
-								StreamInfo prevInfo = currentBinFile.getStreamInfo();
+								IMutableStreamSetting prevInfo = currentBinFile;
 								
-								StreamInfo info = new StreamInfo( nm, prevInfo.type(), prevInfo.channel_count()
-																	, prevInfo.nominal_srate(), prevInfo.channel_format()
-																	, prevInfo.source_id() );
+								SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
+																						, nm
+																						//, prevInfo.content_type()
+																						, prevInfo.data_type()
+																						, prevInfo.getTimestampDataType()
+																						, prevInfo.getStringLegthDataType()
+																						, prevInfo.channel_count()
+																						, prevInfo.sampling_rate()
+																						, prevInfo.source_id()
+																						, prevInfo.uid()
+																						//, prevInfo.hostname()
+																						//, prevInfo.session_id()
+																						//, prevInfo.version()
+																						//, prevInfo.created_at()
+																						, prevInfo.description()
+																						, prevInfo.getExtraInfo()
+																						, prevInfo.getChunkSize()
+																						//, prevInfo.isInterleavedData()
+																						//, prevInfo.isSelected()
+																						//, prevInfo.isSynchronationStream() 
+																						);
 								
+								/*
 								List< String > parentNodes = new ArrayList< String >();
 								parentNodes.add( "info" );
 								parentNodes.add( LSLUtils.getAdditionalInformationLabelInXml() );
@@ -1002,6 +1021,10 @@ public class Dialog_BinaryConverter extends JDialog
 								addExtraStreamInfo( info.desc(), prevInfo.as_xml(), parentNodes );
 								
 								currentBinFile.setStreamInfo( info );
+								*/
+								
+								currentBinFile = new MutableStreamSetting( strSetting );
+								
 								txtStreamName.setBorder( (new JTextField()).getBorder() );
 							}
 							else
@@ -1244,41 +1267,22 @@ public class Dialog_BinaryConverter extends JDialog
 		m.addRow( vals );
 	}
 
-	private void showBinaryFileInfo( String file, MutableDataStreamSetting header )	
+	private void showBinaryFileInfo( String file, IMutableStreamSetting header )	
 	{	
 		this.clearInfoLabels( );		
 	
 		if( header != null )
 		{
 			this.getTxtFilePath( ).setText( file );
-			this.getTxtStreamName( ).setText( header.getStreamName() );
+			this.getTxtStreamName( ).setText( header.name() );
 			this.getTxtStreamName( ).setEditable( true );
 			
-			int type = header.getDataType() - 1;
+			StreamDataType type = header.data_type();
 			String t = type + "";
-			
-			Field[] fields = LSLUtils.class.getDeclaredFields( );
-			
-			if( type >= 0 && type < fields.length - 2 )
-			{
-				t = fields[ type ].getName( );
-			}		
-			else if( type < 0 )
-			{
-				int p = fields.length - 2;
-				if( p >= 0 )
-				{
-					t = fields[ p ].getName();
-				}
-				else
-				{
-					t = "undefined";
-				}
-			}
-			
+						
 			this.getTxtDataType( ).setText( t );	
-			this.getTxtNumChannels( ).setText( header.getStreamInfo().channel_count() + "" );
-			this.getTxtXMLDesc( ).setText( header.getStreamInfo().as_xml().replaceAll( "\\s+", "" ) );
+			this.getTxtNumChannels( ).setText( header.channel_count() + "" );
+			this.getTxtXMLDesc( ).setText( header.description().replaceAll( "\\s+", "" ) );
 			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );
 		}
 	}
@@ -1288,7 +1292,7 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		if( file != null && val != null )
 		{
-			MutableDataStreamSetting bh = this.binaryDataFiles.get( file );
+			IMutableStreamSetting bh = this.binaryDataFiles.get( file );
 			
 			switch ( fieldIndex )
 			{
@@ -1310,11 +1314,11 @@ public class Dialog_BinaryConverter extends JDialog
 		}
 	}
 	
-	private MutableDataStreamSetting getBinaryFileInfo( String file )	
+	private IMutableStreamSetting getBinaryFileInfo( String file )	
 	{
 		this.clearInfoLabels( );		
 		
-		MutableDataStreamSetting bH = null;
+		IMutableStreamSetting bH = null;
 		
 		BufferedReader reader = null;
 		
@@ -1330,7 +1334,7 @@ public class Dialog_BinaryConverter extends JDialog
 					
 			String name = "", type = "", timeType = ""
 					, chs = "", chunk = "", xml = ""
-					, interleave = "", strLenType = "";
+					, interleaved = "", strLenType = "";
 						
 			for( int i = 0; i < parts.length; i++ )
 			{
@@ -1360,7 +1364,7 @@ public class Dialog_BinaryConverter extends JDialog
 				}
 				else if( i == 6 )
 				{
-					interleave = parts[ i ]; // intereleavd
+					interleaved = parts[ i ]; // intereleavd
 				}
 				else
 				{
@@ -1381,7 +1385,7 @@ public class Dialog_BinaryConverter extends JDialog
 			stType = ( stType == null ? "" : stType );
 			
 			String fr = fields.get( "nominal_srate" );			
-			double frq = LSL.IRREGULAR_RATE;
+			double frq = IStreamSetting.IRREGULAR_RATE;
 			if( fr != null )
 			{
 				try
@@ -1396,14 +1400,42 @@ public class Dialog_BinaryConverter extends JDialog
 			String sid = fields.get( "source_id" );
 			sid = ( sid == null ? "" : sid );
 			
-			StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );
+			//StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );		
 			
+			SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
+																, name
+																//, stType
+																, StreamDataType.valueOf( type )
+																, StreamDataType.valueOf( timeType )
+																, StreamDataType.valueOf( strLenType )
+																, Integer.parseInt( chs )
+																, frq
+																, sid
+																, System.nanoTime() + ""
+																//, ""
+																//, System.nanoTime() + ""
+																//, 1
+																//, System.nanoTime()
+																, xml
+																, null
+																, Integer.parseInt( chunk )
+																//, Boolean.parseBoolean( interleaved )
+																//, false
+																//, false 
+																);
+			strSetting.setInterleaveadData( Boolean.parseBoolean( interleaved ) );
+			
+			
+			/*
 			List< String > parentNodes = new ArrayList< String >();
 			parentNodes.add( "info" );
 			parentNodes.add( LSLUtils.getAdditionalInformationLabelInXml() );
 			this.addExtraStreamInfo( info.desc(), xml, parentNodes);
+						
+			bH = new IMutableStreamSetting( info, new Integer( timeType ), new Integer( strLenType ), xml, new Integer( chunk ), new Boolean( interleave ), false  );
+			*/
 			
-			bH = new MutableDataStreamSetting( info, new Integer( timeType ), new Integer( strLenType ), xml, new Integer( chunk ), new Boolean( interleave ), false  );
+			bH = new MutableStreamSetting( strSetting );
 			
 		}
 		catch ( Exception e ) 
@@ -1431,25 +1463,29 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		Map< String, String > nodes = new HashMap<String, String>();
 		
-		Document doc = ConvertTo.Transform.xmlStringToXMLDocument( xml );
-	
-		Node n = doc.getFirstChild();
-		NodeList nl = n.getChildNodes();
-		Node an;
-
-		for (int i=0; i < nl.getLength(); i++) 
+		if( xml != null && !xml.isEmpty() ) 
 		{
-		    an = nl.item(i);
-		    
-		    if(an.getNodeType()==Node.ELEMENT_NODE) 
-		    {
-		    	nodes.put( an.getNodeName(), an.getTextContent() );
-		    }
+			Document doc = ConvertTo.Transform.xmlStringToXMLDocument( xml );
+		
+			Node n = doc.getFirstChild();
+			NodeList nl = n.getChildNodes();
+			Node an;
+	
+			for (int i=0; i < nl.getLength(); i++) 
+			{
+			    an = nl.item(i);
+			    
+			    if(an.getNodeType()==Node.ELEMENT_NODE) 
+			    {
+			    	nodes.put( an.getNodeName(), an.getTextContent() );
+			    }
+			}
 		}
 		
 		return nodes;
 	}
 	
+	/*
 	private void addExtraStreamInfo( XMLElement desc, String xml, List< String > parentNodes )
 	{
 		if( xml != null && parentNodes != null && !parentNodes.isEmpty() )
@@ -1535,6 +1571,7 @@ public class Dialog_BinaryConverter extends JDialog
 			
 		return res;
 	}
+	*/
 	
 	private void clearInfoLabels( )
 	{

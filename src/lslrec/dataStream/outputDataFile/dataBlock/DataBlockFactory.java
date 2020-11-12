@@ -19,17 +19,17 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class DataBlockFactory 
 {
-	public static DataBlock getDataBlock( int type, int seqNum, String name, int nCols, Object[] data )
+	public static DataBlock getDataBlock( StreamDataType type, int seqNum, String name, int nCols, Object[] data )
 	{
 		DataBlock block = null;
 		
 		switch ( type )
 		{
-			case LSLUtils.double64:
+			case double64:
 			{
 				Double[] val = new Double[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -41,7 +41,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.float32:
+			case float32:
 			{
 				Float[] val = new Float[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -53,7 +53,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.int8:
+			case int8:
 			{
 				Byte[] val = new Byte[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -65,7 +65,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.int16:
+			case int16:
 			{
 				Short[] val = new Short[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -77,7 +77,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.int32:
+			case int32:
 			{
 				Integer[] val = new Integer[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -89,7 +89,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.int64:
+			case int64:
 			{
 				Long[] val = new Long[ data.length ];
 				for( int i = 0; i < data.length; i++ )
@@ -101,7 +101,7 @@ public class DataBlockFactory
 				
 				break;
 			}
-			case LSLUtils.string:
+			case string:
 			{
 				String str = "";
 				for( Object st : data )

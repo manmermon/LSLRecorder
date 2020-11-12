@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.crypto.Cipher;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 
 public class CLISCompressorWriter 
 {
@@ -38,7 +38,9 @@ public class CLISCompressorWriter
 	private RandomAccessFile fStream = null;
 	
 	private String currentVarName = "";
-	private int currentType = IOutputDataFileWriter.FLOAT_TYPE;	
+	
+	private StreamDataType currentType = StreamDataType.float32;
+	
 	private long currentNumCols = 0;
 
 	private List< Integer > blockSizes = null;
@@ -108,14 +110,14 @@ public class CLISCompressorWriter
 		return simpleFileName;
 	}
 	
-	public void saveCompressedData( byte[] compressData, String varName, int dataType, long nCols ) throws Exception
+	public void saveCompressedData( byte[] compressData, String varName, StreamDataType dataType, long nCols ) throws Exception
 	{
 		if( !this.currentVarName.equals( varName ) )
 		{
 			if( !this.currentVarName.isEmpty() )
 			{
 				this.metadata.addMetadataProtocolInfo( this.currentVarName, this.getDataTypeIdentifier( this.currentType )
-													, LSLUtils.getDataTypeBytes( this.currentType ) //this.getBytesCurrentDataType( this.currentType )
+													, this.metadata.getDataTypeBytes( this.currentType ) //this.getBytesCurrentDataType( this.currentType )
 													, this.currentNumCols
 													, this.blockSizes );
 			}
@@ -167,7 +169,7 @@ public class CLISCompressorWriter
 		{
 			this.metadata.addMetadataProtocolInfo(  this.currentVarName
 												, this.getDataTypeIdentifier( this.currentType )
-												, LSLUtils.getDataTypeBytes( this.currentType ) // this.getBytesCurrentDataType( this.currentType )
+												, this.metadata.getDataTypeBytes( this.currentType ) // this.getBytesCurrentDataType( this.currentType )
 												, this.currentNumCols, this.blockSizes );
 			
 			/*
@@ -202,37 +204,37 @@ public class CLISCompressorWriter
 		}
 	}
 	
-	private String getDataTypeIdentifier( int type )
+	private String getDataTypeIdentifier( StreamDataType type )
 	{
 		String id = "float";
 		
 		switch ( type )
 		{
-			case( IOutputDataFileWriter.BYTE_TYPE ):
+			case int8:
 			{			
 				id = "int";
 				
 				break;
 			}
-			case( IOutputDataFileWriter.SHORT_TYPE ):
+			case int16:
 			{
 				id = "int";
 				
 				break;
 			}
-			case( IOutputDataFileWriter.INT_TYPE ):
+			case int32:
 			{
 				id = "int";
 				
 				break;
 			}
-			case( IOutputDataFileWriter.LONG_TYPE ):
+			case int64:
 			{
 				id = "int";
 				
 				break;
 			}
-			case( IOutputDataFileWriter.STRING_TYPE ):
+			case string:
 			{
 				id = "char";
 				break;

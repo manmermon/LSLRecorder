@@ -4,7 +4,7 @@ import edu.ucsd.sccn.LSL;
 public class ReceiveData {
     public static void main(String[] args) throws Exception  {
         System.out.println("Resolving an EEG stream...");
-        LSL.StreamInfo[] results = LSL.resolve_stream("name","SerialPort");
+        IStreamSetting.StreamInfo[] results = LSL.resolve_stream("name","SerialPort");
 
         // open an inlet
         LSL.StreamInlet inlet = new LSL.StreamInlet(results[0]);

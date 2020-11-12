@@ -70,7 +70,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 		char Suf = 'A';
 		for( int i = 0; i < numOfThreads; i++ )
 		{
-			LSL.StreamInfo info = new LSL.StreamInfo( pars.getStreamName() + (char)(Suf + i)
+			IStreamSetting.StreamInfo info = new IStreamSetting.StreamInfo( pars.getStreamName() + (char)(Suf + i)
 														, pars.getStreamType()
 														, pars.getChannelNumber()
 														, pars.getSamplingRate()

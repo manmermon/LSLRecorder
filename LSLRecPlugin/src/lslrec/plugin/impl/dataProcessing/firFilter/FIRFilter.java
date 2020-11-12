@@ -4,7 +4,7 @@ import java.util.List;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
@@ -32,7 +32,7 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	 * @param setting
 	 * @param prevProc
 	 */
-	public FIRFilter( DataStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
+	public FIRFilter( IStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
 	{
 		super( setting, prevProc );
 		
@@ -56,6 +56,12 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 		this.calculateFilterCoefficients();
 	}
 
+	@Override
+	public String getID() 
+	{
+		return "Fir Filter";
+	}
+	
 	@Override
 	public void loadProcessingSettings(List<Parameter<String>> arg0) 
 	{
@@ -166,7 +172,7 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	private void calculateFilterCoefficients()
 	{
 		int L = (int)this.pars.getParameter( FILTER_LENGTH ).getValue();
-		double Fm = super.streamSetting.getSamplingRate();
+		double Fm = super.streamSetting.sampling_rate();
 		double Fc1 = (double)this.pars.getParameter( CUT_FREQ1 ).getValue();
 		double Fc2 = (double)this.pars.getParameter( CUT_FREQ2 ).getValue();
 		WindowType wt = (WindowType)this.pars.getParameter( WINDOW_TYPE ).getValue();

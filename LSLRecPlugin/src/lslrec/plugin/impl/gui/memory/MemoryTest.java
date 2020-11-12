@@ -216,7 +216,7 @@ public class MemoryTest extends LSLRecPluginTrial
 	public void setStage( JPanel panelTask ) 
 	{
 		Parameter< Integer > rep = this.parameters.getParameter( REPETITIONS );
-		
+				
 		if( rep.getValue() == 0 )
 		{
 			this.stopTimers();
@@ -224,7 +224,7 @@ public class MemoryTest extends LSLRecPluginTrial
 			this.stage = SyncMarker.STOP_MARK;
 						
 			super.stopThread( IStoppableThread.STOP_IN_NEXT_LOOP );
-			
+						
 			return;
 		}		
 		
@@ -299,6 +299,17 @@ public class MemoryTest extends LSLRecPluginTrial
 		}
 		
 		this.container.setVisible( true );
+	}
+	
+	@Override
+	protected void cleanUp() throws Exception 
+	{
+		super.cleanUp();
+		
+		if ( answerOptionsListMenu != null)
+		{
+			answerOptionsListMenu.setVisible( false );
+		}
 	}
 	
 	/**

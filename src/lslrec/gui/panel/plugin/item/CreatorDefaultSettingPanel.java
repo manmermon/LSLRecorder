@@ -49,7 +49,8 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -331,9 +332,9 @@ public class CreatorDefaultSettingPanel
 		
 		if( cast != null && value != null)
 		{
-			int dataType = LSLUtils.getDataTypeByClass( cast );
+			StreamDataType dataType = StreamSettingUtils.getDataTypeByClass( cast );
 			
-			if( dataType != LSLUtils.string && dataType != LSLUtils.undefined )
+			if( dataType != StreamDataType.string && dataType != StreamDataType.undefined )
 			{
 				res = ConvertTo.Casting.NumberTo( (Number)value, dataType );
 			}

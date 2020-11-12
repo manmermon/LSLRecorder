@@ -27,8 +27,8 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 
 public class DataPlotter extends LSLInStreamDataReceiverTemplate
@@ -38,7 +38,7 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 	private int minDataLengthToDraw = 1;
 	private final List< List< Double > > dataBuffer = new ArrayList< List< Double > >();
 	
-	public DataPlotter( CanvasStreamDataPlot Plot, DataStreamSetting lslCfg ) throws Exception
+	public DataPlotter( CanvasStreamDataPlot Plot, IStreamSetting lslCfg ) throws Exception
 	{
 		super( lslCfg );
 
@@ -48,13 +48,13 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 		}
 
 		this.plot = Plot;
-		this.plot.setPlotName( lslCfg.getStreamName() );
+		this.plot.setPlotName( lslCfg.name() );
 		
-		super.setName( this.getClass().getSimpleName() + "-" + lslCfg.getStreamName() );
+		super.setName( this.getClass().getSimpleName() + "-" + lslCfg.name() );
 
 		this.plot.setVisible(true);
 		
-		this.minDataLengthToDraw = (int)( lslCfg.getSamplingRate() * lslCfg.getChunkSize() * 0.400D ); // 400 ms
+		this.minDataLengthToDraw = (int)( lslCfg.sampling_rate() * lslCfg.getChunkSize() * 0.400D ); // 400 ms
 		
 		if( this.minDataLengthToDraw <= 0 )
 		{
@@ -73,9 +73,9 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 	{	
 		Number[] dat = null;
 		
-		if( super.streamSetting.getDataType() != LSLUtils.string )
+		if( super.streamSetting.data_type() != StreamDataType.string )
 		{
-			dat = ConvertTo.Transform.ByteArrayTo( ConvertTo.Casting.byteArray2ByteArray( data ), super.streamSetting.getDataType() );
+			dat = ConvertTo.Transform.ByteArrayTo( ConvertTo.Casting.byteArray2ByteArray( data ), super.streamSetting.data_type() );
 		}
 		else
 		{
@@ -84,14 +84,14 @@ public class DataPlotter extends LSLInStreamDataReceiverTemplate
 		
 		if( super.streamSetting.isInterleavedData() )
 		{
-			dat = ConvertTo.Transform.Interleaved( dat, super.chunckLength, super.streamSetting.getStreamInfo().channel_count() );
+			dat = ConvertTo.Transform.Interleaved( dat, super.chunckLength, super.streamSetting.channel_count() );
 		}
 
 		if( dat != null )
 		{
 			for( int index = 0; index < dat.length; index++ )
 			{	
-				int c = ( ( index / super.chunckLength ) % super.streamSetting.getStreamInfo().channel_count() );
+				int c = ( ( index / super.chunckLength ) % super.streamSetting.channel_count() );
 	
 				if( c >= this.dataBuffer.size() )
 				{

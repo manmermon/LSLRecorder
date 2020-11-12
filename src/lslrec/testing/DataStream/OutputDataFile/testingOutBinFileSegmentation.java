@@ -157,13 +157,13 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				
 			}
 			
-			List< Tuple< StreamInfo, MutableDataStreamSetting > > LSLthreadList = new ArrayList< Tuple< StreamInfo, MutableDataStreamSetting > >();
+			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
 			
-			LSL.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
 			
 			if( results.length >= 0 )
 			{
-				for( LSL.StreamInfo info : results )
+				for( IStreamSetting.StreamInfo info : results )
 				{
 					int chuckSize = 1;
 					
@@ -183,7 +183,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						i++;
 					}
 					
-					MutableDataStreamSetting par = new MutableDataStreamSetting( info.uid()
+					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
 																		, info.name()
 																		, info.type()
 																		, info.source_id()
@@ -194,7 +194,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 																		, false
 																		, info.nominal_srate() );	
 					
-					LSLthreadList.add( new Tuple<LSL.StreamInfo, MutableDataStreamSetting>( info, par ) );					
+					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );					
 				}
 			}
 			
@@ -203,7 +203,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 			
 			for( int i = 0; i < LSLthreadList.size(); i++ )
 			{
-				Tuple< LSL.StreamInfo, MutableDataStreamSetting > cfg = LSLthreadList.get( i );
+				Tuple< IStreamSetting.StreamInfo, IMutableStreamSetting > cfg = LSLthreadList.get( i );
 				
 				if( cfg.x.channel_count() == 1 && cfg.x.channel_format() ==LSL.ChannelFormat.int32 )
 				{				

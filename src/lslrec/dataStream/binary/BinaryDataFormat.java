@@ -19,11 +19,13 @@
  */
 package lslrec.dataStream.binary;
 
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+
 public class BinaryDataFormat 
 {
 	public static int UNKNOW_CHUCKSIZE = -1;
 	
-	private int dType = 1;
+	private StreamDataType dType = StreamDataType.float32;
 	private int bytes = 1;
 	private long samples = 1;	
 	
@@ -33,14 +35,14 @@ public class BinaryDataFormat
 	{		
 	}
 	
-	public BinaryDataFormat( int dataType, int byteLength, long chunckSize )
+	public BinaryDataFormat( StreamDataType dataType, int byteLength, long chunckSize )
 	{
 		this.dType = dataType;
 		this.bytes = byteLength;
 		this.samples = chunckSize;
 	}
 	
-	public BinaryDataFormat( int dataType, int byteLength, BinaryDataFormat len )
+	public BinaryDataFormat( StreamDataType dataType, int byteLength, BinaryDataFormat len )
 	{
 		this( dataType, byteLength, UNKNOW_CHUCKSIZE );
 		
@@ -57,7 +59,7 @@ public class BinaryDataFormat
 		this.lenFormat = len;
 	}
 	
-	public int getDataType() 
+	public StreamDataType getDataType() 
 	{
 		return this.dType;
 	}

@@ -48,7 +48,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilter.FilterType;
 import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
 import lslrec.plugin.impl.gui.basicPainter2D;
@@ -752,7 +752,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( DataStreamSetting arg0, LSLRecPluginDataProcessing arg1 ) 
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1 ) 
 	{
 		FIRFilter fir = new FIRFilter( arg0, arg1 );
 		fir.loadProcessingSettings( this.getSettings() );

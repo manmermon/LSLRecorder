@@ -27,15 +27,15 @@ import lslrec.config.ConfigApp;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class WritingTest extends TemporalOutDataFileWriter 
 {
 	private List< Long > times;
 	private long initTime;
 		
-	public WritingTest( DataStreamSetting lslCfg, OutputFileFormatParameters format, int Number) throws Exception 
+	public WritingTest( IStreamSetting lslCfg, OutputFileFormatParameters format, int Number) throws Exception 
 	{
 		super( lslCfg, format, Number);
 	}	
@@ -72,7 +72,7 @@ public class WritingTest extends TemporalOutDataFileWriter
 			super.file.deleteOnExit();
 		}
 		
-		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.streamSetting.getStreamName(), this.times ) );
+		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.streamSetting.name(), this.times ) );
 		
 		this.notifTask.addEvent( event );
 		synchronized ( this.notifTask )

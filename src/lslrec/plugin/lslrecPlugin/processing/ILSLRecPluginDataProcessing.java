@@ -19,7 +19,7 @@
  */
 package lslrec.plugin.lslrecPlugin.processing;
 
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 
 /**
@@ -28,5 +28,5 @@ import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
  */
 public interface ILSLRecPluginDataProcessing extends ILSLRecConfigurablePlugin 
 {
-	public LSLRecPluginDataProcessing getProcessing( DataStreamSetting setting, LSLRecPluginDataProcessing prevDataProcessing );
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting setting, LSLRecPluginDataProcessing prevDataProcessing );
 }

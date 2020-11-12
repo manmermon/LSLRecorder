@@ -107,10 +107,10 @@ public class Language
 
 	public static final String CHECK_SPECIAL_IN_WARNING_MSG = "CHECK_SPECIAL_IN_WARNING_MSG";
 	public static final String CHECK_SYNC_METHOD_WARNING_MSG = "CHECK_SYNC_METHOD_WARNING_MSG";
-	public static final String CHECK_NON_SELECT_LSL_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
-	public static final String CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
-	public static final String CHECK_LSL_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
-	public static final String CHECK_LSL_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
+	public static final String CHECK_NON_SELECT_STREAM_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_SYNC_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
+	public static final String CHECK_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
+	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
 	public static final String CHECK_LSL_CHUNCKSIZE_WARNING_MSG = "CHECK_LSL_CHUNCKSIZE_WARNING_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
@@ -222,7 +222,7 @@ public class Language
 		captions.put(MSG_INTERRUPT, new Caption(MSG_INTERRUPT, defaultLanguage, "Interrupt"));
 		captions.put(MSG_APP_STATE, new Caption(MSG_APP_STATE, defaultLanguage, "App's state is "));
 		captions.put(MSG_WARNING, new Caption(MSG_WARNING, defaultLanguage, "Warning"));
-		captions.put(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, new Caption(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, defaultLanguage, "Option Sync for streams not enable. Select " + SyncMethod.SYNC_LSL + " as sync method." ));
+		captions.put(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, new Caption(MSG_SELECTED_LSL_SYNC_STREAM_ERROR, defaultLanguage, "Option Sync for streams not enable. Select " + SyncMethod.SYNC_STREAM + " as sync method." ));
 
 		captions.put(INFO_STATE_LABEL, new Caption(INFO_STATE_LABEL, defaultLanguage, "State"));
 		captions.put(INFO_SESSION_TIME_LABEL, new Caption(INFO_SESSION_TIME_LABEL, defaultLanguage, "Session time"));
@@ -307,7 +307,7 @@ public class Language
 		captions.put(SETTING_COMPRESSOR, new Caption(SETTING_COMPRESSOR, defaultLanguage, "Compressor"));
 		captions.put(SETTING_LSL_OUTPUT_FORMAT,
 				new Caption(SETTING_LSL_OUTPUT_FORMAT, defaultLanguage, "Output file format"));
-		captions.put(SETTING_LSL_REFRESH, new Caption(SETTING_LSL_REFRESH, defaultLanguage, "Refresh LSL"));
+		captions.put(SETTING_LSL_REFRESH, new Caption(SETTING_LSL_REFRESH, defaultLanguage, "Refresh streams"));
 		captions.put( MSG_LSL_PLOT_ERROR, new Caption( MSG_LSL_PLOT_ERROR, defaultLanguage, "LSL stream is not available." )  );
 		
 		captions.put(TOO_MUCH_TIME, new Caption(TOO_MUCH_TIME, defaultLanguage, "The operation is taking too long."));
@@ -392,18 +392,18 @@ public class Language
 		captions.put( PASSWORD_TEXT, new Caption( PASSWORD_TEXT, defaultLanguage, "Password" ) );
 		captions.put( PROCESS_TEXT,  new Caption( PROCESS_TEXT, defaultLanguage, "Process" ) );
 
-		captions.put(CHECK_LSL_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_LSL_DEVICES_CHANGE_WARNING_MSG,
+		captions.put(CHECK_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));
-		captions.put(CHECK_NON_SELECT_LSL_ERROR_MSG,
-				new Caption(CHECK_NON_SELECT_LSL_ERROR_MSG, defaultLanguage, "Non one LSL devices selected."));
+		captions.put(CHECK_NON_SELECT_STREAM_ERROR_MSG,
+				new Caption(CHECK_NON_SELECT_STREAM_ERROR_MSG, defaultLanguage, "Non one LSL devices selected."));
 		captions.put(CHECK_SPECIAL_IN_WARNING_MSG,
 				new Caption(CHECK_SPECIAL_IN_WARNING_MSG, defaultLanguage, "Special inputs are not selected."));
-		captions.put(CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG,
+		captions.put(CHECK_SYNC_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_UNSELECTABLE_ERROR_MSG,
 				defaultLanguage, "LSL sync stream not selected selected."));
 		captions.put(CHECK_SYNC_METHOD_WARNING_MSG,
 				new Caption(CHECK_SYNC_METHOD_WARNING_MSG, defaultLanguage, "Sync method is not selected."));
-		captions.put(CHECK_LSL_SYNC_STREAM_WARNING_MSG,
-				new Caption(CHECK_LSL_SYNC_STREAM_WARNING_MSG, defaultLanguage, "A LSL stream is set as sync, but its data will not be save because LabStreaming Layer is not sync method."));
+		captions.put(CHECK_SYNC_STREAM_WARNING_MSG,
+				new Caption(CHECK_SYNC_STREAM_WARNING_MSG, defaultLanguage, "A LSL stream is set as sync, but its data will not be save because LabStreaming Layer is not sync method."));
 		captions.put( CHECK_LSL_CHUNCKSIZE_WARNING_MSG
 				, new Caption( CHECK_LSL_CHUNCKSIZE_WARNING_MSG, defaultLanguage, "Check if the next fields are correct: chunk size and interleaved." ) );
 

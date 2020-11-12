@@ -23,19 +23,10 @@
 package lslrec.dataStream.outputDataFile.format;
 
 import lslrec.auxiliar.tasks.IMonitoredTask;
-import lslrec.dataStream.family.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 
 public abstract interface IOutputDataFileWriter extends IMonitoredTask 
-{
-	public final static int BYTE_TYPE = LSLUtils.int8;
-	public final static int SHORT_TYPE = LSLUtils.int16;
-	public final static int INT_TYPE = LSLUtils.int32;
-	public final static int LONG_TYPE = LSLUtils.int64;
-	public final static int FLOAT_TYPE = LSLUtils.float32;
-	public final static int DOUBLE_TYPE = LSLUtils.double64;
-	public final static int STRING_TYPE = LSLUtils.string;
-		
+{		
 	/**
 	 * 
 	 * @param id

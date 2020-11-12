@@ -28,9 +28,8 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
-import lslrec.dataStream.family.lsl.LSLUtils;
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.sync.SyncMarker;
 
 public class InputSyncData extends LSLInStreamDataReceiverTemplate
@@ -40,15 +39,13 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 	/*
 	 * 
 	 */
-	public InputSyncData( DataStreamSetting lslCfg ) throws Exception 
+	public InputSyncData( IStreamSetting lslCfg ) throws Exception 
 	{
 		super( lslCfg );		
+								
+		super.setName( lslCfg.name() + "(" + lslCfg.uid() + ")");
 		
-		StreamInfo info = lslCfg.getStreamInfo();
-						
-		super.setName( info.name() + "(" + info.uid() + ")");
-		
-		if( info.channel_count() > 1 || info.channel_format() != LSLUtils.int32 )
+		if( lslCfg.channel_count() > 1 || lslCfg.data_type() != StreamDataType.int32 )
 		{
 			throw new IllegalArgumentException( this.getClass().getName() + 
 													" - Incorrect LSL setting: number of channels = 1"
@@ -131,7 +128,7 @@ public class InputSyncData extends LSLInStreamDataReceiverTemplate
 		}
 		
 		int mark = ByteBuffer.wrap( markBuffer ).order( ByteOrder.BIG_ENDIAN ).getInt();
-		double time = ConvertTo.Transform.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, LSLUtils.getTimeMarkBytes() ) );		
+		double time = ConvertTo.Transform.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, super.streamSetting.getDataTypeBytes( super.streamSetting.getTimestampDataType() ) ) );		
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
 		EventInfo event = new EventInfo( this.getID(), EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );

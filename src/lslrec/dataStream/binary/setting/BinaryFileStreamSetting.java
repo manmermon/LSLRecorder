@@ -17,31 +17,41 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.dataStream.setting;
+package lslrec.dataStream.binary.setting;
 
-public class BinaryFileStreamSetting extends DataStreamSetting 
+import java.io.File;
+
+import lslrec.dataStream.family.setting.IStreamSetting;
+
+public class BinaryFileStreamSetting 
 {
-	private String streamBinFile = null;
-	
-	public BinaryFileStreamSetting( DataStreamSetting dataStream, String file ) 
+	private File streamBinFile = null;
+	private IStreamSetting sstr = null;
+			
+	public BinaryFileStreamSetting( IStreamSetting dataStream, File file ) 
 	{
-		super( dataStream );
 		
-		if( file == null || file.isEmpty() )
+		if( dataStream == null || file == null )
 		{
-			throw new IllegalArgumentException( "File null or empty." );
+			throw new IllegalArgumentException( "Input(s) null or empty." );
 		}
 		
+		this.sstr = dataStream;
 		this.streamBinFile = file;
 	}
 	
-	public void setStreamBinFile(String streamBinFile) 
+	public IStreamSetting getStreamSetting()
+	{
+		return this.sstr;
+	}
+	
+	public void setStreamBinFile( File streamBinFile) 
 	{
 		this.streamBinFile = streamBinFile;
 	}
 	
-	public String getStreamBinFile() 
+	public File getStreamBinFile() 
 	{
-		return streamBinFile;
+		return this.streamBinFile;
 	}
 }

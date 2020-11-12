@@ -19,14 +19,14 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class DoubleBlock extends DataBlock<Double> 
 {
 
 	public DoubleBlock(int seqNum,String name, int nCols, Double[] data) 
 	{
-		super( seqNum, name, LSLUtils.double64, nCols, data);
+		super( seqNum, name, StreamDataType.double64, nCols, data);
 	}
 
 }

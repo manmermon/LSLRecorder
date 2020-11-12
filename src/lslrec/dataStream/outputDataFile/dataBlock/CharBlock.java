@@ -19,14 +19,14 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class CharBlock extends DataBlock<Character> 
 {
 
 	public CharBlock(int seqNum, String name, int nCols, Character[] data) 
 	{
-		super( seqNum, name, LSLUtils.string, nCols, data);
+		super( seqNum, name, StreamDataType.string, nCols, data);
 	}
 
 }

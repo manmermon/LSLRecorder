@@ -20,29 +20,57 @@
 
 package lslrec.dataStream.binary.input.writer;
 
-import lslrec.dataStream.family.lsl.LSL.StreamInfo;
-import lslrec.dataStream.setting.DataStreamSetting;
+import java.util.Map;
+
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
+import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 
 public class StreamBinaryHeader
 {	
 	public static final String HEADER_BINARY_SEPARATOR = ";"; 
 	public static final char HEADER_END = '\n';
 	
-	public static String getStreamBinHeader( DataStreamSetting streamSetting )
+	public static String getStreamBinHeader( IStreamSetting streamSetting )
 	{
 		String binHeader = "";
 		
 		if( streamSetting != null )
 		{
-			StreamInfo strInfo = streamSetting.getStreamInfo();
-			binHeader = streamSetting.getStreamName() + HEADER_BINARY_SEPARATOR
-						+ strInfo.channel_format() + HEADER_BINARY_SEPARATOR
-						+ strInfo.channel_count() + HEADER_BINARY_SEPARATOR
+			String desc = streamSetting.description();
+			
+			if( !(streamSetting instanceof SimpleStreamSetting ) )
+			{
+				if( streamSetting instanceof MutableStreamSetting )
+				{
+					desc = StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting) streamSetting).getStreamSetting() );
+				}
+				else
+				{
+					desc = StreamSettingUtils.getDeepXmlStreamDescription( streamSetting );
+				}
+			}
+			
+			String rootNode = streamSetting.getRootNode2ExtraInfoLabel();
+			Map< String, String > addInfo = streamSetting.getExtraInfo();
+			if( addInfo != null )
+			{
+				for( String id : addInfo.keySet() )
+				{
+					desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, id, addInfo.get( id ) );
+				}
+			}
+			
+			binHeader = streamSetting.name()+ HEADER_BINARY_SEPARATOR
+						+ streamSetting.data_type() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.channel_count() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.getChunkSize()+ HEADER_BINARY_SEPARATOR
-						+ streamSetting.getTimeDataType() + HEADER_BINARY_SEPARATOR
-						+ streamSetting.getStringLegthType() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.getTimestampDataType() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.getStringLegthDataType() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.isInterleavedData() + HEADER_BINARY_SEPARATOR
-						+ strInfo.as_xml();
+						+ desc;
 
 			binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + HEADER_END;
 		}

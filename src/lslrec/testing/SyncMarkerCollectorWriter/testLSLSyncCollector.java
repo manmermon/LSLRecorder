@@ -122,15 +122,15 @@ public class testLSLSyncCollector
 				stream.startThread();				
 			}
 			
-			List< Tuple< StreamInfo, MutableDataStreamSetting > > LSLthreadList = new ArrayList< Tuple< StreamInfo, MutableDataStreamSetting > >();
+			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
 			
-			LSL.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
 			
 			if( results.length >= 0 )
 			{
-				for( LSL.StreamInfo info : results )
+				for( IStreamSetting.StreamInfo info : results )
 				{
-					MutableDataStreamSetting par = new MutableDataStreamSetting( info.uid()
+					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
 																		, info.name()
 																		, info.type()
 																		, info.source_id()
@@ -141,7 +141,7 @@ public class testLSLSyncCollector
 																		, true
 																		, info.nominal_srate() );	
 					
-					LSLthreadList.add( new Tuple<LSL.StreamInfo, MutableDataStreamSetting>( info, par ) );
+					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );
 				}
 			}
 			

@@ -27,9 +27,9 @@ import java.util.List;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
-import lslrec.dataStream.family.lsl.LSLUtils;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
-import lslrec.dataStream.setting.DataStreamSetting;
 
 public class SyncMarkerBinFileReader
 {
@@ -39,30 +39,29 @@ public class SyncMarkerBinFileReader
 	
 	private boolean CloseStream = false;
 	
-	private int markDataType;
-	private int timeDataType;
+	private StreamDataType markDataType;
+	private StreamDataType timeDataType;
 	
 	private ReaderBinaryFile reader = null;
 	
-	public SyncMarkerBinFileReader( File syncFile, DataStreamSetting streamSetting, char headerEnd, boolean delBinaries ) throws Exception 
+	public SyncMarkerBinFileReader( BinaryFileStreamSetting streamSetting, char headerEnd, boolean delBinaries ) throws Exception 
 	{	
 		this.deleteBinFile = delBinaries;
 		
-		this.file = syncFile;
+		this.file = streamSetting.getStreamBinFile();
 		
-		this.markDataType = streamSetting.getDataType();
-		this.timeDataType = streamSetting.getTimeDataType();
+		this.markDataType = streamSetting.getStreamSetting().data_type();
+		this.timeDataType = streamSetting.getStreamSetting().getTimestampDataType();
 		
 		List< BinaryDataFormat > formats = new ArrayList< BinaryDataFormat >();
 		
-		BinaryDataFormat markFormat = new BinaryDataFormat( this.markDataType, LSLUtils.getDataTypeBytes( this.markDataType ), 1 );
+		BinaryDataFormat markFormat = new BinaryDataFormat( this.markDataType, streamSetting.getStreamSetting().getDataTypeBytes( this.markDataType ), 1 );
 		formats.add( markFormat );
 		
-		BinaryDataFormat timeFormat = new BinaryDataFormat( this.timeDataType, LSLUtils.getDataTypeBytes( this.timeDataType ), 1 );
+		BinaryDataFormat timeFormat = new BinaryDataFormat( this.timeDataType, streamSetting.getStreamSetting().getDataTypeBytes( this.timeDataType ), 1 );
 		formats.add( timeFormat );
 				
-		this.reader = new ReaderBinaryFile( this.file, formats, headerEnd );
-		
+		this.reader = new ReaderBinaryFile( this.file, formats, headerEnd );		
 	}
 	
 	/*

@@ -28,6 +28,8 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
@@ -35,7 +37,6 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.CLISCompressorWriter;
 import lslrec.dataStream.outputDataFile.format.clis.CLISMetadata;
 import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableFileWriterTemplate;
-import lslrec.dataStream.setting.DataStreamSetting;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
@@ -54,7 +55,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	
 	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
 	
-	public OutputCLISDataParallelWriter( OutputFileFormatParameters formatPars, DataStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
+	public OutputCLISDataParallelWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
 	{
 		super();
 		
@@ -127,7 +128,7 @@ public class OutputCLISDataParallelWriter extends OutputParallelizableFileWriter
 	}
 	*/
 		
-	private void Zip( String varName, int dataType, long nChannels, int ordered, Object[] data ) throws Exception
+	private void Zip( String varName, StreamDataType dataType, long nChannels, int ordered, Object[] data ) throws Exception
 	{
 		IOutZip zp = CompressorDataFactory.createOuputZipStream( this.zipType );
 		

@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -57,7 +58,7 @@ import org.jfree.ui.tabbedui.VerticalLayout;
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
-import lslrec.dataStream.setting.DataStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -321,15 +322,15 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		// Load selected streams
 		//
 		
-		Set< DataStreamSetting > selectedStreams = new HashSet< DataStreamSetting >();
-		List< DataStreamSetting > removeStream = new ArrayList< DataStreamSetting >();
-		List< DataStreamSetting > streams = new ArrayList< DataStreamSetting >( ( HashSet< DataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
-		for( DataStreamSetting STR : DataProcessingPluginRegistrar.getDataStreams( plugin ) )
+		Set< IStreamSetting > selectedStreams = new HashSet< IStreamSetting >();
+		List< IStreamSetting > removeStream = new ArrayList< IStreamSetting >();
+		List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS ) );
+		for( IStreamSetting STR : DataProcessingPluginRegistrar.getDataStreams( plugin ) )
 		{			
 			boolean del = true;
 			
 			searchStream:
-			for( DataStreamSetting str : streams )
+			for( IStreamSetting str : streams )
 			{
 				if( str == STR )
 				{
@@ -361,7 +362,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			}
 		}
 		
-		for( DataStreamSetting STR : removeStream )
+		for( IStreamSetting STR : removeStream )
 		{
 			DataProcessingPluginRegistrar.removeDataStreamInAllProcess( STR );
 		}
@@ -388,15 +389,26 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				List< DataStreamSetting > streams = new ArrayList< DataStreamSetting >( ( HashSet< DataStreamSetting > )ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES ) );
+				List< IStreamSetting > streams = new ArrayList< IStreamSetting >( ( HashSet< IStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS ) );
+
+				Collections.sort( streams, new Comparator<IStreamSetting>() 
+											{	
+												@Override
+												public int compare(IStreamSetting o1, IStreamSetting o2) 
+												{
+													int eq = (o1.name()+o1.uid()).compareTo( o2.name()+o2.uid() );
+													
+													return eq;
+												}
+											}
+								);
 				
 				List< String > opts = new ArrayList< String >();
-				for( DataStreamSetting str : streams )
+				for( IStreamSetting str : streams )
 				{
-					opts.add( str.getStreamName() + " (" + str.getUID() + ")" );
+					opts.add( str.name() + " (" + str.uid() + ")" );
 				}
 
-				Collections.sort( opts );
 				
 				Dialog_OptionList dial = new Dialog_OptionList();
 
@@ -416,10 +428,10 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 
 				int[] selIndexes = dial.getSelectedIndex();
 
-				Set< DataStreamSetting > selStreams = new HashSet< DataStreamSetting >();
+				Set< IStreamSetting > selStreams = new HashSet< IStreamSetting >();
 				for( int index : selIndexes )
 				{
-					DataStreamSetting str = streams.get( index );
+					IStreamSetting str = streams.get( index );
 					
 					if( !DataProcessingPluginRegistrar.getDataStreams( plugin ).contains( str ) )
 					{
@@ -445,16 +457,16 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		return strPanel;
 	}
 	
-	private void addStream( JPanel panel, Set< DataStreamSetting > streams, ILSLRecPluginDataProcessing plg )
+	private void addStream( JPanel panel, Set< IStreamSetting > streams, ILSLRecPluginDataProcessing plg )
 	{
 		if( panel != null && streams != null && plg != null )
 		{
 			panel.setVisible( false );
 			
-			for( DataStreamSetting str : streams )
+			for( IStreamSetting str : streams )
 			{
-				JLabel lb = new JLabel( str.getStreamName() );
-				lb.setToolTipText( str.getStreamName() + " (" + str.getUID() + ")" );
+				JLabel lb = new JLabel( str.name() );
+				lb.setToolTipText( str.name() + " (" + str.uid() + ")" );
 				JButton b = new JButton( );
 				b.setBorder( BorderFactory.createEmptyBorder() );
 				b.setIcon( GeneralAppIcon.Close( 10, Color.RED  ) );

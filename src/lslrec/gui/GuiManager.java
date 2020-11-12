@@ -68,11 +68,11 @@ import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.setting.BinaryFileStreamSetting;
-import lslrec.dataStream.setting.DataStreamSetting;
-import lslrec.dataStream.setting.MutableDataStreamSetting;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -285,10 +285,10 @@ public class GuiManager
 				File dataFile = null;
 				if( dat != null )
 				{
-					dataFile = new File( binSetting.getStreamBinFile() );
+					dataFile = binSetting.getStreamBinFile();
 				}
 
-				TemporalBinData binData = new TemporalBinData( dataFile, binSetting, format );
+				TemporalBinData binData = new TemporalBinData( binSetting, format );
 
 				
 				// 
@@ -299,15 +299,14 @@ public class GuiManager
 				File syncFile = null;
 				if( sync != null )
 				{
-					syncFile = new File( sync.getStreamBinFile() );
+					syncFile = sync.getStreamBinFile();
 				}
 				
 				SyncMarkerBinFileReader reader = null;
 
 				if( syncFile != null )
 				{
-					reader = new SyncMarkerBinFileReader( syncFile
-														, sync
+					reader = new SyncMarkerBinFileReader( sync
 														, StreamBinaryHeader.HEADER_END
 														, (Boolean)format.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue() );
 				}
@@ -481,24 +480,24 @@ public class GuiManager
 			{
 				SelectedButtonGroup gr = (SelectedButtonGroup)c;
 
-				if( guiID.equals( Panel_StreamingSettings.LSL_STREAM_NAME ) 
-						|| guiID.equals( Panel_StreamingSettings.LSL_STREAM_SYNC ) )
+				if( guiID.equals( Panel_StreamingSettings.STREAM_NAME ) 
+						|| guiID.equals( Panel_StreamingSettings.STREAM_SYNC ) )
 				{
-					HashSet< MutableDataStreamSetting > devs = (HashSet< MutableDataStreamSetting >) ConfigApp.getProperty( propID );
+					HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
 					if( devs != null )
 					{
-						Iterator< MutableDataStreamSetting > itDevs = devs.iterator();
+						Iterator< IMutableStreamSetting > itDevs = devs.iterator();
 		
 						while( itDevs.hasNext() )
 						{
-							MutableDataStreamSetting dev = itDevs.next();
+							IMutableStreamSetting dev = itDevs.next();
 							boolean find = false;
 		
 							if( c.isEnabled() )
 							{
 								if( dev.isSelected() || dev.isSynchronationStream() )
 								{
-									String devID = dev.getSourceID();
+									String devID = dev.source_id();
 			
 									find = searchButton( gr, devID );
 			
@@ -841,11 +840,11 @@ public class GuiManager
 	
 	public boolean refreshPlugins()
 	{
-		HashSet< DataStreamSetting > streams = (HashSet< DataStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
-		Set< DataStreamSetting > plgStr = DataProcessingPluginRegistrar.getAllDataStreams();
+		HashSet< IStreamSetting > streams = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+		Set< IStreamSetting > plgStr = DataProcessingPluginRegistrar.getAllDataStreams();
 		
 		boolean del = false;
-		for( DataStreamSetting dss : plgStr )
+		for( IStreamSetting dss : plgStr )
 		{
 			if( !streams.contains( dss ) )
 			{

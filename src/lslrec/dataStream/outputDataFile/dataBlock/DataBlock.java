@@ -19,11 +19,13 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+
 public abstract class DataBlock<T> 
 {
 	private int seqNum;
 	
-	private int type;
+	private StreamDataType type;
 	
 	private String name;
 	
@@ -31,7 +33,7 @@ public abstract class DataBlock<T>
 	
 	private T[] Data;
 		
-	public DataBlock( int seqNumber, String name, int dataType, long nCols , T[] data) 
+	public DataBlock( int seqNumber, String name, StreamDataType dataType, long nCols , T[] data) 
 	{
 		this.seqNum = seqNumber;
 		this.name = name;
@@ -45,7 +47,7 @@ public abstract class DataBlock<T>
 		return name;
 	}
 	
-	public int getDataType() 
+	public StreamDataType getDataType() 
 	{
 		return type;
 	}
