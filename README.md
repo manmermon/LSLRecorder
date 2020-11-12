@@ -1,6 +1,6 @@
 # LSL Recorder
 
-LSL Recorder is a multi-thread, cross-platform software developed using Java technology (version 1.7) and [Lab Streaming Layer](https://github.com/sccn/labstreaminglayer) based on [CLIS](https://github.com/manmermon/CLIS) focused on recording digital signals for offline data analysis. More details in this [IEEE's paper](www.doi.org/10.1109/ACCESS.2020.3034770).
+LSL Recorder is a multi-thread, cross-platform software developed using Java technology (version 1.8) and [Lab Streaming Layer](https://github.com/sccn/labstreaminglayer) based on [CLIS](https://github.com/manmermon/CLIS) focused on recording digital signals for offline data analysis. More details in this [IEEE's paper](www.doi.org/10.1109/ACCESS.2020.3034770).
 
 <div align="center">
     <img src="./Readme/LSLRecorderGui.png", width="500">
@@ -66,7 +66,11 @@ From LSLRecorder version 3, it is possible to extend the functionality adding pl
 - <u>Sync method</u>: new sync marker method. The plugin must implement ILSLRecPluginSyncMethod interface and extends LSLRecPluginSynMethod class.
 - <u>Trial interface</u>: adding trial interface. The plugin must implement ILSLRecPluginTrial interfacee and extends LSLRecPluginTrial class.
 
-If the plugin needs parameters, this can extends the LSLRecConfigurablePlugin template.
+<!--If the plugin needs parameters, this can extends the LSLRecConfigurablePlugin template.-->
+
+There are several plugin examples in the folder [LSLRecPlugin/src/lslrec/plugin/impl](https://github.com/manmermon/LSLRecorder/tree/master/LSLRecPlugin/src/lslrec/plugin/impl).   
+
+The class LSLRecPluginTest allows testing a developed plugin using its function "startTest()".
 
 <u><i><b>Note</b></i></u>: The current LSLRecorder version requires JRE/JDK 1.8 for the plugins to work. For Java 9 o greater, LSLRecorder works but without plugins. 
 
