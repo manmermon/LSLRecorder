@@ -32,6 +32,12 @@ public class DownSampling extends LSLRecPluginDataProcessing
 	}	
 	
 	@Override
+	public String getID() 
+	{
+		return "Downsampling";
+	}
+	
+	@Override
 	public int getBufferLength() 
 	{
 		return (Integer)this.pars.getParameter( DECIMATION ).getValue();

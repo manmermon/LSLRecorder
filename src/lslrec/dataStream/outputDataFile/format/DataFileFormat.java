@@ -23,14 +23,18 @@
 package lslrec.dataStream.outputDataFile.format;
 
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
+import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
 import lslrec.dataStream.outputDataFile.format.matlab.MatlabEncoder;
@@ -40,12 +44,7 @@ public class DataFileFormat
 {
 	public static String MATLAB = "MATLAB";
 	//public static String CSV = "CSV";
-	/*
-	public static final String CLIS_GZIP = "CLIS-GZIP";
-	public static final String PCLIS_GZIP = "PCLIS-GZIP";
-	public static final String CLIS_BZIP2 = "CLIS-BZIP2";
-	public static final String PCLIS_BZIP2 = "PCLIS-BZIP2";
-	*/
+
 	public static final String CLIS = "CLIS";
 	public static final String HDF5 = "HDF5";
 
@@ -100,44 +99,6 @@ public class DataFileFormat
 		return exts;
 	}
 	
-	/*
-	public static int getCompressTech( String fileFormat )
-	{
-		int zp = OutputZipDataFactory.UNDEFINED;
-		
-		fileFormat = fileFormat.toUpperCase();
-		
-		if( fileFormat.equals( CLIS_GZIP ) 
-				||fileFormat.equals( PCLIS_GZIP ))
-		{
-			zp = OutputZipDataFactory.GZIP;
-		}
-		else if( fileFormat.equals( CLIS_BZIP2 ) 
-				|| fileFormat.equals( PCLIS_BZIP2 ) )
-		{
-			zp = OutputZipDataFactory.BZIP2;
-		}
-		
-		return zp;
-	}
-	*/
-
-	/*
-	public static String getSupportedFileExtension( String fileFormat ) throws IllegalArgumentException
-	{
-		if( !isSupportedFileFormat( fileFormat ) )
-		{
-			throw new IllegalArgumentException( "Unsupport file format." );
-		}
-		
-		Map<String, String > exts = getSupportedFileExtension();
-
-		String ext = exts.get( fileFormat );
-		
-		return ext;
-	}
-	*/
-
 	public static boolean isSupportedFileFormat(String format)
 	{
 		boolean ok = false;
@@ -185,26 +146,6 @@ public class DataFileFormat
 		return enc;
 	}
 	
-	/*
-	public static boolean isSupportedEncryption( String format ) 
-	{
-		boolean supported = false;
-		
-		if ( isSupportedFileFormat( format ) )
-		{	
-			format = format.toUpperCase();
-			
-			Encoder enc = getDataFileEncoder( format );
-			if( enc != null )
-			{
-				supported = enc.isSupportedEncryption();
-			}
-		}
-		
-		return supported;
-	}
-	*/
-
 	public static void addEncoder( LSLRecPluginEncoder encoder )
 	{
 		if( encoder != null )
@@ -238,5 +179,31 @@ public class DataFileFormat
 		}
 		
 		return pars;
+	}
+
+	public static OutputFileFormatParameters getDefaultOutputFileFormatParameters()
+	{
+		OutputFileFormatParameters outPars = new OutputFileFormatParameters( );
+				
+		outPars.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, DataFileFormat.CLIS );
+		
+		Parameter< String > p = outPars.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT );
+		outPars.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, "./data" + DataFileFormat.getSupportedFileExtension().get( p.getValue() ) );
+		
+		outPars.setParameter( OutputFileFormatParameters.ZIP_ID, CompressorDataFactory.GZIP );
+		outPars.setParameter( OutputFileFormatParameters.CHAR_CODING,  Charset.forName( "UTF-8" )  );
+		
+		outPars.setParameter( OutputFileFormatParameters.PARALLELIZE, true );
+		
+		
+		outPars.setParameter( OutputFileFormatParameters.NUM_BLOCKS, 2L );
+		outPars.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE );
+		
+		outPars.setParameter( OutputFileFormatParameters.DATA_NAMES, "" );
+		
+		outPars.setParameter( OutputFileFormatParameters.RECORDING_INFO, new HashMap< String, String >() );				
+		outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, !ConfigApp.isTesting() );
+		
+		return outPars;
 	}
 }

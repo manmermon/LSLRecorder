@@ -24,10 +24,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.tasks.ITaskIdentity;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 
-public abstract class LSLRecPluginDataProcessing																
+public abstract class LSLRecPluginDataProcessing implements ITaskIdentity												
 {		
 	protected final IStreamSetting streamSetting;
 
@@ -261,7 +262,7 @@ public abstract class LSLRecPluginDataProcessing
 	
 	public final List< Integer > getAllDataBufferLengths()
 	{
-		List< Integer > lens = new ArrayList<Integer>();
+		List< Integer > lens = new ArrayList< Integer >();
 		
 		if( this.prevProcess != null )
 		{
@@ -269,6 +270,20 @@ public abstract class LSLRecPluginDataProcessing
 		}
 		
 		lens.add( this.getBufferLength() );
+		
+		return lens;
+	}
+	
+	public final List< String > getProcessesList()
+	{
+		List< String > lens = new ArrayList< String >();
+		
+		if( this.prevProcess != null )
+		{
+			lens.addAll( this.prevProcess.getProcessesList() );
+		}
+		
+		lens.add( this.getID() );
 		
 		return lens;
 	}

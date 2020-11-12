@@ -57,6 +57,12 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	}
 
 	@Override
+	public String getID() 
+	{
+		return "Fir Filter";
+	}
+	
+	@Override
 	public void loadProcessingSettings(List<Parameter<String>> arg0) 
 	{
 		if( arg0 != null )

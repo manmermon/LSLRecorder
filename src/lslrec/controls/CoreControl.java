@@ -43,6 +43,7 @@ import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
@@ -520,7 +521,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
 					StreamPars.addParameter( writingTest );
 					
-					OutputFileFormatParameters outFormat = new OutputFileFormatParameters();
+					OutputFileFormatParameters outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
 					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
 					outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
 					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );

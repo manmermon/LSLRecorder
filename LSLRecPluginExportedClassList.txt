@@ -27,12 +27,11 @@ lslrec
 							
 				.outputDataFile
 								.compress							
-										.CompressorDataFactory.java
 										.IOutZip.java
 										.OutputZipDataTemplate.java
 										.zip.*
 										
-								.dataBlock.* (menos DataBlockFactory.java)								
+								.dataBlock.*								
 								
 								.format
 										.Encoder.java

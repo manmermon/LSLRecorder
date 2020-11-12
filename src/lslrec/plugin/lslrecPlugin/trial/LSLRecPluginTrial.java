@@ -137,7 +137,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 						
 
 											@Override
-											public void setSyncParameters(List<Parameter<String>> pars) 
+											public void loadSyncSettings(List<Parameter<String>> pars) 
 											{	
 											}
 										};

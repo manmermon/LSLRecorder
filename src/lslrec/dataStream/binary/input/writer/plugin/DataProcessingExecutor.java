@@ -224,4 +224,16 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 		
 		return res;
 	}
+	
+	public List< String > getProcessingIDSequence()
+	{
+		List< String > processes = new ArrayList< String >();
+		
+		if( this.process != null )
+		{
+			processes.addAll( this.process.getProcessesList() );
+		}
+		
+		return processes;
+	}
 }

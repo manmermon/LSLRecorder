@@ -20,22 +20,17 @@
 
 package lslrec.dataStream.outputDataFile.format;
 
-import java.nio.charset.Charset;
-import java.util.HashMap;
-
-import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 
 public class OutputFileFormatParameters
 {
-	public static final String OUT_FILE_NAME = ConfigApp.OUTPUT_FILE_NAME;
-	public static final String ZIP_ID = ConfigApp.OUTPUT_COMPRESSOR;
+	public static final String OUT_FILE_NAME = "OUT_FILE_NAME";
+	public static final String ZIP_ID = "ZIP_ID";
 	public static final String CHAR_CODING = "CHAR_CODING";
-	public static final String ENCRYPT_KEY = ConfigApp.OUTPUT_ENCRYPT_DATA;	
-	public static final String PARALLELIZE = ConfigApp.OUTPUT_PARALLELIZE;
-	public static final String OUT_FILE_FORMAT = ConfigApp.OUTPUT_FILE_FORMAT;
+	public static final String ENCRYPT_KEY = "ENCRYPT_KEY";	
+	public static final String PARALLELIZE = "PARALLELIZE";
+	public static final String OUT_FILE_FORMAT = "OUT_FILE_FORMAT";
 	public static final String NUM_BLOCKS= "NUM_BLOCKS";	
 	public static final String BLOCK_DATA_SIZE = "BLOCK_DATA_SIZE";
 	public static final String DATA_NAMES = "DATA_NAME";
@@ -44,26 +39,8 @@ public class OutputFileFormatParameters
 	
 	private ParameterList pars = new ParameterList();
 	
-	public OutputFileFormatParameters() 
+	public OutputFileFormatParameters( ) 
 	{
-		this.setParameter( OUT_FILE_FORMAT, DataFileFormat.CLIS );
-		
-		Parameter< String > p = this.pars.getParameter( OUT_FILE_FORMAT );
-		this.setParameter( OUT_FILE_NAME, "./data" + DataFileFormat.getSupportedFileExtension().get( p.getValue() ) );
-		
-		this.setParameter( ZIP_ID, CompressorDataFactory.GZIP );
-		this.setParameter( CHAR_CODING,  Charset.forName( "UTF-8" )  );
-		//this.setParameter( new Parameter< String >( ENCRYPT_KEY, null ) );
-		this.setParameter( PARALLELIZE, true );
-		
-		
-		this.setParameter(NUM_BLOCKS, 2L );
-		this.setParameter( BLOCK_DATA_SIZE, ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE );
-		
-		this.setParameter( DATA_NAMES, "" );
-		
-		this.setParameter( RECORDING_INFO, new HashMap< String, String >() );				
-		this.setParameter( DELETE_BIN, !ConfigApp.isTesting() );		
 	}
 	
 	public void setParameter( String id, Object value )

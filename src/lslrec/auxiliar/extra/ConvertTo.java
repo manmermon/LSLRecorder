@@ -806,7 +806,30 @@ public class ConvertTo
 			return res;
 		}
 
+		public static byte[] StringArray2byteArray( String[] strs )
+		{
+			byte[] out = null;
 
+			if( strs != null )
+			{
+				int byteSize = 0;
+				for( String t : strs )
+				{
+					byteSize += t.length();
+				}
+				
+				out = new byte[ byteSize ];
+				
+				int to = 0;
+				for( String t : strs )
+				{
+					System.arraycopy( t.getBytes(), 0, out, to, t.length() );
+					to += t.length();
+				}
+			}
+
+			return out;
+		}
 
 		public static byte[] DoubleArray2byteArray( Double[] d )
 		{
@@ -1174,8 +1197,6 @@ public class ConvertTo
 		{
 			return (new String( bytes )).toCharArray();
 		}
-
-
 
 		public static Number[] Interleaved( Number[] array, int chunkSize )
 		{

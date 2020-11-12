@@ -130,7 +130,7 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 		}
 	}
 	
-	public abstract void setSyncParameters( List< Parameter< String > > pars );
+	public abstract void loadSyncSettings( List< Parameter< String > > pars );
 	
 	protected abstract SyncMarker getSyncMarker( );
 }

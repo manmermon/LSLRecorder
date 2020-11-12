@@ -172,12 +172,16 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 			
 			if( processfile != null )
 			{
+				/*
 				OutputFileFormatParameters procFormat = new OutputFileFormatParameters();
 				
 				for( String idPar : this.outputFormat.getAllParameters().getParameterIDs() )
 				{	
 					procFormat.setParameter( idPar, this.outputFormat.getParameter( idPar ).getValue() );
 				}
+				*/
+				
+				OutputFileFormatParameters procFormat = this.outputFormat.clone();
 				
 				String filename = procFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString();
 				
@@ -208,7 +212,7 @@ public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
 				
 				MutableStreamSetting dss = new MutableStreamSetting( super.streamSetting );
 				
-				dss.setAdditionalInfo( "ProcessingBufferLengths", this.datProcessingExec.getTotalBufferLengths().toString() );
+				dss.setAdditionalInfo( "ProcessingBufferLengths", this.datProcessingExec.getProcessingIDSequence() +"=" + this.datProcessingExec.getTotalBufferLengths().toString() );
 				//LSLUtils.addNode( dss.getStreamInfo(), new StringTuple( "DataProcessingInfo", info ) );
 				
 				processingEvent = new EventInfo( this.datProcessingExec.getID()
