@@ -1,8 +1,7 @@
-package lslrec.plugin.impl.gui;
 /*
  * Copyright 2011-2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of CLIS.
+ *   This file is part of CLIS.  https://github.com/manmermon/CLIS
  *
  *   CLIS is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,6 +17,7 @@ package lslrec.plugin.impl.gui;
  *   along with CLIS.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
+package lslrec.plugin.impl.gui;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -42,7 +42,7 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.WritableRaster;
 import java.util.Arrays;
 
-public class basicPainter2D
+public class BasicPainter2D
 {	
 	public static final int NORTH = 0;
 	public static final int SOUTH = 1;

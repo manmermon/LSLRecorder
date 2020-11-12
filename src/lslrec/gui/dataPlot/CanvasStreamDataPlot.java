@@ -3,7 +3,7 @@
  * 
  * Copyright 2011-2019 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of CLIS.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
  *   CLIS is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by

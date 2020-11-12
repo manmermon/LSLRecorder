@@ -3,7 +3,7 @@
  * 
  * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
- *   This file is part of LSLRec.
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
  *   LSLRec is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ package lslrec.dataStream.binary.input.writer;
 
 import lslrec.controls.messages.EventInfo;
 import lslrec.controls.messages.EventType;
-import lslrec.dataStream.binary.input.LSLInStreamDataReceiverTemplate;
+import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
@@ -42,7 +42,7 @@ import java.util.Calendar;
 
 import lslrec.auxiliar.extra.FileUtils;
 
-public class TemporalOutDataFileWriter extends LSLInStreamDataReceiverTemplate
+public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 {
 	protected File file = null;
 

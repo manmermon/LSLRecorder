@@ -1,16 +1,14 @@
-/**
+/* 
+ * 
+ * Based on StreamInlet class from Lab Streaming Layer project.
+ * From:
+ *  https://github.com/labstreaminglayer/liblsl-Java/blob/39799dae02edf34e138d2a67ae768dc38a0248a9/src/edu/ucsd/sccn/LSL.java
  * 
  */
 package lslrec.dataStream.family.stream;
 
 import lslrec.dataStream.family.setting.IStreamSetting;
 
-/**
- * @author Manuel Merino Monge
- * 
- * Based on StreamInlet class from Lab Streaming Layer project.
- *
- */
 public interface IDataStream 
 {	
     /**
