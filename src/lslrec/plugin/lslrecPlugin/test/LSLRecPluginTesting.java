@@ -74,6 +74,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.swing.JLabel;
@@ -101,6 +102,9 @@ public class LSLRecPluginTesting
 	private JFrame plgWin = null;
 	
 	private EndedPluginInspector inspector = null;
+	
+	private LinkedList< Number > dataBuffer = null;
+	private int overlapCounter = 0;
 	
 	public LSLRecPluginTesting( ILSLRecPlugin plg )
 	{
@@ -371,6 +375,8 @@ public class LSLRecPluginTesting
 			thr.stopThread( IStoppableThread.FORCE_STOP );
 			thr = null;
 		}
+		
+		this.dataBuffer = null;
 	}
 	
 	private SimpleStreamSetting getSimpleStreamSetting( String name, StreamDataType type )
@@ -475,6 +481,8 @@ public class LSLRecPluginTesting
 		ILSLRecPluginDataProcessing plg = (ILSLRecPluginDataProcessing)this.plugin;
 		LSLRecPluginDataProcessing proc = plg.getProcessing( getSimpleStreamSetting( plg.getID(), type  ), null );
 		proc.loadProcessingSettings( plg.getSettings() );
+		
+		this.dataBuffer = new LinkedList<Number>();
 		
 		int len = proc.getBufferLength();
 		
@@ -658,7 +666,12 @@ public class LSLRecPluginTesting
 		
 		thr.startThread();
 	}
-	
+		
+	/**
+	 * 
+	 * @author Manuel Merino Monge
+	 *
+	 */
 	private class EndedPluginInspector extends AbstractStoppableThread
 	{
 		private Thread thread = null;

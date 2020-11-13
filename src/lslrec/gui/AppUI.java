@@ -26,6 +26,9 @@ import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -49,6 +52,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -98,6 +102,7 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -150,17 +155,19 @@ public class AppUI extends JFrame
 	// menu
 	private JMenu jFileMenu = null;
 	private JMenu jLangMenu = null;
-
+	private JMenu menuPreference = null;
+	private JMenu menuLibrary = null;
+	
 	// menuItem	
 	private JMenuItem jMenuAbout = null;
-	private JMenuItem jGNUGLP = null;
-	private JMenu menuPreference = null;
+	private JMenuItem jGNUGLP = null;	
 	private JMenuItem menuLoad = null;
 	private JMenuItem menuSave = null;
 	private JMenuItem menuBin2Clis = null;
 	private JMenuItem menuWritingTest = null;
-	private JMenuItem menuExit = null;
+	private JMenuItem menuExit = null;	
 	private JMenuItem menuShowLog = null;
+	
 
 	// Processbar
 	private LevelIndicator appTextState = null;
@@ -175,7 +182,7 @@ public class AppUI extends JFrame
 	private Panel_StreamingSettings streamSettingPanel;
 
 	// JCombox
-	private JComboBox< String > jComboxSyncMethod;
+	private JComboBox< String > jComboxSyncMethod;	
 
 	// CheckBox
 	private JCheckBox checkActiveSpecialInputMsg;
@@ -238,7 +245,7 @@ public class AppUI extends JFrame
 
 		idAct = "actionRefresh";
 		inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK ), idAct );		 
-		actionMap.put( idAct, KeyActions.getButtonClickAction( idAct, this.getJButtonRefreshDevice() ) );
+		actionMap.put( idAct, KeyActions.getButtonClickAction( idAct, this.getJButtonRefreshDataStreams() ) );
 	}
 
 	private void closingChecks()
@@ -349,7 +356,7 @@ public class AppUI extends JFrame
 
 			this.jPanelSelectSyncMethod.add( this.getJButtonPlay() );
 
-			this.jPanelSelectSyncMethod.add( this.getJButtonRefreshDevice() );
+			this.jPanelSelectSyncMethod.add( this.getJButtonRefreshDataStreams() );
 
 			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
@@ -517,7 +524,7 @@ public class AppUI extends JFrame
 		return text;
 	}
 
-	protected JButton getJButtonRefreshDevice()
+	protected JButton getJButtonRefreshDataStreams()
 	{
 		if( this.btnRefreshDevices == null )
 		{
@@ -544,7 +551,7 @@ public class AppUI extends JFrame
 							{
 								try 
 								{	
-									getStreamSetting().refreshLSLStreamings();
+									getStreamSetting().refreshDataStreams();
 									
 									if( GuiManager.getInstance().refreshPlugins() )
 									{
@@ -685,6 +692,7 @@ public class AppUI extends JFrame
 			//this.jJMenuBar.setLayout( new BorderLayout() );
 
 			this.jJMenuBar.add( this.getFileMenu() );
+			this.jJMenuBar.add( this.getStreamLibraryMenu() );
 			//this.jJMenuBar.add( this.getLangMenu() );
 			this.jJMenuBar.add( this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height ) );
 
@@ -692,7 +700,63 @@ public class AppUI extends JFrame
 		}
 		return this.jJMenuBar;
 	}
+	
+	private JMenu getStreamLibraryMenu()
+	{
+		if( this.menuLibrary == null )
+		{
+			this.menuLibrary = new JMenu( Language.getLocalCaption( Language.MENU_LIBRARY ) );
+			
+			Border defaultBorder = this.menuLibrary.getBorder();
+			this.menuLibrary.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5 ), defaultBorder ) );
+			
+			ButtonGroup menuGr = new ButtonGroup();
+			
+			for( StreamLibrary lib : StreamLibrary.values() )
+			{
+				JRadioButtonMenuItem libMenu = new JRadioButtonMenuItem( lib + "" );
 
+				libMenu.addActionListener( new ActionListener() 
+				{	
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						JMenuItem m = (JMenuItem)e.getSource();
+
+						try
+						{
+							StreamLibrary lib = StreamLibrary.valueOf( m.getText() );
+									
+							ConfigApp.setProperty( ConfigApp.STREAM_LIBRARY, lib );
+						}
+						catch( Exception ex )
+						{
+							JOptionPane.showMessageDialog( GuiManager.getInstance().getAppUI()
+															, ex.getMessage()
+															, Language.getLocalCaption( Language.DIALOG_ERROR )
+															, JOptionPane.ERROR_MESSAGE );
+						}
+					}
+				});
+
+				if( lib == StreamLibrary.LSL )
+				{
+					libMenu.setSelected( true );
+				}
+				
+				menuGr.add( libMenu );
+
+				this.menuLibrary.add( libMenu );
+			
+			}
+			
+			MenuScroller menuScr = new MenuScroller( this.menuLibrary, 5 );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_LIBRARY, this.menuLibrary );
+		}
+		return this.menuLibrary;
+	}
+	
 	private void setBackgroundContainer( Container cont, Color bg )
 	{
 		if( cont != null )

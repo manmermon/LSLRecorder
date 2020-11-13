@@ -1,6 +1,6 @@
-package testing.Compression;
+package lslrec.testing.Compression;
 
-import testing.Compression.testHNIS.HNIS.Codeword;
+import lslrec.testing.Compression.testHNIS.HNIS.Codeword;
 
 public class testHNIS {
 

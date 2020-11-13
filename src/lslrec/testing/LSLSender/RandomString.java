@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.LSLSender;
+package lslrec.testing.LSLSender;
 import java.security.SecureRandom;
 import java.util.Locale;
 import java.util.Objects;

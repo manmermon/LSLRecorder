@@ -1,4 +1,4 @@
-package testing.Others;
+package lslrec.testing.Others;
 
 import java.security.MessageDigest;
 import java.text.DecimalFormat;

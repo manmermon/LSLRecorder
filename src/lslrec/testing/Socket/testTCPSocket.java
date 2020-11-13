@@ -18,14 +18,14 @@
  *   
  */
 
-package testing.Socket;
+package lslrec.testing.Socket;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import Prototype.Socket.TCPClientSocketThread;
-import Sockets.TCPSeverSocketTheard;
+import lslrec.sockets.TCPSeverSocketTheard;
+
 
 public class testTCPSocket 
 {

@@ -1,4 +1,4 @@
-package testing.Compression;
+package lslrec.testing.Compression;
 
 public class HuffmanCodeSolution {
 

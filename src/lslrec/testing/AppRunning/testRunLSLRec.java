@@ -1,13 +1,5 @@
-package testing.AppRunning;
+package lslrec.testing.AppRunning;
 
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.appUI;
-import GUI.guiManager;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.OpeningDialog;
-import config.ConfigApp;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -22,8 +14,16 @@ import java.util.Arrays;
 
 import javax.swing.UIManager;
 
-import Config.language.Language;
-import Controls.core.CoreControl;
+import lslrec.config.ConfigApp;
+import lslrec.config.language.Language;
+import lslrec.controls.CoreControl;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.AppUI;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dialog.Dialog_Opening;
+import lslrec.gui.miscellany.GeneralAppIcon;
 
 public class testRunLSLRec
 {
@@ -106,7 +106,7 @@ public class testRunLSLRec
 			}
 			finally
 			{
-				GuiManager.getInstance().getAppUI().loadConfigValues();
+				GuiManager.getInstance().loadConfigValues2GuiComponents();
 				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			}
                         

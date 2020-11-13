@@ -426,7 +426,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					this.isRecording = false;
 					this.managerGUI.setAppState( AppState.STOP, 0, false );
 					this.managerGUI.restoreGUI();
-					this.managerGUI.refreshLSLDevices();
+					this.managerGUI.refreshDataStreams();
 
 					return;
 				}
@@ -650,7 +650,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 			
 			this.managerGUI.restoreGUI();
-			this.managerGUI.refreshLSLDevices();
+			this.managerGUI.refreshDataStreams();
 			this.isWaitingForStartCommand = false;
 			this.showWarningEvent = true;
 						

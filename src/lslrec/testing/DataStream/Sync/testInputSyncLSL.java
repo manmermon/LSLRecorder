@@ -17,9 +17,9 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.DataStream.Sync;
+package lslrec.testing.DataStream.Sync;
 
-import testing.AppRunning.SyncStream.testSyncLSL;
+import lslrec.testing.AppRunning.SyncStream.testSyncLSL;
 
 public class testInputSyncLSL {
 

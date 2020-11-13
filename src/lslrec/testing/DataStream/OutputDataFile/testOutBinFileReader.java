@@ -17,19 +17,19 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.DataStream.OutputDataFile;
+package lslrec.testing.DataStream.OutputDataFile;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.extra.ConvertTo;
-import DataStream.Binary.BinaryDataFormat;
-import DataStream.Binary.reader.ReaderBinaryFile;
-import DataStream.OutputDataFile.DataBlock.ByteBlock;
-import dataStream.StreamHeader;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSLUtils;
+import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.dataStream.binary.BinaryDataFormat;
+import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.binary.reader.ReaderBinaryFile;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
+import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 
 public class testOutBinFileReader {
 
@@ -49,38 +49,38 @@ public class testOutBinFileReader {
 			List< List< BinaryDataFormat > > formatFiles = new ArrayList< List<BinaryDataFormat>>();
 			
 			List< BinaryDataFormat > formatInt16 = new ArrayList<BinaryDataFormat>();
-			formatInt16.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.int16 ), 2,1 ) );
-			formatInt16.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 1 ) );
+			formatInt16.add( new BinaryDataFormat( StreamDataType.int16, 2,1 ) );
+			formatInt16.add( new BinaryDataFormat( StreamDataType.double64, 8, 1 ) );
 			formatFiles.add( formatInt16 );
 			
 			List< BinaryDataFormat > formatInt8 = new ArrayList<BinaryDataFormat>();
-			formatInt8.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.int8 ), 1, 1 ) );
-			formatInt8.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 1 ) );
+			formatInt8.add( new BinaryDataFormat( StreamDataType.int8, 1, 1 ) );
+			formatInt8.add( new BinaryDataFormat( StreamDataType.double64, 8, 1 ) );
 			formatFiles.add( formatInt8 );
 			
 			List< BinaryDataFormat > formatFloat = new ArrayList<BinaryDataFormat>();
-			formatFloat.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.float32 ), 4, 1 ) );
-			formatFloat.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 1 ) );
+			formatFloat.add( new BinaryDataFormat( StreamDataType.float32, 4, 1 ) );
+			formatFloat.add( new BinaryDataFormat( StreamDataType.double64, 8, 1 ) );
 			formatFiles.add( formatFloat );
 			
 			List< BinaryDataFormat > formatDouble = new ArrayList<BinaryDataFormat>();
-			formatDouble.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 1 ) );
-			formatDouble.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 1 ) );			
+			formatDouble.add( new BinaryDataFormat( StreamDataType.double64, 8, 1 ) );
+			formatDouble.add( new BinaryDataFormat( StreamDataType.double64, 8, 1 ) );			
 			formatFiles.add( formatDouble );
 			
 			List< BinaryDataFormat > formatFloat2 = new ArrayList<BinaryDataFormat>();
-			formatFloat2.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.float32 ), 4, 2 ) );
-			formatFloat2.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 2 ) );
+			formatFloat2.add( new BinaryDataFormat( StreamDataType.float32, 4, 2 ) );
+			formatFloat2.add( new BinaryDataFormat( StreamDataType.double64, 8, 2 ) );
 			formatFiles.add( formatFloat2 );
 			
 			List< BinaryDataFormat > formatFloat4 = new ArrayList<BinaryDataFormat>();
-			formatFloat4.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.float32 ), 4, 4 ) );
-			formatFloat4.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 4 ) );
+			formatFloat4.add( new BinaryDataFormat( StreamDataType.float32, 4, 4 ) );
+			formatFloat4.add( new BinaryDataFormat( StreamDataType.double64, 8, 4 ) );
 			formatFiles.add( formatFloat4 );
 			
 			List< BinaryDataFormat > formatFloat45 = new ArrayList<BinaryDataFormat>();
-			formatFloat45.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.float32 ), 4, 4*5 ) );
-			formatFloat45.add( new BinaryDataFormat( LSLUtils.getDataTypeBytes( LSL.ChannelFormat.double64 ), 8, 5 ) );
+			formatFloat45.add( new BinaryDataFormat( StreamDataType.float32, 4, 4*5 ) );
+			formatFloat45.add( new BinaryDataFormat( StreamDataType.double64, 8, 5 ) );
 			formatFiles.add( formatFloat45 );
 			
 			int iFormat = 0;
@@ -107,10 +107,10 @@ public class testOutBinFileReader {
 						{
 							case 0:
 							{
-								short[] data = ConvertTo.ByteArray2ShortArray( ConvertTo.ByterArray2byteArray( block0.getData() ) );
+								short[] data = ConvertTo.Transform.ByteArray2ShortArray( ConvertTo.Casting.ByterArray2byteArray( block0.getData() ) );
 								
 								
-								double[] time = ConvertTo.ByteArray2DoubleArray( ConvertTo.ByterArray2byteArray( block1.getData() ) );
+								double[] time = ConvertTo.Transform.ByteArray2DoubleArray( ConvertTo.Casting.ByterArray2byteArray( block1.getData() ) );
 											
 								System.out.print(" <");
 								for( int i = 0 ; i < data.length; i++ )
@@ -130,10 +130,10 @@ public class testOutBinFileReader {
 							}
 							case 1:
 							{
-								byte[] data = ConvertTo.ByterArray2byteArray( block0.getData() );
+								byte[] data = ConvertTo.Casting.ByterArray2byteArray( block0.getData() );
 								
 								
-								double[] time = ConvertTo.ByteArray2DoubleArray( ConvertTo.ByterArray2byteArray( block1.getData() ) );
+								double[] time = ConvertTo.Transform.ByteArray2DoubleArray( ConvertTo.Casting.ByterArray2byteArray( block1.getData() ) );
 														
 								System.out.print(" <");
 								for( int i = 0 ; i < data.length; i++ )
@@ -156,9 +156,9 @@ public class testOutBinFileReader {
 							case 5:
 							case 6:
 							{
-								float[] data = ConvertTo.ByteArray2FloatArray( ConvertTo.ByterArray2byteArray( block0.getData() ) );
+								float[] data = ConvertTo.Transform.ByteArray2FloatArray( ConvertTo.Casting.ByterArray2byteArray( block0.getData() ) );
 																
-								double[] time = ConvertTo.ByteArray2DoubleArray( ConvertTo.ByterArray2byteArray( block1.getData() ) );
+								double[] time = ConvertTo.Transform.ByteArray2DoubleArray( ConvertTo.Casting.ByterArray2byteArray( block1.getData() ) );
 											
 								System.out.print(" <");
 								for( int i = 0 ; i < data.length; i++ )
@@ -178,9 +178,9 @@ public class testOutBinFileReader {
 							}
 							case 3:
 							{
-								double[] data = ConvertTo.ByteArray2DoubleArray( ConvertTo.ByterArray2byteArray( block0.getData() ) );								
+								double[] data = ConvertTo.Transform.ByteArray2DoubleArray( ConvertTo.Casting.ByterArray2byteArray( block0.getData() ) );								
 								
-								double[] time = ConvertTo.ByteArray2DoubleArray( ConvertTo.ByterArray2byteArray( block1.getData() ) );
+								double[] time = ConvertTo.Transform.ByteArray2DoubleArray( ConvertTo.Casting.ByterArray2byteArray( block1.getData() ) );
 														
 								System.out.print(" <");
 								for( int i = 0 ; i < data.length; i++ )

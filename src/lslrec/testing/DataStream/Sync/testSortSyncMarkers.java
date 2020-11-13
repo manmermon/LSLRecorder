@@ -1,10 +1,10 @@
-package testing.DataStream.Sync;
+package lslrec.testing.DataStream.Sync;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import DataStream.Sync.SyncMarker;
+import lslrec.dataStream.sync.SyncMarker;
 
 public class testSortSyncMarkers {
 

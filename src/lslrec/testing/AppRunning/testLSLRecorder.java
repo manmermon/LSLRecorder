@@ -1,4 +1,4 @@
-package testing.AppRunning;
+package lslrec.testing.AppRunning;
 /*
  * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
@@ -20,30 +20,6 @@ package testing.AppRunning;
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-
-import Controls.Messages.RegisterSyncMessages;
-import Controls.core.CoreControl;
-import DataStream.OutputDataFile.Format.DataFileFormat;
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.appUI;
-import GUI.guiManager;
-import GUI.Miscellany.ArrayTreeMap;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.OpeningDialog;
-import GUI.Miscellany.TextAreaPrintStream;
-import Sockets.Info.SocketSetting;
-import StoppableThread.IStoppableThread;
-import config.ConfigApp;
-import controls.OutputDataFileHandler;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSLConfigParameters;
-import testing.AppRunning.LSLStream.LSLStream;
-import testing.AppRunning.SyncStream.testSendSocketMsgToLslRec;
-import testing.AppRunning.SyncStream.testSyncLSL;
-import testing.LSLSender.LSLSimulationParameters;
-import testing.Socket.testTCPSocket;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -77,8 +53,31 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
-import Auxiliar.extra.Tuple;
-import Config.language.Language;
+import lslrec.auxiliar.extra.ArrayTreeMap;
+import lslrec.auxiliar.extra.Tuple;
+import lslrec.config.ConfigApp;
+import lslrec.config.language.Language;
+import lslrec.controls.CoreControl;
+import lslrec.controls.OutputDataFileHandler;
+import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.sync.SyncMethod;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.AppUI;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dialog.Dialog_Opening;
+import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.testing.AppRunning.LSLStream.LSLStream;
+import lslrec.testing.AppRunning.SyncStream.testSendSocketMsgToLslRec;
+import lslrec.testing.AppRunning.SyncStream.testSyncLSL;
+import lslrec.testing.LSLSender.LSLSimulationParameters;
+
+import lslrec.sockets.info.SocketSetting;
+import lslrec.stoppableThread.IStoppableThread;
 
 public class testLSLRecorder
 {
@@ -93,7 +92,7 @@ public class testLSLRecorder
 	
 	private static int port = 45678;
 	
-	private static String outFileFormat = DataFileFormat.CLIS_GZIP;
+	private static String outFileFormat = DataFileFormat.CLIS;
 	
 	static
 	{
@@ -110,12 +109,12 @@ public class testLSLRecorder
 		par.setNumberOutputBlocks( 100 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 												// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		Integer[] lslrecSetting = new Integer[] { 0					,1						,1						,128				,5				,1			,0 };
-/* 0 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 0 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 		
  
 		par = new LSLSimulationParameters();
@@ -123,12 +122,12 @@ public class testLSLRecorder
 		par.setNumberOutputBlocks( 100 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 1					,1						,1						,128 				,5				,1			,0 };
-/* 1 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 1 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 	
 		
 		par = new LSLSimulationParameters();
@@ -136,143 +135,143 @@ public class testLSLRecorder
 		par.setNumberOutputBlocks( 100 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { -1					,1						,1						,128 				,5				,1			,0 };
-/* 2 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 2 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
   
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 10					,1						,1						,128 				,5				,1			,0 };
-/* 3 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 3 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,1						,128 				,5 				,1			,0 } ;
-/* 4 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 4 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 2 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,1						,128 			,5					,1			,0 };
-/* 5 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 5 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
  		
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 5 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,1						,128 			,5					,1			,0 };
-/* 6 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 6 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,2						,128 				,5 				, 1				,0 } ;
-/* 7 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 7 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
  
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 5 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,5						,128 				,5 				, 1				,0 } ;
-/* 8 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 8 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 		
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1					,100 						,128				,5 				, 1				,0 } ;
-/* 9 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		 
+/* 9 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		 
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,100 					,128				,1 				, 100				,0 } ;
-/* 10 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 10 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 0 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 100				,0 } ;
-/* 11 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 11 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		par = new LSLSimulationParameters();
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 0 );
 		par.setNumOfThreads( 1 );
 		par.setChannelNumber( 1 );
-		par.setOutDataType( LSL.ChannelFormat.int32 );
+		par.setOutDataType( StreamDataType.int32 );
 		par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 10				,1 } ;
-/* 12 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 12 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 	
 		/**
@@ -286,77 +285,77 @@ public class testLSLRecorder
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 0					,1						,1						,128				,5				,1			,0 };
-/* 0 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 0 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 								// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 0					,1						,1						,128				,5				,1			,0 };
-/* 1 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 1 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 1					,1						,1						,128 				,5				,1			,0 };
-/* 2 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 2 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 1					,1						,1						,128 				,5				,1			,0 };
-/* 3 */ testSettings.put( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 3 */ testSettings.putElement( testLSLSync, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 								// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { -1					,1						,1						,128 				,5				,1			,0 };
-/* 4 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 4 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { -1					,1						,1						,128 				,5				,1			,0 };
-/* 5 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 5 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 
 
@@ -364,213 +363,213 @@ public class testLSLRecorder
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 10					,1						,1						,128 				,5				,1			,0 };
-/* 6 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 6 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 100 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 10					,1						,1						,128 				,5				,1			,0 };
-/* 7 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
+/* 7 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,1						,128 				,5 				,1			,0 } ;
-/* 8 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 8 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,1						,128 				,5 				,1			,0 } ;
-/* 9 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 9 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,2						,128 				,5 				, 1				,0 } ;
-/* 10 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 10 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,2						,128 				,5 				, 1				,0 } ;
-/* 11 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 11 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,5						,128 				,5 				, 1				,0 } ;
-/* 12 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 12 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize 6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,5						,128 				,5 				, 1				,0 } ;
-/* 13 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 13 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1					,100 						,128				,5 				, 1				,0 } ;
-/* 14 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		 
+/* 14 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );		 
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1					,100 						,128				,5 				, 1				,0 } ;
-/* 15 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );	
+/* 15 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );	
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,100 					,128				,1 				, 100				,0 } ;
-/* 16 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 16 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( 50 ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 300					,1						,100 					,128				,1 				, 100				,0 } ;
-/* 17 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 17 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( Integer.MAX_VALUE ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 100				,0 } ;
-/* 18 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 18 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( Integer.MAX_VALUE ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 		
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 100				,0 } ;
-/* 19 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 19 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( Integer.MAX_VALUE ); // number of messages
-		par.setInDataType( SocketSetting.TCP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.float32); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 10				,1 } ;
-/* 20 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 20 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 		
 		par = new LSLSimulationParameters();
 		par.setBlockSize( 1 ); // Number of socket thread
 		par.setSamplingRate( 2 );
 		par.setNumberOutputBlocks( Integer.MAX_VALUE ); // number of messages
-		par.setInDataType( SocketSetting.UDP_PROTOCOL ); // TCP/UDP
+		par.setInDataType( StreamDataType.double64 ); // TCP/UDP
 		par.setStreamType( "127.0.0.1" ); // IP ADDRESS
 		par.setChannelNumber( 45678 ); // PORT NUMBER
 
 										// 0-timeData(s)	1-specialSyncMarker		2-DataStreamChannels	3-DataSamplingRate	4-No.DataStream	5-ChunckSize	6-Interleaved
 		lslrecSetting = new Integer[] { 20					,1					,100 						,128				,5 				, 10				,1 } ;
-/* 21 */ testSettings.put( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
+/* 21 */ testSettings.putElement( testSyncSocket, new Tuple< Integer[], LSLSimulationParameters>( lslrecSetting, par ) );
 
 	}
 	
@@ -630,8 +629,8 @@ public class testLSLRecorder
 			{	
 				Tuple< Integer[], LSLSimulationParameters > setting = testSet.get( indexTest );
 				
-				Integer[] dataStreamCfg = setting.x;
-				LSLSimulationParameters simPar = setting.y;
+				Integer[] dataStreamCfg = setting.t1;
+				LSLSimulationParameters simPar = setting.t2;
 						
 				try
 				{				
@@ -639,10 +638,10 @@ public class testLSLRecorder
 
 					try
 					{	
-						((HashSet)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES )).clear();
-						GuiManager.getInstance().refreshLSLDevices();
+						((HashSet)ConfigApp.getProperty( ConfigApp.ID_STREAMS )).clear();
+						GuiManager.getInstance().refreshDataStreams();
 						
-						LSLStream.CreateDataLSLStreams( dataStreamCfg[ 0 ], LSL.ChannelFormat.double64, dataStreamCfg[ 2 ]
+						LSLStream.CreateDataLSLStreams( dataStreamCfg[ 0 ], StreamDataType.double64, dataStreamCfg[ 2 ]
 														, dataStreamCfg[ 3 ], dataStreamCfg[ 4 ], dataStreamCfg[ 5 ], dataStreamCfg[ 6 ]  );
 
 						if( testType == testLSLSync )
@@ -678,16 +677,18 @@ public class testLSLRecorder
 							
 							String ipAddress = simPar.getStreamType();
 							int port = simPar.getChannelNumber();
-							int protocol = simPar.getInDataType();
+							StreamDataType protocol = simPar.getInDataType();
 														
 							Set< String > map = ( Set< String > )ConfigApp.getProperty( ConfigApp.SERVER_SOCKET  );
 						
 							map.clear();
 
 							String id = "TCP:";
-							if( protocol == SocketSetting.UDP_PROTOCOL )
+							int prot = SocketSetting.TCP_PROTOCOL;
+							if( protocol == StreamDataType.double64 )
 							{
 								id = "UDP:";
+								prot = SocketSetting.UDP_PROTOCOL;
 							}
 							
 							id += ipAddress + ":" + port;
@@ -720,7 +721,7 @@ public class testLSLRecorder
 								IStoppableThread sync = new testSendSocketMsgToLslRec( simPar.getBlockSize()
 																						, (long)t
 																						, simPar.getNumberOutputBlocks()
-																						, protocol
+																						, prot
 																						, ipAddress
 																						, port );
 								
@@ -773,8 +774,8 @@ public class testLSLRecorder
 						}
 						finally
 						{
-							GuiManager.getInstance().getAppUI().loadConfigValues();
-							GuiManager.getInstance().refreshLSLDevices();
+							GuiManager.getInstance().loadConfigValues2GuiComponents();
+							GuiManager.getInstance().refreshDataStreams();
 							GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );						
 						}
 
@@ -865,12 +866,12 @@ public class testLSLRecorder
 
 	private static void LoadSettings( int testType, int numSynStream, int chunkSize, int interleave, int specialInputs  )
 	{
-		GuiManager.getInstance().refreshLSLDevices();
+		GuiManager.getInstance().refreshDataStreams();
 		
-		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_FORMAT, outFileFormat );
-		ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_NAME, outFilePath );
+		ConfigApp.setProperty( ConfigApp.OUTPUT_FILE_NAME, outFileFormat );
+		ConfigApp.setProperty( ConfigApp.OUTPUT_FILE_NAME, outFilePath );
 		
-		HashSet< IMutableStreamSetting > lslCfg = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.LSL_ID_DEVICES );
+		HashSet< IMutableStreamSetting > lslCfg = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 		
 		if( testType == testLSLSync )
 		{	
@@ -878,7 +879,7 @@ public class testLSLRecorder
 			{
 				for( IMutableStreamSetting cfg : lslCfg )
 				{
-					if( cfg.getStreamName().equals( testSyncLSL.PREFIX + i ) )
+					if( cfg.name().equals( testSyncLSL.PREFIX + i ) )
 					{
 						cfg.setSynchronizationStream( true );
 						cfg.setSelected( false );
@@ -886,12 +887,12 @@ public class testLSLRecorder
 				}
 			}
 			
-			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, ConfigApp.SYNC_LSL );			
+			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, SyncMethod.SYNC_STREAM );			
 			
 		}
 		else
 		{
-			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, ConfigApp.SYNC_SOCKET );
+			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, SyncMethod.SYNC_SOCKET );
 		}
 		
 		ConfigApp.setProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, false);

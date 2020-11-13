@@ -17,29 +17,32 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.DataStream.OutputDataFile;
+package lslrec.testing.DataStream.OutputDataFile;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.extra.Tuple;
-import Auxiliar.tasks.INotificationTask;
-import Auxiliar.tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import DataStream.Binary.Input.writer.TemporalOutDataFileWriter;
-import DataStream.Binary.reader.TemporalBinData;
-import DataStream.OutputDataFile.OutputBinaryFileSegmentation;
-import DataStream.Sync.SyncMarker;
-import DataStream.Sync.SyncMarkerBinFileReader;
-import DataStream.Sync.SyncMarkerCollectorWriter;
-import DataStream.Sync.LSL.InputSyncData;
-import StoppableThread.IStoppableThread;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSLConfigParameters;
-import edu.ucsd.sccn.LSL.StreamInfo;
-import testing.LSLSender.LSLSimulationParameters;
-import testing.LSLSender.LSLSimulationStreaming;
+import lslrec.auxiliar.tasks.INotificationTask;
+import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.controls.messages.EventInfo;
+import lslrec.controls.messages.EventType;
+import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
+import lslrec.dataStream.binary.reader.TemporalBinData;
+import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.outputDataFile.OutputBinaryFileSegmentation;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.sync.SyncMarkerBinFileReader;
+import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
+import lslrec.dataStream.sync.dataStream.InputSyncData;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.LSLSender.LSLSimulationParameters;
+import lslrec.testing.LSLSender.LSLSimulationStreaming;
+
 
 public class testingOutBinFileSegmentation implements ITaskMonitor
 {
@@ -70,7 +73,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						
 						LSLSimulationParameters cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 32 );
-						cfg.setOutDataType( LSL.ChannelFormat.float32 );
+						cfg.setOutDataType( StreamDataType.float32 );
 						cfg.setNumberOutputBlocks( (int)(cfg.getSamplingRate() * 20 ));
 						cfg.setChannelNumber( 1 );
 						cfg.setStreamName( "LSLSender-1");
@@ -80,7 +83,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						
 						cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 32 );
-						cfg.setOutDataType( LSL.ChannelFormat.float32 );
+						cfg.setOutDataType( StreamDataType.float32 );
 						cfg.setNumberOutputBlocks( ((int)cfg.getSamplingRate()) * 20 );
 						cfg.setChannelNumber( 2 );
 						cfg.setStreamName( "LSLSender-2");
@@ -90,7 +93,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						
 						cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 32 );
-						cfg.setOutDataType( LSL.ChannelFormat.float32 );
+						cfg.setOutDataType( StreamDataType.float32 );
 						cfg.setNumberOutputBlocks( ((int)cfg.getSamplingRate())  * 20 );
 						cfg.setChannelNumber( 3 );
 						cfg.setStreamName( "LSLSender-3");
@@ -100,7 +103,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						
 						cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 32 );
-						cfg.setOutDataType( LSL.ChannelFormat.float32 );
+						cfg.setOutDataType( StreamDataType.float32 );
 						cfg.setNumberOutputBlocks( ((int)cfg.getSamplingRate())  * 20 );
 						cfg.setChannelNumber( 4 );
 						cfg.setStreamName( "LSLSender-4");
@@ -110,7 +113,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						
 						cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 128 );
-						cfg.setOutDataType( LSL.ChannelFormat.int32 );
+						cfg.setOutDataType( StreamDataType.int32 );
 						cfg.setNumberOutputBlocks( ((int)cfg.getSamplingRate())  * 30 );
 						cfg.setChannelNumber( 1 );
 						cfg.setStreamName( "LSLSyncSender");
@@ -157,13 +160,13 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				
 			}
 			
-			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
+			List< MutableStreamSetting > LSLthreadList = new ArrayList< MutableStreamSetting >();
 			
-			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting[] results = DataStreamFactory.createStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
 			
 			if( results.length >= 0 )
 			{
-				for( IStreamSetting.StreamInfo info : results )
+				for( IStreamSetting info : results )
 				{
 					int chuckSize = 1;
 					
@@ -183,18 +186,10 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 						i++;
 					}
 					
-					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
-																		, info.name()
-																		, info.type()
-																		, info.source_id()
-																		, info.as_xml()
-																		, true
-																		, chuckSize
-																		, false
-																		, false
-																		, info.nominal_srate() );	
+					MutableStreamSetting par = new MutableStreamSetting( info );
+					par.setSelected( true );
 					
-					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );					
+					LSLthreadList.add( par );					
 				}
 			}
 			
@@ -203,11 +198,11 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 			
 			for( int i = 0; i < LSLthreadList.size(); i++ )
 			{
-				Tuple< IStreamSetting.StreamInfo, IMutableStreamSetting > cfg = LSLthreadList.get( i );
+				MutableStreamSetting cfg = LSLthreadList.get( i );
 				
-				if( cfg.x.channel_count() == 1 && cfg.x.channel_format() ==LSL.ChannelFormat.int32 )
+				if( cfg.channel_count() == 1 && cfg.data_type() ==StreamDataType.int32 )
 				{				
-					InputSyncData syncData = new InputSyncData( cfg.x, cfg.y );
+					InputSyncData syncData = new InputSyncData( cfg );
 					syncData.taskMonitor( main );
 										
 					syncs.add( syncData );
@@ -231,7 +226,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				}
 				else
 				{
-					TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( "G:/test" + i + ".clis" , cfg.x, cfg.y, i );
+					TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( cfg, DataFileFormat.getDefaultOutputFileFormatParameters(), i );
 					wr.taskMonitor( main );				
 					
 					writers.add( wr );

@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.Others;
+package lslrec.testing.Others;
 
 import java.lang.management.ManagementFactory;
 

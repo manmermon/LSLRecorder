@@ -367,11 +367,11 @@ public class Panel_StreamingSettings extends JPanel
 	 * 
 	 * @return True if a selected streaming  is in the new list of streamings. Otherwise, False.
 	 */
-	public boolean refreshLSLStreamings()
+	public boolean refreshDataStreams()
 	{		
-		Tuple< JPanel, JTree > update = this.getUpdateDeviceInfoPanel();
+		Tuple< JPanel, JTree > update = this.getUpdateStreamPanel();
 		
-		JSplitPane splitPanel = this.getContentPanelDeviceInfo();
+		JSplitPane splitPanel = this.getContentPanelStreamInfo();
 		splitPanel.setVisible( false );
 				
 		JScrollPane scr = this.getScrollPanelSelectDevPanel();
@@ -906,13 +906,13 @@ public class Panel_StreamingSettings extends JPanel
 			this.paneStreamInfo = new JPanel();
 			this.paneStreamInfo.setLayout( new BorderLayout() );
 
-			this.paneStreamInfo.add( this.getContentPanelDeviceInfo( ), BorderLayout.CENTER ); 
+			this.paneStreamInfo.add( this.getContentPanelStreamInfo( ), BorderLayout.CENTER ); 
 		}
 
 		return this.paneStreamInfo;
 	}
 		
-	private JSplitPane getContentPanelDeviceInfo( )
+	private JSplitPane getContentPanelStreamInfo( )
 	{		
 		if( this.splitPanelDevices == null )
 		{
@@ -925,7 +925,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.splitPanelDevices.setFocusable( false );
 			this.splitPanelDevices.setFocusCycleRoot( false );
 		
-			Tuple< JPanel, JTree > deviceInfo = this.getUpdateDeviceInfoPanel();
+			Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
 			
 			JScrollPane scr = this.getScrollPanelSelectDevPanel();
 			scr.setVisible( false );
@@ -964,7 +964,7 @@ public class Panel_StreamingSettings extends JPanel
 		return this.panelDeviceAndSetting;
 	}
 	
-	private Tuple< JPanel, JTree > getUpdateDeviceInfoPanel()
+	private Tuple< JPanel, JTree > getUpdateStreamPanel()
 	{
 		JPanel panelLSLSettings  = new JPanel();
 		JTree tree = this.getDeviceInfoTree();

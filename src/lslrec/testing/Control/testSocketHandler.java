@@ -17,26 +17,27 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.Control;
+package lslrec.testing.Control;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Controls.Messages.EventInfo;
-import Prototype.Socket.TCPClientSocketThread;
-import Prototype.Socket.UDPClientSocketThread;
-import Sockets.Info.SocketParameters;
-import Sockets.Info.SocketSetting;
-import StoppableThread.IStoppableThread;
-import Timers.ITimerMonitor;
-import Timers.Timer;
-import config.Parameter;
-import config.ParameterList;
-import controls.IHandlerMinion;
-import controls.IHandlerSupervisor;
-import controls.MinionParameters;
-import controls.SocketHandler;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
+import lslrec.controls.IHandlerMinion;
+import lslrec.controls.IHandlerSupervisor;
+import lslrec.controls.MinionParameters;
+import lslrec.controls.SocketHandler;
+import lslrec.controls.messages.EventInfo;
+import lslrec.sockets.info.SocketParameters;
+import lslrec.sockets.info.SocketSetting;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.Socket.TCPClientSocketThread;
+import lslrec.testing.Socket.UDPClientSocketThread;
+import lslrec.testing.timers.ITimerMonitor;
+import lslrec.testing.timers.Timer;
+
 
 public class testSocketHandler implements ITimerMonitor
 {

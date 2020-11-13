@@ -17,17 +17,24 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.AppRunning.SyncStream;
+package lslrec.testing.AppRunning.SyncStream;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import stoppableThread.AbstractStoppableThread;
-import stoppableThread.IStoppableThread;
-import timers.ITimerMonitor;
-import timers.Timer;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSLConfigParameters;
+import com.sun.xml.internal.ws.util.StreamUtils;
+
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSL;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.StreamOutlet;
+import lslrec.testing.timers.ITimerMonitor;
+import lslrec.testing.timers.Timer;
+
 
 public class testSyncLSL extends AbstractStoppableThread implements ITimerMonitor
 {
@@ -40,8 +47,8 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 	
 	private int _softClose = 1;
 	
-	private lslrec.dataStream.family.lsl.StreamOutlet out;
-	private lslrec.dataStream.family.lsl.StreamOutlet out_time;
+	private StreamOutlet out;
+	private StreamOutlet out_time;
 	
 	public static String PREFIX =  "SyncLSL-"; 
 	
@@ -56,26 +63,26 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 				f = 1 / f;
 			}
 			
-			IStreamSetting.StreamInfo lslInfo = new IStreamSetting.StreamInfo( PREFIX + id
+			LSLStreamInfo lslInfo = new LSLStreamInfo( PREFIX + id
 														, "value"
 														, 1
 														, f
-														, LSL.ChannelFormat.int32
+														, StreamDataType.float32.ordinal()
 														, super.getClass().getSimpleName() + "-" + id ) ;
 
-			lslInfo.desc().append_child_value( IMutableStreamSetting.ID_GENERAL_DESCRIPTION_LABEL, "test" );
-			out = new LSL.StreamOutlet( lslInfo );
+			lslInfo.desc().append_child_value( StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "test" );
+			out = new StreamOutlet( lslInfo );
 			
-			IStreamSetting.StreamInfo lslInfo_time = new IStreamSetting.StreamInfo( PREFIX + "Tiempos-" + id
+			LSLStreamInfo lslInfo_time = new LSLStreamInfo( PREFIX + "Tiempos-" + id
 															, "value"
 															, 2
 															, f
-															, LSL.ChannelFormat.double64
+															, StreamDataType.double64.ordinal()
 															, super.getClass().getSimpleName() ) ;
 			lslInfo_time.desc().append_child_value( "details", "ch1-time; ch2-mark");
 
-			lslInfo_time.desc().append_child_value( IMutableStreamSetting.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
-			out_time = new LSL.StreamOutlet( lslInfo_time );
+			lslInfo_time.desc().append_child_value( StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
+			out_time = new StreamOutlet( lslInfo_time );
 			
 			_softClose = softClose; 
 			

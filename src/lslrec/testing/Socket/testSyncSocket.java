@@ -1,7 +1,7 @@
-package testing.Socket;
+package lslrec.testing.Socket;
 
-import Sockets.Info.SocketSetting;
-import testing.AppRunning.SyncStream.testSendSocketMsgToLslRec;
+import lslrec.sockets.info.SocketSetting;
+import lslrec.testing.AppRunning.SyncStream.testSendSocketMsgToLslRec;
 
 public class testSyncSocket 
 {

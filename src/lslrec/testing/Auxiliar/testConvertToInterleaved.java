@@ -35,23 +35,23 @@ public class testConvertToInterleaved
 			}
 		}
 		
-		System.out.println("testConvertToInterleaved.main() 1 " + Arrays.toString( ConvertTo.Interleaved( array1, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 3 " + Arrays.toString( ConvertTo.Interleaved( array3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 5 " + Arrays.toString( ConvertTo.Interleaved( array5, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 7 " + Arrays.toString( ConvertTo.Interleaved( array7, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 9 " + Arrays.toString( ConvertTo.Interleaved( array9, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 1 " + Arrays.toString( ConvertTo.Transform.Interleaved( array1, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 3 " + Arrays.toString( ConvertTo.Transform.Interleaved( array3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 5 " + Arrays.toString( ConvertTo.Transform.Interleaved( array5, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 7 " + Arrays.toString( ConvertTo.Transform.Interleaved( array7, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 9 " + Arrays.toString( ConvertTo.Transform.Interleaved( array9, 4 ) ) );
 		
-		System.out.println("testConvertToInterleaved.main() 2 " + Arrays.toString( ConvertTo.Interleaved( array2, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 4 " + Arrays.toString( ConvertTo.Interleaved( array4, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 6 " + Arrays.toString( ConvertTo.Interleaved( array6, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 8 " + Arrays.toString( ConvertTo.Interleaved( array8, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 10 " + Arrays.toString( ConvertTo.Interleaved( array10, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 12 " + Arrays.toString( ConvertTo.Interleaved( array12, 3, 4 ) ) );
-		System.out.println("testConvertToInterleaved.main() 14 " + Arrays.toString( ConvertTo.Interleaved( array14, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 2 " + Arrays.toString( ConvertTo.Transform.Interleaved( array2, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 4 " + Arrays.toString( ConvertTo.Transform.Interleaved( array4, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 6 " + Arrays.toString( ConvertTo.Transform.Interleaved( array6, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 8 " + Arrays.toString( ConvertTo.Transform.Interleaved( array8, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 10 " + Arrays.toString( ConvertTo.Transform.Interleaved( array10, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 12 " + Arrays.toString( ConvertTo.Transform.Interleaved( array12, 3, 4 ) ) );
+		System.out.println("testConvertToInterleaved.main() 14 " + Arrays.toString( ConvertTo.Transform.Interleaved( array14, 3, 4 ) ) );
 		
-		System.out.println("testConvertToInterleaved.main() 14-14 " + Arrays.toString( ConvertTo.Interleaved( ConvertTo.Interleaved( array14, 3, 4 ), 4, 3 ) ) );
+		System.out.println("testConvertToInterleaved.main() 14-14 " + Arrays.toString( ConvertTo.Transform.Interleaved( ConvertTo.Transform.Interleaved( array14, 3, 4 ), 4, 3 ) ) );
 		
-		System.out.println("testConvertToInterleaved.main() 15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Interleaved( array15, ch, chunk ) ) );
-		System.out.println("testConvertToInterleaved.main() 15-15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Interleaved( ConvertTo.Interleaved( array15, ch, chunk ), chunk, ch ) ) );
+		System.out.println("testConvertToInterleaved.main() 15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Transform.Interleaved( array15, ch, chunk ) ) );
+		System.out.println("testConvertToInterleaved.main() 15-15 " + Arrays.toString( array15 ) + " -> " + Arrays.toString( ConvertTo.Transform.Interleaved( ConvertTo.Transform.Interleaved( array15, ch, chunk ), chunk, ch ) ) );
 	}
 }

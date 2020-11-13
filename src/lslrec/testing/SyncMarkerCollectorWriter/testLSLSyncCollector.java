@@ -17,26 +17,28 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.SyncMarkerCollectorWriter;
+package lslrec.testing.SyncMarkerCollectorWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.extra.Tuple;
-import Auxiliar.tasks.INotificationTask;
-import Auxiliar.tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import DataStream.Sync.SyncMarker;
-import DataStream.Sync.SyncMarkerBinFileReader;
-import DataStream.Sync.SyncMarkerCollectorWriter;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSL.StreamInfo;
-import edu.ucsd.sccn.LSLConfigParameters;
-import testing.LSLSender.LSLSimulationParameters;
-import testing.LSLSender.LSLSimulationStreaming;
+import lslrec.auxiliar.tasks.INotificationTask;
+import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.controls.messages.EventInfo;
+import lslrec.controls.messages.EventType;
+import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.sync.SyncMarkerBinFileReader;
+import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.LSLSender.LSLSimulationParameters;
+import lslrec.testing.LSLSender.LSLSimulationStreaming;
+
 
 public class testLSLSyncCollector 
 {	
@@ -110,7 +112,7 @@ public class testLSLSyncCollector
 				LSLSimulationParameters par = new LSLSimulationParameters( );
 				par.setStreamName( "LSLSender-" + i);
 				par.setNumberOutputBlocks( size );
-				par.setOutDataType( LSL.ChannelFormat.int32 );
+				par.setOutDataType(StreamDataType.int32 );
 				par.setSamplingRate( f );
 				par.setOutputFunctionType( LSLSimulationParameters.LINEAR );
 												
@@ -122,26 +124,18 @@ public class testLSLSyncCollector
 				stream.startThread();				
 			}
 			
-			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
+			List< MutableStreamSetting > LSLthreadList = new ArrayList< MutableStreamSetting >();
 			
-			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );
 			
 			if( results.length >= 0 )
 			{
-				for( IStreamSetting.StreamInfo info : results )
+				for( IStreamSetting info : results )
 				{
-					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
-																		, info.name()
-																		, info.type()
-																		, info.source_id()
-																		, info.as_xml()
-																		, true
-																		, 1
-																		, false
-																		, true
-																		, info.nominal_srate() );	
+					MutableStreamSetting par = new MutableStreamSetting( info );					
+					par.setSynchronizationStream( true );	
 					
-					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );
+					LSLthreadList.add( par );
 				}
 			}
 			
@@ -325,7 +319,7 @@ public class testLSLSyncCollector
 						
 						do
 						{	
-							sync = reader.getSyncMarkerMethod();
+							sync = reader.getSyncMarker();
 							System.out.println("\t" + sync );
 						}
 						while( sync != null );

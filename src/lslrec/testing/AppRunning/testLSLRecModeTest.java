@@ -1,4 +1,4 @@
-package testing.AppRunning;
+package lslrec.testing.AppRunning;
 /*
  * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
@@ -21,18 +21,6 @@ package testing.AppRunning;
  *   
  */
 
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
-import GUI.appUI;
-import GUI.guiManager;
-import GUI.Miscellany.GeneralAppIcon;
-import GUI.Miscellany.OpeningDialog;
-import GUI.Miscellany.TextAreaPrintStream;
-import Sockets.Info.SocketSetting;
-import config.ConfigApp;
-import testing.LSL.cpuLoadThread;
-import testing.LSL.cpuLoadThread2;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -63,8 +51,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
-import Config.language.Language;
-import Controls.core.CoreControl;
+import lslrec.config.ConfigApp;
+import lslrec.config.language.Language;
+import lslrec.controls.CoreControl;
+import lslrec.dataStream.sync.SyncMethod;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.AppUI;
+import lslrec.gui.GuiManager;
+import lslrec.gui.dialog.Dialog_Opening;
+import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.sockets.info.SocketSetting;
 
 public class testLSLRecModeTest
 {	
@@ -106,10 +104,10 @@ public class testLSLRecModeTest
 			map.add(  SocketSetting.getSocketString( SocketSetting.UDP_PROTOCOL,"127.0.0.1", 45678) );
 			ConfigApp.setProperty( ConfigApp.SERVER_SOCKET, map );
 			
-			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, ConfigApp.SYNC_SOCKET );
+			ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, SyncMethod.SYNC_SOCKET );
 			//ConfigApp.setProperty( ConfigApp.SELECTED_SYNC_METHOD, ConfigApp.SYNC_LSL );
 			//ConfigApp.setProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, true );
-			ConfigApp.setProperty( ConfigApp.LSL_OUTPUT_FILE_NAME, "G:/LSLRecorderTests/data.clis" );
+			ConfigApp.setProperty( ConfigApp.OUTPUT_FILE_NAME, "G:/LSLRecorderTests/data.clis" );
 			
 			createApplication();
 			
@@ -159,7 +157,7 @@ public class testLSLRecModeTest
 			}
 			finally
 			{
-				GuiManager.getInstance().getAppUI().loadConfigValues();
+				GuiManager.getInstance().loadConfigValues2GuiComponents();;
 				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );				
 				
 				

@@ -17,20 +17,21 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.SyncMarkerCollectorWriter;
+package lslrec.testing.SyncMarkerCollectorWriter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.tasks.INotificationTask;
-import Auxiliar.tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import DataStream.Sync.SyncMarker;
-import DataStream.Sync.SyncMarkerBinFileReader;
-import DataStream.Sync.SyncMarkerCollectorWriter;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
+import lslrec.auxiliar.tasks.INotificationTask;
+import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.controls.messages.EventInfo;
+import lslrec.controls.messages.EventType;
+import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.sync.SyncMarkerBinFileReader;
+import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
+
 
 public class testSyncCollector 
 {	
@@ -309,7 +310,7 @@ public class testSyncCollector
 						
 						do
 						{	
-							sync = reader.getSyncMarkerMethod();
+							sync = reader.getSyncMarker();
 							System.out.println("\t" + sync );
 						}
 						while( sync != null );
