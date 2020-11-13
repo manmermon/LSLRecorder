@@ -17,10 +17,10 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.LSLSender;
+package lslrec.testing.LSLSender;
 import java.nio.ByteOrder;
 
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 
 public class LSLSimulationParameters 
@@ -35,8 +35,8 @@ public class LSLSimulationParameters
 	private double samplingRate = 0;
 	private int channels = 1;
 	private String streamType = "value";
-	private int outputDataType = LSL.ChannelFormat.float32;
-	private int inputDataType = LSL.ChannelFormat.float32;	
+	private StreamDataType outputDataType = StreamDataType.float32;
+	private StreamDataType inputDataType = StreamDataType.float32;	
 	private String separator = " ";
 	private int blockSize = 1;
 	private int NumOutBlocks = 0;
@@ -91,22 +91,22 @@ public class LSLSimulationParameters
 		return this.channels;
 	}
 	
-	public void setOutDataType( int type )
+	public void setOutDataType( StreamDataType type )
 	{
 		this.outputDataType = type;
 	}
 	
-	public int getOutDataType()
+	public StreamDataType getOutDataType()
 	{
 		return this.outputDataType;
 	}
 	
-	public void setInDataType( int type )
+	public void setInDataType( StreamDataType type )
 	{
 		this.inputDataType = type;
 	}
 	
-	public int getInDataType()
+	public StreamDataType getInDataType()
 	{
 		return this.inputDataType;
 	}

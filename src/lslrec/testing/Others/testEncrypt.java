@@ -1,4 +1,4 @@
-package testing.Others;
+package lslrec.testing.Others;
 
 import java.security.Key;
 import java.security.Provider;
@@ -15,7 +15,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 
-import GUI.PasswordDialog;
+import lslrec.gui.dialog.Dialog_Password;
 
 public class testEncrypt {
 

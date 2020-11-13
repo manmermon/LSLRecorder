@@ -1,4 +1,4 @@
-package testing.Others;
+package lslrec.testing.Others;
 
 public class testAvailableRamMemory {
 

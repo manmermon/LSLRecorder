@@ -64,6 +64,7 @@ public class Language
 	public static final String MENU_SAVE = "MENU_SAVE";
 	public static final String MENU_EXIT = "MENU_EXIT";
 	public static final String MENU_WRITE_TEST = "MENU_WRITE_TEST";
+	public static final String MENU_LIBRARY = "MENU_LIBRARY";
 	
 	public static final String LOAD_TEXT = "LOAD_TEXT";
 	
@@ -200,8 +201,10 @@ public class Language
 			
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
-	static {
+	static {		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put( MENU_LIBRARY, new Caption( MENU_LIBRARY,  defaultLanguage, "Library" ) );
 		
 		captions.put( MSG_WARNING_DATA_PROCESSING
 						, new Caption( MSG_WARNING_DATA_PROCESSING, defaultLanguage

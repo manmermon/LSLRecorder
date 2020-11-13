@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.Settings;
+package lslrec.testing.Settings;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,10 +34,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
-import Config.language.Caption;
-import Config.language.Language;
-import Controls.Messages.RegisterSyncMessages;
-import edu.ucsd.sccn.LSLConfigParameters;
+import lslrec.config.language.Caption;
+import lslrec.config.language.Language;
 
 public class testLanguage {
 

@@ -17,12 +17,12 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.Auxiliar;
+package lslrec.testing.Auxiliar;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.extra.NumberRange;
+import lslrec.auxiliar.extra.NumberRange;
 
 public class testRangeFilter 
 {

@@ -17,19 +17,26 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.DataStream.Binary;
+package lslrec.testing.DataStream.Binary;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import Auxiliar.extra.Tuple;
-import DataStream.Binary.Input.writer.TemporalOutDataFileWriter;
-import StoppableThread.IStoppableThread;
-import edu.ucsd.sccn.LSL;
-import edu.ucsd.sccn.LSLConfigParameters;
-import edu.ucsd.sccn.LSL.StreamInfo;
-import testing.LSLSender.LSLSimulationParameters;
-import testing.LSLSender.LSLSimulationStreaming;
+import com.sun.jna.platform.unix.X11.XClientMessageEvent.Data;
+
+import lslrec.auxiliar.extra.Tuple;
+import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
+import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.LSLSender.LSLSimulationParameters;
+import lslrec.testing.LSLSender.LSLSimulationStreaming;
+
 
 public class testingTemporalOutDataFileWriter 
 {
@@ -47,7 +54,7 @@ public class testingTemporalOutDataFileWriter
 						
 						LSLSimulationParameters cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 32 );
-						cfg.setOutDataType( LSL.ChannelFormat.float32 );
+						cfg.setOutDataType( StreamDataType.float32 );
 						cfg.setNumberOutputBlocks( 32 * 20 );
 						cfg.setChannelNumber( 1 );
 						cfg.setStreamName( "LSLSender-1");
@@ -57,7 +64,7 @@ public class testingTemporalOutDataFileWriter
 						
 						cfg = new LSLSimulationParameters( );
 						cfg.setSamplingRate( 128 );
-						cfg.setOutDataType( LSL.ChannelFormat.int32 );
+						cfg.setOutDataType( StreamDataType.int32 );
 						cfg.setNumberOutputBlocks( 128 * 30 );
 						cfg.setChannelNumber( 1 );
 						cfg.setStreamName( "LSLSyncSender");
@@ -102,13 +109,13 @@ public class testingTemporalOutDataFileWriter
 				stream.startThread();				
 			}
 			
-			List< Tuple< IStreamSetting, IMutableStreamSetting > > LSLthreadList = new ArrayList< Tuple< IStreamSetting, IMutableStreamSetting > >();
+			List< IStreamSetting > LSLthreadList = new ArrayList< IStreamSetting >();
 			
-			IStreamSetting.StreamInfo[] results = LSL.resolve_streams();
+			IStreamSetting[] results = DataStreamFactory.createStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
 			
 			if( results.length >= 0 )
 			{
-				for( IStreamSetting.StreamInfo info : results )
+				for( IStreamSetting info : results )
 				{
 					int chuckSize = 1;
 					
@@ -128,27 +135,20 @@ public class testingTemporalOutDataFileWriter
 						i++;
 					}
 					
-					IMutableStreamSetting par = new IMutableStreamSetting( info.uid()
-																		, info.name()
-																		, info.type()
-																		, info.source_id()
-																		, info.as_xml()
-																		, true
-																		, chuckSize
-																		, false
-																		, false
-																		, info.nominal_srate() );	
+					MutableStreamSetting par = new MutableStreamSetting( info );
+					par.setChunckSize( chuckSize );
+					par.setSelected( true );	
 					
-					LSLthreadList.add( new Tuple<IStreamSetting.StreamInfo, IMutableStreamSetting>( info, par ) );
+					LSLthreadList.add( par );
 				}
 			}
 			
 			List< TemporalOutDataFileWriter > writers = new ArrayList< TemporalOutDataFileWriter>();
 			for( int i = 0; i < LSLthreadList.size(); i++ )
 			{
-				Tuple< IStreamSetting.StreamInfo, IMutableStreamSetting > cfg = LSLthreadList.get( i );
+				IStreamSetting cfg = LSLthreadList.get( i );
 				
-				TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( "G:/test" + i + ".bin" , cfg.x, cfg.y, i );
+				TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( cfg, DataFileFormat.getDefaultOutputFileFormatParameters(), i );
 				
 				writers.add( wr );
 				

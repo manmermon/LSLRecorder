@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.LSLSender;
+package lslrec.testing.LSLSender;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -25,16 +25,19 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.StreamOutlet;
 
 public class LSLSimulationStreaming extends AbstractStoppableThread 
 {
 	private LSLSimulationParameters parameters;
 
-	//private List< LSL.StreamInfo > infos;
-	private List< LSL.StreamOutlet > outlets;
+	//private List< StreamInfo > infos;
+	private List< StreamOutlet > outlets;
 
 	private int numOfThreads;
 
@@ -43,7 +46,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	private List samplesInOneChannel;
 	//private int stringBufferIndex = 0;
 	private String stringBuffer;
-	private int DataType;
+	private StreamDataType DataType;
 	private double samplingRate = 1L;
 
 	private double[] Sin;
@@ -60,7 +63,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 	public LSLSimulationStreaming( LSLSimulationParameters pars ) throws Exception
 	{
-		outlets = new ArrayList< LSL.StreamOutlet>();
+		outlets = new ArrayList< StreamOutlet>();
 		parameters = pars;
 		numOfThreads = pars.getNumOfThreads();
 		DataType = pars.getOutDataType();
@@ -70,14 +73,14 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 		char Suf = 'A';
 		for( int i = 0; i < numOfThreads; i++ )
 		{
-			IStreamSetting.StreamInfo info = new IStreamSetting.StreamInfo( pars.getStreamName() + (char)(Suf + i)
+			LSLStreamInfo info = new LSLStreamInfo( pars.getStreamName() + (char)(Suf + i)
 														, pars.getStreamType()
 														, pars.getChannelNumber()
 														, pars.getSamplingRate()
-														, pars.getOutDataType()
+														, pars.getOutDataType().ordinal()
 														, pars.getStreamID() + (char)( Suf + i ) );
 
-			LSL.StreamOutlet out = new LSL.StreamOutlet( info );
+			StreamOutlet out = new StreamOutlet( info );
 
 			outlets.add( out );
 		}
@@ -104,7 +107,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 			
 			switch ( DataType )
 			{
-			case LSL.ChannelFormat.float32:
+			case float32:
 			{
 				//float value = (float)Math.random();				
 				float value = (float)out;
@@ -112,7 +115,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 				break;
 			}
-			case LSL.ChannelFormat.double64:
+			case double64:
 			{	
 				//ByteBuffer.wrap( buffer ).putDouble( Math.random() );
 				double value = out;
@@ -120,7 +123,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 				break;
 			}
-			case LSL.ChannelFormat.int32:
+			case int32:
 			{
 				//int value = (int)( Math.random() * 100 );
 				int value = (int)( out );
@@ -128,7 +131,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 				break;
 			}
-			case LSL.ChannelFormat.int16:
+			case int16:
 			{
 				//short value = (short)( Math.random() * 10 );
 				short value = (short)( out );
@@ -136,7 +139,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 				break;
 			}
-			case LSL.ChannelFormat.int64:
+			case int64:
 			{
 				//long value = (long)( Math.random() * 100 );
 				long value = (long)( out );
@@ -144,7 +147,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 				break;
 			}	
-			case LSL.ChannelFormat.string:
+			case string:
 			{
 				String aux = "\n";
 	
@@ -164,7 +167,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 			}
 		}
 
-		if( DataType != LSL.ChannelFormat.string )
+		if( DataType != StreamDataType.string )
 		{
 			convertBufferToOutDataType( buffer, samplesInOneChannel );
 
@@ -313,8 +316,8 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	}
 
 	@Override
-	protected void runExceptionManager(Exception e) 
-	{	
+	protected void runExceptionManager(Throwable e) 
+	{			
 		if( !( e instanceof InterruptedException ) )
 		{
 			e.printStackTrace();
@@ -325,41 +328,41 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	{
 		switch ( parameters.getOutDataType() )
 		{
-			case 1: 
+			case float32: 
 			{	
 				float v = ByteBuffer.wrap( buf ).order( parameters.getInDataFormat() ).getFloat();
 				samples.add( v );
 				
 				break;
 			}
-			case 2:
+			case double64:
 			{
 				double v = ByteBuffer.wrap( buf ).order( parameters.getInDataFormat()).getDouble();
 				samples.add( v );
 				
 				break;
 			}
-			case 4:
+			case int32:
 			{
 				int v = ByteBuffer.wrap( buf ).order( parameters.getInDataFormat() ).getInt();
 				samples.add( v );
 				
 				break;
 			}
-			case 5:
+			case int16:
 			{
 				short v = ByteBuffer.wrap( buf ).order( parameters.getInDataFormat() ).getShort();
 				samples.add( v );
 				
 				break;
 			}
-			case 6:
+			case int8:
 			{				
 				samples.add( buf[ 0 ] );
 				
 				break;
 			}		
-			case 7:
+			case int64:
 			{
 				long v = ByteBuffer.wrap( buf ).order( parameters.getInDataFormat() ).getLong();
 				samples.add( v );
@@ -384,7 +387,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 			Object[] values = this.sample.toArray();
 
 			boolean sent = false;
-			for( LSL.StreamOutlet outlet : outlets )
+			for( StreamOutlet outlet : outlets )
 			{
 				if( outlet.have_consumers() )
 				{
@@ -392,7 +395,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 					
 					switch ( parameters.getOutDataType() )
 					{
-						case LSL.ChannelFormat.float32:
+						case float32:
 						{
 							float[] samples = new float[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -411,7 +414,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 							
 							break;
 						}
-						case LSL.ChannelFormat.double64:
+						case double64:
 						{
 							double[] samples = new double[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -430,7 +433,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 							
 							break;				
 						}
-						case LSL.ChannelFormat.int32:
+						case int32:
 						{
 							int[] samples = new int[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -449,7 +452,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 							
 							break;
 						}
-						case LSL.ChannelFormat.int16:
+						case int16:
 						{
 							short[] samples = new short[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -468,7 +471,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 							
 							break;
 						}
-						case LSL.ChannelFormat.int8:
+						case int8:
 						{
 							byte[] samples = new byte[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -545,32 +548,32 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	{
 		switch ( parameters.getOutDataType() )
 		{
-		case 1:
+		case float32:
 		{
 			samples.add( new Float( value ).floatValue() );
 			break;
 		}
-		case 2:
+		case double64:
 		{
 			samples.add( new Double( value ).doubleValue() );				
 			break;				
 		}
-		case 4:
+		case int32:
 		{
 			samples.add( new Integer( value ).intValue() );				
 			break;
 		}
-		case 5:
+		case int16:
 		{
 			samples.add( new Short( value ).shortValue() );	
 			break;
 		}
-		case 6:
+		case int8:
 		{
 			samples.add( new Byte( value ).byteValue() );
 			break;
 		}	
-		case 7:
+		case int64:
 		{
 			samples.add( new Long( value ).longValue() );	
 			break;
@@ -598,34 +601,34 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 		
 		switch ( parameters.getOutDataType() )
 		{
-			case LSL.ChannelFormat.float32:
+			case float32:
 			{
 				this.buffer = new byte[ Float.BYTES * blockSize ];
 				this.isInteger = false;
 				break;
 			}
-			case LSL.ChannelFormat.double64:
+			case double64:
 			{
 				this.buffer = new byte[ Double.BYTES * blockSize  ]; 
 				this.isInteger = false;
 				break;
 			}
-			case LSL.ChannelFormat.int32:
+			case int32:
 			{
 				this.buffer = new byte[ Integer.BYTES * blockSize  ];
 				break;
 			}
-			case LSL.ChannelFormat.int16:
+			case int16:
 			{
 				this.buffer = new byte[ Short.BYTES * blockSize  ];
 				break;
 			}
-			case LSL.ChannelFormat.int64:
+			case int64:
 			{
 				this.buffer = new byte[ Long.BYTES * blockSize ];
 				break;
 			}		
-			case LSL.ChannelFormat.string:
+			case string:
 			{
 				this.isInteger = false;
 				break;
@@ -668,7 +671,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 					this.Sin[ c ] = c - this.Sin.length / 2;
 				}
 				
-				if( parameters.getOutDataType() < 3 )
+				if( parameters.getOutDataType().ordinal() < 3 )
 				{
 					for( int c = 0; c < this.Sin.length; c++ )
 					{
@@ -716,7 +719,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	{
 		super.cleanUp();
 
-		for( LSL.StreamOutlet outlet : outlets )
+		for( StreamOutlet outlet : outlets )
 		{
 
 			outlet.close();

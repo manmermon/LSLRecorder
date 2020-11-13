@@ -1,17 +1,19 @@
-package testing.AppRunning.LSLStream;
+package lslrec.testing.AppRunning.LSLStream;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import StoppableThread.IStoppableThread;
-import testing.LSLSender.LSLSimulationParameters;
-import testing.LSLSender.LSLSimulationStreaming;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.LSLSender.LSLSimulationParameters;
+import lslrec.testing.LSLSender.LSLSimulationStreaming;
+
 
 public class LSLStream 
 {
 static List< LSLSimulationParameters > cfgs;
 	
-	public static void CreateDataLSLStreams( int time, int dataType, int nChannels, int frq, int nStreams, int chunkSize, int interleaved ) 
+	public static void CreateDataLSLStreams( int time, StreamDataType dataType, int nChannels, int frq, int nStreams, int chunkSize, int interleaved ) 
 	{
 		try
 		{			

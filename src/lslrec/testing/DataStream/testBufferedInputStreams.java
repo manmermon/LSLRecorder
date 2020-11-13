@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.DataStream;
+package lslrec.testing.DataStream;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -25,7 +25,7 @@ import java.io.FileInputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class testBufferedInputStreams 
 {
@@ -48,12 +48,12 @@ public class testBufferedInputStreams
 			
 			for( int i = 0; i < 10; i++ )
 			{
-				System.out.println("testBufferedInputStreams.readDataFromBinaryFile VALUE Stream 1 " + readDataFromBinaryFile( stream1, LSL.ChannelFormat.double64, buf ) );
+				System.out.println("testBufferedInputStreams.readDataFromBinaryFile VALUE Stream 1 " + readDataFromBinaryFile( stream1, StreamDataType.double64, buf ) );
 			}
 			
 			for( int i = 0; i < 10; i++ )
 			{
-				System.out.println("testBufferedInputStreams.readDataFromBinaryFile VALUE Stream 2 " + readDataFromBinaryFile( stream2, LSL.ChannelFormat.double64, buf ) );
+				System.out.println("testBufferedInputStreams.readDataFromBinaryFile VALUE Stream 2 " + readDataFromBinaryFile( stream2, StreamDataType.double64, buf ) );
 			}
 			
 		} 
@@ -68,13 +68,13 @@ public class testBufferedInputStreams
 
 	}
 	
-	private static Number readDataFromBinaryFile( BufferedInputStream syncStream, int dataType, byte[] buf ) throws Exception
+	private static Number readDataFromBinaryFile( BufferedInputStream syncStream, StreamDataType dataType, byte[] buf ) throws Exception
 	{				
 		Number value = null;
 		
 		switch( dataType ) 
 		{
-			case( LSL.ChannelFormat.double64 ):
+			case double64 :
 			{
 				if( syncStream.read( buf ) > 0 )
 				{
@@ -83,7 +83,7 @@ public class testBufferedInputStreams
 				
 				break;
 			}
-			case( LSL.ChannelFormat.float32 ):
+			case float32 :
 			{
 				if( syncStream.read( buf ) > 0 )
 				{
@@ -91,7 +91,7 @@ public class testBufferedInputStreams
 				}
 				break;
 			}
-			case( LSL.ChannelFormat.int8 ):
+			case int8 :
 			{
 				if( syncStream.read( buf ) > 0 )
 				{
@@ -100,7 +100,7 @@ public class testBufferedInputStreams
 				
 				break;
 			}
-			case( LSL.ChannelFormat.int16 ):
+			case int16 :
 			{
 				if( syncStream.read( buf ) > 0 )
 				{
@@ -109,7 +109,7 @@ public class testBufferedInputStreams
 				
 				break;
 			}
-			case( LSL.ChannelFormat.int32 ):
+			case int32 :
 			{
 				if( syncStream.read( buf ) > 0 )
 				{

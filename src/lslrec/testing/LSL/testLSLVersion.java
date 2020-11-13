@@ -17,9 +17,9 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.LSL;
+package lslrec.testing.LSL;
 
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.stream.lsl.LSL;
 
 public class testLSLVersion 
 {

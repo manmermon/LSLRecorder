@@ -1,8 +1,8 @@
-package testing.Exceptions;
+package lslrec.testing.Exceptions;
 
-import Exceptions.Handler.ExceptionDialog;
-import Exceptions.Handler.ExceptionDictionary;
-import Exceptions.Handler.ExceptionMessage;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
 
 public class testExceptionDialog {
 

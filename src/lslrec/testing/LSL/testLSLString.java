@@ -1,7 +1,13 @@
-package testing.LSL;
+package lslrec.testing.LSL;
 
-import edu.ucsd.sccn.LSL;
-import testing.LSLSender.RandomString;
+import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
+import lslrec.testing.StreamOutlet;
+import lslrec.testing.LSLSender.RandomString;
 
 public class testLSLString 
 {
@@ -14,10 +20,19 @@ public class testLSLString
 			{
 				try
 				{
-			        IStreamSetting.StreamInfo[] results = LSL.resolve_stream("name","stringTets");
-	
-			        // open an inlet
-			        LSL.StreamInlet inlet = new LSL.StreamInlet(results[0]);
+			        
+			        IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );
+
+			        StreamInlet inlet = null; 
+			        for( IStreamSetting st : results )
+			        {
+			     	   if( st.name().equalsIgnoreCase( "stringTets" ) )
+			     	   {
+			     		   inlet = new StreamInlet( (LSLStreamInfo)st );
+			     		   break;
+			     	   }
+			        }
+			     		   
 			        
 			        // receive data
 			        String[] sample = new String[ inlet.info().channel_count() ];
@@ -46,10 +61,10 @@ public class testLSLString
 			{
 				try
 				{
-					IStreamSetting.StreamInfo info = new IStreamSetting.StreamInfo( "stringTets", "value", 5, 0, LSL.ChannelFormat.string
+					LSLStreamInfo info = new LSLStreamInfo( "stringTets", "value", 5, 0, StreamDataType.string.ordinal()
 																, "TEST-LSLRec" );
 
-					LSL.StreamOutlet out = new LSL.StreamOutlet( info );
+					StreamOutlet out = new StreamOutlet( info );
 	
 					
 			        String[] samples = new String[ info.channel_count() ];

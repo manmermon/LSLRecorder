@@ -1,10 +1,10 @@
-package testing.DataStream.OutputDataFile;
+package lslrec.testing.DataStream.OutputDataFile;
 
 import java.util.Random;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import Auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.extra.ConvertTo;
 import ch.systemsx.cisd.base.mdarray.MDFloatArray;
 import ch.systemsx.cisd.base.mdarray.MDIntArray;
 import ch.systemsx.cisd.hdf5.HDF5ArrayBlockParamsBuilder;

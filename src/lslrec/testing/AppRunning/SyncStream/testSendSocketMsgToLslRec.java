@@ -17,19 +17,26 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package testing.AppRunning.SyncStream;
+package lslrec.testing.AppRunning.SyncStream;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import Prototype.Socket.TCPClientSocketThread;
-import Prototype.Socket.UDPClientSocketThread;
-import Sockets.Info.SocketSetting;
-import StoppableThread.AbstractStoppableThread;
-import StoppableThread.IStoppableThread;
-import Timers.ITimerMonitor;
-import Timers.Timer;
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.sockets.info.SocketSetting;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
+import lslrec.testing.StreamOutlet;
+import lslrec.testing.Socket.TCPClientSocketThread;
+import lslrec.testing.Socket.UDPClientSocketThread;
+import lslrec.testing.timers.ITimerMonitor;
+import lslrec.testing.timers.Timer;
 
 public class testSendSocketMsgToLslRec extends AbstractStoppableThread implements ITimerMonitor
 {
@@ -43,9 +50,9 @@ public class testSendSocketMsgToLslRec extends AbstractStoppableThread implement
 	private List< TCPClientSocketThread > tcpClients;
 	private List< UDPClientSocketThread > udpClients;
 	
-	private lslrec.dataStream.family.lsl.IStreamSetting info;
+	private IStreamSetting info;
 	
-	private lslrec.dataStream.family.lsl.StreamOutlet out;
+	private StreamOutlet out;
 
 	private int numSocket;
 	
@@ -70,15 +77,16 @@ public class testSendSocketMsgToLslRec extends AbstractStoppableThread implement
 			timer.setTimerValue( time );
 			timer.setTimerMonitor( this );
 
-			info = new IStreamSetting.StreamInfo( this.getClass().getSimpleName()
+			info = new LSLStreamInfo( this.getClass().getSimpleName()
 									, "time"
-									, 2
+									, 1
 									, 0
-									, LSL.ChannelFormat.double64
-									, this.getClass().getSimpleName() );
-			info.desc().append_child_value( "details", "ch1-time;ch2-mark" );
+									, StreamDataType.double64.ordinal()
+									, "" 
+									);
 			
-			this.out = new LSL.StreamOutlet( this.info );			
+			this.out = new StreamOutlet( (LSLStreamInfo)this.info );
+			this.out.info().desc().append_child_value( "details", "ch1-time;ch2-mark" );
 						
 			tcpClients = new ArrayList< TCPClientSocketThread >();
 			udpClients = new ArrayList< UDPClientSocketThread >();

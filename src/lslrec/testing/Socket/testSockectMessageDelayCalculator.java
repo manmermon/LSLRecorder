@@ -1,4 +1,4 @@
-package testing.Socket;
+package lslrec.testing.Socket;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -6,15 +6,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import Auxiliar.tasks.INotificationTask;
-import Auxiliar.tasks.ITaskMonitor;
-import Controls.Messages.EventInfo;
-import Controls.Messages.EventType;
-import Sockets.SocketMessageDelayCalculator;
-import Sockets.Info.StreamInputMessage;
-import StoppableThread.IStoppableThread;
-import controls.IHandlerMinion;
-import controls.IHandlerSupervisor;
+import lslrec.auxiliar.tasks.INotificationTask;
+import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.controls.messages.EventInfo;
+import lslrec.controls.messages.EventType;
+import lslrec.sockets.SocketMessageDelayCalculator;
+import lslrec.sockets.info.StreamInputMessage;
+import lslrec.stoppableThread.IStoppableThread;
+
 
 public class testSockectMessageDelayCalculator implements ITaskMonitor
 {

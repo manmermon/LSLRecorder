@@ -1,4 +1,4 @@
-package testing.Others;
+package lslrec.testing.Others;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;

@@ -1,12 +1,13 @@
-package testing.DataStream.OutputDataFile;
+package lslrec.testing.DataStream.OutputDataFile;
 
 import java.util.Random;
 
-import DataStream.OutputDataFile.DataBlock.DataBlock;
-import DataStream.OutputDataFile.DataBlock.DataBlockFactory;
-import DataStream.OutputDataFile.Format.hdf5.OutputHDF5DataWriter;
-import DataStream.OutputDataFile.Format.matlab.OutputMatDataWriter;
-import edu.ucsd.sccn.LSL;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
+import lslrec.dataStream.outputDataFile.format.hdf5.OutputHDF5DataWriter;
+import lslrec.dataStream.outputDataFile.format.matlab.OutputMatDataWriter;
+
 
 public class testHDF5 {
 
@@ -38,7 +39,7 @@ public class testHDF5 {
 						data[ i ] = seqNum.floatValue();
 					}
 
-					DataBlock b = DataBlockFactory.getDataBlock( LSL.ChannelFormat.float32, seqNum, name, nCols, data );
+					DataBlock b = DataBlockFactory.getDataBlock( StreamDataType.float32, seqNum, name, nCols, data );
 
 					dw.saveData( b );
 					mw.saveData( b );
@@ -53,7 +54,7 @@ public class testHDF5 {
 					data[ i ] = seqNum.floatValue();
 				}
 
-				DataBlock b = DataBlockFactory.getDataBlock( LSL.ChannelFormat.float32, seqNum, name, nCols, data );
+				DataBlock b = DataBlockFactory.getDataBlock( StreamDataType.float32, seqNum, name, nCols, data );
 
 				dw.saveData( b );
 				mw.saveData( b );

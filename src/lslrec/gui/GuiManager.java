@@ -219,9 +219,9 @@ public class GuiManager
 		}
 	}
 	
-	public void refreshLSLDevices()
+	public void refreshDataStreams()
 	{
-		AppUI.getInstance().getJButtonRefreshDevice().doClick();
+		AppUI.getInstance().getJButtonRefreshDataStreams().doClick();
 	}
 	
 	protected void convertBin2CLIS()
@@ -540,7 +540,7 @@ public class GuiManager
 		
 		try 
 		{
-			AppUI.getInstance().getStreamSetting().refreshLSLStreamings();
+			AppUI.getInstance().getStreamSetting().refreshDataStreams();
 		}
 		catch (Exception e) 
 		{
@@ -578,7 +578,7 @@ public class GuiManager
 		ui.getMenuExit().setEnabled( enable );
 		ui.getMenuWritingTest().setEnabled( enable );
 		
-		ui.getJButtonRefreshDevice().setEnabled( enable );
+		ui.getJButtonRefreshDataStreams().setEnabled( enable );
 		ui.getJComboxSyncMethod().setEnabled( enable );
 		ui.getJCheckActiveSpecialInputMsg().setEnabled( enable );
 		

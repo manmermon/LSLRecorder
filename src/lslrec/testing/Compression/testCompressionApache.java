@@ -1,4 +1,4 @@
-package testing.Compression;
+package lslrec.testing.Compression;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;

@@ -1,4 +1,4 @@
-package testing.Others;
+package lslrec.testing.Others;
 
 import org.icmp4j.IcmpPingRequest;
 import org.icmp4j.IcmpPingResponse;
