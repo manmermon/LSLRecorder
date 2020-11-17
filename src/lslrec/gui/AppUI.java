@@ -26,9 +26,7 @@ import lslrec.config.language.Language;
 import lslrec.controls.CoreControl;
 import lslrec.controls.messages.AppState;
 import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -52,7 +50,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -1051,25 +1048,11 @@ public class AppUI extends JFrame
 					JToggleButton b = (JToggleButton) e.getSource();
 
 					if ( b.isSelected() )
-					{
-						/*
-						b.setText(Language.getCaption( Language.ACTION_STOP, ConfigApp.getProperty( ConfigApp.LANGUAGE ).toString()));
-						Icon aux = b.getIcon();
-						b.setIcon( jButtomPlayStop.getSelectedIcon() );
-						b.setSelectedIcon(aux);
-						*/
-						
-						GuiManager.getInstance().startTest( false );
+					{						
+						GuiManager.getInstance().startTest( );
 					}
 					else
-					{
-						/*
-						b.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );
-						Icon aux = b.getSelectedIcon();
-						b.setSelectedIcon(b.getIcon());
-						b.setIcon(aux);
-						 */
-						
+					{						
 						GuiManager.getInstance().stopTest();
 
 						jButtomPlayStop.transferFocus();
@@ -1207,12 +1190,13 @@ public class AppUI extends JFrame
 				{					
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
-					//guiManager.getInstance().addInputMessageLog( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n");
 					Exception ex = new Exception( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
 					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, false );
 
-					GuiManager.getInstance().startTest( true );
+					//GuiManager.getInstance().startTest( true );
+					GuiManager.getInstance().setWriteTest( true );
+					getJButtonPlay().setSelected( true );
 				}
 			});
 			

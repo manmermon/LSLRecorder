@@ -102,6 +102,8 @@ public class GuiManager
 	
 	//private OpeningDialog preparingRunDiag;
 	
+	private Boolean isWriteTest = false;
+	
 	//Map
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
 	
@@ -568,8 +570,6 @@ public class GuiManager
 
 	private void enableGUI( boolean enable )
 	{	
-		//ui.getJMenuAcercaDe().setEnabled( enable );		
-		//ui.getJMenuGNUGPL().setEnabled( enable );
 		AppUI ui = AppUI.getInstance();
 		
 		ui.getMenuLoad().setEnabled( enable );
@@ -583,8 +583,6 @@ public class GuiManager
 		ui.getJCheckActiveSpecialInputMsg().setEnabled( enable );
 		
 		ui.getPreferenceMenu().setEnabled( enable );
-		
-		//ui.getJButtonInfo().setEnabled( enable );
 				
 		try 
 		{
@@ -601,11 +599,7 @@ public class GuiManager
 	public void restoreGUI()
 	{
 		JToggleButton btnStart = AppUI.getInstance().getJButtonPlay();
-		/*
-		btnStart.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );		
-		btnStart.setIcon( START_ICO );
-		btnStart.setEnabled( true );
-		*/
+		
 		btnStart.setSelected( false );
 		
 		
@@ -621,7 +615,15 @@ public class GuiManager
 		AppUI.getInstance().getJButtonPlay().setEnabled( enable );
 	}
 	
-	public void startTest( final boolean test )
+	public void setWriteTest( boolean isTest )
+	{
+		synchronized ( this.isWriteTest )
+		{
+			this.isWriteTest = isTest;
+		}
+	}
+	
+	public void startTest( )
 	{	
 		Thread t = new Thread()				
 		{
@@ -641,10 +643,15 @@ public class GuiManager
 					playBtn.setText( Language.getLocalCaption( Language.ACTION_STOP ) );
 					playBtn.setIcon( STOP_ICO );
 					
-					//playBtn.setEnabled( false );
-					
 					enableGUI( false );
-															
+					
+					boolean test = false;
+					synchronized ( isWriteTest )
+					{
+						test = isWriteTest;
+						isWriteTest = false;
+					}
+					
 					CoreControl.getInstance().startWorking( test );
 					
 				} 
@@ -652,31 +659,11 @@ public class GuiManager
 				{					
 					stopTest();
 					
-					/*
-					String m = "";
-					
-					if( e != null )
-					{
-						if( e.getCause() != null )
-						{						
-							m = e.getCause().getMessage();
-						}
-						else
-						{
-							m = e.getLocalizedMessage();
-						}
-					}
-						
-					JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + m,
-													Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
-					*/
-					
 					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg,	true, true );
 				}
 				finally 
 				{
-					//playBtn.setEnabled( true );
 					enablePlayButton( true );
 				}				
 			};
