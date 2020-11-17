@@ -794,7 +794,7 @@ public class testLSLRecorder
 						{	
 							GuiManager.getInstance().addInputMessageLog( "Test index " + indexTest + ". Settings: " + simPar + "-" + Arrays.toString( dataStreamCfg ) + "\n" );
 
-							GuiManager.getInstance().startTest( false );
+							GuiManager.getInstance().startTest( );
 
 							Thread.sleep( 3000L );
 

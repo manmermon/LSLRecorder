@@ -164,7 +164,7 @@ public class testLSLRecModeTest
 				if( startRecord )
 				{
 					System.out.println("testLSLRecModeTest.main() START ");
-					GuiManager.getInstance().startTest( false );
+					GuiManager.getInstance().startTest( );
 				}
 			}
 		}
