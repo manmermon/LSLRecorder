@@ -203,7 +203,7 @@ public class Dialog_BinaryConverter extends JDialog
 		super( owner, modal );
 		
 		this.binaryDataFiles = new HashMap< String, IMutableStreamSetting >( );
-		this.outFormat = new OutputFileFormatParameters();
+		this.outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		

@@ -273,7 +273,7 @@ public class Dialog_AboutApp extends JDialog
 			this.jLabelVersion = new JLabel();
 			this.jLabelVersion.setAlignmentX( Component.CENTER_ALIGNMENT );			
 			DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() );			
-			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.shortNameApp + " " + ConfigApp.version 
+			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.fullNameApp + " " + ConfigApp.version 
 										+ "</b><br/></font><font size='2' face='serif'>" + df.format( ConfigApp.buildDate.getTime() ) 
 										+"</font><font size='2' face='serif'> LSL Library version: "  + LSL.library_version() 
 										+"</font></p></html>" );
