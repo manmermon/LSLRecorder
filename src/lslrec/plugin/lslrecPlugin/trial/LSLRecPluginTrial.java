@@ -187,7 +187,9 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 			}
 		}
 	}
-		
+	
+	public Datastr
+	
 	public abstract void loadSettings( List< Parameter< String > > pars);
 	
 	public abstract void setStage( JPanel GUIPanel );

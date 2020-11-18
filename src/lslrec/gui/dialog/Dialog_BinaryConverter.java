@@ -64,6 +64,7 @@ import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -1402,7 +1403,7 @@ public class Dialog_BinaryConverter extends JDialog
 			
 			//StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );		
 			
-			SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
+			SimpleMutableStreamSetting strSetting = new  SimpleMutableStreamSetting( StreamLibrary.LSL
 																, name
 																//, stType
 																, StreamDataType.valueOf( type )

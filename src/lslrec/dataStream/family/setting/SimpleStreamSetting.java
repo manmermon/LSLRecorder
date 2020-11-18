@@ -31,7 +31,7 @@ import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
  * @author Manuel Merino Monge
  *
  */
-public class SimpleStreamSetting implements IMutableStreamSetting 
+public class SimpleStreamSetting implements IStreamSetting 
 {	
 	private String name = "", content = "";
 	private StreamDataType data_type = StreamDataType.float32;
@@ -41,13 +41,16 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 	private StreamDataType stringLenDataType = StreamDataType.int64;
 	
 	private Map< String, String > extraInfo = new HashMap<String, String>();
-	private int chunkSize = 1;
 	
-	private boolean interleaved = false;
+	protected int chunkSize = 1;
 	
-	private boolean syncStream = false;
+	protected boolean interleaved = false;
 	
-	private boolean selected = false;
+	protected boolean syncStream = false;
+	
+	protected boolean selected = false;
+	
+	protected String desc = "";
 	
 	private StreamLibrary lib_type = StreamLibrary.LSL;
 	
@@ -55,7 +58,7 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 	
 	private double samplint_rate = 0D;
 	 
-	private String sourceID = "", uid = "", desc = "";
+	private String sourceID = "", uid = "";
 	
 	private String hostname = "", sessionID = "";
 	
@@ -329,6 +332,7 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 		return StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
 	}
 
+	/*
 	@Override
 	public void setAdditionalInfo(String id, String info) 
 	{	
@@ -370,5 +374,5 @@ public class SimpleStreamSetting implements IMutableStreamSetting
 	{
 		this.desc = desc;
 	}
-
+	 */
 }
