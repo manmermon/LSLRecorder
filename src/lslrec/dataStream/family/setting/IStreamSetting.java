@@ -47,7 +47,7 @@ import lslrec.exceptions.ReadInputDataException;
  */
 public interface IStreamSetting 
 {
-	public enum StreamLibrary { LSL };
+	public enum StreamLibrary { LSLREC, LSL };
 	
 	 /**
      * Constant to indicate that a stream has variable sampling rate.

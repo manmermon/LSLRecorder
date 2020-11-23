@@ -53,7 +53,7 @@ import javax.swing.UIManager;
 
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
-import lslrec.controls.CoreControl;
+import lslrec.controls.handler.CoreControl;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;

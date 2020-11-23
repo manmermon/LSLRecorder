@@ -12,6 +12,7 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec.streamgiver"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.trial"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{ZipDataTemplate.java"/>
@@ -41,6 +42,5 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.sync"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.encoder"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item{CreatorDefaultSettingPanel.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
     </selectedElements>
 </jardesc>

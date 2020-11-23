@@ -5,9 +5,10 @@ package lslrec.testing.DataStream.family.lslrec;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lslrec.DataStreamGiver;
-import lslrec.dataStream.family.stream.lslrec.SimpleDataStream;
+import lslrec.dataStream.family.stream.lslrec.LSLRecSimpleDataStream;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.ByteStreamGiver;
 import lslrec.stoppableThread.IStoppableThread;
 
 /**
@@ -29,7 +30,7 @@ public class testSimpleDataStream {
 			e1.printStackTrace();
 		}
 		
-		SimpleDataStream< Double > dataStream = new SimpleDataStream<Double>( "test"
+		LSLRecSimpleDataStream dataStream = new LSLRecSimpleDataStream( "test"
 																				, StreamDataType.double64
 																				, 0
 																				, 2
@@ -64,7 +65,7 @@ public class testSimpleDataStream {
 				
 		t.start();
 		
-		Double[] dat = new Double[ 10 ];
+		double[] dat = new double[ 10 ];
 		double[] time = new double[ 2 ];
 		for( int i = 0 ; i < 100 ; i++ )
 		{
@@ -83,7 +84,14 @@ public class testSimpleDataStream {
 					for( int j = 0; j < s; j++ )
 					{
 						System.out.print( dat[ j ] + "," );
-					}					
+					}
+					
+					System.out.print( "\n\tTimestamps: " );
+					
+					for( int j = 0; j < s / 5; j++ )
+					{
+						System.out.print( time[ j ] + "," );
+					}
 					System.out.println();
 				}
 			}
@@ -93,32 +101,33 @@ public class testSimpleDataStream {
 			}
 		}
 		
-		end.set( false );
+		end.set( true );
 		
 		dg.stopThread( IStoppableThread.FORCE_STOP );
 	}
-		
-	
-	static class DataGiver extends DataStreamGiver< Double >
+			
+	static class DataGiver extends ByteStreamGiver
 	{
 		@Override
 		protected void setData() 
 		{
 			for( int i = 0; i < 10; i++ )
-			{
-				super.data.add( Double.valueOf( i ) );
+			{				
+				for( byte b :  ConvertTo.Transform.doubleArray2byteArray( new double[]{ Double.valueOf( i ) } ) )
+				{				
+					super.data.add( b );
+				}
 			}
 			
 			for( int i = 0; i < 2; i++ )
 			{
-				super.timestamps.add( Double.valueOf( System.nanoTime() ) );
+				super.timestamps.add( Double.valueOf( System.nanoTime() / 1e9D) );
 			}
 			
 			synchronized ( this )
 			{
 				super.notify();
 			}
-		}
-		
+		}		
 	}
 }

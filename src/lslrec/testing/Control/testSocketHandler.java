@@ -25,10 +25,10 @@ import java.util.Map;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.controls.IHandlerMinion;
-import lslrec.controls.IHandlerSupervisor;
-import lslrec.controls.MinionParameters;
-import lslrec.controls.SocketHandler;
+import lslrec.control.IHandlerMinion;
+import lslrec.control.IHandlerSupervisor;
+import lslrec.control.MinionParameters;
+import lslrec.controls.handler.SocketHandler;
 import lslrec.controls.messages.EventInfo;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.sockets.info.SocketSetting;

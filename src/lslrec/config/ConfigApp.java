@@ -27,7 +27,6 @@ import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -79,7 +78,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 18 );
+	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 23 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -126,7 +125,7 @@ public class ConfigApp
 
 	public static final String SERVER_SOCKET = "SERVER_SOCKET_TABLE";
 	
-	public static final String STREAM_LIBRARY = "STREAM_LIBRARY";
+	//public static final String STREAM_LIBRARY = "STREAM_LIBRARY";
 
 	/****************
 	 * 
@@ -227,7 +226,7 @@ public class ConfigApp
 		
 		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
 		
-		list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
+		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -1130,6 +1129,7 @@ public class ConfigApp
 					defaultMsg += key + ": plugins' settings error.\n"; 
 				}				
 			}
+			/*
 			else if( key.equalsIgnoreCase( STREAM_LIBRARY ) )
 			{
 				loadDefaultStreamLibrary();
@@ -1144,6 +1144,7 @@ public class ConfigApp
 					defaultMsg += key + ": the library " + value + " unsupported.\n";
 				}
 			}
+			*/
 			else 
 			{
 				System.out.println(key + ": non-defined parameter.");
@@ -1304,12 +1305,14 @@ public class ConfigApp
 				loadDefaultPlugins();
 				break;
 			}
+			/*
 			case STREAM_LIBRARY:
 			{
 				loadDefaultStreamLibrary();
 				
 				break;
 			}
+			*/
 		}
 	}
 
@@ -1337,7 +1340,7 @@ public class ConfigApp
 		
 		loadDefaultPlugins();
 		
-		loadDefaultStreamLibrary();
+		//loadDefaultStreamLibrary();
 	}
 
 	private static void loadDefaultLanguage()
@@ -1402,15 +1405,14 @@ public class ConfigApp
 
 	private static void loadDefaultLSLDeviceInfo()
 	{
-		IStreamSetting[] devices = null;
-
 		/*
 		LSL lsl = new LSL();
 
 		IStreamSetting[] deviceInfo = lsl.resolve_streams( );
 		*/
 		
-		IStreamSetting[] deviceInfo = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );		
+		//IStreamSetting[] deviceInfo = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );		
+		IStreamSetting[] deviceInfo = DataStreamFactory.getStreamSettings( );
 		
 		HashSet< IMutableStreamSetting > settings = new HashSet< IMutableStreamSetting >();
 		
@@ -1464,8 +1466,10 @@ public class ConfigApp
 		listConfig.put( PLUGINS, new ArrayTreeMap< Tuple< PluginType, String>, ParameterList >() );
 	}
 	
+	/*
 	private static void loadDefaultStreamLibrary()
 	{
 		listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.LSL );
 	}
+	*/
 }

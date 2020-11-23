@@ -29,6 +29,7 @@ import lslrec.auxiliar.tasks.IMonitoredTask;
 import lslrec.auxiliar.tasks.ITaskIdentity;
 import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.config.Parameter;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -44,6 +45,8 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	
 	private ITaskMonitor monitor = null;
 
+	
+	
 	/**
 	 * 
 	 */
@@ -188,7 +191,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		}
 	}
 	
-	public Datastr
+	public abstract void setTrialLogStream( StringLogStream log );	
 	
 	public abstract void loadSettings( List< Parameter< String > > pars);
 	

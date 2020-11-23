@@ -19,11 +19,8 @@
  */
 package lslrec.dataStream.family.setting;
 
-import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.Map;
 
-import com.sun.jna.Pointer;
 
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
@@ -43,17 +40,16 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	 * @param samplingRate
 	 * @param sourceID
 	 * @param uid
-	 * @param desc
 	 * @param extraInfo
 	 * @param chunkSize
 	 */
 	public SimpleMutableStreamSetting(StreamLibrary libType, String name, StreamDataType dataType
 										, StreamDataType timeDataType, StreamDataType stringLenType
 										, int numChs, double samplingRate, String sourceID
-										, String uid, String desc, Map<String, String> extraInfo, int chunkSize) 
+										, String uid, Map<String, String> extraInfo, int chunkSize) 
 	{
 		super(libType, name, dataType, timeDataType, stringLenType, numChs
-				, samplingRate, sourceID, uid, desc, extraInfo,
+				, samplingRate, sourceID, uid, extraInfo,
 				chunkSize);
 	}
 	

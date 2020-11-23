@@ -1006,7 +1006,7 @@ public class Dialog_BinaryConverter extends JDialog
 																						//, prevInfo.session_id()
 																						//, prevInfo.version()
 																						//, prevInfo.created_at()
-																						, prevInfo.description()
+																						//, prevInfo.description()
 																						, prevInfo.getExtraInfo()
 																						, prevInfo.getChunkSize()
 																						//, prevInfo.isInterleavedData()
@@ -1417,13 +1417,14 @@ public class Dialog_BinaryConverter extends JDialog
 																//, System.nanoTime() + ""
 																//, 1
 																//, System.nanoTime()
-																, xml
+																//, xml
 																, null
 																, Integer.parseInt( chunk )
 																//, Boolean.parseBoolean( interleaved )
 																//, false
 																//, false 
 																);
+			strSetting.setDescription( xml );
 			strSetting.setInterleaveadData( Boolean.parseBoolean( interleaved ) );
 			
 			

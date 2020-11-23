@@ -55,6 +55,10 @@ public interface LSLDll extends Library
     int lsl_push_sample_dt(Pointer obj, double[] data, double timestamp);
     int lsl_push_sample_dtp(Pointer obj, double[] data, double timestamp, int pushthrough);
 
+    int lsl_push_sample_l(Pointer obj, long[] data);
+    int lsl_push_sample_lt(Pointer obj, long[] data, double timestamp);
+    int lsl_push_sample_ltp(Pointer obj, long[] data, double timestamp, int pushthrough);
+    
     int lsl_push_sample_i(Pointer obj, int[] data);
     int lsl_push_sample_it(Pointer obj, int[] data, double timestamp);
     int lsl_push_sample_itp(Pointer obj, int[] data, double timestamp, int pushthrough);
@@ -144,6 +148,7 @@ public interface LSLDll extends Library
 
     double lsl_pull_sample_f(Pointer obj, float[] buffer, int buffer_elements, double timeout, int[] ec);
     double lsl_pull_sample_d(Pointer obj, double[] buffer, int buffer_elements, double timeout, int[] ec);
+    double lsl_pull_sample_i(Pointer obj, long[] buffer, int buffer_elements, double timeout, int[] ec);
     double lsl_pull_sample_i(Pointer obj, int[] buffer, int buffer_elements, double timeout, int[] ec);
     double lsl_pull_sample_s(Pointer obj, short[] buffer, int buffer_elements, double timeout, int[] ec);
     double lsl_pull_sample_c(Pointer obj, byte[] buffer, int buffer_elements, double timeout, int[] ec);
@@ -153,6 +158,7 @@ public interface LSLDll extends Library
 
     long lsl_pull_chunk_f(Pointer obj, float[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);
     long lsl_pull_chunk_d(Pointer obj, double[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);
+    long lsl_pull_chunk_i(Pointer obj, long[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);
     long lsl_pull_chunk_i(Pointer obj, int[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);
     long lsl_pull_chunk_s(Pointer obj, short[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);
     long lsl_pull_chunk_c(Pointer obj, byte[] data_buffer, double[] timestamp_buffer, int data_buffer_elements, int timestamp_buffer_elements, double timeout, int[] ec);

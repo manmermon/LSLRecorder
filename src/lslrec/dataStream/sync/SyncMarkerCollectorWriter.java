@@ -100,7 +100,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	//, ""
 																	//, 1
 																	//, System.nanoTime()
-																	, ""
+																	//, ""
 																	, null
 																	, 1
 																	//, false
@@ -258,7 +258,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	//, ""
 																	//, 1
 																	//, System.nanoTime()
-																	, ""
+																	//, ""
 																	, null
 																	, 1
 																	//, false

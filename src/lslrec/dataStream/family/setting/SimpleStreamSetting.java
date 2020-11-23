@@ -92,7 +92,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								//, String sessionID
 								//, int ver
 								//, double createdAt
-								, String desc
+								//, String desc
 								, Map< String, String > extraInfo
 								, int chunkSize
 								//, boolean interleaved
@@ -137,8 +137,28 @@ public class SimpleStreamSetting implements IStreamSetting
 		this.ver = 1;
 		this.createdAt = System.nanoTime();
 		
-		this.desc = desc;
 		this.sessionID = createdAt + "";
+		
+		this.desc = "<stream>\n";
+		
+		this.desc += "<name>" + this.name + "</name>\n";
+		this.desc += "<dataType>" + this.data_type + "</dataType>\n";
+		this.desc += "<timeType>" + this.timeDataType + "</timeType>\n";
+		this.desc += "<stringLengthType>" + this.stringLenDataType + "</stringLengthType>\n";
+		this.desc += "<channels>" + this.numChannels+ "</channels>\n";
+		this.desc += "<chunk>" + this.chunkSize + "</chunk>\n";
+		this.desc += "<interleaved>" + this.interleaved + "</interleaved>\n";
+		this.desc += "<samplingRate>" + samplingRate + "</samplingRate>\n";
+		this.desc += "<create_at>" + this.createdAt + "</create_at>\n";
+		this.desc += "<hostname>" + this.hostname + "</hostname>\n";
+		this.desc += "<session_id>" + this.sessionID + "</session_id>\n";		
+		this.desc += "<source_id>" + this.sourceID + "</source_id>\n";
+		this.desc += "<uid>" + this.uid + "</uid>\n";
+		this.desc += "<version>" + this.ver + "</version>\n";
+		this.desc += "<" + this.getRootNode2ExtraInfoLabel() + "/>\n";
+		
+		this.desc += "</stream>";
+		
 	}		
 
 	@Override

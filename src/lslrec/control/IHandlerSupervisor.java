@@ -1,5 +1,8 @@
-/* 
- * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+/*
+ * Work based on IControlLevel1 of
+ * CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+ * 
+ * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
@@ -17,19 +20,23 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.lslrecPlugin.trial;
+package lslrec.control;
 
-import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
+import lslrec.controls.messages.EventInfo;
 
 /**
+ * A handler leader has to coordinate minion actions.  
+ * 
  * @author Manuel Merino Monge
  *
  */
-public interface ILSLRecPluginTrial extends ILSLRecConfigurablePlugin 
-{	
-	public LSLRecPluginTrial getGUIExperiment();
-
-	public boolean hasTrialLog();
-	
-	public String getLogDescription();
+public abstract interface IHandlerSupervisor
+{
+	/**
+	 * A subordinate indicates an event happened to the leader.
+	 * 
+	 * @param minion 	-> minion reference.
+	 * @param event 	-> happened event.
+	 */
+	public abstract void eventNotification( IHandlerMinion minion, EventInfo event);
 }

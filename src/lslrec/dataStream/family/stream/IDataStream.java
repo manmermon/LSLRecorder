@@ -9,7 +9,7 @@ package lslrec.dataStream.family.stream;
 
 import lslrec.dataStream.family.setting.IStreamSetting;
 
-public interface IDataStream 
+public interface IDataStream
 {	
     /**
      * A very large time duration (> 1 year) for timeout values.
@@ -99,6 +99,8 @@ public interface IDataStream
     public double pull_sample( float[] sample ) throws Exception;
     public double pull_sample( double[] sample, double timeout ) throws Exception;
     public double pull_sample( double[] sample ) throws Exception;
+    public double pull_sample( long[] sample, double timeout ) throws Exception;
+    public double pull_sample( long[] sample ) throws Exception;
     public double pull_sample( int[] sample, double timeout ) throws Exception;
     public double pull_sample( int[] sample ) throws Exception;
     public double pull_sample( short[] sample, double timeout ) throws Exception;
@@ -107,7 +109,6 @@ public interface IDataStream
     public double pull_sample( byte[] sample ) throws Exception;
     public double pull_sample( String[] sample, double timeout ) throws Exception;
     public double pull_sample( String[] sample ) throws Exception;
-
 
 
     // =============================================================
@@ -133,7 +134,9 @@ public interface IDataStream
     public int pull_chunk( byte[] data_buffer, double[] timestamp_buffer, double timeout ) throws Exception;
     public int pull_chunk( byte[] data_buffer, double[] timestamp_buffer ) throws Exception;
     public int pull_chunk( int[] data_buffer, double[] timestamp_buffer, double timeout ) throws Exception;
-    public int pull_chunk( int[] data_buffer, double[] timestamp_buffer ) throws Exception;  
+    public int pull_chunk( int[] data_buffer, double[] timestamp_buffer ) throws Exception;
+    public int pull_chunk( long[] data_buffer, double[] timestamp_buffer, double timeout ) throws Exception;
+    public int pull_chunk( long[] data_buffer, double[] timestamp_buffer ) throws Exception;
     public int pull_chunk( String[] data_buffer, double[] timestamp_buffer, double timeout ) throws Exception;
     public int pull_chunk( String[] data_buffer, double[] timestamp_buffer ) throws Exception;
 }

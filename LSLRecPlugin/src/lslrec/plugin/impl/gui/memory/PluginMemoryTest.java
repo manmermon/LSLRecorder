@@ -45,9 +45,11 @@ import javax.swing.event.ChangeListener;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
+import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrialLog;
 
 /**
  * @author Manuel Merino Monge
@@ -56,7 +58,7 @@ import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
 public class PluginMemoryTest implements ILSLRecPluginTrial
 {
 	private ParameterList pars = new ParameterList();
-	
+		
 	/**
 	 * 
 	 */
@@ -425,5 +427,28 @@ public class PluginMemoryTest implements ILSLRecPluginTrial
 		}
 		
 		return msg;
+	}
+
+	@Override
+	public boolean hasTrialLog() 
+	{
+		return true;
+	}
+
+	@Override
+	public String getLogDescription() 
+	{
+		String descr = ""; 
+		
+		descr += "Memory matrix prints by rows. ";
+		
+		descr += "4 Flag bits - [b3 b2 b1 b0]: "
+				+ "b0 is the color (0 - white, 1 - black)"
+				+ ", others bits contain the shape:"
+				+ " b1 - circle, b2 - diamond, b3 - triangle."
+				;
+				
+		
+		return descr;
 	}
 }

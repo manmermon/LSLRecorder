@@ -33,6 +33,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -41,9 +42,11 @@ import javax.swing.Timer;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
+import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrialLog;
 import lslrec.stoppableThread.IStoppableThread;
 
 /**
@@ -82,6 +85,8 @@ public class MemoryTest extends LSLRecPluginTrial
 	private Timer memory_timer;
 	private Timer answer_timer;
 	
+	private StringLogStream log = null;
+	
 	/**
 	 * 
 	 */
@@ -118,7 +123,7 @@ public class MemoryTest extends LSLRecPluginTrial
 	{
 		return this.stage;
 	}
-
+	
 	@Override
 	public void loadSettings( List< Parameter< String > > arg0 )
 	{
@@ -269,6 +274,11 @@ public class MemoryTest extends LSLRecPluginTrial
 			final int[][] memoryMatrix = this.task.getTask();			
 			this.answerLocationTable = new int[ mSize.x ][ mSize.y ];
 	
+			if( this.log != null )
+			{
+				this.log.push_log( "Memory: " + Arrays.deepToString( memoryMatrix ) );
+			}
+			
 			this.container.setVisible( false );
 			
 			MemoryBoard.setMemoryPanel( memoryMatrix, this.container );
@@ -324,10 +334,15 @@ public class MemoryTest extends LSLRecPluginTrial
 	{
 		super.cleanUp();
 		
+		if( this.log != null )
+		{
+			this.log = null;
+		}
+		
 		if ( answerOptionsListMenu != null)
 		{
 			answerOptionsListMenu.setVisible( false );
-		}
+		}		
 	}
 	
 	/**
@@ -441,6 +456,10 @@ public class MemoryTest extends LSLRecPluginTrial
 				}
 			}
 			
+			if( this.log != null )
+			{
+				this.log.push_log( "Answer: " + Arrays.deepToString( userAnswer ) );
+			}
 
 			this.wakeUpTrial();
 		}
@@ -480,11 +499,16 @@ public class MemoryTest extends LSLRecPluginTrial
 		
 		return new Point( f, c );
 	}
-	
+		
 	@Override
 	protected void startUp() throws Exception 
 	{
 		super.startUp();
+		
+		if( this.log != null && this.log.getState().equals( State.NEW ) )
+		{
+			this.log.startThread();
+		}
 		
 		this.stage = SyncMarker.START_MARK;
 		
@@ -568,5 +592,14 @@ public class MemoryTest extends LSLRecPluginTrial
 	@Override
 	protected void postStopThread(int arg0) throws Exception 
 	{		
+	}
+
+	@Override
+	public void setTrialLogStream( StringLogStream arg0 ) 
+	{
+		if( this.log == null || this.log.getState().equals( State.NEW ) )
+		{
+			this.log = arg0;
+		}
 	}
 }

@@ -78,6 +78,9 @@ public class StreamOutlet
     public void push_sample(String[] data, double timestamp) { inst.lsl_push_sample_strt(obj, data, timestamp); }
     public void push_sample(String[] data) { inst.lsl_push_sample_str(obj, data); }
 
+    public void push_sample(long[] data, double timestamp, boolean pushthrough) { inst.lsl_push_sample_ltp(obj, data, timestamp, pushthrough ? 1 : 0); }
+    public void push_sample(long[] data, double timestamp) { inst.lsl_push_sample_lt(obj, data, timestamp); }
+    public void push_sample(long[] data) { inst.lsl_push_sample_l(obj, data); }
 
     // ===============================================================
     // === Pushing an chunk of multiplexed samples into the outlet ===
@@ -110,6 +113,10 @@ public class StreamOutlet
     public void push_chunk(String[] data, double timestamp) { inst.lsl_push_chunk_strt(obj, data, data.length, timestamp); }
     public void push_chunk(String[] data) { inst.lsl_push_chunk_str(obj, data, data.length); }
 
+    public void push_chunk(long[] data, double timestamp, boolean pushthrough) { inst.lsl_push_chunk_ltp(obj, data, data.length, timestamp, pushthrough ? 1 : 0); }
+    public void push_chunk(long[] data, double timestamp) { inst.lsl_push_chunk_lt(obj, data, data.length, timestamp); }
+    public void push_chunk(long[] data) { inst.lsl_push_chunk_l(obj, data, data.length); }
+    
     /**
      * Push a chunk of multiplexed samples into the outlet. One timestamp per sample is provided.
      * @param data A rectangular array of values for multiple samples.

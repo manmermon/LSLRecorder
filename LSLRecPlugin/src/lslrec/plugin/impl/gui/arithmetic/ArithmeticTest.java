@@ -43,6 +43,7 @@ import javax.swing.Timer;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
@@ -75,6 +76,8 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	private Timer answer_timer;
 	
 	private ArithmeticTask task = null;
+	
+	private StringLogStream log = null;
 
 	/**
 	 * 
@@ -224,6 +227,11 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 			
 			getTaskText().setText( this.task.getOperation() );
 			
+			if( this.log != null )
+			{
+				this.log.push_log( getTaskText().getText() );
+			}
+			
 			panelTask.add( this.container, BorderLayout.CENTER );
 			
 			this.container.setVisible( true );
@@ -324,6 +332,11 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 						String userAnswer = b.getText();
 	
 						boolean answer  = userAnswer.equals( target + "");
+						
+						if( log != null )
+						{
+							log.push_log( "Target:" + target + "; Answer: " + userAnswer );
+						}
 						
 						wakeUpTrial();
 					}        
@@ -445,6 +458,15 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	@Override
 	protected void preStopThread(int arg0) throws Exception 
 	{	
+	}
+
+	@Override
+	public void setTrialLogStream( StringLogStream arg0 ) 
+	{
+		if( this.log == null || this.log.getState().equals( State.NEW ) )
+		{
+			this.log = arg0;
+		}
 	}
 
 }

@@ -22,11 +22,16 @@
  */
 package lslrec.dataStream.family;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 
 /**
  * @author Manuel Merino Monge
@@ -61,6 +66,12 @@ public class DataStreamFactory
 				
 				break;
 			}
+			case LSLREC:
+			{
+				sst = LSLRecStream.getRegisteredStreamSettings().toArray( new IStreamSetting[ 0 ] );
+				
+				break;
+			}
 			default:
 			{
 				break;
@@ -70,9 +81,24 @@ public class DataStreamFactory
 		return sst;
 	}	
 	 
-	public static IStreamSetting[] getStreamSettings( IStreamSetting.StreamLibrary lib )
+	public static IStreamSetting[] getStreamSettings( )
 	{
-		return createStreamSettings( lib, TIME_FOREVER );
+		List< IStreamSetting > sslist = new ArrayList<IStreamSetting>();
+		
+		for( StreamLibrary lib : StreamLibrary.values() )
+		{
+			IStreamSetting[] sst = createStreamSettings( lib, TIME_FOREVER );
+			
+			if( sst != null )
+			{
+				for( IStreamSetting st : sst )
+				{
+					sslist.add( st );
+				}
+			}
+		}
+		
+		return sslist.toArray( new IStreamSetting[ 0 ] );
 	}
 	
 	public static IDataStream createDataStream( IStreamSetting streamSetting ) throws Exception
@@ -96,6 +122,12 @@ public class DataStreamFactory
 												, streamSetting.getStreamBufferLength()
 												, streamSetting.getChunkSize()
 												, streamSetting.recoverLostStream() );
+					break;
+				}
+				case LSLREC:
+				{
+					bds = LSLRecStream.getDataStream( streamSetting );
+					
 					break;
 				}
 				default:

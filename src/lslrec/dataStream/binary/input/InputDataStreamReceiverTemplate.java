@@ -631,6 +631,70 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	
 				break;
 			}
+			case int64:
+			{					
+				nReadData = this.inLet.pull_chunk( this.longData, timestamp_buffer, this.blockTimer );
+				
+				if( nReadData > 0 )
+				{					
+					int i = 0;					
+					while( i < nReadData 
+							&& this.tempSampleBytes.size() < this.arrayLen )
+					{
+						this.tempSampleBytes.add( this.longData[ i ] );
+						i++;
+					}
+					
+					int j = 0;
+					while( j < timestamp_buffer.length 
+							&& timestamp_buffer[ j ] > 0.0D 
+							&& this.tempTimeMark.size() < this.chunckLength )
+					{
+						this.tempTimeMark.add( timestamp_buffer[ j ] );
+						j++;
+					}
+					
+					if( this.tempSampleBytes.size() >= this.arrayLen )
+					{			
+						long[] aux = new long[ this.tempSampleBytes.size() ];
+						for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
+						{
+							aux[ iS ] = (Long)this.tempSampleBytes.get( iS );
+						}						
+						
+						for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
+						{
+							this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
+						}	
+						
+						int nBytes = this.tempSampleBytes.size() * Long.BYTES;						
+						out = new byte[ nBytes ];
+						
+						data = ByteBuffer.wrap(out);
+						LongBuffer fBuf = data.asLongBuffer();
+						fBuf.put( aux );
+						
+						this.tempSampleBytes.clear();
+						this.tempTimeMark.clear();
+					}
+					
+					while( i < nReadData 
+							&& this.tempSampleBytes.size() < this.arrayLen )
+					{
+						this.tempSampleBytes.add( this.longData[ i ] );
+						i++;
+					}					
+					
+					while( j < timestamp_buffer.length 
+							&& timestamp_buffer[ j ] > 0.0D )
+					{
+						this.tempTimeMark.add( timestamp_buffer[ j ] );
+						j++;
+					}
+				}
+	
+				break;
+			}
 			case float32:
 			{
 				nReadData = this.inLet.pull_chunk( this.floatData, timestamp_buffer, this.blockTimer );
@@ -1133,6 +1197,70 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 								&& this.tempSampleBytes.size() < this.arrayLen )
 						{
 							this.tempSampleBytes.add( this.byteData[ i ] );
+							i++;
+						}					
+						
+						while( j < timestamp_buffer.length 
+								&& timestamp_buffer[ j ] > 0.0D )
+						{
+							this.tempTimeMark.add( timestamp_buffer[ j ] );
+							j++;
+						}
+					}
+		
+					break;
+				}
+				case int64:
+				{					
+					nReadData = this.inLet.pull_chunk( this.longData, timestamp_buffer, this.blockTimer );
+					
+					if( nReadData > 0 )
+					{					
+						int i = 0;					
+						while( i < nReadData 
+								&& this.tempSampleBytes.size() < this.arrayLen )
+						{
+							this.tempSampleBytes.add( this.longData[ i ] );
+							i++;
+						}
+						
+						int j = 0;
+						while( j < timestamp_buffer.length 
+								&& timestamp_buffer[ j ] > 0.0D 
+								&& this.tempTimeMark.size() < this.chunckLength )
+						{
+							this.tempTimeMark.add( timestamp_buffer[ j ] );
+							j++;
+						}
+						
+						if( this.tempSampleBytes.size() >= this.arrayLen )
+						{			
+							long[] aux = new long[ this.tempSampleBytes.size() ];
+							for( int iS = 0; iS < this.tempSampleBytes.size(); iS++ )
+							{
+								aux[ iS ] = (Long)this.tempSampleBytes.get( iS );
+							}						
+							
+							for( int iS = 0; iS < this.tempTimeMark.size() && iS < this.timeMark.length; iS++ )
+							{
+								this.timeMark[ iS ] = (Double)this.tempTimeMark.get( iS ) + this.timeCorrection;
+							}	
+							
+							int nBytes = this.tempSampleBytes.size() * Long.BYTES;						
+							out = new byte[ nBytes ];
+							
+							data = ByteBuffer.wrap(out);
+							LongBuffer fBuf = data.asLongBuffer();
+							fBuf.put( aux );
+							
+							this.tempSampleBytes.clear();
+							this.tempTimeMark.clear();
+						}
+						
+						while( i < nReadData 
+								&& this.tempSampleBytes.size() < this.arrayLen )
+						{
+							this.tempSampleBytes.add( this.longData[ i ] );
 							i++;
 						}					
 						
