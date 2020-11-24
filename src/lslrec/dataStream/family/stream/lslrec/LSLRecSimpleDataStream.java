@@ -618,10 +618,7 @@ public class LSLRecSimpleDataStream implements IDataStream
 			this.startTimer( timeout, this.getTimeoutReadAction() );
 			
 			nSamples = this.datGiver.getSamples( data_buffer, timestamp_buffer );
-			
-			if( nSamples > 0 )
-				System.out.println("LSLRecSimpleDataStream.pull_chunk() " + Arrays.deepToString( data_buffer ) );
-			
+						
 			this.stopTimer();
 		}
 		

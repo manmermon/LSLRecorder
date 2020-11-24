@@ -437,15 +437,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}			
 		
-			//Create In-Out sockets
+			//
+			// Create In-Out sockets
+			//
 			this.setSocketHandlerSetting();
 			
+			//
 			// Trial Plugin
-			
+			//
+			// Before than setOutputHandlerSetting(.)
+			//
 			this.setTrialPlugin();
 			
-			////Output data file
-			
+			//
+			//Output data file
+			//			
 			boolean isSyncLSL = this.setOutputHandlerSetting( testWriting );
 			
 			this.isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
@@ -473,11 +479,16 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.writingTestTimer.start();
 			}			
 			
+			//
+			// Sync method plugin
+			//
 			this.setSyncPlugin();
 			
-			
+			//
+			// deadlock detector
+			//
 			this.setDeadlockDetector();
-			
+						
 			this.waitStartCommand();
 		}
 		catch (Exception | Error e )

@@ -44,7 +44,6 @@ import javax.swing.Timer;
 import lslrec.auxiliar.task.ITaskLog;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;

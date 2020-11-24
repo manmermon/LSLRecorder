@@ -30,7 +30,6 @@ import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskLog;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
-import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -99,7 +98,14 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		super.cleanUp();
 	
 		this.testWindow.setVisible( false );
-		this.testWindow.dispose();
+		try
+		{
+			this.testWindow.dispose();
+		}
+		catch (Exception e) 
+		{			
+		}
+		
 		this.testWindow = null;
 		
 		this.GUIPanel.setVisible( false );		
