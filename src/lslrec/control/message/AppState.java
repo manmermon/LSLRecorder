@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ * Copyright 2019 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
@@ -17,19 +17,17 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.lslrecPlugin;
 
-import lslrec.auxiliar.task.ITaskIdentity;
+package lslrec.control.message;
 
-public interface ILSLRecPlugin extends ITaskIdentity, Comparable< ILSLRecPlugin >
-{	
-	//
-	//
-	//
-	
-	public static final double VERSION = 1.0;
-	
-	public enum PluginType { COMPRESSOR, ENCODER, DATA_PROCESSING, TRIAL, SYNC };
-	
-	public PluginType getType();
+public class AppState 
+{
+	public static final String SAVED = "Saved";
+	public static final String SAVING = "Saving";
+	public static final String RUN = "Run";
+	public static final String STOPPING = "Stopping";
+	public static final String STOP = "Stop";
+	public static final String WAIT = "Wait";											
+	public static final String PREPARING = "Initiating";
+	public static final String NONE = "";
 }

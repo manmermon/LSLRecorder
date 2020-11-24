@@ -21,7 +21,7 @@ package lslrec.plugin.impl.encoder;
 
 import java.util.List;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.family.setting.IStreamSetting;

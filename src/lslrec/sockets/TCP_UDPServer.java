@@ -22,9 +22,9 @@ package lslrec.sockets;
 import java.net.InetSocketAddress;
 import java.util.List;
 
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.control.message.EventInfo;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

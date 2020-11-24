@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import lslrec.auxiliar.task.ITaskLog;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
@@ -53,7 +54,7 @@ import lslrec.stoppableThread.IStoppableThread;
  * @author Manuel Merino Monge
  *
  */
-public class ArithmeticTest  extends LSLRecPluginTrial
+public class ArithmeticTest extends LSLRecPluginTrial
 {
 	public final static int STAGE_NEW = 4;
 		
@@ -77,7 +78,9 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	
 	private ArithmeticTask task = null;
 	
-	private StringLogStream log = null;
+	private ITaskLog log = null;
+	
+	private Object lock = new Object();
 
 	/**
 	 * 
@@ -226,10 +229,13 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 			this.task.newArithmeticTask();
 			
 			getTaskText().setText( this.task.getOperation() );
-			
-			if( this.log != null )
+
+			synchronized ( this.lock )
 			{
-				this.log.push_log( getTaskText().getText() );
+				if( this.log != null )
+				{
+					this.log.log( getTaskText().getText() );
+				}
 			}
 			
 			panelTask.add( this.container, BorderLayout.CENTER );
@@ -333,9 +339,12 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	
 						boolean answer  = userAnswer.equals( target + "");
 						
-						if( log != null )
+						synchronized ( lock )
 						{
-							log.push_log( "Target:" + target + "; Answer: " + userAnswer );
+							if( log != null )
+							{
+								log.log( "Target:" + target + "; Answer: " + userAnswer );
+							}
 						}
 						
 						wakeUpTrial();
@@ -461,12 +470,12 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	}
 
 	@Override
-	public void setTrialLogStream( StringLogStream arg0 ) 
+	public void setTrialLogStream( ITaskLog arg0 ) 
 	{
-		if( this.log == null || this.log.getState().equals( State.NEW ) )
+		synchronized ( this.lock )
 		{
 			this.log = arg0;
-		}
+		}		
 	}
 
 }

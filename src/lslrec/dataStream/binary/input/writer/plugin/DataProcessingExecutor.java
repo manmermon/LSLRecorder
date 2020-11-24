@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.tasks.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;

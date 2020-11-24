@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.auxiliar.tasks.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 

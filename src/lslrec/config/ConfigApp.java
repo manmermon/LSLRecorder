@@ -23,7 +23,6 @@
 
 package lslrec.config;
 
-import lslrec.controls.messages.RegisterSyncMessages;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
@@ -70,6 +69,7 @@ import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
+import lslrec.control.message.RegisterSyncMessages;
 
 public class ConfigApp
 {

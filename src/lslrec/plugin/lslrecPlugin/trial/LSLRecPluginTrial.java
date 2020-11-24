@@ -25,9 +25,10 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import lslrec.auxiliar.tasks.IMonitoredTask;
-import lslrec.auxiliar.tasks.ITaskIdentity;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.IMonitoredTask;
+import lslrec.auxiliar.task.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskLog;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
@@ -191,7 +192,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		}
 	}
 	
-	public abstract void setTrialLogStream( StringLogStream log );	
+	public abstract void setTrialLogStream( ITaskLog log );	
 	
 	public abstract void loadSettings( List< Parameter< String > > pars);
 	

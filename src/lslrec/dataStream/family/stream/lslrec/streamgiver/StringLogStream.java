@@ -3,12 +3,14 @@
  */
 package lslrec.dataStream.family.stream.lslrec.streamgiver;
 
+import lslrec.auxiliar.task.ITaskLog;
+
 /**
  * @author Manuel Merino Monge
  *
  */
-public class StringLogStream extends ByteStreamGiver 
-{
+public class StringLogStream extends ByteStreamGiver implements ITaskLog
+{	
 	@Override
 	protected final void setData() 
 	{
@@ -17,8 +19,9 @@ public class StringLogStream extends ByteStreamGiver
 			super.notify();
 		}
 	}
-	
-	public final void push_log( String log )
+
+	@Override
+	public void log( String log ) 
 	{
 		super.timestamps.add( System.nanoTime() / 1e9D ); 
 		super.strs.add( log );

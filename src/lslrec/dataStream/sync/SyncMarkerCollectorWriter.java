@@ -34,13 +34,13 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
@@ -93,6 +93,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, SyncMarker.MARK_TIME_TYPE
 																	, StreamDataType.int64
 																	, 1
+																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
 																	, ""
 																	, ""
@@ -101,8 +102,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	//, 1
 																	//, System.nanoTime()
 																	//, ""
-																	, null
-																	, 1
+																	, null																	
 																	//, false
 																	//, true
 																	//, false 
@@ -251,6 +251,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, SyncMarker.MARK_TIME_TYPE
 																	, StreamDataType.int64
 																	, 1
+																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
 																	, ""
 																	, ""
@@ -259,8 +260,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	//, 1
 																	//, System.nanoTime()
 																	//, ""
-																	, null
-																	, 1
+																	, null																	
 																	//, false
 																	//, true
 																	//, false 

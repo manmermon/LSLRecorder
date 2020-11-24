@@ -3,7 +3,7 @@ Lista de clases que exportar para el plugin:
 lslrec
 	.auxiliar
 			.extra.*
-			.tasks.*
+			.task.*
 			.WarningMessage.java
 			
 	.config
@@ -12,8 +12,8 @@ lslrec
 			.ParameterList.java
 			.SettingOptions.java
 			
-	.controls
-			.messages
+	.control
+			.message
 					.EventInfo.java
 					.EventType.java
 					
@@ -26,13 +26,13 @@ lslrec
 								.IDataStream.java
 							
 				.outputDataFile
+								.dataBlock.*								
+								
 								.compress							
 										.IOutZip.java
 										.OutputZipDataTemplate.java
 										.zip.*
-										
-								.dataBlock.*								
-								
+																
 								.format
 										.Encoder.java
 										.IOuputDataFileWrite.java										

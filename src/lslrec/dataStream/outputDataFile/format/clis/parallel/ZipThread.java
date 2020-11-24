@@ -25,10 +25,10 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
@@ -151,7 +151,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 				}
 				case int64:
 				{
-					long[] aux = new long[data.length];
+					long[] aux = new long[ data.length ];
 					int i = 0;
 					
 					for( Object value : data )

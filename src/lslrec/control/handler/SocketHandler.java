@@ -21,10 +21,8 @@
  *   
  */
 
-package lslrec.controls.handler;
+package lslrec.control.handler;
 
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.sockets.info.StreamSocketProblem;
 import lslrec.sockets.SocketReaderThread;
@@ -32,10 +30,14 @@ import lslrec.sockets.TCP_UDPServer;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.control.HandlerMinionTemplate;
 import lslrec.control.MinionParameters;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -45,9 +47,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
 
 public class SocketHandler extends HandlerMinionTemplate implements ITaskMonitor
 {

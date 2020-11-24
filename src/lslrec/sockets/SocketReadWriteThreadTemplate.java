@@ -28,11 +28,11 @@ import java.nio.channels.ClosedByInterruptException;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.auxiliar.tasks.BridgeNotifierThread;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.BridgeNotifierThread;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.sockets.info.StreamSocketProblem;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

@@ -32,8 +32,8 @@ import javax.swing.border.EmptyBorder;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
@@ -102,6 +102,8 @@ public class LSLRecPluginTesting
 	
 	private LinkedList< Number > dataBuffer = null;
 	private int overlapCounter = 0;
+	
+	private StreamLibrary lib = StreamLibrary.LSL;
 	
 	public LSLRecPluginTesting( ILSLRecPlugin plg )
 	{
@@ -378,18 +380,19 @@ public class LSLRecPluginTesting
 	
 	private SimpleStreamSetting getSimpleStreamSetting( String name, StreamDataType type )
 	{
-		return new SimpleStreamSetting( StreamLibrary.LSL
+		return new SimpleStreamSetting( this.lib
 					, name
 					, type
 					, type
 					, type
+					, 1
 					, 1
 					, 0
 					, getClass().getCanonicalName()
 					, getClass().getCanonicalName()
 					//, "testing"
 					, null
-					, 1 );
+					);
 	}
 	
 	private ITaskMonitor getDefaultMonitor()

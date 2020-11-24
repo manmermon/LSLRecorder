@@ -68,36 +68,29 @@ public class SimpleStreamSetting implements IStreamSetting
 		
 	/**
 	 * 
+	 * @param libType
 	 * @param name
-	 * @param content_type
 	 * @param dataType
-	 * @param timeDataTyp
-	 * @param extraInfo
+	 * @param timeDataType
+	 * @param stringLenType
+	 * @param numChs
 	 * @param chunkSize
-	 * @param interleaved
-	 * @param selected
-	 * @param syncStream
+	 * @param samplingRate
+	 * @param sourceID
+	 * @param uid
+	 * @param extraInfo
 	 */
 	public SimpleStreamSetting( StreamLibrary libType
 								, String name
-								//, String content_type
 								, StreamDataType dataType 
 								, StreamDataType timeDataType
 								, StreamDataType stringLenType
 								, int numChs
-								, double samplingRate
+								, int chunkSize
+								, double samplingRate								
 								, String sourceID
 								, String uid
-								//, String hostname
-								//, String sessionID
-								//, int ver
-								//, double createdAt
-								//, String desc
-								, Map< String, String > extraInfo
-								, int chunkSize
-								//, boolean interleaved
-								//, boolean selected
-								//, boolean syncStream  
+								, Map< String, String > extraInfo								  
 								)
 	{
 		this.name = name;
@@ -155,12 +148,67 @@ public class SimpleStreamSetting implements IStreamSetting
 		this.desc += "<source_id>" + this.sourceID + "</source_id>\n";
 		this.desc += "<uid>" + this.uid + "</uid>\n";
 		this.desc += "<version>" + this.ver + "</version>\n";
-		this.desc += "<" + this.getRootNode2ExtraInfoLabel() + "/>\n";
+		this.desc += "<" + this.getRootNode2ExtraInfoLabel() + "> </" + this.getRootNode2ExtraInfoLabel() + ">\n";
 		
 		this.desc += "</stream>";
 		
 	}		
 
+	/**
+	 * 
+	 * @param libType
+	 * @param name
+	 * @param dataType
+	 * @param numChs
+	 * @param chunkSize
+	 * @param samplingRate
+	 * @param sourceID
+	 * @param uid
+	 */
+	public SimpleStreamSetting( StreamLibrary libType
+								, String name
+								, StreamDataType dataType
+								, int numChs
+								, int chunkSize
+								, double samplingRate
+								, String sourceID
+								, String uid								  
+								)
+	{
+		
+		this( libType, name, dataType, numChs, chunkSize, samplingRate, sourceID, uid, null );
+	}
+	
+	/**
+	 * 
+	 * @param libType
+	 * @param name
+	 * @param dataType
+	 * @param numChs
+	 * @param chunkSize
+	 * @param samplingRate
+	 * @param sourceID
+	 * @param uid
+	 * @param extraInfo
+	 */
+	public SimpleStreamSetting( StreamLibrary libType
+								, String name
+								, StreamDataType dataType
+								, int numChs
+								, int chunkSize
+								, double samplingRate
+								, String sourceID
+								, String uid
+								, Map< String, String > extraInfo
+								  
+								)
+	{
+		
+		this( libType, name, dataType
+				, StreamDataType.double64, StreamDataType.int64
+				, numChs, chunkSize, samplingRate, sourceID, uid, extraInfo );
+	}
+	
 	@Override
 	public Map< String, String > getExtraInfo() 
 	{

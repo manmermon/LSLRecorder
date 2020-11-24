@@ -20,10 +20,8 @@
  *  
  */
 
-package lslrec.controls.handler;
+package lslrec.control.handler;
 
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
 import lslrec.auxiliar.thread.DeadlockDetector;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -32,10 +30,11 @@ import lslrec.config.language.Language;
 import lslrec.control.IHandlerMinion;
 import lslrec.control.IHandlerSupervisor;
 import lslrec.control.MinionParameters;
-import lslrec.controls.messages.AppState;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.controls.messages.SocketInformations;
+import lslrec.control.message.AppState;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
+import lslrec.control.message.RegisterSyncMessages;
+import lslrec.control.message.SocketInformations;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
@@ -45,6 +44,8 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
@@ -53,7 +54,6 @@ import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.controls.messages.EventType;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
@@ -73,6 +73,8 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.Tuple;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -434,130 +436,17 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					return;
 				}
 			}			
-			
+		
 			//Create In-Out sockets
-			this.streamPars = this.getSocketStreamingInformations();
-			ParameterList socketParameters = new ParameterList();
+			this.setSocketHandlerSetting();
 			
-			if ( this.streamPars.getOuputSocketInformation() != null)
-			{
-				List< SocketParameters > server = new ArrayList< SocketParameters >();
-				server.add( this.streamPars.getOuputSocketInformation() );
-
-				Parameter par = new Parameter( SocketHandler.SERVER_SOCKET_STREAMING, server );
-				socketParameters.addParameter( par );
-			}
+			// Trial Plugin
 			
-			MinionParameters minionPars = new MinionParameters();
-			minionPars.setMinionParameters( this.ctrSocket.ID, socketParameters );
-									
-			this.ctrSocket.addSubordinates( minionPars );			
-
-			this.socketMsgDelayCal.clearInputMessages();
-			if( !this.streamPars.getInputCommands().isEmpty() )
-			{				
-				this.socketMsgDelayCal.AddInputMessages( this.streamPars.getInputCommands() );
-			}
+			this.setTrialPlugin();
 			
 			////Output data file
 			
-			boolean isSyncLSL = false;
-			
-			if (this.ctrlOutputFile != null )
-			{						
-				String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
-
-				HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
-
-				HashSet< IStreamSetting > DEV_ID = new HashSet< IStreamSetting >();
-				Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
-				for( IMutableStreamSetting dev : deviceIDs )
-				{
-					if( dev.isSelected() )
-					{						
-						DEV_ID.add( dev );
-						
-						LSLRecPluginDataProcessing process = null;
-						for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev ) )
-						{
-							process = pr.getProcessing( dev, process );
-							process.loadProcessingSettings( pr.getSettings() );
-						}
-						
-						DataProcesses.put( dev, process );
-					}
-					else
-					{
-						if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_STREAM ) 
-								&& dev.isSynchronationStream() )
-						{
-							DEV_ID.add( dev );
-							
-							isSyncLSL = isSyncLSL | dev.isSynchronationStream();
-						}
-					}
-				}
-
-				if ( !DEV_ID.isEmpty() )
-				{
-					File folder = new File( file );
-					if( !folder.exists() )
-					{
-						File fpath = folder.getParentFile();
-						if( fpath == null || ( !fpath.exists() &&!fpath.mkdirs() ) )
-						{
-							throw new FileSystemException( "Folder " + folder + " not created." );
-						}
-					}
-
-					ParameterList StreamPars = new ParameterList();
-					
-					Parameter lslSetting = new Parameter( this.ctrlOutputFile.PARAMETER_LSL_SETTING, DEV_ID );
-					StreamPars.addParameter( lslSetting );
-					
-					Parameter datProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_PROCESSING, DataProcesses );
-					StreamPars.addParameter( datProcesses );
-					
-					Parameter savePprocessedDat = new Parameter( this.ctrlOutputFile.PARAMETER_SAVE_DATA_PROCESSING, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_SAVE_DATA_PROCESSING ) );
-					StreamPars.addParameter( savePprocessedDat );
-					
-					Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
-					StreamPars.addParameter( writingTest );
-					
-					OutputFileFormatParameters outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
-					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
-					outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
-					outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );
-					outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
-					outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
-					this.encryptKey = "";
-					
-					
-					String nodeId = StreamSettingExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
-					String nodeText = "";
-					
-					Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
-					
-					for( String idMark : MARKS.keySet() )
-					{
-						Integer v = MARKS.get( idMark );
-						nodeText += idMark + "=" + v + StreamBinaryHeader.HEADER_BINARY_SEPARATOR;
-					}		
-					
-					((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, nodeText );
-										
-					nodeId = StreamSettingExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
-					nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
-					((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
-					
-					Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
-					StreamPars.addParameter( outFileFormat );
-					
-					minionPars.setMinionParameters( this.ctrlOutputFile.ID, StreamPars );
-
-					this.ctrlOutputFile.addSubordinates( minionPars );						
-				}
-			}
+			boolean isSyncLSL = this.setOutputHandlerSetting( testWriting );
 			
 			this.isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
 			
@@ -582,50 +471,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				} );
 				
 				this.writingTestTimer.start();
-			}
+			}			
 			
-			ILSLRecPluginTrial trialPl = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+			this.setSyncPlugin();
 			
-			if( trialPl != null )
-			{
-				this.trial = trialPl.getGUIExperiment();
-				
-				if( this.trial != null )
-				{
-					if( this.trialWindows != null )
-					{
-						this.trialWindows.dispose();
-					}
-					
-					this.trialWindows = this.trial.getWindonw();
-					this.trialWindows.setVisible( false );
-					this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
-					
-					this.trial.loadSettings( trialPl.getSettings() );
-					
-					this.trial.taskMonitor( this.ctrlOutputFile );
-				}
-			}
 			
-			if( this.syncPluginMet != null )
-			{
-				this.syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
-			}
-			
-			 this.syncPluginMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
-
-			if( this.syncPluginMet != null )
-			{
-				this.syncPluginMet.taskMonitor( this.ctrlOutputFile );				
-			}
-			
-			if( this.deadlockDetector != null )
-			{
-				this.deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );				
-			}
-			
-			this.deadlockDetector = new DeadlockDetector( 10000L, 10 ); // 10 s, 10 iteractions
-			this.deadlockDetector.startThread();
+			this.setDeadlockDetector();
 			
 			this.waitStartCommand();
 		}
@@ -668,6 +519,196 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				e1.printStackTrace();
 			}			
+		}
+	}
+	
+	private void setSocketHandlerSetting() throws Exception
+	{
+		this.streamPars = this.getSocketStreamingInformations();
+		ParameterList socketParameters = new ParameterList();
+		
+		if ( this.streamPars.getOuputSocketInformation() != null)
+		{
+			List< SocketParameters > server = new ArrayList< SocketParameters >();
+			server.add( this.streamPars.getOuputSocketInformation() );
+
+			Parameter par = new Parameter( SocketHandler.SERVER_SOCKET_STREAMING, server );
+			socketParameters.addParameter( par );
+		}
+		
+		MinionParameters minionPars = new MinionParameters();
+		minionPars.setMinionParameters( this.ctrSocket.ID, socketParameters );
+								
+		this.ctrSocket.addSubordinates( minionPars );			
+
+		this.socketMsgDelayCal.clearInputMessages();
+		if( !this.streamPars.getInputCommands().isEmpty() )
+		{				
+			this.socketMsgDelayCal.AddInputMessages( this.streamPars.getInputCommands() );
+		}
+	}
+	
+	private boolean setOutputHandlerSetting( boolean testWriting ) throws Exception
+	{
+		boolean isSyncLSL = false;
+		
+		if ( this.ctrlOutputFile != null )
+		{						
+			String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+
+			HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+
+			HashSet< IStreamSetting > DEV_ID = new HashSet< IStreamSetting >();
+			Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
+			for( IMutableStreamSetting dev : deviceIDs )
+			{
+				if( dev.isSelected() )
+				{						
+					DEV_ID.add( dev );
+					
+					LSLRecPluginDataProcessing process = null;
+					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev ) )
+					{
+						process = pr.getProcessing( dev, process );
+						process.loadProcessingSettings( pr.getSettings() );
+					}
+					
+					DataProcesses.put( dev, process );
+				}
+				else
+				{
+					if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_STREAM ) 
+							&& dev.isSynchronationStream() )
+					{
+						DEV_ID.add( dev );
+						
+						isSyncLSL = isSyncLSL | dev.isSynchronationStream();
+					}
+				}
+			}
+
+			if ( !DEV_ID.isEmpty() )
+			{
+				File folder = new File( file );
+				if( !folder.exists() )
+				{
+					File fpath = folder.getParentFile();
+					if( fpath == null || ( !fpath.exists() &&!fpath.mkdirs() ) )
+					{
+						throw new FileSystemException( "Folder " + folder + " not created." );
+					}
+				}
+
+				ParameterList StreamPars = new ParameterList();
+				
+				Parameter lslSetting = new Parameter( this.ctrlOutputFile.PARAMETER_LSL_SETTING, DEV_ID );
+				StreamPars.addParameter( lslSetting );
+				
+				Parameter datProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_PROCESSING, DataProcesses );
+				StreamPars.addParameter( datProcesses );
+				
+				Parameter savePprocessedDat = new Parameter( this.ctrlOutputFile.PARAMETER_SAVE_DATA_PROCESSING, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_SAVE_DATA_PROCESSING ) );
+				StreamPars.addParameter( savePprocessedDat );
+				
+				Parameter writingTest = new Parameter( this.ctrlOutputFile.PARAMETER_WRITE_TEST, testWriting );
+				StreamPars.addParameter( writingTest );
+				
+				OutputFileFormatParameters outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
+				outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
+				outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
+				outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );
+				outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
+				outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
+				this.encryptKey = "";
+				
+				
+				String nodeId = StreamSettingExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
+				String nodeText = "";
+				
+				Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
+				
+				for( String idMark : MARKS.keySet() )
+				{
+					Integer v = MARKS.get( idMark );
+					nodeText += idMark + "=" + v + StreamBinaryHeader.HEADER_BINARY_SEPARATOR;
+				}		
+				
+				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, nodeText );
+									
+				nodeId = StreamSettingExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
+				nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
+				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
+				
+				Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
+				StreamPars.addParameter( outFileFormat );
+				
+				MinionParameters minionPars = new MinionParameters();
+				minionPars.setMinionParameters( this.ctrlOutputFile.ID, StreamPars );
+
+				this.ctrlOutputFile.addSubordinates( minionPars );						
+			}
+		}
+		
+		return isSyncLSL;
+	}
+	
+	private void setDeadlockDetector() throws Exception
+	{
+		if( this.deadlockDetector != null )
+		{
+			this.deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );				
+		}
+		
+		this.deadlockDetector = new DeadlockDetector( 10000L, 10 ); // 10 s, 10 iteractions
+		this.deadlockDetector.startThread();
+	}
+	
+	private void setSyncPlugin()
+	{
+		if( this.syncPluginMet != null )
+		{
+			this.syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
+		}
+		
+		 this.syncPluginMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
+
+		if( this.syncPluginMet != null )
+		{
+			this.syncPluginMet.taskMonitor( this.ctrlOutputFile );				
+		}
+	}
+	
+	private void setTrialPlugin()
+	{
+		ILSLRecPluginTrial trialPl = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+		
+		if( trialPl != null )
+		{
+			this.trial = trialPl.getGUIExperiment();
+			
+			if( this.trial != null )
+			{
+				if( trialPl.hasTrialLog() )
+				{
+					StringLogStream log = new StringLogStream();
+					
+					LSLRecStream.setDataStreamGiver( trialPl.getID(), log );
+					this.trial.setTrialLogStream( log );
+				}
+				
+				if( this.trialWindows != null )
+				{
+					this.trialWindows.dispose();
+				}
+				
+				this.trialWindows = this.trial.getWindonw();
+				this.trialWindows.setVisible( false );
+				this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
+				
+				this.trial.loadSettings( trialPl.getSettings() );
+				
+				this.trial.taskMonitor( this.ctrlOutputFile );
+			}
 		}
 	}
 	

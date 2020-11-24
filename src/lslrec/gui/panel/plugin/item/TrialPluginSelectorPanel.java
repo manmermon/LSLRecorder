@@ -39,16 +39,17 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lslrec.LSLRecSimpleDataStream;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.TrialPluginRegistrar;
 
@@ -253,7 +254,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		{
 			table.getSelectionModel().addListSelectionListener( new ListSelectionListener()
 			{	
-				private LSLRecSimpleDataStream lsrecStream = null;
+				private IStreamSetting lsrecStream = null;
 				
 				@Override
 				public void valueChanged(ListSelectionEvent arg0)
@@ -289,17 +290,15 @@ public class TrialPluginSelectorPanel extends JPanel
 										lsrecStream = null;
 									}
 									
-									lsrecStream = new LSLRecSimpleDataStream( trial.getID()
+									lsrecStream = new SimpleStreamSetting( StreamLibrary.LSLREC
+																			, trial.getID()
 																			, StreamDataType.string
-																			, 0, 1, 1, new StringLogStream() );
+																			, 1, 1, 0D
+																			, trial.getID() 
+																			, trial.getID() );
 									
-									try 
-									{
-										lsrecStream.info().getExtraInfo().put( StreamSettingExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
-									}
-									catch (Exception e) 
-									{
-									}
+									
+									lsrecStream.getExtraInfo().put( StreamSettingExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
 									
 									LSLRecStream.addDataStream( lsrecStream );
 								}
@@ -379,7 +378,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 				if( TrialPluginRegistrar.isSelected( trial.getID() ) )
 				{
-					t.setRowSelectionInterval( r, 0 );
+					t.setRowSelectionInterval( r, r );
 					
 					break;
 				}

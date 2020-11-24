@@ -21,8 +21,8 @@ package lslrec.dataStream.outputDataFile.format;
 
 import java.util.List;
 
-import lslrec.auxiliar.tasks.ITaskIdentity;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.family.setting.IStreamSetting;

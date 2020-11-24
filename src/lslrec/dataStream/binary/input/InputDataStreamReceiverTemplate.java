@@ -23,15 +23,13 @@
 package lslrec.dataStream.binary.input;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.auxiliar.tasks.IMonitoredTask;
-import lslrec.auxiliar.tasks.ITaskIdentity;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.auxiliar.tasks.NotificationTask;
-import lslrec.controls.messages.EventInfo;
+import lslrec.auxiliar.task.IMonitoredTask;
+import lslrec.auxiliar.task.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.auxiliar.task.NotificationTask;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.UnsupportedTypeException;
-import lslrec.controls.messages.EventType;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
@@ -41,6 +39,8 @@ import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

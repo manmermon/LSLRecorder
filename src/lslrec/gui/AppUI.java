@@ -23,9 +23,9 @@
 package lslrec.gui;
 
 import lslrec.config.language.Language;
-import lslrec.controls.handler.CoreControl;
-import lslrec.controls.messages.AppState;
-import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.control.handler.CoreControl;
+import lslrec.control.message.AppState;
+import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;

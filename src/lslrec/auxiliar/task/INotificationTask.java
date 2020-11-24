@@ -1,5 +1,7 @@
-/* 
- * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+/*
+ * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+ * 
+ * Copyright 2011-2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
@@ -16,16 +18,31 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
+ */
+
+package lslrec.auxiliar.task;
+
+import java.util.List;
+
+import lslrec.control.message.EventInfo;
+
+/**
+ * 
+ * @author Manuel Merino Monge
  *
  */
-package lslrec.auxiliar.tasks;
-
-public interface IMonitoredTask 
-{
+public interface INotificationTask extends ITaskIdentity, IMonitoredTask
+{	
 	/**
-	 * Setting task monitor.
-	 *  
-	 * @param monitor: task monitor
+	 * To get the task result. 
+	 * 
+	 * @param If true, result list is emptying
+	 * @return task result.
 	 */
-	public void taskMonitor( ITaskMonitor monitor );
+	public List< EventInfo > getResult( boolean clear );
+	
+	/**
+	 * Erase task result.
+	 */
+	public void clearResult();
 }

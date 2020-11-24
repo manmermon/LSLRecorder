@@ -20,7 +20,7 @@
  *   
  */
 
-package lslrec.auxiliar.tasks;
+package lslrec.auxiliar.task;
 
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

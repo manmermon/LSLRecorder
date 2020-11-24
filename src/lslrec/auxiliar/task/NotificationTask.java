@@ -18,13 +18,13 @@
  *   
  *
  */
-package lslrec.auxiliar.tasks;
+package lslrec.auxiliar.task;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import lslrec.controls.messages.EventInfo;
+import lslrec.control.message.EventInfo;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
 public class NotificationTask extends AbstractStoppableThread implements INotificationTask 

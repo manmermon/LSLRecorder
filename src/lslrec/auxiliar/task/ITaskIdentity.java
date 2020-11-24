@@ -18,7 +18,7 @@
  *   
  *
  */
-package lslrec.auxiliar.tasks;
+package lslrec.auxiliar.task;
 
 public interface ITaskIdentity 
 {

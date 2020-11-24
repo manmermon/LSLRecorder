@@ -22,8 +22,8 @@
 
 package lslrec.testing.timers;
 
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
 public class Timer extends AbstractStoppableThread implements ITimer, ITaskMonitor

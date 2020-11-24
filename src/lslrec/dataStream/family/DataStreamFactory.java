@@ -126,7 +126,7 @@ public class DataStreamFactory
 				}
 				case LSLREC:
 				{
-					bds = LSLRecStream.getDataStream( streamSetting );
+					bds = LSLRecStream.createDataStream( streamSetting );
 					
 					break;
 				}

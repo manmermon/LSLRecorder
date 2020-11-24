@@ -48,9 +48,9 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 										, int numChs, double samplingRate, String sourceID
 										, String uid, Map<String, String> extraInfo, int chunkSize) 
 	{
-		super(libType, name, dataType, timeDataType, stringLenType, numChs
-				, samplingRate, sourceID, uid, extraInfo,
-				chunkSize);
+		super(libType, name, dataType, timeDataType, stringLenType, numChs, chunkSize
+				, samplingRate, sourceID, uid, extraInfo
+				);
 	}
 	
 	@Override

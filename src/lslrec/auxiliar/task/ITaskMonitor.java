@@ -1,5 +1,7 @@
-/* 
- * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+/*
+ * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+ * 
+ * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *
@@ -17,19 +19,20 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.lslrecPlugin;
 
-import lslrec.auxiliar.task.ITaskIdentity;
+package lslrec.auxiliar.task;
 
-public interface ILSLRecPlugin extends ITaskIdentity, Comparable< ILSLRecPlugin >
-{	
-	//
-	//
-	//
-	
-	public static final double VERSION = 1.0;
-	
-	public enum PluginType { COMPRESSOR, ENCODER, DATA_PROCESSING, TRIAL, SYNC };
-	
-	public PluginType getType();
+/**
+ * 
+ * @author Manuel Merino Monge
+ *
+ */
+public interface ITaskMonitor 
+{
+	/**
+	 * The task reports to its monitor that the result is available.
+	 * 
+	 * @param INotificationTask source
+	 */
+	public void taskDone( INotificationTask task ) throws Exception;	
 }

@@ -29,10 +29,10 @@ import org.icmp4j.IcmpPingRequest;
 import org.icmp4j.IcmpPingResponse;
 import org.icmp4j.IcmpPingUtil;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.auxiliar.tasks.NotificationTask;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.auxiliar.task.NotificationTask;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.stoppableThread.AbstractStoppableThread;

@@ -95,7 +95,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import lslrec.config.language.Language;
-import lslrec.controls.handler.CoreControl;
+import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;

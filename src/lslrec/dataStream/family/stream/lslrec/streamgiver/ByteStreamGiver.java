@@ -27,6 +27,8 @@ public abstract class ByteStreamGiver extends AbstractStoppableThread
 		this.data = new ArrayList< Byte >();
 		this.strs = new ArrayList< String >();
 		this.timestamps = new ArrayList< Double >();
+		
+		super.setName( this.getClass().getCanonicalName() );
 	}
 
 	@Override

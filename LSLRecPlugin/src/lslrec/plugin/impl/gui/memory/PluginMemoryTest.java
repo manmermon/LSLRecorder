@@ -45,11 +45,9 @@ import javax.swing.event.ChangeListener;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
-import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrialLog;
 
 /**
  * @author Manuel Merino Monge

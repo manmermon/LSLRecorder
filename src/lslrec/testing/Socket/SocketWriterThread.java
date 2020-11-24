@@ -26,9 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.sockets.SocketReadWriteThreadTemplate;
 import lslrec.stoppableThread.IStoppableThread;
 

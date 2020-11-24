@@ -26,7 +26,7 @@ package lslrec.control;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.controls.messages.EventInfo;
+import lslrec.control.message.EventInfo;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 

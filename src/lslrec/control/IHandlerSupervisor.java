@@ -22,7 +22,7 @@
  */
 package lslrec.control;
 
-import lslrec.controls.messages.EventInfo;
+import lslrec.control.message.EventInfo;
 
 /**
  * A handler leader has to coordinate minion actions.  

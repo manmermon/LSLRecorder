@@ -20,7 +20,7 @@
  *   
  */
 
-package lslrec.controls.messages;
+package lslrec.control.message;
 
 /**
  * Class with system events identifiers.

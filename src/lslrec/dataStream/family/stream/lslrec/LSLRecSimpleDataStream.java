@@ -5,6 +5,8 @@ package lslrec.dataStream.family.stream.lslrec;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.Thread.State;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
@@ -34,11 +36,15 @@ public class LSLRecSimpleDataStream implements IDataStream
 	
 	private ByteStreamGiver datGiver = null;
 	
+	//private Boolean open = false;
+	
 	/**
 	 * 
 	 */
 	public LSLRecSimpleDataStream( String name, StreamDataType dataType, double samplingRate
-							, int channels, int chunkSize, ByteStreamGiver giver ) 
+									, int channels, int chunkSize
+									//, ByteStreamGiver giver 
+									) 
 	{
 		
 		
@@ -48,29 +54,73 @@ public class LSLRecSimpleDataStream implements IDataStream
 															, StreamDataType.double64
 															, StreamDataType.int64
 															, channels
+															, chunkSize
 															, samplingRate
 															, name + "-" + System.nanoTime()
 															, name + "-" + System.nanoTime()
 															, new HashMap< String, String >()
-															, chunkSize
+															
 															);
 				
-		if( giver == null )
-		{
-			throw new NullPointerException( "DataStreamGiver null." );
-		}
-		
-		this.datGiver = giver;
-		
-		this.simpleStream = new MutableStreamSetting( sss );
-		
-		this.lockSem.drainPermits();
+		//this.setSettings( sss, giver );
+		this.setSettings( sss );
 	}
 
+	public LSLRecSimpleDataStream( IStreamSetting strSetting )//, ByteStreamGiver giver	) 
+	{
+		this.setSettings( strSetting );
+	}
+	
+	public ByteStreamGiver getDataStreamGiver()
+	{
+		return this.datGiver;
+	}
+	
+	private void setSettings( IStreamSetting strSetting ) //, ByteStreamGiver giver )
+	{
+		if( strSetting == null )//|| giver == null )
+		{
+			throw new NullPointerException( "StreamSetting null." );
+		}
+		
+		//this.datGiver = giver;
+
+		this.simpleStream = new MutableStreamSetting( strSetting );
+
+		this.lockSem.drainPermits();
+		
+		//this.open = false;
+	}
+	
+	public void setDataStreamGiver( ByteStreamGiver g )
+	{
+		if( this.datGiver == null 
+				|| this.datGiver.getState().equals( State.NEW )
+				|| this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			this.datGiver = g;
+		}
+	}
+	
 	@Override
 	public void close() 
-	{
-		this.datGiver.stopThread( IStoppableThread.STOP_WITH_TASKDONE  );
+	{		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) )
+		{
+			this.datGiver.stopThread( IStoppableThread.STOP_WITH_TASKDONE  );
+		}
+		
+		/*
+		synchronized ( this.open )
+		{
+			if( this.open )
+			{
+				this.datGiver.release();
+			}
+			
+			this.open = false;
+		}
+		*/		
 	}
 
 	@Override
@@ -92,7 +142,17 @@ public class LSLRecSimpleDataStream implements IDataStream
 		
 		try
 		{
-			this.datGiver.startThread();
+			/*
+			synchronized ( this.open )
+			{
+				this.open = true;
+			}
+			*/
+			
+			if( this.datGiver != null && this.datGiver.getState().equals( State.NEW ) )
+			{
+				this.datGiver.startThread();
+			}
 		}
 		catch (Exception e) 
 		{
@@ -113,11 +173,16 @@ public class LSLRecSimpleDataStream implements IDataStream
 	@Override
 	public void close_stream() 
 	{
-		this.datGiver.stopThread( IStoppableThread.FORCE_STOP );
+		//this.close();
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) )
+		{
+			this.datGiver.stopThread( IStoppableThread.FORCE_STOP );
+		}
 	}
 
 	@Override
-	public double time_correction(double timeout) throws Exception 
+	public double time_correction( double timeout ) throws Exception 
 	{
 		return 0;
 	}
@@ -165,7 +230,10 @@ public class LSLRecSimpleDataStream implements IDataStream
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						datGiver.stopThread( IStoppableThread.FORCE_STOP );
+						if( datGiver != null )
+						{
+							datGiver.stopThread( IStoppableThread.FORCE_STOP );
+						}
 					}
 				};
 	}
@@ -177,9 +245,27 @@ public class LSLRecSimpleDataStream implements IDataStream
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{
-						datGiver.release();
+						if( datGiver != null )
+						{
+							datGiver.release();
+						}
 					}
 				};
+	}
+	
+
+	/**
+	 * Do nothing
+	 */
+	@Override
+	public int samples_available() 
+	{
+		return 0;
+	}
+	
+	private byte[] createByteArray( int nBytes )
+	{
+		return new byte[ nBytes ];
 	}
 	
 	@Override
@@ -201,13 +287,16 @@ public class LSLRecSimpleDataStream implements IDataStream
 	@Override
 	public int pull_chunk( byte[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
 	{
-		this.startTimer( timeout, this.getTimeoutReadAction() );
-		
 		int nSamples = 0;
 		
-		nSamples = this.datGiver.getSamples( data_buffer, timestamp_buffer );
-		
-		this.stopTimer();
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			this.startTimer( timeout, this.getTimeoutReadAction() );
+					
+			nSamples = this.datGiver.getSamples( data_buffer, timestamp_buffer );
+			
+			this.stopTimer();
+		}
 		
 		return nSamples;
 	}
@@ -219,28 +308,22 @@ public class LSLRecSimpleDataStream implements IDataStream
 	}
 
 	@Override
-	public int samples_available() 
-	{
-		return 0;
-	}
-	
-	private byte[] createByteArray( int nBytes )
-	{
-		return new byte[ nBytes ];
-	}
-
-	@Override
 	public double pull_sample(float[] sample, double timeout) throws Exception 
 	{	
-		StreamDataType type = StreamDataType.float32;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+		double time = 0;
 		
-		double time = this.pull_sample( dat, timeout );
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		for( int i = 0; i < ns.length && i < sample.length; i++ )
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
 		{
-			sample[ i ] = ns[ i ].floatValue();
+			StreamDataType type = StreamDataType.float32;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+			
+			time = this.pull_sample( dat, timeout );
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			for( int i = 0; i < ns.length && i < sample.length; i++ )
+			{
+				sample[ i ] = ns[ i ].floatValue();
+			}
 		}
 		
 		return time;
@@ -251,19 +334,53 @@ public class LSLRecSimpleDataStream implements IDataStream
 	{
 		return this.pull_sample( sample, TIME_FOREVER );
 	}
+	
+	@Override
+	public int pull_chunk(float[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
+	{
+		int nSamples = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{		
+			StreamDataType type = StreamDataType.float32;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
+			
+			nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			nSamples = ns.length;
+			for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
+			{
+				data_buffer[ i ] = ns[ i ].floatValue();
+			}
+		}
+		
+		return nSamples;		
+	}
+
+	@Override
+	public int pull_chunk(float[] data_buffer, double[] timestamp_buffer) throws Exception 
+	{
+		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
+	}
 
 	@Override
 	public double pull_sample(double[] sample, double timeout) throws Exception 
 	{
-		StreamDataType type = StreamDataType.double64;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+		double time = 0D;
 		
-		double time = this.pull_sample( dat, timeout );
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		for( int i = 0; i < ns.length && i < sample.length; i++ )
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
 		{
-			sample[ i ] = ns[ i ].doubleValue();
+			StreamDataType type = StreamDataType.double64;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+			
+			time = this.pull_sample( dat, timeout );
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			for( int i = 0; i < ns.length && i < sample.length; i++ )
+			{
+				sample[ i ] = ns[ i ].doubleValue();
+			}
 		}
 		
 		return time;
@@ -274,19 +391,110 @@ public class LSLRecSimpleDataStream implements IDataStream
 	{
 		return this.pull_sample( sample, TIME_FOREVER );
 	}
+	
+	@Override
+	public int pull_chunk(double[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
+	{
+		int nSamples = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			StreamDataType type = StreamDataType.double64;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
+			
+			nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			nSamples = ns.length;
+			for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
+			{
+				data_buffer[ i ] = ns[ i ].doubleValue();
+			}
+		}
+		
+		return nSamples;
+	}
 
+	@Override
+	public int pull_chunk(double[] data_buffer, double[] timestamp_buffer) throws Exception 
+	{
+		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
+	}
+
+	@Override
+	public double pull_sample(long[] sample, double timeout) throws Exception 
+	{
+		double time = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{		
+			StreamDataType type = StreamDataType.int64;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+			
+			time = this.pull_sample( dat, timeout );
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			for( int i = 0; i < ns.length && i < sample.length; i++ )
+			{
+				sample[ i ] = ns[ i ].longValue();
+			}
+		}
+		
+		return time;
+	}
+
+	@Override
+	public double pull_sample(long[] sample) throws Exception 
+	{
+		return this.pull_sample( sample, TIME_FOREVER );
+	}
+
+	@Override
+	public int pull_chunk(long[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
+	{
+		int nSamples = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			StreamDataType type = StreamDataType.int64;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
+			
+			nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			nSamples = ns.length;
+			for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
+			{
+				data_buffer[ i ] = ns[ i ].longValue();
+			}
+		}
+		
+		return nSamples;
+	}
+
+	@Override
+	public int pull_chunk(long[] data_buffer, double[] timestamp_buffer) throws Exception 
+	{
+		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
+	}
+	
 	@Override
 	public double pull_sample(int[] sample, double timeout) throws Exception 
 	{
-		StreamDataType type = StreamDataType.int32;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+		double time = 0D;
 		
-		double time = this.pull_sample( dat, timeout );
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		for( int i = 0; i < ns.length && i < sample.length; i++ )
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
 		{
-			sample[ i ] = ns[ i ].intValue();
+			StreamDataType type = StreamDataType.int32;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+			
+			time = this.pull_sample( dat, timeout );
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			for( int i = 0; i < ns.length && i < sample.length; i++ )
+			{
+				sample[ i ] = ns[ i ].intValue();
+			}
 		}
 		
 		return time;
@@ -299,17 +507,51 @@ public class LSLRecSimpleDataStream implements IDataStream
 	}
 
 	@Override
+	public int pull_chunk(int[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
+	{
+		int nSamples = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			StreamDataType type = StreamDataType.int32;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
+			
+			nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			nSamples = ns.length;
+			for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
+			{
+				data_buffer[ i ] = ns[ i ].intValue();
+			}
+		}
+		
+		return nSamples;
+	}
+
+	@Override
+	public int pull_chunk(int[] data_buffer, double[] timestamp_buffer) throws Exception 
+	{
+		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
+	}
+	
+	@Override
 	public double pull_sample(short[] sample, double timeout) throws Exception 
 	{
-		StreamDataType type = StreamDataType.int16;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+		double time = 0D;
 		
-		double time = this.pull_sample( dat, timeout );
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		for( int i = 0; i < ns.length && i < sample.length; i++ )
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
 		{
-			sample[ i ] = ns[ i ].shortValue();
+			StreamDataType type = StreamDataType.int16;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
+			
+			time = this.pull_sample( dat, timeout );
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			for( int i = 0; i < ns.length && i < sample.length; i++ )
+			{
+				sample[ i ] = ns[ i ].shortValue();
+			}
 		}
 		
 		return time;
@@ -319,6 +561,35 @@ public class LSLRecSimpleDataStream implements IDataStream
 	public double pull_sample(short[] sample) throws Exception 
 	{
 		return this.pull_sample( sample, TIME_FOREVER );
+	}
+	
+	@Override
+	public int pull_chunk(short[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
+	{
+		int nSamples = 0;
+		
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			StreamDataType type = StreamDataType.int16;		
+			byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
+			
+			nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
+			
+			Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
+			nSamples = ns.length;
+			for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
+			{
+				data_buffer[ i ] = ns[ i ].shortValue();
+			}
+		}
+		
+		return nSamples;
+	}
+
+	@Override
+	public int pull_chunk(short[] data_buffer, double[] timestamp_buffer) throws Exception 
+	{
+		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
 	}
 
 	@Override
@@ -338,111 +609,21 @@ public class LSLRecSimpleDataStream implements IDataStream
 	}
 
 	@Override
-	public int pull_chunk(float[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.float32;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
-		
-		int nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		nSamples = ns.length;
-		for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
-		{
-			data_buffer[ i ] = ns[ i ].floatValue();
-		}
-		
-		return nSamples;		
-	}
-
-	@Override
-	public int pull_chunk(float[] data_buffer, double[] timestamp_buffer) throws Exception 
-	{
-		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
-
-	@Override
-	public int pull_chunk(double[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.double64;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
-		
-		int nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		nSamples = ns.length;
-		for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
-		{
-			data_buffer[ i ] = ns[ i ].doubleValue();
-		}
-		
-		return nSamples;
-	}
-
-	@Override
-	public int pull_chunk(double[] data_buffer, double[] timestamp_buffer) throws Exception 
-	{
-		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
-
-	@Override
-	public int pull_chunk(short[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.int16;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
-		
-		int nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		nSamples = ns.length;
-		for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
-		{
-			data_buffer[ i ] = ns[ i ].shortValue();
-		}
-		
-		return nSamples;
-	}
-
-	@Override
-	public int pull_chunk(short[] data_buffer, double[] timestamp_buffer) throws Exception 
-	{
-		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
-
-	@Override
-	public int pull_chunk(int[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.int32;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
-		
-		int nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		nSamples = ns.length;
-		for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
-		{
-			data_buffer[ i ] = ns[ i ].intValue();
-		}
-		
-		return nSamples;
-	}
-
-	@Override
-	public int pull_chunk(int[] data_buffer, double[] timestamp_buffer) throws Exception 
-	{
-		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
-
-	@Override
 	public int pull_chunk(String[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
 	{
-		this.startTimer( timeout, this.getTimeoutReadAction() );
-		
 		int nSamples = 0;
 		
-		nSamples = this.datGiver.getSamples( data_buffer, timestamp_buffer );
-		
-		this.stopTimer();
+		if( this.datGiver != null && !this.datGiver.getState().equals( State.NEW ) && !this.datGiver.getState().equals( State.TERMINATED ) )
+		{
+			this.startTimer( timeout, this.getTimeoutReadAction() );
+			
+			nSamples = this.datGiver.getSamples( data_buffer, timestamp_buffer );
+			
+			if( nSamples > 0 )
+				System.out.println("LSLRecSimpleDataStream.pull_chunk() " + Arrays.deepToString( data_buffer ) );
+			
+			this.stopTimer();
+		}
 		
 		return nSamples;
 	}
@@ -451,52 +632,5 @@ public class LSLRecSimpleDataStream implements IDataStream
 	public int pull_chunk(String[] data_buffer, double[] timestamp_buffer) throws Exception 
 	{
 		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
-
-	@Override
-	public double pull_sample(long[] sample, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.int64;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * sample.length );
-		
-		double time = this.pull_sample( dat, timeout );
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		for( int i = 0; i < ns.length && i < sample.length; i++ )
-		{
-			sample[ i ] = ns[ i ].longValue();
-		}
-		
-		return time;
-	}
-
-	@Override
-	public double pull_sample(long[] sample) throws Exception 
-	{
-		return this.pull_sample( sample, TIME_FOREVER );
-	}
-
-	@Override
-	public int pull_chunk(long[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception 
-	{
-		StreamDataType type = StreamDataType.int64;		
-		byte[] dat = this.createByteArray( simpleStream.getDataTypeBytes( type ) * data_buffer.length );
-		
-		int nSamples = this.pull_chunk( dat, timestamp_buffer, timeout );		
-		
-		Number[] ns = ConvertTo.Transform.ByteArray2ArrayOf( dat, type );
-		nSamples = ns.length;
-		for( int i = 0; i < ns.length && i < data_buffer.length; i++ )
-		{
-			data_buffer[ i ] = ns[ i ].longValue();
-		}
-		
-		return nSamples;
-	}
-
-	@Override
-	public int pull_chunk(long[] data_buffer, double[] timestamp_buffer) throws Exception 
-	{
-		return this.pull_chunk( data_buffer, timestamp_buffer, TIME_FOREVER );
-	}
+	}	
 }

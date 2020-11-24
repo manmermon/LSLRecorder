@@ -16,20 +16,16 @@
  *   You should have received a copy of the GNU General Public License
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
+ *
  */
-package lslrec.plugin.lslrecPlugin;
+package lslrec.auxiliar.task;
 
-import lslrec.auxiliar.task.ITaskIdentity;
-
-public interface ILSLRecPlugin extends ITaskIdentity, Comparable< ILSLRecPlugin >
-{	
-	//
-	//
-	//
-	
-	public static final double VERSION = 1.0;
-	
-	public enum PluginType { COMPRESSOR, ENCODER, DATA_PROCESSING, TRIAL, SYNC };
-	
-	public PluginType getType();
+public interface IMonitoredTask 
+{
+	/**
+	 * Setting task monitor.
+	 *  
+	 * @param monitor: task monitor
+	 */
+	public void taskMonitor( ITaskMonitor monitor );
 }

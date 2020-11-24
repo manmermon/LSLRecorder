@@ -25,9 +25,9 @@ import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.stoppableThread.IStoppableThread;
 

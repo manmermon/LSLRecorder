@@ -51,7 +51,7 @@ public interface IDataStream
      * resources.
      */
     public void close_stream();
-
+    
     /**
      * Retrieve an estimated time correction offset for the given stream.
      * The first call to this function takes several milliseconds until a reliable first estimate is obtained.

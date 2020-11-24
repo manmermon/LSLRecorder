@@ -40,13 +40,12 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import lslrec.auxiliar.task.ITaskLog;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
-import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrialLog;
 import lslrec.stoppableThread.IStoppableThread;
 
 /**
@@ -85,7 +84,9 @@ public class MemoryTest extends LSLRecPluginTrial
 	private Timer memory_timer;
 	private Timer answer_timer;
 	
-	private StringLogStream log = null;
+	private ITaskLog log = null;
+	
+	private Object lock = new Object();
 	
 	/**
 	 * 
@@ -274,9 +275,12 @@ public class MemoryTest extends LSLRecPluginTrial
 			final int[][] memoryMatrix = this.task.getTask();			
 			this.answerLocationTable = new int[ mSize.x ][ mSize.y ];
 	
-			if( this.log != null )
+			synchronized ( this.lock )
 			{
-				this.log.push_log( "Memory: " + Arrays.deepToString( memoryMatrix ) );
+				if( this.log != null )
+				{
+					this.log.log( "Memory: " + Arrays.deepToString( memoryMatrix ) );
+				}
 			}
 			
 			this.container.setVisible( false );
@@ -456,9 +460,12 @@ public class MemoryTest extends LSLRecPluginTrial
 				}
 			}
 			
-			if( this.log != null )
+			synchronized ( this.lock )
 			{
-				this.log.push_log( "Answer: " + Arrays.deepToString( userAnswer ) );
+				if( this.log != null )
+				{
+					this.log.log( "Answer: " + Arrays.deepToString( userAnswer ) );
+				}
 			}
 
 			this.wakeUpTrial();
@@ -504,11 +511,6 @@ public class MemoryTest extends LSLRecPluginTrial
 	protected void startUp() throws Exception 
 	{
 		super.startUp();
-		
-		if( this.log != null && this.log.getState().equals( State.NEW ) )
-		{
-			this.log.startThread();
-		}
 		
 		this.stage = SyncMarker.START_MARK;
 		
@@ -595,9 +597,9 @@ public class MemoryTest extends LSLRecPluginTrial
 	}
 
 	@Override
-	public void setTrialLogStream( StringLogStream arg0 ) 
+	public void setTrialLogStream( ITaskLog arg0 ) 
 	{
-		if( this.log == null || this.log.getState().equals( State.NEW ) )
+		synchronized ( this.lock )
 		{
 			this.log = arg0;
 		}
