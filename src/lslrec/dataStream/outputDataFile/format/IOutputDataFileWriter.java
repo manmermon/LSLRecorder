@@ -22,7 +22,7 @@
 
 package lslrec.dataStream.outputDataFile.format;
 
-import lslrec.auxiliar.tasks.IMonitoredTask;
+import lslrec.auxiliar.task.IMonitoredTask;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 
 public abstract interface IOutputDataFileWriter extends IMonitoredTask 

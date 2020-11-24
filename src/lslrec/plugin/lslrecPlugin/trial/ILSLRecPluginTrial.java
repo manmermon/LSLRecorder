@@ -28,4 +28,8 @@ import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 public interface ILSLRecPluginTrial extends ILSLRecConfigurablePlugin 
 {	
 	public LSLRecPluginTrial getGUIExperiment();
+
+	public boolean hasTrialLog();
+	
+	public String getLogDescription();
 }

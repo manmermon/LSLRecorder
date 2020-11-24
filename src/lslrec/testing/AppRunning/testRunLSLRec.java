@@ -16,7 +16,7 @@ import javax.swing.UIManager;
 
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
-import lslrec.controls.CoreControl;
+import lslrec.control.handler.CoreControl;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;

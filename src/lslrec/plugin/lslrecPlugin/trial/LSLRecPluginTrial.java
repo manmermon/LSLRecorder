@@ -25,9 +25,10 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import lslrec.auxiliar.tasks.IMonitoredTask;
-import lslrec.auxiliar.tasks.ITaskIdentity;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.IMonitoredTask;
+import lslrec.auxiliar.task.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskLog;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
@@ -44,6 +45,8 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	
 	private ITaskMonitor monitor = null;
 
+	
+	
 	/**
 	 * 
 	 */
@@ -95,7 +98,14 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		super.cleanUp();
 	
 		this.testWindow.setVisible( false );
-		this.testWindow.dispose();
+		try
+		{
+			this.testWindow.dispose();
+		}
+		catch (Exception e) 
+		{			
+		}
+		
 		this.testWindow = null;
 		
 		this.GUIPanel.setVisible( false );		
@@ -187,7 +197,9 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 			}
 		}
 	}
-		
+	
+	public abstract void setTrialLogStream( ITaskLog log );	
+	
 	public abstract void loadSettings( List< Parameter< String > > pars);
 	
 	public abstract void setStage( JPanel GUIPanel );

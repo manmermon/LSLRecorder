@@ -22,8 +22,6 @@
 
 package lslrec.dataStream.binary.input.writer;
 
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
@@ -41,6 +39,8 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 
 public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 {

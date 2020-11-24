@@ -143,6 +143,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 			{
 				//long value = (long)( Math.random() * 100 );
 				long value = (long)( out );
+				System.out.println("LSLSimulationStreaming.runInLoop() " +value );
 				ByteBuffer.wrap( buffer ).putLong( value );
 	
 				break;
@@ -489,9 +490,8 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 							}
 							
 							break;
-						}		
-						/*
-						case 7:
+						}
+						case int64:
 						{
 							long[] samples = new long[ values.length ];
 							for( int i = 0; i < values.length; i++ )
@@ -501,8 +501,7 @@ public class LSLSimulationStreaming extends AbstractStoppableThread
 	
 							outlet.push_sample( samples );	
 							break;
-						}			
-						 */
+						}	
 						default:
 						{
 							String[] samples = new String[ values.length ];

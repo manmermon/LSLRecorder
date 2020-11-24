@@ -30,7 +30,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
 {
     protected volatile boolean stopThread = false;
     protected volatile AtomicBoolean stopWhenTaskDone = new AtomicBoolean( false );
-    protected boolean d ;
+    //protected boolean d ;
     
     //private EventListenerList listenerList = new EventListenerList();
    

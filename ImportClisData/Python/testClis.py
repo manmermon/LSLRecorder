@@ -6,6 +6,7 @@ import h5py
 sufix = 'A'
 name = 'data_Simulation' + sufix
 nameProc = 'data_Simulation' + "A_20201111_141942"
+name = 'data_Arithmetic Task';
 
 f = 'D:/NextCloud/WorkSpace/GitHub/LSLRecorder/' + name + '.clis'
 f2 = 'D:/NextCloud/WorkSpace/GitHub/LSLRecorder/' + nameProc + '.clis'

@@ -23,10 +23,9 @@
 package lslrec.gui;
 
 import lslrec.config.language.Language;
-import lslrec.controls.CoreControl;
-import lslrec.controls.messages.AppState;
-import lslrec.controls.messages.RegisterSyncMessages;
-import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.control.handler.CoreControl;
+import lslrec.control.message.AppState;
+import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -99,7 +98,6 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
-import javax.swing.border.Border;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -153,7 +151,7 @@ public class AppUI extends JFrame
 	private JMenu jFileMenu = null;
 	private JMenu jLangMenu = null;
 	private JMenu menuPreference = null;
-	private JMenu menuLibrary = null;
+	//private JMenu menuLibrary = null;
 	
 	// menuItem	
 	private JMenuItem jMenuAbout = null;
@@ -689,7 +687,7 @@ public class AppUI extends JFrame
 			//this.jJMenuBar.setLayout( new BorderLayout() );
 
 			this.jJMenuBar.add( this.getFileMenu() );
-			this.jJMenuBar.add( this.getStreamLibraryMenu() );
+			//this.jJMenuBar.add( this.getStreamLibraryMenu() );
 			//this.jJMenuBar.add( this.getLangMenu() );
 			this.jJMenuBar.add( this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height ) );
 
@@ -698,6 +696,7 @@ public class AppUI extends JFrame
 		return this.jJMenuBar;
 	}
 	
+	/*
 	private JMenu getStreamLibraryMenu()
 	{
 		if( this.menuLibrary == null )
@@ -753,6 +752,7 @@ public class AppUI extends JFrame
 		}
 		return this.menuLibrary;
 	}
+	*/
 	
 	private void setBackgroundContainer( Container cont, Color bg )
 	{

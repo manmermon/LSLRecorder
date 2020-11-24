@@ -66,7 +66,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
-import lslrec.controls.messages.RegisterSyncMessages;
+import lslrec.control.message.RegisterSyncMessages;
 import lslrec.gui.GuiLanguageManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.DisabledPanel;

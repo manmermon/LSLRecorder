@@ -21,17 +21,13 @@
  *   
  */
 
-package lslrec.controls;
+package lslrec.control.handler;
 
 import lslrec.auxiliar.thread.LaunchThread;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
-import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.outputDataFile.OutputBinaryFileSegmentation;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
@@ -43,15 +39,19 @@ import lslrec.dataStream.writingSystemTester.WritingTest;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.auxiliar.tasks.NotificationTask;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.auxiliar.task.NotificationTask;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
-import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.control.HandlerMinionTemplate;
+import lslrec.control.IHandlerMinion;
+import lslrec.control.MinionParameters;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -368,7 +368,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			//
 			
 			//IStreamSetting[] results = LSL.resolve_streams();
-			IStreamSetting[] results = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
+			
+			//IStreamSetting[] results = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
 
 			// To check alive stream
 			List< IStreamSetting > streamSettings = new ArrayList< IStreamSetting >();
@@ -1032,7 +1034,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 		*/
 		
-		/*
 		@Override
 		protected void finallyManager() 
 		{
@@ -1081,7 +1082,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
 			}
 		}
-		*/
 		
 		public void StopOutBinFileSegmentation( int  friendliness )
 		{

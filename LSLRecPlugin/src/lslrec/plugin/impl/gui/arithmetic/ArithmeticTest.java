@@ -41,6 +41,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import lslrec.auxiliar.task.ITaskLog;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.sync.SyncMarker;
@@ -52,7 +53,7 @@ import lslrec.stoppableThread.IStoppableThread;
  * @author Manuel Merino Monge
  *
  */
-public class ArithmeticTest  extends LSLRecPluginTrial
+public class ArithmeticTest extends LSLRecPluginTrial
 {
 	public final static int STAGE_NEW = 4;
 		
@@ -75,6 +76,10 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	private Timer answer_timer;
 	
 	private ArithmeticTask task = null;
+	
+	private ITaskLog log = null;
+	
+	private Object lock = new Object();
 
 	/**
 	 * 
@@ -223,6 +228,14 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 			this.task.newArithmeticTask();
 			
 			getTaskText().setText( this.task.getOperation() );
+
+			synchronized ( this.lock )
+			{
+				if( this.log != null )
+				{
+					this.log.log( getTaskText().getText() );
+				}
+			}
 			
 			panelTask.add( this.container, BorderLayout.CENTER );
 			
@@ -324,6 +337,14 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 						String userAnswer = b.getText();
 	
 						boolean answer  = userAnswer.equals( target + "");
+						
+						synchronized ( lock )
+						{
+							if( log != null )
+							{
+								log.log( "Target:" + target + "; Answer: " + userAnswer );
+							}
+						}
 						
 						wakeUpTrial();
 					}        
@@ -445,6 +466,15 @@ public class ArithmeticTest  extends LSLRecPluginTrial
 	@Override
 	protected void preStopThread(int arg0) throws Exception 
 	{	
+	}
+
+	@Override
+	public void setTrialLogStream( ITaskLog arg0 ) 
+	{
+		synchronized ( this.lock )
+		{
+			this.log = arg0;
+		}		
 	}
 
 }

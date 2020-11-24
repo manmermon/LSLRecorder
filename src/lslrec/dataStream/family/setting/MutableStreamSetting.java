@@ -277,4 +277,17 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	{
 		this.description = desc;
 	}
+	
+	@Override
+	public boolean equals( Object obj ) 
+	{
+		boolean eq = super.equals( obj );
+		
+		if( !eq )
+		{
+			eq = this.str.equals( obj );
+		}
+		
+		return eq;
+	}
 }

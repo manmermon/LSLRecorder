@@ -289,6 +289,8 @@ public class LSL
         public double pull_sample(float[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER );  }
         public double pull_sample(double[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_d(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
         public double pull_sample(double[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
+        public double pull_sample(long[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_i(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
+        public double pull_sample(long[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(int[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_i(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
         public double pull_sample(int[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(short[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_s(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
@@ -296,8 +298,7 @@ public class LSL
         public double pull_sample(byte[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_c(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
         public double pull_sample(byte[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
         public double pull_sample(String[] sample, double timeout) throws Exception { int[] ec = {0}; double res = inst.lsl_pull_sample_str(obj, sample, sample.length, timeout, ec); check_error(ec); return res; }
-        public double pull_sample(String[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }
-
+        public double pull_sample(String[] sample) throws Exception { return pull_sample(sample, IDataStream.TIME_FOREVER ); }        
 
 
         // =============================================================
@@ -324,6 +325,8 @@ public class LSL
         public int pull_chunk(byte[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
         public int pull_chunk(int[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception { int[] ec = {0}; long res = inst.lsl_pull_chunk_i(obj, data_buffer, timestamp_buffer, data_buffer.length, timestamp_buffer.length, timeout, ec); check_error(ec); return (int)res; }
         public int pull_chunk(int[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
+        public int pull_chunk(long[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception { int[] ec = {0}; long res = inst.lsl_pull_chunk_i(obj, data_buffer, timestamp_buffer, data_buffer.length, timestamp_buffer.length, timeout, ec); check_error(ec); return (int)res; }
+        public int pull_chunk(long[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
         public int pull_chunk(String[] data_buffer, double[] timestamp_buffer, double timeout) throws Exception { int[] ec = {0}; long res = inst.lsl_pull_chunk_str(obj, data_buffer, timestamp_buffer, data_buffer.length, timestamp_buffer.length, timeout, ec); check_error(ec); return (int)res; }
         public int pull_chunk(String[] data_buffer, double[] timestamp_buffer) throws Exception { return pull_chunk(data_buffer, timestamp_buffer, 0.0); }
 

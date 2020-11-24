@@ -33,12 +33,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.Timer;
 
+import lslrec.auxiliar.task.ITaskLog;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.sync.SyncMarker;
@@ -82,6 +84,10 @@ public class MemoryTest extends LSLRecPluginTrial
 	private Timer memory_timer;
 	private Timer answer_timer;
 	
+	private ITaskLog log = null;
+	
+	private Object lock = new Object();
+	
 	/**
 	 * 
 	 */
@@ -118,7 +124,7 @@ public class MemoryTest extends LSLRecPluginTrial
 	{
 		return this.stage;
 	}
-
+	
 	@Override
 	public void loadSettings( List< Parameter< String > > arg0 )
 	{
@@ -269,6 +275,14 @@ public class MemoryTest extends LSLRecPluginTrial
 			final int[][] memoryMatrix = this.task.getTask();			
 			this.answerLocationTable = new int[ mSize.x ][ mSize.y ];
 	
+			synchronized ( this.lock )
+			{
+				if( this.log != null )
+				{
+					this.log.log( "Memory: " + Arrays.deepToString( memoryMatrix ) );
+				}
+			}
+			
 			this.container.setVisible( false );
 			
 			MemoryBoard.setMemoryPanel( memoryMatrix, this.container );
@@ -324,10 +338,15 @@ public class MemoryTest extends LSLRecPluginTrial
 	{
 		super.cleanUp();
 		
+		if( this.log != null )
+		{
+			this.log = null;
+		}
+		
 		if ( answerOptionsListMenu != null)
 		{
 			answerOptionsListMenu.setVisible( false );
-		}
+		}		
 	}
 	
 	/**
@@ -441,6 +460,13 @@ public class MemoryTest extends LSLRecPluginTrial
 				}
 			}
 			
+			synchronized ( this.lock )
+			{
+				if( this.log != null )
+				{
+					this.log.log( "Answer: " + Arrays.deepToString( userAnswer ) );
+				}
+			}
 
 			this.wakeUpTrial();
 		}
@@ -480,7 +506,7 @@ public class MemoryTest extends LSLRecPluginTrial
 		
 		return new Point( f, c );
 	}
-	
+		
 	@Override
 	protected void startUp() throws Exception 
 	{
@@ -568,5 +594,14 @@ public class MemoryTest extends LSLRecPluginTrial
 	@Override
 	protected void postStopThread(int arg0) throws Exception 
 	{		
+	}
+
+	@Override
+	public void setTrialLogStream( ITaskLog arg0 ) 
+	{
+		synchronized ( this.lock )
+		{
+			this.log = arg0;
+		}
 	}
 }

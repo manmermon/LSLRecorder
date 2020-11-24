@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;

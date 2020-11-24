@@ -22,7 +22,7 @@ package lslrec.dataStream.outputDataFile.format.clis;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;

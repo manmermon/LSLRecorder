@@ -22,7 +22,7 @@ package lslrec.dataStream.outputDataFile.compress;
 
 import java.nio.charset.Charset;
 
-import lslrec.auxiliar.tasks.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskIdentity;
 
 public interface IOutZip extends ITaskIdentity
 {	

@@ -23,7 +23,7 @@
 package lslrec.dataStream.outputDataFile.format.clis;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.auxiliar.tasks.ITaskMonitor;
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;

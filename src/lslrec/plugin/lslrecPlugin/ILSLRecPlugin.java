@@ -19,7 +19,7 @@
  */
 package lslrec.plugin.lslrecPlugin;
 
-import lslrec.auxiliar.tasks.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskIdentity;
 
 public interface ILSLRecPlugin extends ITaskIdentity, Comparable< ILSLRecPlugin >
 {	

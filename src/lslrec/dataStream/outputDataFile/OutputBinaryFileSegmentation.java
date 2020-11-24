@@ -30,16 +30,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.tasks.IMonitoredTask;
-import lslrec.auxiliar.tasks.INotificationTask;
-import lslrec.auxiliar.tasks.ITaskIdentity;
-import lslrec.auxiliar.tasks.ITaskMonitor;
-import lslrec.auxiliar.tasks.NotificationTask;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.auxiliar.task.IMonitoredTask;
+import lslrec.auxiliar.task.INotificationTask;
+import lslrec.auxiliar.task.ITaskIdentity;
+import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.auxiliar.task.NotificationTask;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
@@ -54,6 +51,8 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 
 /**
  * 
@@ -151,7 +150,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	@Override
 	protected void preStart() throws Exception 
 	{
-		// TODO Auto-generated method stub
 		super.preStart();
 		
 		synchronized ( this )
@@ -527,7 +525,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 								dat = ConvertTo.Transform.Interleaved( dat, this.DATA.getDataStreamSetting().channel_count(), this.DATA.getDataStreamSetting().data_type().ordinal() );
 							}
 							
-							Number[] Data = new Number[ dat.length + this.DATA.getDataStreamSetting().data_type().ordinal() ];
+							Number[] Data = new Number[ dat.length + this.DATA.getDataStreamSetting().getChunkSize() ];
 
 							int index = 0;
 							int cc = 0;
@@ -577,12 +575,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 							}
 
 							for( Number datVal : Data )
-							{
-								if( datVal == null )
-								{
-									System.out.println("OutputBinaryFileSegmentation.ProcessStringDataAndSync()");
-								}
-								
+							{								
 								dataBuffer.add( datVal );
 							}
 	

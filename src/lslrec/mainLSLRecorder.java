@@ -49,7 +49,7 @@ import java.util.List;
 import javax.swing.UIManager;
 
 import lslrec.config.language.Language;
-import lslrec.controls.CoreControl;
+import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 

@@ -32,5 +32,6 @@ public class StreamSettingExtraLabels
 	public static final String ID_CHUNKSIZE_LABEL = "chunkSize";
 	public static final String ID_INTERLEAVED_LABEL = "interleaved";	
 	public static final String ID_RECORDED_SAMPLES_BY_CHANNELS = "recordedSamplesByChannels";
-	public static final String ID_EXTRA_INFO_LABEL = "extra";	
+	public static final String ID_EXTRA_INFO_LABEL = "extra";
+	public static final String ID_TRIAL_INFO_LABEL = "trial";
 }

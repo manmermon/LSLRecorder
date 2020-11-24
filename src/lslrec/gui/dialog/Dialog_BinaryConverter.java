@@ -64,6 +64,7 @@ import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -998,6 +999,7 @@ public class Dialog_BinaryConverter extends JDialog
 																						, prevInfo.getTimestampDataType()
 																						, prevInfo.getStringLegthDataType()
 																						, prevInfo.channel_count()
+																						, prevInfo.getChunkSize()
 																						, prevInfo.sampling_rate()
 																						, prevInfo.source_id()
 																						, prevInfo.uid()
@@ -1005,9 +1007,8 @@ public class Dialog_BinaryConverter extends JDialog
 																						//, prevInfo.session_id()
 																						//, prevInfo.version()
 																						//, prevInfo.created_at()
-																						, prevInfo.description()
-																						, prevInfo.getExtraInfo()
-																						, prevInfo.getChunkSize()
+																						//, prevInfo.description()
+																						, prevInfo.getExtraInfo()																						
 																						//, prevInfo.isInterleavedData()
 																						//, prevInfo.isSelected()
 																						//, prevInfo.isSynchronationStream() 
@@ -1402,7 +1403,7 @@ public class Dialog_BinaryConverter extends JDialog
 			
 			//StreamInfo info = new StreamInfo( name, stType, new Integer( chs ), frq, new Integer( type ), sid );		
 			
-			SimpleStreamSetting strSetting = new  SimpleStreamSetting( StreamLibrary.LSL
+			SimpleMutableStreamSetting strSetting = new  SimpleMutableStreamSetting( StreamLibrary.LSL
 																, name
 																//, stType
 																, StreamDataType.valueOf( type )
@@ -1416,13 +1417,14 @@ public class Dialog_BinaryConverter extends JDialog
 																//, System.nanoTime() + ""
 																//, 1
 																//, System.nanoTime()
-																, xml
+																//, xml
 																, null
 																, Integer.parseInt( chunk )
 																//, Boolean.parseBoolean( interleaved )
 																//, false
 																//, false 
 																);
+			strSetting.setDescription( xml );
 			strSetting.setInterleaveadData( Boolean.parseBoolean( interleaved ) );
 			
 			

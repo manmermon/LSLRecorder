@@ -39,11 +39,17 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
+import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
-import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.TrialPluginRegistrar;
 
@@ -63,7 +69,7 @@ public class TrialPluginSelectorPanel extends JPanel
 	
 	private JTable tablePluginList;
 	
-	private PluginType plgType = PluginType.TRIAL;
+	//private PluginType plgType = PluginType.TRIAL;
 	
 	public TrialPluginSelectorPanel( Collection< ILSLRecPluginTrial > plugins )
 	{
@@ -248,6 +254,8 @@ public class TrialPluginSelectorPanel extends JPanel
 		{
 			table.getSelectionModel().addListSelectionListener( new ListSelectionListener()
 			{	
+				private IStreamSetting lsrecStream = null;
+				
 				@Override
 				public void valueChanged(ListSelectionEvent arg0)
 				{	
@@ -264,6 +272,9 @@ public class TrialPluginSelectorPanel extends JPanel
 							getPluginSettingPanel().setVisible( true );
 							
 							TrialPluginRegistrar.removeTrialPlugin();
+							
+							LSLRecStream.removeDataStream( lsrecStream );
+							lsrecStream = null;
 						}
 						else
 						{
@@ -271,6 +282,27 @@ public class TrialPluginSelectorPanel extends JPanel
 							{
 								ILSLRecPluginTrial trial = (ILSLRecPluginTrial)table.getValueAt( sel, 0 );
 
+								if( trial.hasTrialLog() )
+								{
+									if( lsrecStream != null )
+									{
+										LSLRecStream.removeDataStream( lsrecStream );
+										lsrecStream = null;
+									}
+									
+									lsrecStream = new SimpleStreamSetting( StreamLibrary.LSLREC
+																			, trial.getID()
+																			, StreamDataType.string
+																			, 1, 1, 0D
+																			, trial.getID() 
+																			, trial.getID() );
+									
+									
+									lsrecStream.getExtraInfo().put( StreamSettingExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
+									
+									LSLRecStream.addDataStream( lsrecStream );
+								}
+								
 								TrialPluginRegistrar.setTrialPlugin( trial );
 								
 								loadPluginSettingPanel( trial );
@@ -346,7 +378,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 				if( TrialPluginRegistrar.isSelected( trial.getID() ) )
 				{
-					t.setRowSelectionInterval( r, 0 );
+					t.setRowSelectionInterval( r, r );
 					
 					break;
 				}

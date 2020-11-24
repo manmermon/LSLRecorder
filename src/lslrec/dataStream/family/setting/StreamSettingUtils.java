@@ -23,6 +23,8 @@ import java.io.StringWriter;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -117,38 +119,65 @@ public class StreamSettingUtils
 			{
 				NodeList nodes = doc.getElementsByTagName( nodeRoot );
 				
-				if( nodes.getLength() > 0 )
-				{
-					try 
-				    {
+				try 
+			    {
+					if( nodes.getLength() > 0 )
+					{
+						/*
 						Element newElement = doc.createElement( name );
 						newElement.appendChild( doc.createTextNode( value ) );
-						
+
 						Node node = nodes.item( 0 );
 						node.appendChild( newElement );
-					
+
 						TransformerFactory tf = TransformerFactory.newInstance();
 					    Transformer transformer;
-				    
+
 				        transformer = tf.newTransformer();
 				        transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
-				        
+
 				        StringWriter writer = new StringWriter();
-				        
+
 				        //transform document to string 
 				        transformer.transform(new DOMSource( doc ), new StreamResult( writer ) );
-				 
-				        xml = writer.getBuffer().toString(); 
-				    }
-				    catch( Exception e )
-				    {		    	
-				    }
-				}
+
+				        xml = writer.getBuffer().toString();
+						 */
+
+						xml = createNode( doc, nodes, name, value );
+
+					}
+			    }
+			    catch( Exception e )
+			    {		    	
+			    }
 			}
 		}
 		
 		return xml;
 	}	
+	
+	private static String createNode( Document doc, NodeList nodes, String name, String value ) throws TransformerException
+	{
+		Element newElement = doc.createElement( name );
+		newElement.appendChild( doc.createTextNode( value ) );
+		
+		Node node = nodes.item( 0 );
+		node.appendChild( newElement );
+	
+		TransformerFactory tf = TransformerFactory.newInstance();
+	    Transformer transformer;
+    
+        transformer = tf.newTransformer();
+        transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
+        
+        StringWriter writer = new StringWriter();
+        
+        //transform document to string 
+        transformer.transform(new DOMSource( doc ), new StreamResult( writer ) );
+ 
+        return writer.getBuffer().toString(); 
+	}
 
 	public static String getDeepXmlStreamDescription( IStreamSetting streamsetting )
 	{
@@ -165,6 +194,10 @@ public class StreamSettingUtils
 					StreamInlet in = new StreamInlet( (LSLStreamInfo)stream );
 
 					xml = in.info().description();
+				}
+				else if( streamsetting.getLibraryID() == StreamLibrary.LSLREC )
+				{
+					xml = streamsetting.description();
 				}
 			}
 			catch ( Exception e) 

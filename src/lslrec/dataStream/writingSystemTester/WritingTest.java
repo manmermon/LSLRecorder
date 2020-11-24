@@ -24,8 +24,8 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
-import lslrec.controls.messages.EventInfo;
-import lslrec.controls.messages.EventType;
+import lslrec.control.message.EventInfo;
+import lslrec.control.message.EventType;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;

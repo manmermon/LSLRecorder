@@ -470,4 +470,16 @@ public class PluginArithmeticTest implements ILSLRecPluginTrial
 		
 		return msg;
 	}
+
+	@Override
+	public String getLogDescription() 
+	{
+		return "Arithmetic task";
+	}
+
+	@Override
+	public boolean hasTrialLog() 
+	{
+		return true;
+	}
 }
