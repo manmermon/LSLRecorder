@@ -43,6 +43,9 @@ import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
@@ -59,6 +62,7 @@ import lslrec.stoppableThread.IStoppableThread;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
 import java.awt.FlowLayout;
@@ -67,6 +71,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -129,6 +135,8 @@ public class LSLRecPluginTesting
 				{
 					JFrame frame = PluginTestWindow();
 					frame.setVisible( true );
+					
+					ExceptionDialog.createExceptionDialog( frame );
 				}
 				catch (Exception e) 
 				{
@@ -214,9 +222,45 @@ public class LSLRecPluginTesting
 			JLabel lblNewLabel = new JLabel("Data type:");
 			panel_1.add(lblNewLabel);
 			comboBox.setSelectedItem( StreamDataType.float32 );
-			
+						
 			panel_1.add(comboBox);
 			
+			panel_1.add( new JLabel( "Channels:") );
+			JSpinner sp = new JSpinner( new SpinnerNumberModel( 1, 1, null, 1 ) );
+									
+			sp.addMouseWheelListener( new MouseWheelListener() 
+			{				
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
+					{
+						try
+						{	
+							JSpinner sp = (JSpinner)e.getSource();
+							
+							int d = e.getWheelRotation();
+							
+							if( d > 0 )
+							{
+								sp.setValue( sp.getModel().getPreviousValue() );
+							}
+							else
+							{
+								sp.setValue( sp.getModel().getNextValue() );
+							}	
+						}
+						catch( IllegalArgumentException ex )
+						{												
+						}
+					}
+				}
+			});
+			
+			panel_1.add( sp );
+			
+			JCheckBox chb = new JCheckBox( "Offset" );
+			panel_1.add( chb );
 			
 			textField = new JTextField();
 			textField.setBorder( BorderFactory.createTitledBorder( "values (separator ';')"));
@@ -243,13 +287,16 @@ public class LSLRecPluginTesting
 							String[] strValues = null;
 							
 							StreamDataType datType = (StreamDataType)comboBox.getSelectedItem();
+							
+							int ch = (Integer)sp.getValue();
+							
 							if( datType != StreamDataType.string )
 							{
-								values = createNumberArray();
+								values = createNumberArray( ch, chb.isSelected() );
 							}
 							else
 							{
-								strValues = createStringArray();
+								strValues = createStringArray( ch );
 							}
 							
 							switch ( plugin.getType() )
@@ -262,13 +309,13 @@ public class LSLRecPluginTesting
 								}
 								case DATA_PROCESSING:
 								{
-									startProcessingTest( values, strValues, datType );
+									startProcessingTest( ch, values, strValues, datType );
 		
 									break;
 								}
 								case ENCODER:
 								{
-									startEncoderTest( values, strValues, datType);
+									startEncoderTest( ch, values, strValues, datType);
 		
 									break;
 								}
@@ -299,6 +346,9 @@ public class LSLRecPluginTesting
 						catch (Exception e) 
 						{
 							b.setSelected( false );
+							
+							ExceptionMessage  msg = new ExceptionMessage( e, e.getMessage(), ExceptionDictionary.ERROR_MESSAGE );
+							ExceptionDialog.showMessageDialog( msg, true, true );							
 						}
 					}
 					else
@@ -312,22 +362,31 @@ public class LSLRecPluginTesting
 		return this.window;
 	}
 	
-	private Number[] createNumberArray()
+	private Number[] createNumberArray( int ch, boolean offset )
 	{
 		Number[] values = null;
 		
 		try
 		{
-			String[] strVal = createStringArray();
+			String[] strVal = createStringArray( ch );
 			
 			if( strVal != null )
 			{
 				List< Number > list = new ArrayList<Number>();
 				
-				for( String str : strVal )
+				int DC = offset ? 1 : 0;
+				
+				for( int i = 0; i < ch; i++ )
 				{
-					list.add( Double.parseDouble( str ) );
-				}			
+					for( String str : strVal )
+					{
+						list.add( Double.parseDouble( str ) + DC * i );
+					}
+				}
+				
+				values = list.toArray( new Number[0] );
+				
+				values = ConvertTo.Transform.Interleaved( values, strVal.length, ch );
 			}
 		}
 		catch( Exception e)
@@ -337,34 +396,29 @@ public class LSLRecPluginTesting
 		return values;
 	}
 	
-	private String[] createStringArray()
-	{
-		String[] values = null;
-		
+	private String[] createStringArray( int ch )
+	{		
 		String t = textField.getText().replaceAll("\\s+", "" );
 		
 		String[] strVal = t.split( ";" );
 		
+		List< String > values = new ArrayList<String>();
+		
 		if( strVal.length > 0 )
 		{
-			if(strVal.length == 1  )
+			for( int i = 0; i < ch; i++ )
 			{
-				if(!strVal[ 0 ].isEmpty())
+				for( String v : strVal )
 				{
-					values = strVal;
+					if( !v.isEmpty() )
+					{
+						values.add( v );
+					}
 				}
 			}
-			else if( strVal[ strVal.length - 1 ] .isEmpty() )
-			{
-				values = Arrays.copyOf( strVal, strVal.length - 1 );
-			}
-			else
-			{
-				values = strVal;
-			}
 		}
-		
-		return values;
+				
+		return values.toArray( new String[0] );
 	}
 	
 	private void stopTestThread()
@@ -378,14 +432,14 @@ public class LSLRecPluginTesting
 		this.dataBuffer = null;
 	}
 	
-	private SimpleStreamSetting getSimpleStreamSetting( String name, StreamDataType type )
+	private SimpleStreamSetting getSimpleStreamSetting( String name, StreamDataType type, int chs )
 	{
 		return new SimpleStreamSetting( this.lib
 					, name
 					, type
 					, type
 					, type
-					, 1
+					, chs
 					, 1
 					, 0
 					, getClass().getCanonicalName()
@@ -474,12 +528,12 @@ public class LSLRecPluginTesting
 		thr.startThread();
 	}
 	
-	private void startProcessingTest( Number[] values, String[] strs, StreamDataType type ) throws Exception
+	private void startProcessingTest( int chs, Number[] values, String[] strs, StreamDataType type ) throws Exception
 	{
 		stopTestThread();
 		
 		ILSLRecPluginDataProcessing plg = (ILSLRecPluginDataProcessing)this.plugin;
-		LSLRecPluginDataProcessing proc = plg.getProcessing( getSimpleStreamSetting( plg.getID(), type  ), null );
+		LSLRecPluginDataProcessing proc = plg.getProcessing( getSimpleStreamSetting( plg.getID(), type, chs ), null );
 		proc.loadProcessingSettings( plg.getSettings() );
 		
 		this.dataBuffer = new LinkedList<Number>();
@@ -491,21 +545,67 @@ public class LSLRecPluginTesting
 			len = values.length;
 		}
 		
-		Number[] data = Arrays.copyOf( values, len );
+		List< Number > data = new ArrayList<Number>();
 		
-		thr = new AbstractStoppableThread() {
-			
+		for( Number d : values )
+		{
+			data.add( d );
+		}
+		
+		long timeWait = ((Number)this.time.getValue()).longValue();
+		if( timeWait < 20 )
+		{
+			timeWait = 20;
+		}
+		
+		final long waitT = timeWait;
+		thr = new AbstractStoppableThread() 
+		{
+			int from = 0;
+			int to = 1;
+						
 			@Override
 			protected void runInLoop() throws Exception 
 			{
-				Number[] res = proc.processDataBlock( data );
+				List< Number > d = new ArrayList<Number>();
+				
+				to = from + proc.getBufferLength();
+				
+				while( to > data.size() )
+				{
+					d.addAll( data.subList( from, data.size() ) );
+					from = 0;
+					to = to - data.size();
+				}
+				
+				d.addAll( data.subList( from, to ) );
+				from = to;
+				if( from >= data.size() )
+				{
+					from = 0;
+				}
+				
+				Number[] res = proc.processDataBlock( d.toArray( new Number[0] ) );
 				
 				String r = res + "";
 				if( res != null )
 				{
 					r = Arrays.deepToString( res );
 				}
-				textArea.append( plg.getID() + ">> input data = " + Arrays.deepToString( data )+ " : compressed data bytes = " + r + "\n" );
+				textArea.append( plg.getID() + ">> input data = " + d + " : compressed data bytes = " + r + "\n" );
+				
+				synchronized ( this )
+				{
+					super.wait( waitT );
+				}
+			}
+			
+			@Override
+			protected void cleanUp() throws Exception 
+			{
+				super.cleanUp();
+				
+				proc.finish();
 			}
 			
 			@Override
@@ -527,6 +627,8 @@ public class LSLRecPluginTesting
 				}
 			}
 		};
+		
+		thr.startThread();
 	}
 	
 	private void startTrialTest( ) throws Exception
@@ -563,7 +665,7 @@ public class LSLRecPluginTesting
 		thr.startThread();		
 	}
 	
-	private void startEncoderTest( Number[] values, String[] strValues, StreamDataType type ) throws Exception
+	private void startEncoderTest( int chs, Number[] values, String[] strValues, StreamDataType type ) throws Exception
 	{
 		stopTestThread();
 		
@@ -584,7 +686,7 @@ public class LSLRecPluginTesting
 		outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, true );
 		
 		String name = "test";
-		final IOutputDataFileWriter writer = encoder.getWriter( outFormat, getSimpleStreamSetting( name, type ), getDefaultMonitor() );
+		final IOutputDataFileWriter writer = encoder.getWriter( outFormat, getSimpleStreamSetting( name, type, chs ), getDefaultMonitor() );
 		
 		Object[] data = values;
 		

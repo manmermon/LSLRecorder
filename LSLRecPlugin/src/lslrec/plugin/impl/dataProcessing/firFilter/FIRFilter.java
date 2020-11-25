@@ -254,4 +254,9 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	{	
 		return 1;
 	}
+
+	@Override
+	protected void finishProcess() 
+	{	
+	}
 }

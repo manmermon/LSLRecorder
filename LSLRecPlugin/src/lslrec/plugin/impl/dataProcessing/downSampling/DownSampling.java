@@ -122,4 +122,8 @@ public class DownSampling extends LSLRecPluginDataProcessing
 		return res;
 	}
 
+	@Override
+	protected void finishProcess() 
+	{	
+	}
 }

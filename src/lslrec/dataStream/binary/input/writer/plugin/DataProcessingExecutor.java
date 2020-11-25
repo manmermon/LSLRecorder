@@ -207,6 +207,8 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 	{
 		super.cleanUp();
 		
+		this.process.finish();
+		
 		if( this.out != null )
 		{
 			this.out.close();
