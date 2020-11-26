@@ -435,18 +435,18 @@ public class LSLRecPluginTesting
 	private SimpleStreamSetting getSimpleStreamSetting( String name, StreamDataType type, int chs )
 	{
 		return new SimpleStreamSetting( this.lib
-					, name
-					, type
-					, type
-					, type
-					, chs
-					, 1
-					, 0
-					, getClass().getCanonicalName()
-					, getClass().getCanonicalName()
-					//, "testing"
-					, null
-					);
+										, name
+										, type
+										, type
+										, type
+										, chs
+										, 1
+										, 0
+										, getClass().getCanonicalName()
+										, getClass().getCanonicalName()
+										//, "testing"
+										, null
+										);
 	}
 	
 	private ITaskMonitor getDefaultMonitor()

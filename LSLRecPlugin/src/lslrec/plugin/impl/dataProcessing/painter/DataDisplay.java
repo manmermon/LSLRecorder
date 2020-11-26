@@ -60,7 +60,7 @@ public class DataDisplay extends LSLRecPluginDataProcessing
 		
 		this.window.setFocusableWindowState( false );
 		
-		this.window.setResizable( false );
+		//this.window.setResizable( false );
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		d.width /= 2;
 		d.height /= 2;

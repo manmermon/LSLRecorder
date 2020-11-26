@@ -65,7 +65,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 						if( ((int)Double.parseDouble( val )) <= 10 )
 						{
 							wType = WarningMessage.ERROR_MESSAGE;
-							msg = "data length is lower than 10.";
+							msg = "data length is lower than 10.\n";
 						}
 					}
 					catch (Exception e) 
@@ -83,7 +83,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 						if( ((int)Double.parseDouble( val )) <= 0 )
 						{
 							wType = WarningMessage.ERROR_MESSAGE;
-							msg = "chunk size is lower than 1.";
+							msg = "chunk size is lower than 1.\n";
 						}
 					}
 					catch (Exception e) 
@@ -137,7 +137,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 				|| span == Double.NEGATIVE_INFINITY
 				|| span == Double.POSITIVE_INFINITY )
 		{
-			wmsg.addMessage( "y-axis span must be a non-negative, finite number ", WarningMessage.ERROR_MESSAGE );
+			wmsg.addMessage( "y-axis span must be a non-negative, non-zero, finite number.\n", WarningMessage.ERROR_MESSAGE );
 		}
 		
 		return wmsg;
