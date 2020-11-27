@@ -9,12 +9,12 @@ import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
 public class ReceiveData {
     public static void main(String[] args) throws Exception  {
         System.out.println("Resolving an EEG stream...");
-       IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );
+       IStreamSetting[] results = DataStreamFactory.getStreamSettings();
 
        StreamInlet inlet = null; 
        for( IStreamSetting st : results )
        {
-    	   if( st.name().equalsIgnoreCase( "SerialPort" ) )
+    	   if( st.getLibraryID() == StreamLibrary.LSL && st.name().equalsIgnoreCase( "SerialPort" ) )
     	   {
     		   inlet = new StreamInlet( (LSLStreamInfo)st );
     		   break;

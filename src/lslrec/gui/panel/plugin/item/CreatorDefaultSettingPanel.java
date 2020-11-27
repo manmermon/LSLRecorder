@@ -347,7 +347,13 @@ public class CreatorDefaultSettingPanel
 	{
 		if( par != null )
 		{
-			par.setValue( value );
+			Object v = value;
+			if( par.getValue() instanceof String )
+			{
+				v = value.toString();
+			}
+			
+			par.setValue( v );
 		}
 	}
 }

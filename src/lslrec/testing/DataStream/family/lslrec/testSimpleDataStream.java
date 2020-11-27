@@ -31,12 +31,12 @@ public class testSimpleDataStream {
 		}
 		
 		LSLRecSimpleDataStream dataStream = new LSLRecSimpleDataStream( "test"
-																				, StreamDataType.double64
-																				, 0
-																				, 2
-																				, 5
-																				, dg
-																			);	
+																		, StreamDataType.double64
+																		, 0
+																		, 2
+																		, 5
+																		);
+		dataStream.setDataStreamGiver( dg );
 		
 		AtomicBoolean end = new AtomicBoolean( false );
 		Thread t = new Thread()

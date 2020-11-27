@@ -19,6 +19,8 @@
  */
 package lslrec.plugin.impl.test;
 
+import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
+import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
 import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
 import lslrec.plugin.lslrecPlugin.test.LSLRecPluginTesting;
@@ -33,6 +35,8 @@ public class PlugingTesting
 			
 		//PluginMemoryTest plg = new PluginMemoryTest();
 		PluginArithmeticTest plg = new PluginArithmeticTest();
+		//DataDisplayPlugin plg = new DataDisplayPlugin();
+		//FIRFilterPlugin plg = new FIRFilterPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		

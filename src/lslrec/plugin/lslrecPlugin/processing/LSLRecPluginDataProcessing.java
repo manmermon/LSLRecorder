@@ -288,11 +288,23 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 		return lens;
 	}
 	
+	public void finish()
+	{
+		if( this.prevProcess != null )
+		{
+			this.prevProcess.finishProcess();
+		}
+		
+		this.finishProcess();
+	}
+	
 	public abstract void loadProcessingSettings( List< Parameter< String > > pars);
 	
 	public abstract int getBufferLength();
 	
 	public abstract int getOverlapOffset();
+	
+	protected abstract void finishProcess();
 	
 	protected abstract Number[] processData( Number[] inputs );
 }

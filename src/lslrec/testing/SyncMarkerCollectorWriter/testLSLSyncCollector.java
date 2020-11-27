@@ -28,7 +28,6 @@ import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.sync.SyncMarker;
@@ -126,7 +125,7 @@ public class testLSLSyncCollector
 			
 			List< MutableStreamSetting > LSLthreadList = new ArrayList< MutableStreamSetting >();
 			
-			IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
 			
 			if( results.length >= 0 )
 			{

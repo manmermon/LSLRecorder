@@ -29,15 +29,15 @@ public class dataSyncFileToClisFormat {
 			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL
 																, "LSLSync"
 																, StreamDataType.int32
-																, StreamDataType.double64
-																, StreamDataType.int64
+																//, StreamDataType.double64
+																//, StreamDataType.int64
+																, 1
 																, 1
 																, 0
 																, ""
 																, ""
-																, ""
 																, null
-																, 1
+																//, 1
 																);
 			
 			BinaryFileStreamSetting binSet = new BinaryFileStreamSetting( sss, new File( filePath ) );

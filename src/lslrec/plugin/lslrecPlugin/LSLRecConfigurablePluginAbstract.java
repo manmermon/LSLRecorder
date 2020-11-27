@@ -69,7 +69,11 @@ public abstract class LSLRecConfigurablePluginAbstract implements ILSLRecConfigu
 	@Override
 	public JPanel getSettingPanel()
 	{
+		this.SettingPanel.setVisible( false );
+		
 		this.setSettingPanel( this.SettingPanel );
+		
+		this.SettingPanel.setVisible( true );
 		
 		return this.SettingPanel;
 	}

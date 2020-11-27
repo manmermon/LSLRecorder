@@ -20,6 +20,7 @@
 package lslrec.plugin.lslrecPlugin.trial;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -45,7 +46,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	
 	private ITaskMonitor monitor = null;
 
-	
+	private Boolean isDisposed = false;
 	
 	/**
 	 * 
@@ -60,6 +61,26 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		this.GUIPanel = new JPanel( new BorderLayout() );
 		
 		this.testWindow.setContentPane( this.GUIPanel );
+		
+		this.testWindow.setTitle( this.getID() );
+		
+		this.testWindow.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
+		
+		/*
+		this.testWindow.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowClosing(WindowEvent e) 
+			{
+				synchronized ( isDisposed )
+				{
+					isDisposed = true;
+				}	
+				
+				super.windowClosing( e );				
+			}
+		});
+		*/
 		
 		super.setName( this.getID() );
 	}
@@ -96,20 +117,8 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	protected void cleanUp() throws Exception 
 	{
 		super.cleanUp();
-	
-		this.testWindow.setVisible( false );
-		try
-		{
-			this.testWindow.dispose();
-		}
-		catch (Exception e) 
-		{			
-		}
 		
-		this.testWindow = null;
-		
-		this.GUIPanel.setVisible( false );		
-		this.GUIPanel = null;
+		this.disposeTrialWindow();
 		
 		if( this.syncMethod != null )
 		{
@@ -117,6 +126,59 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		}
 	}
 
+	public final void showTrialWindow()
+	{
+		if( this.testWindow != null )
+		{
+			this.testWindow.setVisible( true );
+			this.testWindow.toFront();
+		}
+	}
+	
+	/**
+	 * @see JFrame.getExtendedState()	
+	 */
+	public final void setTrialWindowState( int state )
+	{
+		if( this.testWindow != null )
+		{
+			this.testWindow.setExtendedState( state );
+		}
+	}
+	
+	public void setTrialWindowSize ( Dimension size )
+	{
+		if( this.testWindow != null && size != null )
+		{
+			this.testWindow.setSize( size );
+		}
+	}
+	
+	public final void disposeTrialWindow()
+	{
+		synchronized ( this.isDisposed )
+		{
+			if( this.testWindow != null && !this.isDisposed )
+			{
+				this.isDisposed = true;
+				
+				//this.testWindow.setVisible( false );
+				try
+				{
+					this.testWindow.dispose();								
+				}
+				catch ( Exception e) 
+				{
+				}
+				
+				this.testWindow = null;
+				
+				this.GUIPanel.setVisible( false );		
+				this.GUIPanel = null;
+			}
+		}
+	}
+	
 	protected LSLRecPluginSyncMethod loadSyncMarkerMethod( ITaskMonitor monitor )
 	{
 		LSLRecPluginSyncMethod sync = new LSLRecPluginSyncMethod( )
@@ -171,10 +233,12 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		this.GUIPanel.setVisible( true );
 	}
 	
+	/*
 	public final JFrame getWindonw()
 	{
 		return this.testWindow;
 	}
+	*/
 	
 	@Override
 	protected final void runInLoop() throws Exception
@@ -197,6 +261,7 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 			}
 		}
 	}
+	
 	
 	public abstract void setTrialLogStream( ITaskLog log );	
 	

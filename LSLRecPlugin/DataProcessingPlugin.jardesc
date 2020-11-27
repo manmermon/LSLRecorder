@@ -11,8 +11,9 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.firFilter"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
+        <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.painter"/>
     </selectedElements>
 </jardesc>

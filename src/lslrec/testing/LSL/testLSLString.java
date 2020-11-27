@@ -21,12 +21,12 @@ public class testLSLString
 				try
 				{
 			        
-			        IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL );
+			        IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
 
 			        StreamInlet inlet = null; 
 			        for( IStreamSetting st : results )
 			        {
-			     	   if( st.name().equalsIgnoreCase( "stringTets" ) )
+			     	   if( st.getLibraryID() == StreamLibrary.LSL && st.name().equalsIgnoreCase( "stringTets" ) )
 			     	   {
 			     		   inlet = new StreamInlet( (LSLStreamInfo)st );
 			     		   break;
