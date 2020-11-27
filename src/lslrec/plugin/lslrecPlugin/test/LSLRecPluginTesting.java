@@ -102,7 +102,7 @@ public class LSLRecPluginTesting
 	
 	private JFrame window = null;
 	
-	private JFrame plgWin = null;
+	//private JFrame plgWin = null;
 	
 	private EndedPluginInspector inspector = null;
 	
@@ -643,6 +643,9 @@ public class LSLRecPluginTesting
 		
 		test.taskMonitor( getDefaultMonitor() );
 		
+		test.setTrialWindowSize( new Dimension( 400, 400 ) );
+		
+		/*
 		JFrame window = test.getWindonw();
 		
 		window.setVisible( false );
@@ -659,6 +662,9 @@ public class LSLRecPluginTesting
 		window.toFront();		
 		
 		plgWin = window;
+		*/
+		
+		test.showTrialWindow();
 		
 		thr = test;
 		
@@ -819,13 +825,11 @@ public class LSLRecPluginTesting
 		protected void cleanUp() throws Exception 
 		{
 			super.cleanUp();
-			
-			if( plgWin != null )
+						
+			if( thread instanceof LSLRecPluginTrial )
 			{
-				plgWin.dispose();
-				
-				plgWin = null;
-			}			
+				((LSLRecPluginTrial) thread ).disposeTrialWindow();
+			}
 			
 			btnStartTest.setSelected( false );
 		}

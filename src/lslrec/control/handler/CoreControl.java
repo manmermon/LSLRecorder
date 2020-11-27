@@ -140,7 +140,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private volatile String encryptKey = "";
 	
 	private LSLRecPluginTrial trial = null;
-	private JFrame trialWindows = null;
+	//private JFrame trialWindows = null;
 	
 	private LSLRecPluginSyncMethod syncPluginMet = null;
 	
@@ -707,6 +707,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					this.trial.setTrialLogStream( log );
 				}
 				
+				/*
 				if( this.trialWindows != null )
 				{
 					this.trialWindows.dispose();
@@ -715,7 +716,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.trialWindows = this.trial.getWindonw();
 				this.trialWindows.setVisible( false );
 				this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
+				*/
 				
+				this.trial.setTrialWindowState( JFrame.MAXIMIZED_BOTH );
 				this.trial.loadSettings( trialPl.getSettings() );
 				
 				this.trial.taskMonitor( this.ctrlOutputFile );
@@ -911,8 +914,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		if( this.trial != null )
-		{	
-			this.trialWindows.setVisible( true );
+		{				
+			//this.trialWindows.setVisible( true );
+			this.trial.showTrialWindow();
 			this.trial.startThread();
 		}
 		
@@ -2090,8 +2094,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 				
 				if( trial != null )
-				{
+				{					
 					trial.stopThread( IStoppableThread.FORCE_STOP );
+					trial.disposeTrialWindow();
 				}
 				
 				isRecording = false;
@@ -2178,8 +2183,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					System.exit( 0 );
 				}
 			}			
-			
-			trialWindows = null;
+						
+			//trialWindows = null;
 		}
 		
 		@Override

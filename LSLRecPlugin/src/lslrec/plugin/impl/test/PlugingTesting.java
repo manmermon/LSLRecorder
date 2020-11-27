@@ -34,8 +34,8 @@ public class PlugingTesting
 	public static void main(String[] args) {
 			
 		//PluginMemoryTest plg = new PluginMemoryTest();
-		//PluginArithmeticTest plg = new PluginArithmeticTest();
-		DataDisplayPlugin plg = new DataDisplayPlugin();
+		PluginArithmeticTest plg = new PluginArithmeticTest();
+		//DataDisplayPlugin plg = new DataDisplayPlugin();
 		//FIRFilterPlugin plg = new FIRFilterPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
