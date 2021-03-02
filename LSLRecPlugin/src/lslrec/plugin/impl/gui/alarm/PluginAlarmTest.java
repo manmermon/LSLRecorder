@@ -200,30 +200,37 @@ public class PluginAlarmTest  implements ILSLRecPluginTrial
 		{
 			for( Parameter< String > par : arg0 )
 			{
+				String id = par.getID();
+				
 				Parameter p = this.pars.getParameter( par.getID() );
 				
 				if( p != null )
-				{				
-					Number val = null;
-					switch( p.getID() )
-					{
-						case AlarmTest.FREQUENCY_TONE:
-						case AlarmTest.TONE_DURATION:
-						case AlarmTest.VOLUMEN_TONE:
-						case AlarmTest.BEEP_NUMBER:
-						case AlarmTest.BEEP_REP:
-						case AlarmTest.PRE_TEST_TIME:
-						case AlarmTest.TIME_BETWEEN_BEEP:
-						{
-							val = Integer.parseInt( p.getValue().toString() );
-							
-							break;
-						}						
-					}
+				{
+					Object v = par.getValue();
 					
-					if( val != null )
-					{
-						p.setValue( val );
+					if( v != null )
+					{						
+						Number val = null;
+						switch( id )
+						{
+							case AlarmTest.FREQUENCY_TONE:
+							case AlarmTest.TONE_DURATION:
+							case AlarmTest.VOLUMEN_TONE:
+							case AlarmTest.BEEP_NUMBER:
+							case AlarmTest.BEEP_REP:
+							case AlarmTest.PRE_TEST_TIME:
+							case AlarmTest.TIME_BETWEEN_BEEP:
+							{
+								val = Integer.parseInt( v.toString()  );
+								
+								break;
+							}						
+						}
+						
+						if( val != null )
+						{
+							p.setValue( val );
+						}
 					}
 				}
 			}

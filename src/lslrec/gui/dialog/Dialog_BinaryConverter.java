@@ -1857,9 +1857,9 @@ public class Dialog_BinaryConverter extends JDialog
 	
 	private JCheckBox getChckbxDeleteBinaries() 
 	{
-		if ( chckbxDeleteBinaries == null ) 
+		if ( this.chckbxDeleteBinaries == null ) 
 		{
-			chckbxDeleteBinaries = new JCheckBox( Language.getLocalCaption( Language.LSL_DEL_BINS ) );
+			this.chckbxDeleteBinaries = new JCheckBox( Language.getLocalCaption( Language.LSL_DEL_BINS ) );
 			this.chckbxDeleteBinaries.addItemListener( new ItemListener()
 			{				
 				@Override
@@ -1872,6 +1872,8 @@ public class Dialog_BinaryConverter extends JDialog
 					outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, del );
 				}
 			});
+			
+			this.outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, this.chckbxDeleteBinaries.isSelected() );
 		}
 		return chckbxDeleteBinaries;
 	}		
