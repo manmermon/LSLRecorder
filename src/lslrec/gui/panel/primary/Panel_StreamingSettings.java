@@ -170,6 +170,7 @@ public class Panel_StreamingSettings extends JPanel
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
+	private JCheckBox delBinaryFiles;
 	//private JCheckBox parallelizeActive;
 	
 	//JBUTTON	
@@ -485,6 +486,8 @@ public class Panel_StreamingSettings extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( lb );
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
+			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
+			this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
 		}
@@ -540,6 +543,37 @@ public class Panel_StreamingSettings extends JPanel
 		}
 		
 		return this.generalDescrOutFile;
+	}
+	
+	private JCheckBox getDeleteBinaryFiles()
+	{
+		if( this.delBinaryFiles == null )
+		{
+			final String ID = ConfigApp.DEL_BINARY_FILES;
+			
+			this.delBinaryFiles = new JCheckBox();
+			
+			this.delBinaryFiles.setText( Language.getLocalCaption( Language.DEL_BINARY_FILES ) );
+			this.delBinaryFiles.setHorizontalTextPosition( JCheckBox.LEFT );
+			
+			this.delBinaryFiles.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JCheckBox ch = (JCheckBox)e.getSource();
+					
+					ConfigApp.setProperty( ID, ch.isSelected() );				
+				}
+			});
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DEL_BINARY_FILES, this.delBinaryFiles );
+			GuiManager.setGUIComponent( ID, ID, this.delBinaryFiles );
+			
+			//this.delBinaryFiles.setSelected( (Boolean)ConfigApp.getProperty( ID ) );
+		}
+		
+		return this.delBinaryFiles;
 	}
 
 	private JCheckBox getEncryptKeyActive()

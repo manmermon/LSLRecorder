@@ -202,7 +202,9 @@ public class DataFileFormat
 		outPars.setParameter( OutputFileFormatParameters.DATA_NAMES, "" );
 		
 		outPars.setParameter( OutputFileFormatParameters.RECORDING_INFO, new HashMap< String, String >() );				
-		outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, !ConfigApp.isTesting() );
+		//outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, !ConfigApp.isTesting() );
+		
+		outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
 		
 		return outPars;
 	}
