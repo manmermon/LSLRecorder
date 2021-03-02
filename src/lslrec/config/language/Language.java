@@ -197,12 +197,18 @@ public class Language
 	public static final String TRIALS_TEXT = "TEST_TEXT";
 	public static final String ENCODER_TEXT = "ENCODER_TEXT";	
 	
-	public static final String MSG_DATA_PROCESSING_STREAMS_CHANGED = "MSG_DATA_PROCESSING_STREAMS_CHANGED"; 
+	public static final String MSG_DATA_PROCESSING_STREAMS_CHANGED = "MSG_DATA_PROCESSING_STREAMS_CHANGED";
+	
+	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
 			
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
-	static {		
+	static 
+	{		
+		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put(DEL_BINARY_FILES, new Caption(DEL_BINARY_FILES, defaultLanguage, "Delete binary files"));
 		
 		captions.put( MENU_LIBRARY, new Caption( MENU_LIBRARY,  defaultLanguage, "Library" ) );
 		

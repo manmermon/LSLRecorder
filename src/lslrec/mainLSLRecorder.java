@@ -103,6 +103,12 @@ public class mainLSLRecorder
 			Language.setDefaultLocalLanguage();
 			
 
+			boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
+	    			getInputArguments().toString().indexOf("jdwp") >= 0;
+			
+	    	ConfigApp.setTesting( isDebug );
+	    	ConfigApp.setProperty( ConfigApp.DEL_BINARY_FILES, !isDebug );
+			
 			ExceptionDialog.createExceptionDialog( null );
 						
 			createApplication();
@@ -203,11 +209,6 @@ public class mainLSLRecorder
 		
 		// Load Controllers
 		createAppCoreControl();
-		
-		boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
-			    			getInputArguments().toString().indexOf("jdwp") >= 0;
-					
-		ConfigApp.setTesting( isDebug );
 	}
 	
 	private static void registerPlugins() throws Exception
@@ -252,13 +253,6 @@ public class mainLSLRecorder
 		openDialog.setVisible( true );
 		openDialog.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
 		
-		/*
-		Toolkit t = Toolkit.getDefaultToolkit();
-		Dimension dm = t.getScreenSize();
-		Insets pad = t.getScreenInsets( openDialog.getGraphicsConfiguration() );
-		*/
-
-		
 		openDialog.setLocationRelativeTo( null ); //setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
 		
 		return openDialog;
@@ -274,7 +268,15 @@ public class mainLSLRecorder
 		Insets pad = t.getScreenInsets( ui.getGraphicsConfiguration() );
 		
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
-		ui.setTitle(  ConfigApp.fullNameApp );
+		
+		String mode = "";
+		
+		if( ConfigApp.isTesting() )
+		{
+			mode = " - execute test";
+		}
+		
+		ui.setTitle(  ConfigApp.fullNameApp + mode );
 		
 		ui.setBackground(SystemColor.info);
 

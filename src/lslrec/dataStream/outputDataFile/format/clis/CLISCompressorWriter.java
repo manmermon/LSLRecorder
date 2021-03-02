@@ -130,7 +130,7 @@ public class CLISCompressorWriter
 		}
 		else if( this.currentType != dataType )
 		{			
-				throw new IllegalStateException( "More than one type data for the same variable." );
+			throw new IllegalStateException( "More than one type data for the same variable." );
 		}
 		else if( this.currentNumCols != nCols )
 		{

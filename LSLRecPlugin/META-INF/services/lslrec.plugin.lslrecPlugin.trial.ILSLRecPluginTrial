@@ -1,2 +1,3 @@
 lslrec.plugin.impl.gui.memory.PluginMemoryTest
 lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest
+lslrec.plugin.impl.gui.alarm.PluginAlarmTest

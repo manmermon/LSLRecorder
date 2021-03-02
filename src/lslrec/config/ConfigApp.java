@@ -78,7 +78,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2020, 11 - 1, 27 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 3 - 1, 2 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -155,6 +155,8 @@ public class ConfigApp
 	public static final String OUTPUT_PARALLELIZE = "OUTPUT_PARALLELIZE";
 	
 	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
+	
+	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
 
 	/****
 	 * 
@@ -225,6 +227,8 @@ public class ConfigApp
 		list_Key_Type.put( OUTPUT_PARALLELIZE, Boolean.class );
 		
 		list_Key_Type.put( OUTPUT_SAVE_DATA_PROCESSING, Boolean.class );
+		
+		list_Key_Type.put( DEL_BINARY_FILES, Boolean.class );
 		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
@@ -1305,6 +1309,11 @@ public class ConfigApp
 				loadDefaultPlugins();
 				break;
 			}
+			case DEL_BINARY_FILES:
+			{
+				loadDefaultDeleteBinaryFiles();
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1339,6 +1348,7 @@ public class ConfigApp
 		loadDefaultSaveOutputDataProcessing();
 		
 		loadDefaultPlugins();
+		loadDefaultDeleteBinaryFiles();
 		
 		//loadDefaultStreamLibrary();
 	}
@@ -1464,6 +1474,11 @@ public class ConfigApp
 	private static void loadDefaultPlugins()
 	{
 		listConfig.put( PLUGINS, new ArrayTreeMap< Tuple< PluginType, String>, ParameterList >() );
+	}
+	
+	private static void loadDefaultDeleteBinaryFiles()
+	{				
+		listConfig.put( DEL_BINARY_FILES, true );
 	}
 	
 	/*
