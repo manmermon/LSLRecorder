@@ -28,7 +28,7 @@ import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 
 public class CSVEncoderPlugin extends LSLRecPluginEncoder
 {
-	private Encoder enc = new CVSEncoder(); 
+	private Encoder enc = new CSVEncoder(); 
 
 	@Override
 	public String getID() 

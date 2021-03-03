@@ -17,7 +17,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
  * @author Manuel Merino Monge
  *
  */
-public class CVSEncoder implements Encoder 
+public class CSVEncoder implements Encoder 
 {
 	@Override
 	public String getID() 
