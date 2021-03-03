@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.config.ConfigApp;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
@@ -20,7 +19,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
  *
  */
 public class OutputCSVDataWriter implements IOutputDataFileWriter 
-{	
+{		
 	private String fileName = null;
 
 	private String header = "";
@@ -82,8 +81,8 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 				names = aux.toString();
 			}
 			
-			headerSize += xml.toCharArray().length;
-			headerSize += names.length() + ( Long.MAX_VALUE + "").length(); // device info, binary and time data; 10 -> length of data type in string			 
+			headerSize += 2 * ( xml.toCharArray().length + ( Long.MAX_VALUE + "" ).length() );
+			headerSize += names.length(); 			 
 		}
 		
 		if( headerSize < 2 )
@@ -95,7 +94,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 
 		for( int i = 0; i < this.padding.length; i++ )
 		{
-			this.padding[ i ] = '\n';
+			this.padding[ i ] = ' ';
 		}
 		
 		this.FWriter.write( this.padding );
@@ -109,10 +108,10 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	@Override
 	public void addMetadata( String id, String text ) throws Exception 
 	{
-		id = id.replace("\n", "").replace("\r", "");
-		text = text.replace("\n", "").replace("\r", "");
+		//id = id.replace("\n", "").replace("\r", "");
+		//text = text.replace("\n", "").replace("\r", "");
 
-		this.header += id + "=" + text + SeparatorChar;
+		this.header += "\"" + id + " = " + text + "\""+ SeparatorChar;
 	}
 
 	@Override

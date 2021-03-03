@@ -186,21 +186,24 @@ public class Panel_PluginSettings extends JPanel
 							{	
 								JPanel settingPanel = p.getSettingPanel();
 								
-								if( settingPanel != null )
+								if( settingPanel.getComponentCount() > 0 )
 								{
-									JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT ); 
-									if( indTab < 0 )
-									{			
-										plugingTabPanel.addTab( pluginCategory, subTab );
-										indTab = 0;
-									}
-									else
+									if( settingPanel != null )
 									{
-										subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+										JTabbedPane subTab = new JTabbedPane( JTabbedPane.TOP, JTabbedPane.SCROLL_TAB_LAYOUT ); 
+										if( indTab < 0 )
+										{			
+											plugingTabPanel.addTab( pluginCategory, subTab );
+											indTab = 0;
+										}
+										else
+										{
+											subTab = (JTabbedPane)plugingTabPanel.getComponentAt( indTab );
+										}
+										
+										String t = p.getID();
+										subTab.addTab( t, new JScrollPane( settingPanel ) );
 									}
-									
-									String t = p.getID();
-									subTab.addTab( t, new JScrollPane( settingPanel ) );
 								}
 							}
 						}
