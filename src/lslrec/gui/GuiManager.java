@@ -45,6 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
@@ -447,6 +448,10 @@ public class GuiManager
 			else if( c instanceof JTextComponent )
 			{
 				((JTextComponent)c).setText( ConfigApp.getProperty( propID ).toString() );
+			}
+			else if( c instanceof JSpinner )
+			{
+				((JSpinner)c).setValue( ConfigApp.getProperty( propID ) );
 			}
 			else if( c instanceof JTable )
 			{

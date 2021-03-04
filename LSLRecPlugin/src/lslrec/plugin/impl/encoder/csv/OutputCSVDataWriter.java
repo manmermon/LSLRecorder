@@ -119,7 +119,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	{
 		this.FWriter.seek( 0 );
 		this.header = this.header.substring(0, this.header.length()-1 );
-		this.header += "\n";
+		this.header += "\n\n";
 		this.FWriter.write( this.header.getBytes() );
 		
 		this.FWriter.close();

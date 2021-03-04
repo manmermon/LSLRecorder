@@ -77,6 +77,7 @@ import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -718,7 +719,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
 				*/
 				
-				this.trial.setTrialWindowState( JFrame.MAXIMIZED_BOTH );
+				if( (Boolean)ConfigApp.getProperty( ConfigApp.TRIAL_FULLSCREEN ) )
+				{
+					this.trial.setTrialWindowState( JFrame.MAXIMIZED_BOTH );
+				}
+				else
+				{
+					int w = (Integer)ConfigApp.getProperty( ConfigApp.TRIAL_WINDOW_WIDTH );
+					int h = (Integer)ConfigApp.getProperty( ConfigApp.TRIAL_WINDOW_HEIGHT );
+					
+					this.trial.setTrialWindowSize( new Dimension( w, h ) );
+				}
+				
 				this.trial.loadSettings( trialPl.getSettings() );
 				
 				this.trial.taskMonitor( this.ctrlOutputFile );

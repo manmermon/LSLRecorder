@@ -200,6 +200,12 @@ public class Language
 	public static final String MSG_DATA_PROCESSING_STREAMS_CHANGED = "MSG_DATA_PROCESSING_STREAMS_CHANGED";
 	
 	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
+	public static final String FULLSCREEN = "FULLSCREEN";
+	
+	public static final String WIN_SIZE_TEXT = "WIN_SIZE_TEXT";
+	public static final String WIDTH_TEXT = "WIDTH_TEXT";
+	public static final String HEIGHT_TEXT = "HEIGHT_TEXT";
+	public static final String WINDOW_TEXT = "WINDOW_TEXT";
 			
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -209,6 +215,11 @@ public class Language
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
 		captions.put(DEL_BINARY_FILES, new Caption(DEL_BINARY_FILES, defaultLanguage, "Delete binary files"));
+		captions.put( FULLSCREEN, new Caption(FULLSCREEN, defaultLanguage, "fullscreen"));
+		captions.put( WIN_SIZE_TEXT, new Caption(WIN_SIZE_TEXT, defaultLanguage, "Window size"));
+		captions.put( WIDTH_TEXT, new Caption(WIDTH_TEXT, defaultLanguage, "Width"));
+		captions.put( HEIGHT_TEXT, new Caption(HEIGHT_TEXT, defaultLanguage, "Height"));
+		captions.put( WINDOW_TEXT, new Caption(WINDOW_TEXT, defaultLanguage, "Window"));
 		
 		captions.put( MENU_LIBRARY, new Caption( MENU_LIBRARY,  defaultLanguage, "Library" ) );
 		
