@@ -78,7 +78,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 3 - 1, 3 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 3 - 1, 4 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -167,6 +167,10 @@ public class ConfigApp
 	
 	public static final String PLUGINS = "PLUGINS";
 	
+	public static final String TRIAL_FULLSCREEN = "TRIAL_FULLSCREEN";
+	public static final String TRIAL_WINDOW_WIDTH = "TRIAL_WINDOW_WIDTH";
+	public static final String TRIAL_WINDOW_HEIGHT = "TRIAL_WINDOW_HEIGHT";
+	
 	////////////////////////
 	
 	private static boolean test = false;
@@ -230,12 +234,19 @@ public class ConfigApp
 		
 		list_Key_Type.put( DEL_BINARY_FILES, Boolean.class );
 		
+		list_Key_Type.put( TRIAL_FULLSCREEN, Boolean.class );
+		list_Key_Type.put( TRIAL_WINDOW_WIDTH, Integer.class );
+		list_Key_Type.put( TRIAL_WINDOW_HEIGHT, Integer.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
 	private static void create_Key_RankValues()
 	{
 		list_Key_RankValues.clear();
+		
+		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
+		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
@@ -1314,6 +1325,21 @@ public class ConfigApp
 				loadDefaultDeleteBinaryFiles();
 				break;
 			}
+			case TRIAL_FULLSCREEN:
+			{
+				loadDefaultTrialFullScreen();
+				break;
+			}
+			case TRIAL_WINDOW_WIDTH:
+			{
+				loadDefaultTrialWindowWidth();
+				break;
+			}
+			case TRIAL_WINDOW_HEIGHT:
+			{
+				loadDefaultTrialWindowHeigh();
+				break;
+			}			
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1349,6 +1375,10 @@ public class ConfigApp
 		
 		loadDefaultPlugins();
 		loadDefaultDeleteBinaryFiles();
+		
+		loadDefaultTrialFullScreen();		
+		loadDefaultTrialWindowWidth();
+		loadDefaultTrialWindowHeigh();
 		
 		//loadDefaultStreamLibrary();
 	}
@@ -1480,6 +1510,22 @@ public class ConfigApp
 	{				
 		listConfig.put( DEL_BINARY_FILES, true );
 	}
+	
+	private static void loadDefaultTrialFullScreen()
+	{				
+		listConfig.put( TRIAL_FULLSCREEN, false );
+	}
+		
+	private static void loadDefaultTrialWindowWidth()
+	{				
+		listConfig.put( TRIAL_WINDOW_WIDTH, 500 );
+	}	
+
+	private static void loadDefaultTrialWindowHeigh()
+	{				
+		listConfig.put( TRIAL_WINDOW_HEIGHT, 500 );
+	}
+	
 	
 	/*
 	private static void loadDefaultStreamLibrary()

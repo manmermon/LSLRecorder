@@ -23,7 +23,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Point;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,13 +35,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
@@ -45,16 +53,21 @@ import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
-import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiManager;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.TrialPluginRegistrar;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
+import java.awt.FlowLayout;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+import javax.swing.JSpinner;
 
 public class TrialPluginSelectorPanel extends JPanel
 {
@@ -66,15 +79,23 @@ public class TrialPluginSelectorPanel extends JPanel
 			
 	private JPanel contentPanel;
 	private JPanel panelPluginSetting;
-	
+	private JPanel panelWinSizeSetting;
+		
 	private JTable tablePluginList;
+	private JCheckBox chckbxFullScreen;
+	private JLabel lblWinWidth;
+	private JSpinner spinnerWidth;
+	private JSpinner spinnerHeight;
+	private JLabel lblWinHeight;
+	
 	
 	//private PluginType plgType = PluginType.TRIAL;
 	
 	public TrialPluginSelectorPanel( Collection< ILSLRecPluginTrial > plugins )
 	{
-		super.setLayout( new BorderLayout() );
+		setLayout( new BorderLayout() );
 		
+		this.add( this.getWinSizeSettingPanel(), BorderLayout.NORTH );
 		this.add( this.getPluginPanel(), BorderLayout.WEST );		
 		this.add( this.getPluginSettingPanel(), BorderLayout.CENTER );
 		
@@ -106,6 +127,28 @@ public class TrialPluginSelectorPanel extends JPanel
 				tm.addRow( new String[] { id } );
 			}
 		}
+	}
+	
+	private JPanel getWinSizeSettingPanel()
+	{
+		if( this.panelWinSizeSetting == null )
+		{
+			this.panelWinSizeSetting = new JPanel( );
+			this.panelWinSizeSetting.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.WINDOW_TEXT ) ) );
+			
+			this.panelWinSizeSetting.setLayout(new FlowLayout( FlowLayout.LEFT, 5, 0 ) );
+			this.panelWinSizeSetting.add( this.getChckbxFullScreen());
+			this.panelWinSizeSetting.add( this.getLblWinSize());
+			this.panelWinSizeSetting.add( this.getSpinnerWidth());
+			panelWinSizeSetting.add(getLblWinHeight());
+			this.panelWinSizeSetting.add( this.getSpinnerHeight());
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER
+											, Language.WINDOW_TEXT
+											, this.panelWinSizeSetting.getBorder() );
+		}
+		
+		return this.panelWinSizeSetting;
 	}
 	
 	private JPanel getPluginSettingPanel()
@@ -384,5 +427,196 @@ public class TrialPluginSelectorPanel extends JPanel
 				}
 			}
 		}
+	}
+	
+	private JCheckBox getChckbxFullScreen() 
+	{
+		if ( this.chckbxFullScreen == null) 
+		{
+			String ID = ConfigApp.TRIAL_FULLSCREEN;
+			
+			this.chckbxFullScreen = new JCheckBox( Language.getLocalCaption( Language.FULLSCREEN ) );
+			this.chckbxFullScreen.setHorizontalTextPosition( JCheckBox.LEFT );
+			
+			this.chckbxFullScreen.addItemListener( new ItemListener()
+			{	
+				@Override
+				public void itemStateChanged(ItemEvent e) 
+				{
+					JCheckBox c = (JCheckBox)e.getSource();
+					
+					ConfigApp.setProperty( ID, c.isSelected() );
+				}
+			});
+			
+			GuiManager.setGUIComponent( ID, ID, this.chckbxFullScreen );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+											, Language.FULLSCREEN
+											, this.chckbxFullScreen );
+		}
+		
+		return this.chckbxFullScreen;
+	}
+	
+	private JLabel getLblWinSize() 
+	{
+		if ( this.lblWinWidth == null) 
+		{
+			this.lblWinWidth = new JLabel( Language.getLocalCaption( Language.WIDTH_TEXT ) );
+		
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+											, Language.WIDTH_TEXT
+											, this.lblWinWidth );
+		}
+		
+		return this.lblWinWidth;
+	}
+	
+	private JSpinner getSpinnerWidth() 
+	{
+		if ( this.spinnerWidth == null) 
+		{
+			String ID = ConfigApp.TRIAL_WINDOW_WIDTH;
+			
+			this.spinnerWidth = new JSpinner( new SpinnerNumberModel( 500, 100, 8000, 10 ) );			
+			
+			this.spinnerWidth.addChangeListener( new ChangeListener()
+			{								
+				@Override
+				public void stateChanged(ChangeEvent e)
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+
+					try
+					{
+						Integer val = (Integer)sp.getValue();
+												
+						ConfigApp.setProperty( ID, val );
+						
+					} 
+					catch ( Exception e1)
+					{
+						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+						
+						ExceptionDialog.showMessageDialog( m, true, true );
+					}
+				}
+			});
+			
+			this.spinnerWidth.addMouseWheelListener( new MouseWheelListener() 
+			{				
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
+					{
+						try
+						{	
+							JSpinner sp = (JSpinner)e.getSource();
+							
+							int d = e.getWheelRotation();
+							
+							if( d > 0 )
+							{
+								sp.setValue( sp.getModel().getPreviousValue() );
+							}
+							else
+							{
+								sp.setValue( sp.getModel().getNextValue() );
+							}	
+						}
+						catch( IllegalArgumentException ex )
+						{												
+						}
+					}
+				}
+			});
+			
+			GuiManager.setGUIComponent( ID, ID, this.spinnerWidth );
+		}
+		
+		
+		return this.spinnerWidth;
+	}
+	
+	private JSpinner getSpinnerHeight() 
+	{
+		if ( this.spinnerHeight == null) 
+		{
+			String ID = ConfigApp.TRIAL_WINDOW_HEIGHT;
+			
+			this.spinnerHeight = new JSpinner( new SpinnerNumberModel( 500, 100, 8000, 10 )  );
+			
+			this.spinnerHeight.addChangeListener( new ChangeListener()
+			{								
+				@Override
+				public void stateChanged(ChangeEvent e)
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+
+					try
+					{
+						Integer val = (Integer)sp.getValue();
+												
+						ConfigApp.setProperty( ID, val );
+						
+					} 
+					catch ( Exception e1)
+					{
+						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+						
+						ExceptionDialog.showMessageDialog( m, true, true );
+					}
+				}
+			});
+			
+			this.spinnerHeight.addMouseWheelListener( new MouseWheelListener() 
+			{				
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
+					{
+						try
+						{	
+							JSpinner sp = (JSpinner)e.getSource();
+							
+							int d = e.getWheelRotation();
+							
+							if( d > 0 )
+							{
+								sp.setValue( sp.getModel().getPreviousValue() );
+							}
+							else
+							{
+								sp.setValue( sp.getModel().getNextValue() );
+							}	
+						}
+						catch( IllegalArgumentException ex )
+						{												
+						}
+					}
+				}
+			});
+			
+			GuiManager.setGUIComponent( ID, ID, this.spinnerHeight );
+		}
+		
+		return this.spinnerHeight;
+	}
+	
+	private JLabel getLblWinHeight() 
+	{
+		if ( this.lblWinHeight == null) 
+		{
+			this.lblWinHeight = new JLabel( Language.getLocalCaption( Language.HEIGHT_TEXT ) );
+			
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+											, Language.HEIGHT_TEXT
+											, this.lblWinHeight );
+		}
+		
+		return lblWinHeight;
 	}
 }
