@@ -459,38 +459,48 @@ public class LSL
         System.setProperty("jna.debug_load", "true");
         System.setProperty("jna.debug_load.jna", "true");
         
-        String path = ConfigApp.SYSTEM_LIB_PATH;
+        String libPath = ConfigApp.SYSTEM_LIB_WIN_PATH;
+        String libName = "";
+        String libNameAlt = "";
         
         switch ( Platform.getOSType() ) 
         {
             case Platform.WINDOWS:
             {
-            	path += ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
+            	libName = ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
+            	libNameAlt = "liblsl.dll";
                 break;
             }
             case Platform.MAC:
             {
-                path += ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
+            	libPath = ConfigApp.SYSTEM_LIB_MACOS_PATH;
+            	
+            	libName = ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
+            	libNameAlt = "liblsl.dylib";
                 break;
             }
             case Platform.ANDROID:
             {
                 // For JNA <= 5.1.0
                 System.setProperty("jna.nosys", "false");
-                path += "lsl";                
+                libName = "lsl";         
+                libNameAlt = "lsl";
                 break;
             }
             default:
             {
-                path += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );                
+            	libPath = ConfigApp.SYSTEM_LIB_LINUX_PATH;
+            	libName += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );
+            	libNameAlt = "liblsl.so";
                 break;
             }
         }
         
-        inst = (LSLDll)Native.loadLibrary( path, LSLDll.class);        
+        inst = (LSLDll)Native.loadLibrary( libPath + libName, LSLDll.class);        
         if (inst == null)
         {
-            inst = (LSLDll)Native.loadLibrary( ConfigApp.SYSTEM_LIB_PATH  + "liblsl.so", LSLDll.class );
+            //inst = (LSLDll)Native.loadLibrary( ConfigApp.SYSTEM_LIB_PATH  + "liblsl.so", LSLDll.class );
+        	inst = (LSLDll)Native.loadLibrary( libName + libNameAlt, LSLDll.class );
         }
     }
 }

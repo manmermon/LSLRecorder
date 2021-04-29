@@ -20,6 +20,8 @@
 package lslrec.plugin.impl.test;
 
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
+import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotter;
+import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.gui.alarm.PluginAlarmTest;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
@@ -38,8 +40,8 @@ public class PlugingTesting
 		//PluginArithmeticTest plg = new PluginArithmeticTest();
 		//DataDisplayPlugin plg = new DataDisplayPlugin();
 		//FIRFilterPlugin plg = new FIRFilterPlugin();
-		
-		PluginAlarmTest plg = new PluginAlarmTest();
+		//PluginAlarmTest plg = new PluginAlarmTest();
+		OpenposePlotterPlugin plg = new OpenposePlotterPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		

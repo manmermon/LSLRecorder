@@ -78,7 +78,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 3 - 1, 4 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 4 - 1, 29 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -104,7 +104,9 @@ public class ConfigApp
 	
 	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
 	
-	public static final String SYSTEM_LIB_PATH = "systemLib/";	
+	public static final String SYSTEM_LIB_WIN_PATH = "systemLib/win/";
+	public static final String SYSTEM_LIB_LINUX_PATH = "systemLib/linux/";
+	public static final String SYSTEM_LIB_MACOS_PATH = "systemLib/macox/";
 	//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
 	
 
