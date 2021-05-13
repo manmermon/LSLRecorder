@@ -46,3 +46,5 @@ ImportClisData/Python/testClis.py
 ImportClisData/Python/testClis.py
 config.cfg
 ImportClisData/Python/testClis.py
+*.csv
+.~lock.data_Openpose_Body.csv#

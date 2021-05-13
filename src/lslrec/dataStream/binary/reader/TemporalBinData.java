@@ -39,7 +39,7 @@ public class TemporalBinData
 	
 	private File binFile = null;
 	
-	private boolean deleteBinaries = true;
+	//private boolean deleteBinaries = true;
 	
 	private int dataTypeBytes;
 	private List< BinaryDataFormat > formats;
@@ -58,7 +58,7 @@ public class TemporalBinData
 		this.streamSetting = strSetting.getStreamSetting();
 		this.outputFormat = outFormat;
 		
-		this.deleteBinaries = (Boolean)this.outputFormat.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue();
+		//this.deleteBinaries = (Boolean)this.outputFormat.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue();
 		
 		this.binFile = strSetting.getStreamBinFile();
 		
@@ -127,7 +127,9 @@ public class TemporalBinData
 		{			
 			this.reader.close();
 			
-			if( this.binFile != null  && this.deleteBinaries )
+			boolean deleteBinaries = (Boolean)this.outputFormat.getParameter( OutputFileFormatParameters.DELETE_BIN ).getValue();
+			
+			if( this.binFile != null  && deleteBinaries )
 			{
 				if( !this.binFile.delete() )
 				{

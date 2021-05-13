@@ -968,6 +968,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			*/
 			
 			super.stopThread = true;
+			
+			this.outputFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, false );
 						
 			if( this.notifTask != null )
 			{	
@@ -996,8 +998,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 					this.notifTask.notify();
 				}				
-			}
-			
+			}			
 		}
 	}
 

@@ -47,16 +47,21 @@ public class OpenposePlotterPanel extends JPanel
 	
 	private Timer resizeImageTimer = null;
 	private boolean first = true;
+	
+	private int nPoints = 25;
+	
 	/**
 	 * 
 	 */
-	public OpenposePlotterPanel() //( Dimension oppImageResolution  ) 
+	public OpenposePlotterPanel( int oppNumPoints ) //( Dimension oppImageResolution  ) 
 	{
 		super();
 		
 		super.setBorder( BorderFactory.createEtchedBorder() );
 		
 		super.setDoubleBuffered( true );
+		
+		this.nPoints = oppNumPoints;
 		
 		/*
 		this.oppResolution = new Dimension( oppImageResolution );
@@ -152,26 +157,26 @@ public class OpenposePlotterPanel extends JPanel
 			super.setVisible( false );
 			
 			synchronized( this.lock )
-			{	
-				int chs = data.length;
-								
+			{			
  				this.clearDrawData( Color.WHITE, this.currentSample );
 												
 				this.currentSample.clear();
 				
 				this.graphic.setColor( Color.RED );
 				
-				for( int r = 0; r < chs; r++ )
+				double[] xs = data[ 1 ];
+				double[] ys = data[ 2 ];
+				
+				for( int r = 0; r < xs.length; r++ )
 				{
-					double[] values = data[ r ];
-					
+										
 					/*
 					double x = this.width * ( values[ 1 ] / this.oppResolution.width ) - this.pointSize / 2;
 					double y = this.height * ( values[ 2 ]  / this.oppResolution.height ) - this.pointSize / 2;
 					*/
 					
-					double x = this.width * values[ 1 ]  - this.pointSize / 2;
-					double y = this.height * values[ 2 ]  - this.pointSize / 2;
+					double x = this.width * xs[ r ]  - this.pointSize / 2;
+					double y = this.height * ys[ r ]  - this.pointSize / 2;
 				
 					this.currentSample.add( new Point2D.Double( x, y ) );															
 				}

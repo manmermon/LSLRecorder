@@ -90,7 +90,7 @@ public class OpenposePlotter extends LSLRecPluginDataProcessing
 	@Override
 	public int getBufferLength() 
 	{
-		return this.bodyPoints * 4;
+		return this.bodyPoints;
 	}
 
 	@Override
@@ -141,7 +141,7 @@ public class OpenposePlotter extends LSLRecPluginDataProcessing
 		
 		synchronized( this.lock )
 		{
-			this.drawPanel = new OpenposePlotterPanel(); //( new Dimension( this.xRes, this.yRes ) );
+			this.drawPanel = new OpenposePlotterPanel( this.bodyPoints ); //( new Dimension( this.xRes, this.yRes ) );
 			if( this.window != null )
 			{
 				this.window.getContentPane().add( this.drawPanel, BorderLayout.CENTER );

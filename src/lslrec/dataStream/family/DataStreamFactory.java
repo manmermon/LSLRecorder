@@ -62,7 +62,7 @@ public class DataStreamFactory
 		{
 			case LSL:
 			{		
-				sst = LSL.resolve_streams();
+				sst = LSL.resolve_streams( );
 				
 				break;
 			}
