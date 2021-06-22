@@ -44,6 +44,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
@@ -113,6 +114,7 @@ public class CreatorDefaultSettingPanel
 			boolean isList = opt.isList();
 			Type dataType = opt.getDataType();
 			int sel = opt.getSelectedValue();
+			NumberRange nr = opt.getCorrectValueInterval();
 
 			if( options != null && options.length > 0 )
 			{
@@ -130,7 +132,30 @@ public class CreatorDefaultSettingPanel
 						case NUMBER:
 						{
 							Double v = Double.parseDouble( val );
-							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null, 1D ) );
+							
+							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null , 1D ) );
+							
+							if( nr != null )
+							{
+								SpinnerNumberModel spm = (SpinnerNumberModel)sp.getModel();
+								spm.setMinimum( new Comparable<Number>() 
+								{
+									@Override
+									public int compareTo(Number o) 
+									{
+										return (int)(nr.getMin() - o.doubleValue());
+									}
+								});
+								
+								spm.setMaximum( new Comparable<Number>() 
+								{
+									@Override
+									public int compareTo(Number o) 
+									{
+										return (int)(nr.getMax() - o.doubleValue());
+									}
+								});
+							}
 														
 							sp.addChangeListener( new ChangeListener()
 							{								
@@ -141,15 +166,23 @@ public class CreatorDefaultSettingPanel
 
 									try
 									{
-										Object val = convertValue( sp.getValue(), par.getValue() );
+										Object newValue = sp.getValue(); 
+										Object val = convertValue( newValue, par.getValue() );
 										
-										saveValue( par, val );
+										if( val.equals( newValue ) )
+										{										
+											saveValue( par, val );
+										}
+										else
+										{
+											sp.setValue( val );
+										}
 									} 
 									catch ( Exception e1)
 									{
 										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 										
-										ExceptionDialog.showMessageDialog( m, true, true );
+										ExceptionDialog.showMessageDialog( m, true, true );										
 									}
 								}
 							});

@@ -43,7 +43,7 @@ public class ClisEncoder implements Encoder
 	{
 		List< SettingOptions > opts = new ArrayList< SettingOptions >();
 		
-		SettingOptions zips = new SettingOptions( OutputFileFormatParameters.ZIP_ID, Type.STRING, true, ConfigApp.OUTPUT_COMPRESSOR );
+		SettingOptions zips = new SettingOptions( OutputFileFormatParameters.ZIP_ID, Type.STRING, true, null, ConfigApp.OUTPUT_COMPRESSOR );
 		
 		String selZip = ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString().toLowerCase();
 		
@@ -62,7 +62,9 @@ public class ClisEncoder implements Encoder
 		}
 		
 		SettingOptions parall = new SettingOptions( OutputFileFormatParameters.PARALLELIZE
-													, Type.BOOLEAN, false, ConfigApp.OUTPUT_PARALLELIZE );
+													, Type.BOOLEAN, false
+													, null
+													, ConfigApp.OUTPUT_PARALLELIZE );
 		
 		parall.addValue( ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ).toString() );
 		

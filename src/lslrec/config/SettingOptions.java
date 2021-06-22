@@ -23,6 +23,8 @@ package lslrec.config;
 import java.util.ArrayList;
 import java.util.List;
 
+import lslrec.auxiliar.extra.NumberRange;
+
 
 public class SettingOptions
 {	
@@ -39,6 +41,7 @@ public class SettingOptions
 	private String refPar = null;
 	
 	private int selectedOpt =  -1;
+	private NumberRange correctRangeValues = null;
 	
 	/**
 	 * 
@@ -47,7 +50,7 @@ public class SettingOptions
 	 * @param isList
 	 * @param idRefParameter
 	 */
-	public SettingOptions( String id, Type dataType, boolean isList, String idRefParameter  ) 
+	public SettingOptions( String id, Type dataType, boolean isList, NumberRange range, String idRefParameter  ) 
 	{
 		if( id == null || id.isEmpty() )
 		{
@@ -67,6 +70,8 @@ public class SettingOptions
 		this.listType = isList;
 				
 		this.refPar = idRefParameter;
+		
+		this.correctRangeValues = range;
 	}
 		
 	/**
@@ -181,5 +186,10 @@ public class SettingOptions
 	public Type getDataType()
 	{
 		return this.type;
+	}
+	
+	public NumberRange getCorrectValueInterval()
+	{
+		return this.correctRangeValues;
 	}
 }

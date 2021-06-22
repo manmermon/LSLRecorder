@@ -25,6 +25,7 @@ package lslrec.dataStream.family;
 import java.util.ArrayList;
 import java.util.List;
 
+import lslrec.config.ConfigApp;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
@@ -62,7 +63,14 @@ public class DataStreamFactory
 		{
 			case LSL:
 			{		
-				sst = LSL.resolve_streams( );
+				if( timeout <= 0 )
+				{
+					sst = LSL.resolve_streams( );
+				}
+				else
+				{
+					sst = LSL.resolve_streams( timeout );
+				}
 				
 				break;
 			}
@@ -85,9 +93,16 @@ public class DataStreamFactory
 	{
 		List< IStreamSetting > sslist = new ArrayList<IStreamSetting>();
 		
+		Integer t = (Integer)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME );
+		double searchingTime = -1;
+		if( t != null )
+		{
+			searchingTime = t / 1000D;
+		}
+		
 		for( StreamLibrary lib : StreamLibrary.values() )
 		{
-			IStreamSetting[] sst = createStreamSettings( lib, TIME_FOREVER );
+			IStreamSetting[] sst = createStreamSettings( lib, searchingTime );
 			
 			if( sst != null )
 			{

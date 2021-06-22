@@ -65,6 +65,7 @@ public class Language
 	public static final String MENU_EXIT = "MENU_EXIT";
 	public static final String MENU_WRITE_TEST = "MENU_WRITE_TEST";
 	public static final String MENU_LIBRARY = "MENU_LIBRARY";
+	public static final String MENU_ADVANCED = "MENU_ADVANCED";
 	
 	public static final String LOAD_TEXT = "LOAD_TEXT";
 	
@@ -95,6 +96,8 @@ public class Language
 	public static final String SETTING_LSL_CHUNCK_TOOLTIP = "SETTING_LSL_CHUNCK_TOOLTIP";
 	public static final String SETTING_LSL_INTERLEAVED_TOOLTIP = "SETTING_LSL_INTERLEAVED_TOOLTIP";
 	public static final String SETTING_LSL_NAME_TOOLTIP = "SETTING_LSL_NAME_TOOLTIP";
+	
+	public static final String SETTING_LSL_SEARCHING_TIME = "SETTING_LSL_SEARCHING_TIME";
 
 	public static final String LSL_PLOT_FILTERS = "LSL_PLOT_FILTERS";
 	public static final String LSL_PLOT_FILTER_LEGEND = "LSL_PLOT_FILTER_LEGEND";
@@ -137,6 +140,7 @@ public class Language
 	public static final String MSG_SELECTED_LSL_SYNC_STREAM_ERROR = "MSG_SELECTED_LSL_SYNC_STREAM_ERROR"; 
 	public static final String MSG_LSL_PLOT_ERROR = "SETTING_LSL_PLOT_ERROR";
 	public static final String MSG_WARNING_DATA_PROCESSING = "MSG_WARNING_DATA_PROCESSING";
+	public static final String MSG_ILLEGAL_VALUE= "MSG_ILLEGAL_VALUE";
 
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -214,6 +218,10 @@ public class Language
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
+		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
+		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (ms)" ) );
+		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );
+		
 		captions.put(DEL_BINARY_FILES, new Caption(DEL_BINARY_FILES, defaultLanguage, "Delete binary files"));
 		captions.put( FULLSCREEN, new Caption(FULLSCREEN, defaultLanguage, "fullscreen"));
 		captions.put( WIN_SIZE_TEXT, new Caption(WIN_SIZE_TEXT, defaultLanguage, "Window size"));
@@ -221,7 +229,7 @@ public class Language
 		captions.put( HEIGHT_TEXT, new Caption(HEIGHT_TEXT, defaultLanguage, "Height"));
 		captions.put( WINDOW_TEXT, new Caption(WINDOW_TEXT, defaultLanguage, "Window"));
 		
-		captions.put( MENU_LIBRARY, new Caption( MENU_LIBRARY,  defaultLanguage, "Library" ) );
+		captions.put( MENU_LIBRARY, new Caption( MENU_LIBRARY,  defaultLanguage, "Library" ) );		
 		
 		captions.put( MSG_WARNING_DATA_PROCESSING
 						, new Caption( MSG_WARNING_DATA_PROCESSING, defaultLanguage

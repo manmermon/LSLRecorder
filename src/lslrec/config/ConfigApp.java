@@ -28,6 +28,7 @@ import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
@@ -78,7 +79,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 5 - 1, 13 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 6 - 1, 22 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -159,6 +160,7 @@ public class ConfigApp
 	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
 	
 	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
+	public static final String STREAM_SEARCHING_TIME = "STREAM_SEARCHING_TIME";
 
 	/****
 	 * 
@@ -240,6 +242,8 @@ public class ConfigApp
 		list_Key_Type.put( TRIAL_WINDOW_WIDTH, Integer.class );
 		list_Key_Type.put( TRIAL_WINDOW_HEIGHT, Integer.class );
 		
+		list_Key_Type.put( STREAM_SEARCHING_TIME, Integer.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
@@ -249,6 +253,8 @@ public class ConfigApp
 		
 		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
+		
+		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1000,  IDataStream.TIME_FOREVER  ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
@@ -504,7 +510,17 @@ public class ConfigApp
 
 		if ( value.getClass().equals( listConfig.get( propertyID ).getClass() ) )
 		{
-			listConfig.put(propertyID, value);
+			ok = !list_Key_RankValues.containsKey( propertyID );
+			if( !ok )
+			{
+				NumberRange nr = list_Key_RankValues.get( propertyID );
+				ok = nr.within( (Number)value );
+			}
+			
+			if( ok )
+			{
+				listConfig.put(propertyID, value);
+			}
 		}
 		else
 		{
@@ -1342,6 +1358,12 @@ public class ConfigApp
 				loadDefaultTrialWindowHeigh();
 				break;
 			}			
+			case STREAM_SEARCHING_TIME:
+			{
+				loadDefaultStreamSearchingTime();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1381,6 +1403,8 @@ public class ConfigApp
 		loadDefaultTrialFullScreen();		
 		loadDefaultTrialWindowWidth();
 		loadDefaultTrialWindowHeigh();
+		
+		loadDefaultStreamSearchingTime();
 		
 		//loadDefaultStreamLibrary();
 	}
@@ -1528,6 +1552,10 @@ public class ConfigApp
 		listConfig.put( TRIAL_WINDOW_HEIGHT, 500 );
 	}
 	
+	private static void loadDefaultStreamSearchingTime()
+	{				
+		listConfig.put( STREAM_SEARCHING_TIME, 1000 );
+	}
 	
 	/*
 	private static void loadDefaultStreamLibrary()
