@@ -20,9 +20,11 @@
 package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,11 +33,14 @@ import java.awt.event.MouseWheelListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -77,7 +82,7 @@ public class CreatorDefaultSettingPanel
 				gbc.gridy =  c / cols;
 				gbc.weightx = 0.5;
 				gbc.anchor = GridBagConstraints.EAST;
-				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.fill = GridBagConstraints.BOTH;
 				gbc.insets = new Insets( 0, 0, 0, 0 );
 				
 				Parameter par = parameters.getParameter( opt.getIDReferenceParameter() );
@@ -85,13 +90,22 @@ public class CreatorDefaultSettingPanel
 				Component comp = getSettingPanel( opt, par );
 				
 				if( comp != null )
-				{
-					
-					JPanel p = new JPanel( new BorderLayout( 0, 0) );										
-					p.add( comp, BorderLayout.CENTER );					
+				{					
+					JPanel p = new JPanel( );
+					GridLayout bl = new GridLayout( 0, 1);
+					p.setLayout( bl );
+					//p.setAlignmentX( Component.CENTER_ALIGNMENT );
 					
 					String title = par.getDescriptorText();
-					p.setBorder( BorderFactory.createTitledBorder( title ) );
+					
+					if( !( comp instanceof JToggleButton ) )
+					{
+						p.add( new JLabel( " " + title ) );
+					}
+					
+					p.add( comp );
+					p.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) 
+										, BorderFactory.createLineBorder( Color.GRAY ) ) );
 
 					panel.add( p, gbc );
 				}
@@ -247,7 +261,7 @@ public class CreatorDefaultSettingPanel
 								}
 							});
 							
-							c = ch;
+							c = ch;							
 							
 							break;
 						}

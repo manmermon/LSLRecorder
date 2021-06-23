@@ -834,13 +834,12 @@ public class AppUI extends JFrame
 				public void actionPerformed(ActionEvent arg0) 
 				{
 					JDialog dial = new JDialog( ui );
-					dial.setLocationRelativeTo( ui );
-
+					
 					dial.setModal( true );
 					dial.setLayout( new BorderLayout() );
 					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 
-					dial.setTitle( ConfigApp.shortNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
+					dial.setTitle( ConfigApp.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
 
 					JPanel main = new JPanel( new BorderLayout() );
 					
@@ -850,15 +849,15 @@ public class AppUI extends JFrame
 															, false
 															, null
 															, ConfigApp.DEL_BINARY_FILES );
-					opt.addValue( "false ");
+					opt.addValue( ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ).toString() );
 					opts.add( opt );	
 					
 					opt = new SettingOptions( ConfigApp.STREAM_SEARCHING_TIME
 												, SettingOptions.Type.NUMBER
 												, false
-												, new NumberRange( 1000, IDataStream.TIME_FOREVER )
+												, new NumberRange( 1, IDataStream.TIME_FOREVER )
 												, ConfigApp.STREAM_SEARCHING_TIME );
-					opt.addValue( "1000" );
+					opt.addValue( ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ).toString() );
 					opts.add( opt );
 					
 					ParameterList pars = new ParameterList();
@@ -882,7 +881,7 @@ public class AppUI extends JFrame
 					
 					pars.addParameter( par );
 					
-					par =  new Parameter< Integer >( ConfigApp.STREAM_SEARCHING_TIME, (Integer)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
+					par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
 					par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
 					
 					par.addValueChangeListener( new ChangeListener() 
@@ -936,6 +935,9 @@ public class AppUI extends JFrame
 																KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
 																JComponent.WHEN_IN_FOCUSED_WINDOW );
 					
+					dial.setLocationRelativeTo( ui );
+					dial.setResizable( false );
+					dial.setIconImage( ui.getIconImage() );
 					dial.setVisible( true );
 				}
 			});

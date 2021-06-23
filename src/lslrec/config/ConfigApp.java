@@ -79,7 +79,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 6 - 1, 22 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 6 - 1, 23 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -242,7 +242,7 @@ public class ConfigApp
 		list_Key_Type.put( TRIAL_WINDOW_WIDTH, Integer.class );
 		list_Key_Type.put( TRIAL_WINDOW_HEIGHT, Integer.class );
 		
-		list_Key_Type.put( STREAM_SEARCHING_TIME, Integer.class );
+		list_Key_Type.put( STREAM_SEARCHING_TIME, Double.class );
 		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
@@ -254,7 +254,7 @@ public class ConfigApp
 		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
 		
-		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1000,  IDataStream.TIME_FOREVER  ) );
+		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1,  IDataStream.TIME_FOREVER  ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
@@ -1554,7 +1554,7 @@ public class ConfigApp
 	
 	private static void loadDefaultStreamSearchingTime()
 	{				
-		listConfig.put( STREAM_SEARCHING_TIME, 1000 );
+		listConfig.put( STREAM_SEARCHING_TIME, 1D );
 	}
 	
 	/*

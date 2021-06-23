@@ -219,7 +219,7 @@ public class Language
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
-		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (ms)" ) );
+		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (s)" ) );
 		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );
 		
 		captions.put(DEL_BINARY_FILES, new Caption(DEL_BINARY_FILES, defaultLanguage, "Delete binary files"));
