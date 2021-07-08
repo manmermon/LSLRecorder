@@ -333,6 +333,7 @@ public class Panel_StreamingSettings extends JPanel
 		}
 		catch( Exception e )
 		{			
+			e.printStackTrace();
 		}		
 	}
 
@@ -1913,7 +1914,8 @@ public class Panel_StreamingSettings extends JPanel
 								
 				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 				DocumentBuilder db = dbf.newDocumentBuilder();
-				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes() );
+				
+				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes( "UTF-8" ) );
 				Document doc = db.parse( bis );
 				Node root = (Node)doc.getDocumentElement();
 				tree = this.builtTreeNode( root );				

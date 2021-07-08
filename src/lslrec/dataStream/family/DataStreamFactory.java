@@ -93,7 +93,7 @@ public class DataStreamFactory
 	{
 		List< IStreamSetting > sslist = new ArrayList<IStreamSetting>();
 		
-		Integer t = (Integer)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME );
+		Double t = (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME );
 		double searchingTime = -1;
 		if( t != null )
 		{
