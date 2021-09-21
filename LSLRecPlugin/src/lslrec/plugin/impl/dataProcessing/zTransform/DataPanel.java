@@ -1,8 +1,9 @@
 /**
  * 
  */
-package lslrec.plugin.impl.dataProcessing.painter;
+package lslrec.plugin.impl.dataProcessing.zTransform;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -30,6 +31,7 @@ public class DataPanel extends JPanel
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = 9101899790779650335L;
 	private BufferedImage bufferedImage;
 	private Graphics2D graphic = null;
 	
