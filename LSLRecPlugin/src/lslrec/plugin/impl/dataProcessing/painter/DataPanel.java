@@ -216,8 +216,9 @@ public class DataPanel extends JPanel
 						update = values.length;
 					}
 					
+					refY[ 0 ] = refY[ 1 ];
 					refY[ 1 ] = values[ to - 1 ];
-					refY[ 0 ] = Double.NaN;
+					//refY[ 0 ] = Double.NaN;
 					if( to -2 >= 0 )
 					{
 						refY[ 0 ] = values[ to - 2 ];

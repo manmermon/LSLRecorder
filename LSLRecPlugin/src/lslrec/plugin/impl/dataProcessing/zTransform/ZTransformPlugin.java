@@ -31,7 +31,7 @@ public class ZTransformPlugin implements ILSLRecPluginDataProcessing
 	@Override
 	public JPanel getSettingPanel() 
 	{
-		return null;
+		return new JPanel();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class ZTransformPlugin implements ILSLRecPluginDataProcessing
 	@Override
 	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1 )
 	{
-		return new LTSSystem( arg0, arg1 );
+		return new Filter( arg0, arg1 );
 	}
 	
 }

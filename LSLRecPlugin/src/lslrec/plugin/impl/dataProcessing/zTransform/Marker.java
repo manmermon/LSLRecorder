@@ -49,6 +49,31 @@ public class Marker
 	}
 	
 	@Override
+	public boolean equals( Object in ) 
+	{
+		boolean eq = ( in instanceof Marker );
+		
+		if( eq )
+		{
+			Marker o = (Marker)in;
+			eq = o.getType() == this.type;
+			
+			if( eq )
+			{
+				Tuple< Double, Double > vo = o.getValue();
+				
+				eq = vo.t1.doubleValue() == this.c.t1.doubleValue();
+				if( eq )
+				{
+					eq = vo.t2.doubleValue() == this.c.t2.doubleValue();
+				}
+			}
+		}
+		
+		return eq;
+	}
+	
+	@Override
 	public String toString() 
 	{
 		return "<"+this.type.name() + "=(" + c.t1 + ", " + c.t2 + ")>";

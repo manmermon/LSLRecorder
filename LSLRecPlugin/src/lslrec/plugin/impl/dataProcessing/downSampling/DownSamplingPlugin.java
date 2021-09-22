@@ -138,7 +138,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 						p.setLangID( id );
 						pars.addParameter( p );
 												
-						SettingOptions opt = new SettingOptions( id, SettingOptions.Type.NUMBER, false, id );
+						SettingOptions opt = new SettingOptions( id, SettingOptions.Type.NUMBER, false, null, id );
 						opt.addValue( dec + "" );
 						opts.add( opt );
 						

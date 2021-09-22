@@ -3,24 +3,19 @@
  */
 package lslrec.plugin.impl.dataProcessing.zTransform;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.event.EventListenerList;
 
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
@@ -32,6 +27,11 @@ import lslrec.plugin.impl.gui.BasicPainter2D;
  */
 public class ZPlanePane extends JPanel
 {	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -4845495955082963578L;
+
 	private int xc = 0, yc = 0;
 	
 	private int unitCircleRadius = 1;
@@ -41,10 +41,15 @@ public class ZPlanePane extends JPanel
 	private Point mouseLoc = null;
 	private int markerSize = 13;
 	
-	private List< Point > markers = new ArrayList< Point >(); 
+	//private List< Point > markers = new ArrayList< Point >(); 
 	private List< Marker > zeros_poles = new ArrayList< Marker >();
 	
-	private Marker.Type markerType = Marker.Type.ZERO;
+	private Marker.Type markerType = Marker.Type.POLE;
+	//private Marker.Type markerType = Marker.Type.ZERO;
+	
+	private double samplingRate = 1;
+	
+	private EventListenerList listenerList;
 	
 	/**
 	 * 
@@ -53,11 +58,23 @@ public class ZPlanePane extends JPanel
 	{
 		super();
 		
+		this.listenerList = new EventListenerList();
+		
 		super.setDoubleBuffered( true );
 		
 		super.setBackground( Color.WHITE );
 				
 		this.mouseListener();
+	}
+	
+	public void setSamplingRate( double frq )
+	{
+		this.samplingRate = frq;
+	}
+	
+	public void setMarkerType( Marker.Type t )
+	{
+		this.markerType = t;
 	}
 	
 	public List< Marker > getZerosPoles()
@@ -83,14 +100,22 @@ public class ZPlanePane extends JPanel
 		super.addMouseListener( new MouseAdapter() 
 		{
 			@Override
+			public void mouseExited(MouseEvent e) 
+			{
+				mouseLoc = null;
+				
+				repaint();
+			}
+		
+			@Override
 			public void mouseReleased( MouseEvent e ) 
 			{
 				Point mloc = e.getPoint();
-				markers.add( mloc );
+				//markers.add( mloc );
 				
 				int[] locs = getMarkerLocation( mloc, unitCircleRadius, zpp.getSize() );
 				
-				Point m1 = new Point( locs[ 0 ] + markerSize / 2, locs[ 1 ] + markerSize / 2 );
+				Point m1 = new Point( locs[ 0 ], locs[ 1 ] );
 				//Point m2 = new Point( locs[ 0 ] + markerSize / 2, locs[ 2 ] + markerSize / 2 );
 				
 				Tuple< Double, Double > msc1 = getScaleMarkerValue( m1, unitCircleRadius );
@@ -103,9 +128,63 @@ public class ZPlanePane extends JPanel
 					zeros_poles.add( new Marker( msc2.t1, msc2.t2, markerType ) );
 				}
 				
-				System.out.println("zPlanePane.mouseListener().new MouseAdapter() {...}.mouseReleased() " + zeros_poles );
+				fireZeroPoleEvent( ZeroPoleEvent.NEW );
 			}
 		});
+	}
+	
+	public synchronized void addZeroPoleEventListener( ZeroPoleEventListener listener ) 
+	{
+		this.listenerList.add( ZeroPoleEventListener.class, listener );
+	}
+	
+	public synchronized void removeSceneEventListener( ZeroPoleEventListener listener ) 
+	{
+		this.listenerList.remove( ZeroPoleEventListener.class, listener );		
+	}
+	
+	/**
+	 * 
+	 * @param typeEvent
+	 */
+	protected synchronized void fireZeroPoleEvent( int typeEvent )
+	{
+		ZeroPoleEvent event = new ZeroPoleEvent( this, typeEvent );
+
+		ZeroPoleEventListener[] listeners = this.listenerList.getListeners( ZeroPoleEventListener.class );
+
+		for (int i = 0; i < listeners.length; i++ ) 
+		{
+			listeners[ i ].ZeroPoleEvent( event );
+		}
+	}
+	
+	public void removeZeroPole( Marker m )
+	{
+		if( zeros_poles.remove( m ) )
+		{
+			super.repaint();
+			
+			this.fireZeroPoleEvent( ZeroPoleEvent.REMOVE );
+		}
+	}
+	
+	public void removeZeroPole( List< Marker > L )
+	{
+		if( L != null )
+		{
+			if( zeros_poles.removeAll( L ) )
+			{
+				super.repaint();
+				
+				this.fireZeroPoleEvent( ZeroPoleEvent.REMOVE );
+			}
+		}
+	}
+	
+	public void clearZeroPole()
+	{
+		this.removeZeroPole( this.zeros_poles );
 	}
 	
 	@Override
@@ -137,6 +216,9 @@ public class ZPlanePane extends JPanel
 		BasicPainter2D.line( 0, yc, dim.width, yc, 1, Color.BLACK, zPlane );
 		BasicPainter2D.circumference( x, y, rCirc, this.thr, Color.RED, zPlane );
 		
+		int wSize = this.markerSize;
+		int hSize = this.markerSize;
+		
 		if( this.mouseLoc != null )
 		{
 			int[] markerLoc = this.getMarkerLocation( mouseLoc, rCirc, dim );
@@ -144,10 +226,73 @@ public class ZPlanePane extends JPanel
 			int my = markerLoc[ 1 ];
 			int myc = markerLoc[ 2 ];
 			
+			if( this.markerType == Marker.Type.ZERO )
+			{
+				mx -= wSize / 2;
+				my -= hSize / 2;
+				myc -= hSize / 2;
+				
+				BasicPainter2D.circumference( mx, my, wSize, 1, Color.BLUE, zPlane );
+				BasicPainter2D.circumference( mx, myc, wSize, 1, Color.BLUE, zPlane );
+			}
+			else
+			{						
+				
+				Image imgAng = BasicPainter2D.text( "X", super.getFontMetrics( super.getFont() ), Color.BLUE, Color.BLUE, null );
+				wSize = imgAng.getWidth( null );				
+				hSize = imgAng.getHeight( null );
+				
+ 				BasicPainter2D.composeImage( zPlane, mx - wSize / 2, my - hSize / 2, imgAng );
+				BasicPainter2D.composeImage( zPlane, mx - wSize / 2, myc - hSize / 2, imgAng );
+			}
 			
-			BasicPainter2D.circumference( mx, my, this.markerSize, 1, Color.BLUE, zPlane );
-			BasicPainter2D.circumference( mx, myc, this.markerSize, 1, Color.BLUE, zPlane );
+			BasicPainter2D.line( xc, yc
+								, mouseLoc.x, mouseLoc.y
+								, this.thr, Color.BLACK, zPlane );
+			BasicPainter2D.line( xc, yc
+								, mouseLoc.x, dim.height - mouseLoc.y
+								, this.thr, Color.BLACK, zPlane );
+		
+			double radian = Math.abs( Math.atan2( my - yc, mx - xc) );
+			double ang = Math.toDegrees( radian );
 			
+			double m = 2 * Math.sqrt( ( mx - xc ) * ( mx - xc ) + ( my - yc )* ( my - yc ) ) / rCirc;
+			
+			int d = (int)( rCirc * m / 2 );
+			if( d > rCirc / 2 )
+			{
+				d = rCirc / 2;
+			}
+			
+			BasicPainter2D.arc( xc - d / 2, yc - d / 2
+								, d, d
+								, 0, (int)ang, 1F, Color.BLACK, null, zPlane );
+		
+			String tNorm = String.format( "%.3f", radian / ( 2 * Math.PI )  );
+			String tRad = String.format( "%.3f", radian  );
+			String tF = String.format( "%.3f",  this.samplingRate * radian / ( 2 * Math.PI )  );
+			
+			Image imgAngRad = BasicPainter2D.text( "R: " + tRad,  super.getFontMetrics( super.getFont() )
+											, Color.BLACK, Color.BLACK, null );
+			Image imgAngNorm = BasicPainter2D.text( "N: " + tNorm,  super.getFontMetrics( super.getFont() )
+													, Color.BLACK, Color.BLACK, null );
+			Image imgAngF = BasicPainter2D.text( "F: " + tF,  super.getFontMetrics( super.getFont() )
+												, Color.BLACK, Color.BLACK, null );
+			
+			int shift = Math.max( imgAngF.getWidth( null ), Math.max( imgAngRad.getWidth( null ), imgAngNorm.getWidth( null ) ) );
+			
+			int tx = xc - shift - 2;
+			int ty = yc + 2;
+			 
+			if( mouseLoc.x < xc )
+			{
+				tx = xc + 2;
+			}
+							 
+			
+			BasicPainter2D.composeImage( zPlane, tx, ty, imgAngRad );
+			BasicPainter2D.composeImage( zPlane, tx, ty + imgAngRad.getHeight( null ) + 2, imgAngNorm );
+			BasicPainter2D.composeImage( zPlane, tx, ty + imgAngRad.getHeight( null ) + imgAngNorm.getHeight( null ) + 4, imgAngF );
 			
 			/*
 			mouseLoc.x -= xc;
@@ -159,16 +304,28 @@ public class ZPlanePane extends JPanel
 			
 		}
 		
-		for( Point mark : this.markers )
+		for( Marker mark : this.zeros_poles )
 		{
-			int[] markerLoc = this.getMarkerLocation( mark, rCirc, dim );
-			int mx = markerLoc[ 0 ];
-			int my = markerLoc[ 1 ];
-			int myc = markerLoc[ 2 ];
+			Tuple< Double, Double > val = mark.getValue();
 			
+			int mx = this.xc + (int)( val.t1 * rCirc / 2 ) - wSize / 2;
+			int my = this.yc + (int)( val.t2 * rCirc / 2 ) - hSize / 2;
 			
-			BasicPainter2D.circumference( mx, my, markerSize, 1, Color.BLUE, zPlane );
-			BasicPainter2D.circumference( mx, myc, markerSize, 1, Color.BLUE, zPlane );
+			if( mark.getType() == Marker.Type.ZERO )
+			{
+				BasicPainter2D.circumference( mx, my, this.markerSize, 1, Color.BLUE, zPlane );
+			}
+			else
+			{				
+				mx += wSize/2;
+				my += hSize/2;
+				
+				Image imgAng = BasicPainter2D.text( "X", super.getFontMetrics( super.getFont() ), Color.BLUE, Color.BLUE, null );
+				wSize = imgAng.getWidth( null );
+				hSize = imgAng.getHeight( null );
+				
+				BasicPainter2D.composeImage( zPlane, mx - wSize / 2, my - hSize / 2, imgAng );
+			}
 		}
 		
 		this.unitCircleRadius = rCirc; 
@@ -178,9 +335,9 @@ public class ZPlanePane extends JPanel
 	
 	private int[] getMarkerLocation( Point markerLoc, int rCirc, Dimension dim )
 	{
-		int mx = markerLoc.x - markerSize / 2;
-		int my = markerLoc.y - markerSize / 2;
-		int myc = dim.height - markerLoc.y - markerSize / 2;
+		int mx = markerLoc.x;
+		int my = markerLoc.y;
+		int myc = dim.height - markerLoc.y;
 				
 		NumberRange r = new NumberRange( ( rCirc - this.thr*10 ) / rCirc, ( rCirc + this.thr*10 ) / rCirc );
 						
@@ -198,9 +355,9 @@ public class ZPlanePane extends JPanel
 			double iy = rCirc * Math.cos( ang ) /2;
 			double ix = rCirc * Math.sin( ang ) /2;
 			
-			mx = xc + (int)ix - markerSize / 2;
-			my = yc - (int)iy - markerSize / 2;
-			myc = yc + (int)iy - markerSize / 2;
+			mx = xc + (int)ix;
+			my = yc - (int)iy;
+			myc = yc + (int)iy;
 		}
 		
 		return new int[] { mx, my, myc };

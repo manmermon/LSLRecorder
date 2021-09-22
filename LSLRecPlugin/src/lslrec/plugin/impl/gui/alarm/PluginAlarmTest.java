@@ -85,7 +85,7 @@ public class PluginAlarmTest  implements ILSLRecPluginTrial
 		List< SettingOptions > opts = new ArrayList< SettingOptions >();
 		for( String id : this.pars.getParameterIDs() )
 		{
-			SettingOptions st = new SettingOptions( id, SettingOptions.Type.NUMBER, false, id );
+			SettingOptions st = new SettingOptions( id, SettingOptions.Type.NUMBER, false, null, id );
 			st.addValue( this.pars.getParameter( id ).getValue().toString() );
 			
 			opts.add( st );

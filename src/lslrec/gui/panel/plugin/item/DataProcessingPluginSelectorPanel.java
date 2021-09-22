@@ -1127,6 +1127,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 		catch (Exception | Error e) 
 		{
+			e.printStackTrace();
 			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )

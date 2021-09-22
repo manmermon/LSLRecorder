@@ -48,6 +48,7 @@ public class SettingOptions
 	 * @param id
 	 * @param t
 	 * @param isList
+	 * @param NumberRange range
 	 * @param idRefParameter
 	 */
 	public SettingOptions( String id, Type dataType, boolean isList, NumberRange range, String idRefParameter  ) 

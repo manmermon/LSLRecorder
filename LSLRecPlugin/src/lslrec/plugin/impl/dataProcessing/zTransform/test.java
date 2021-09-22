@@ -6,6 +6,11 @@ package lslrec.plugin.impl.dataProcessing.zTransform;
 import java.util.ArrayList;
 import java.util.List;
 
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
+import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.plugin.impl.dataProcessing.zTransform.Marker.Type;
 
 
@@ -20,7 +25,8 @@ public class test {
 	 */
 	public static void main(String[] args) 
 	{
-		Filter f = new Filter();
+		Filter f = new Filter( new SimpleStreamSetting( StreamLibrary.LSLREC, "test", StreamDataType.double64
+														,1 , 1, IStreamSetting.IRREGULAR_RATE, "test1", "test2" ),null);
 		Marker m1 = new Marker( 1, 0 );
 		Marker m2 = new Marker( Math.cos( Math.PI / 4 ), Math.sin( Math.PI / 4 ) );
 		Marker m2c = new Marker( Math.cos( Math.PI / 4 ), -Math.sin( Math.PI / 4 ) );
@@ -41,14 +47,12 @@ public class test {
 		List< Number > out = new ArrayList<Number>();
 		for( double x : xs )
 		{
-			Number[] res = f.process( new Number[] { x } );
+			Number[] res = f.processData( new Number[] { x } );
 			for( Number r : res )
 			{
 				out.add( r );
 			}
-		}
-		
-		System.out.println("test.main() " + out);
+		}		
 	}
 
 }
