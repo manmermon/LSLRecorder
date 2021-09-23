@@ -36,7 +36,7 @@ public class FrequencyPanel extends JPanel
 	
 	private float thinkness = 1.5F;
 	private int markerSize = 5;
-	private int axisThinckness = 20;			
+	private int axisThinckness = 30;			
 	
 	private Color color = Color.BLUE;
 	
@@ -154,23 +154,40 @@ public class FrequencyPanel extends JPanel
 				Arrays.sort( in );
 				double maxY = in[ y.length -1 ];
 				double minY = in[ 0 ];
+				double[] posAux = new double[]{ minY, 0, 1, maxY };				
 				
-				if( maxY > 1 )
+				if( !showZero )
 				{
-					int[] y1Loc = ConvertDataToPixel( new double[] { minY, 1, maxY }, -height, height, limMin, limMax );
-					
-					int yl = y1Loc[ 1 ] - tx1.getHeight( null )/2;
-					yl = ( yl < 0 ) ? 0 : yl;
-					
-					BasicPainter2D.composeImage( plot, this.axisThinckness - tx1.getWidth( null ), yl, tx1 );
-					BasicPainter2D.line( this.axisThinckness, y1Loc[ 1 ], d.width, y1Loc[ 1 ], 1, Color.LIGHT_GRAY, plot );
-				}
-				else
-				{
-					Image txYMax = BasicPainter2D.text( String.format( "%.2f", maxY ), super.getFontMetrics( super.getFont()), null, Color.BLACK, null );
-					BasicPainter2D.composeImage( plot, 0, 2, txYMax );
+					posAux = new double[]{ minY, 1, maxY };
 				}
 				
+				Arrays.sort( posAux );
+				
+				
+				int[] yLocs = ConvertDataToPixel( posAux, -height, height, limMin, limMax );
+				
+				for( int _k = 0; _k < yLocs.length; _k++ )
+				{
+					int yloc = yLocs[ _k ];
+					double v = posAux[ _k ];
+					
+					yloc = ( yloc < 0 ) ? 0 : yloc;
+					
+					Image txY = BasicPainter2D.text( String.format( "%.2f", v ), super.getFontMetrics( super.getFont()), null, Color.BLACK, null );
+					
+					if( yloc + txY.getHeight( null ) > d.height - this.axisThinckness )
+					{
+						continue;
+					}
+					
+					int ylTx = yloc -txY.getHeight( null) / 2;
+					ylTx = ( ylTx < 0 ) ? 0 : ylTx; 
+					
+					BasicPainter2D.composeImage( plot, this.axisThinckness - txY.getWidth( null ), ylTx, txY );
+					BasicPainter2D.line( this.axisThinckness, yloc, d.width, yloc, 1, Color.LIGHT_GRAY, plot );					
+				}
+				
+				/*
 				if( showZero )
 				{
 					int[] y1Loc = ConvertDataToPixel( new double[] { minY, 0, maxY }, -height, height, limMin, limMax );
@@ -180,6 +197,7 @@ public class FrequencyPanel extends JPanel
 					BasicPainter2D.composeImage( plot, this.axisThinckness - tx0.getWidth( null ), yl, tx0 );
 					BasicPainter2D.line( this.axisThinckness, y1Loc[ 1 ], d.width, y1Loc[ 1 ], 1, Color.LIGHT_GRAY, plot );
 				}
+				*/
 			}			
 			
 			

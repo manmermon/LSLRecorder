@@ -75,7 +75,13 @@ public class ZPlanePluginWindow extends JFrame
 	private JButton btnClear;
 	private JLabel lblSamplingRate;
 	private JSeparator separator;
-	private JSpinner spinner;
+	private JSpinner spinnerSampling;
+	private JPanel panel_7;
+	private JPanel panel_8;
+	private JLabel lbGain;
+	private JSpinner spinnerGain;
+	private JLabel lbGainFrq;
+	private JSpinner spinnerGainFrq;
 	
 	/**
 	 * Create the frame.
@@ -152,7 +158,7 @@ public class ZPlanePluginWindow extends JFrame
 					zeros.setVisible( true );
 					poles.setVisible( true );
 										
-					drawFrequencyBehavior( zs, ps );
+					drawFrequencyBehavior( );
 				};
 			} );
 		}
@@ -236,7 +242,7 @@ public class ZPlanePluginWindow extends JFrame
 		}
 	}
 	
-	private void drawFrequencyBehavior( List< Marker > zs, List< Marker > ps )
+	private void drawFrequencyBehavior( )
 	{
 		FrequencyPanel fp = this.getFreqPanel();
 		
@@ -256,33 +262,9 @@ public class ZPlanePluginWindow extends JFrame
 			
 			Complex z = new Complex( r, i );
 			
-			Complex polyNum = new Complex( 0, 0 );
-						
-			for( int k = 0; k < b.length; k++ )
-			{
-				Complex bkR = new Complex( b[ k ], 0 );			
-				
-				for( int q = k; q > 0; q-- )
-				{
-					bkR = bkR.multiply( z );
-				}
-				
-				polyNum = polyNum.add( bkR );
-			}
+			Complex polyNum = Utils.polyval( b, z );
 			
-			Complex polyDen = new Complex( 0, 0 );
-			
-			for( int k = 0; k < a.length; k++ )
-			{
-				Complex akR = new Complex( a[ k ], 0 );			
-				
-				for( int q = k; q > 0; q-- )
-				{
-					akR = akR.multiply( z );
-				}
-				
-				polyDen = polyDen.add( akR );
-			}
+			Complex polyDen = Utils.polyval( a, z );
 						
 			ws.add( polyNum.divide( polyDen ) );
 		}
@@ -303,7 +285,8 @@ public class ZPlanePluginWindow extends JFrame
 			panel = new JPanel();
 			panel.setBorder(new TitledBorder(null, "Settings", TitledBorder.LEADING, TitledBorder.TOP, null, null));
 			panel.setLayout(new BorderLayout(0, 0));
-			panel.add(getPanel_1(), BorderLayout.NORTH);
+			panel.add(getPanel_7(), BorderLayout.NORTH);
+			
 			panel.add(getPanel_2(), BorderLayout.CENTER);
 			panel.add(getPanel_6(), BorderLayout.SOUTH);
 		}
@@ -314,7 +297,7 @@ public class ZPlanePluginWindow extends JFrame
 		if (panel_1 == null) 
 		{
 			panel_1 = new JPanel();
-			panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.X_AXIS));
+			panel_1.setLayout(new BoxLayout(panel_1, BoxLayout.LINE_AXIS));
 			panel_1.add(getRadZeros());
 			panel_1.add(getRadPoles());
 			
@@ -322,7 +305,7 @@ public class ZPlanePluginWindow extends JFrame
 			getButtonGroup().add( getRadPoles() );			
 			panel_1.add(getSeparator());
 			panel_1.add(getLblSamplingRate());
-			panel_1.add(getSpinner());
+			panel_1.add(getSpinnerSampling());
 		}
 		return panel_1;
 	}
@@ -477,13 +460,13 @@ public class ZPlanePluginWindow extends JFrame
 		}
 		return separator;
 	}
-	private JSpinner getSpinner() {
-		if (spinner == null) {
-			spinner = new JSpinner();
-			spinner.setModel(new SpinnerNumberModel(new Double(1), new Double(1e-5D), null, new Double(1)));
-			spinner.setPreferredSize( new Dimension( 50, 0 ) );
+	private JSpinner getSpinnerSampling() {
+		if (spinnerSampling == null) {
+			spinnerSampling = new JSpinner();
+			spinnerSampling.setModel(new SpinnerNumberModel(new Double(1), new Double(1e-5D), null, new Double(1)));
+			spinnerSampling.setPreferredSize( new Dimension( 50, 0 ) );
 			
-			spinner.addMouseWheelListener( new MouseWheelListener()
+			spinnerSampling.addMouseWheelListener( new MouseWheelListener()
 			{
 				@Override
 				public void mouseWheelMoved(MouseWheelEvent e) 
@@ -512,7 +495,7 @@ public class ZPlanePluginWindow extends JFrame
 				}
 			});
 			
-			spinner.addChangeListener( new ChangeListener() 
+			spinnerSampling.addChangeListener( new ChangeListener() 
 			{	
 				@Override
 				public void stateChanged(ChangeEvent e) 
@@ -524,6 +507,148 @@ public class ZPlanePluginWindow extends JFrame
 				}
 			});
 		}
-		return spinner;
+		return spinnerSampling;
+	}
+	private JPanel getPanel_7() {
+		if (panel_7 == null) {
+			panel_7 = new JPanel();
+			panel_7.setLayout(new BoxLayout(panel_7, BoxLayout.Y_AXIS));
+			panel_7.add(getPanel_1() );
+			panel_7.add(getPanel_8());
+		}
+		return panel_7;
+	}
+	private JPanel getPanel_8() {
+		if (panel_8 == null) {
+			panel_8 = new JPanel();
+			panel_8.setLayout(new BoxLayout(panel_8, BoxLayout.X_AXIS));
+			panel_8.add(getLbGain());
+			panel_8.add(getSpinnerGain());
+			panel_8.add(getLbGainFrq());
+			panel_8.add(getSpinnerGainFrq());
+		}
+		return panel_8;
+	}
+	private JLabel getLbGain() {
+		if (lbGain == null) {
+			lbGain = new JLabel(" Gain ");
+		}
+		return lbGain;
+	}
+	private JSpinner getSpinnerGain() {
+		if (spinnerGain == null) {
+			spinnerGain = new JSpinner();
+			spinnerGain.setModel(new SpinnerNumberModel(new Double(1), null, null, new Double(1)));
+			
+			spinnerGain.addMouseWheelListener( new MouseWheelListener()
+			{
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+					
+					double update = 0;
+					if( e.getWheelRotation() > 0 )
+					{
+						update = -1;
+					}
+					else if( e.getWheelRotation() < 0 )
+					{
+						update = +1;
+					}
+					
+					double v = (Double)sp.getValue() + update;
+					if( v <= 0 )
+					{
+						sp.setValue( ((SpinnerNumberModel) sp.getModel()).getMinimum() );
+					}
+					else
+					{
+						sp.setValue( v );
+					}
+				}
+			});
+			
+			spinnerGain.addChangeListener( new ChangeListener() 
+			{	
+				@Override
+				public void stateChanged(ChangeEvent e) 
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+					double G = (double)sp.getValue();
+					double fn = (double)getSpinnerGainFrq().getValue();
+					
+					if( filter != null )
+					{
+						filter.setGain( G, fn );
+					}
+
+					drawFrequencyBehavior();
+
+					getZPlanePane().repaint();
+				}
+			});
+		}
+		return spinnerGain;
+	}
+	private JLabel getLbGainFrq() {
+		if (lbGainFrq == null) {
+			lbGainFrq = new JLabel(" Norm. Freq. ");
+		}
+		return lbGainFrq;
+	}
+	private JSpinner getSpinnerGainFrq() {
+		if (spinnerGainFrq == null) {
+			spinnerGainFrq = new JSpinner();
+			spinnerGainFrq.setModel(new SpinnerNumberModel( 0.0, 0.0, 1.0, 0.01 ));
+			
+			spinnerGainFrq.addMouseWheelListener( new MouseWheelListener()
+			{
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+					
+					double update = 0;
+					if( e.getWheelRotation() > 0 )
+					{
+						update = -1;
+					}
+					else if( e.getWheelRotation() < 0 )
+					{
+						update = +1;
+					}
+					
+					double v = (Double)sp.getValue() + update;
+					if( v <= 0 )
+					{
+						sp.setValue( ((SpinnerNumberModel) sp.getModel()).getMinimum() );
+					}
+					else
+					{
+						sp.setValue( v );
+					}
+				}
+			});
+			
+			spinnerGainFrq.addChangeListener( new ChangeListener() 
+			{	
+				@Override
+				public void stateChanged(ChangeEvent e) 
+				{
+					JSpinner sp = (JSpinner)e.getSource();
+					double fn = (double)sp.getValue();
+					double G = (double)getSpinnerGain().getValue();
+					
+					if( filter != null )
+					{
+						filter.setGain( G, fn );
+					}
+					
+					drawFrequencyBehavior();
+				}
+			});
+		}
+		return spinnerGainFrq;
 	}
 }

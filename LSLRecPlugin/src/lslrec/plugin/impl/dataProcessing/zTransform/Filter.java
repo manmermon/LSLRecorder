@@ -4,7 +4,6 @@
 package lslrec.plugin.impl.dataProcessing.zTransform;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -34,6 +33,9 @@ public class Filter extends LSLRecPluginDataProcessing
 	
 	private Object lock  = new Object();
 	
+	private double Gain = 1;
+	private double fgain = 0;
+	
 	public Filter(IStreamSetting setting, LSLRecPluginDataProcessing prevProc) 
 	{
 		super( setting, prevProc );
@@ -47,7 +49,7 @@ public class Filter extends LSLRecPluginDataProcessing
 	{
 		return this.getClass().getSimpleName();
 	}
-
+	
 	@Override
 	protected void finishProcess() 
 	{	
@@ -103,6 +105,7 @@ public class Filter extends LSLRecPluginDataProcessing
 		{
 			List< Marker > zeros = new ArrayList< Marker >();
 			List< Marker > poles = new ArrayList< Marker >();
+		
 			for( Marker m : ZsPs )
 			{
 				if( m.getType() == Marker.Type.ZERO )
@@ -114,28 +117,10 @@ public class Filter extends LSLRecPluginDataProcessing
 					poles.add( m );
 				}
 			}
-						
-			Complex unit = new Complex( 1, 0 );
 			
-			Complex[] _b = new Complex[] { unit };
-			Complex[] _a = new Complex[] { unit };
-			for( Marker z : zeros )
-			{
-				Tuple< Double, Double > v = z.getValue();			
-				
-				Complex[] zero = new Complex[] { unit, new Complex( -v.t1, -v.t2 ) };
-				
-				_b = Convolution.conv1D( _b, zero );
-			}
-			
-			for( Marker p : poles )
-			{
-				Tuple< Double, Double > v = p.getValue();			
-				
-				Complex[] pole = new Complex[] { unit, new Complex( -v.t1, -v.t2 ) };
-				
-				_a = Convolution.conv1D( _a, pole );
-			}
+			Tuple< Complex[], Complex[] > ab = this.getCoefs( zeros, poles );
+			Complex[] _a = ab.t1;
+			Complex[] _b = ab.t2;
 			
 			synchronized( this.lock )
 			{
@@ -159,6 +144,8 @@ public class Filter extends LSLRecPluginDataProcessing
 				}
 				
 				this.BufferLen = this.b.length;
+				
+				this.setGain( this.Gain, this.fgain );
 			}
 		}
 		else
@@ -171,6 +158,33 @@ public class Filter extends LSLRecPluginDataProcessing
 				this.a = new double[] { 1 };
 			}
 		}
+	}
+	
+	private Tuple< Complex[] , Complex[] > getCoefs( List< Marker > zeros, List< Marker > poles )
+	{
+		Complex unit = new Complex( 1, 0 );
+		
+		Complex[] _b = new Complex[] { unit };
+		Complex[] _a = new Complex[] { unit };
+		for( Marker z : zeros )
+		{
+			Tuple< Double, Double > v = z.getValue();			
+			
+			Complex[] zero = new Complex[] { unit, new Complex( -v.t1, -v.t2 ) };
+			
+			_b = Utils.conv1D( _b, zero );
+		}
+		
+		for( Marker p : poles )
+		{
+			Tuple< Double, Double > v = p.getValue();			
+			
+			Complex[] pole = new Complex[] { unit, new Complex( -v.t1, -v.t2 ) };
+			
+			_a = Utils.conv1D( _a, pole );
+		}
+		
+		return new Tuple<Complex[], Complex[]>( _a, _b );
 	}
 	
 	private Number[] process( Number[] x )
@@ -229,5 +243,26 @@ public class Filter extends LSLRecPluginDataProcessing
 	public Tuple< double[], double[] > getFilterCoef()
 	{
 		return new Tuple<double[], double[]>( a, b );
+	}
+	
+	public void setGain( double A, double fn )
+	{
+		this.fgain = fn;
+		double w = 2 * Math.PI * fn;
+		
+		Complex z = new Complex( Math.cos( -w ), Math.sin( -w ) );
+		
+		synchronized ( this.lock )
+		{
+			Complex N = Utils.polyval( this.b, z );
+			Complex D = Utils.polyval( this.a, z );
+			
+			this.Gain = A * D.divide( N ).abs();
+			
+			for( int i = 0; i < this.b.length; i++ )
+			{
+				this.b[ i ] *= this.Gain;
+			}
+		}				
 	}
 }

@@ -9,7 +9,6 @@ import java.util.List;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.plugin.impl.dataProcessing.zTransform.Marker.Type;
 
@@ -41,7 +40,7 @@ public class test {
 		markers.add( p2 );
 		markers.add( p2c );
 		
-		f.setZeroPoles( markers );
+		//f.setZeroPoles( markers );
 		
 		double[] xs = new double[] { 1, 2, 3, 4, 5, 4, 3, 2, 1 };
 		List< Number > out = new ArrayList<Number>();

@@ -16,6 +16,7 @@
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{FrequencyPanel.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZPlanePluginWindow.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.painter"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Utils.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Marker.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZeroPoleEvent.java"/>
@@ -24,6 +25,6 @@
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZPlanePane.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZeroPoleEventListener.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZTransformPlugin.java"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Convolution.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.fftPlot"/>
     </selectedElements>
 </jardesc>

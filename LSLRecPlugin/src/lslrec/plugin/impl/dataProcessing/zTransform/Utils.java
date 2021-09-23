@@ -3,15 +3,13 @@
  */
 package lslrec.plugin.impl.dataProcessing.zTransform;
 
-import java.util.Arrays;
-
 import org.apache.commons.math3.complex.Complex;
 
 /**
  * @author Manuel Merino Monge
  *
  */
-public class Convolution 
+public class Utils 
 {
 	/**
 	 * 
@@ -130,5 +128,56 @@ public class Convolution
 		}
 		
 		return res;
+	}
+	
+	public static Complex polyval( double[] coefs, Complex z )
+	{
+		Complex polyNum = new Complex( 0, 0 );
+		
+		for( int k = 0; k < coefs.length; k++ )
+		{
+			Complex bkR = new Complex( coefs[ k ], 0 );			
+			
+			for( int q = k; q > 0; q-- )
+			{
+				bkR = bkR.multiply( z );
+			}
+			
+			polyNum = polyNum.add( bkR );
+		}
+		
+		return polyNum;
+	}
+
+
+	public static Complex[] dft( double[] in ) 
+	{
+		Complex[] out = new Complex[ 0 ];
+		
+		if( in != null )
+		{
+			int N = in.length;
+			
+			out = new Complex[ N ];
+			
+			for (int k = 0; k < N; k++ )
+			{
+				Complex acum = new Complex( 0, 0 );
+				double angle_0 = 2 * Math.PI * k / N;
+				
+				for (int n = 0; n < N; n++) 
+				{  
+					// For each input element
+					double angle = angle_0 * n;
+					Complex w = new Complex( Math.cos( angle ), Math.sin( angle ) );
+					
+					acum.add( new Complex( in[ n ], 0 ).multiply( w ) );
+				}
+				
+				out[ k ] = acum;
+			}
+		}
+		
+		return out;
 	}
 }

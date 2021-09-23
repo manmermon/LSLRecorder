@@ -19,6 +19,7 @@
  */
 package lslrec.plugin.impl.test;
 
+import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotter;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
@@ -39,11 +40,12 @@ public class PlugingTesting
 			
 		//PluginMemoryTest plg = new PluginMemoryTest();
 		//PluginArithmeticTest plg = new PluginArithmeticTest();
-		DataDisplayPlugin plg = new DataDisplayPlugin();
+		//DataDisplayPlugin plg = new DataDisplayPlugin();
 		//FIRFilterPlugin plg = new FIRFilterPlugin();
 		//PluginAlarmTest plg = new PluginAlarmTest();
 		//OpenposePlotterPlugin plg = new OpenposePlotterPlugin();
 		//ZTransformPlugin plg = new ZTransformPlugin();
+		FFTPlugin plg = new FFTPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		

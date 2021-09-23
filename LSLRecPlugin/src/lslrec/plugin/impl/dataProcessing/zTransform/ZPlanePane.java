@@ -41,11 +41,9 @@ public class ZPlanePane extends JPanel
 	private Point mouseLoc = null;
 	private int markerSize = 13;
 	
-	//private List< Point > markers = new ArrayList< Point >(); 
 	private List< Marker > zeros_poles = new ArrayList< Marker >();
 	
 	private Marker.Type markerType = Marker.Type.POLE;
-	//private Marker.Type markerType = Marker.Type.ZERO;
 	
 	private double samplingRate = 1;
 	
@@ -292,16 +290,7 @@ public class ZPlanePane extends JPanel
 			
 			BasicPainter2D.composeImage( zPlane, tx, ty, imgAngRad );
 			BasicPainter2D.composeImage( zPlane, tx, ty + imgAngRad.getHeight( null ) + 2, imgAngNorm );
-			BasicPainter2D.composeImage( zPlane, tx, ty + imgAngRad.getHeight( null ) + imgAngNorm.getHeight( null ) + 4, imgAngF );
-			
-			/*
-			mouseLoc.x -= xc;
-			mouseLoc.y = yc - mouseLoc.y;
-							
-			double x = ( 2D * mouseLoc.x ) / unitCircleRadius;
-			double y = ( 2D * mouseLoc.y ) / unitCircleRadius;
-			*/
-			
+			BasicPainter2D.composeImage( zPlane, tx, ty + imgAngRad.getHeight( null ) + imgAngNorm.getHeight( null ) + 4, imgAngF );			
 		}
 		
 		for( Marker mark : this.zeros_poles )
