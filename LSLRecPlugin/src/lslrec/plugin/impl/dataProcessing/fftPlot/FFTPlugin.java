@@ -16,7 +16,6 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
-import lslrec.plugin.impl.dataProcessing.painter.DataDisplay;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
@@ -34,10 +33,13 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	 */
 	public FFTPlugin() 
 	{
-		Parameter< String > par = new Parameter<String>( FFTDisplay.SAMPLING_RATE, "1" );
-		super.pars.put( par.getID(), par );
+		//Parameter< String > par = new Parameter<String>( FFTDisplay.SAMPLING_RATE, "1" );
+		//super.pars.put( par.getID(), par );
 		
-		par = new Parameter<String>( FFTDisplay.TIME_WIN, "1" );
+		Parameter< String > par = new Parameter<String>( FFTDisplay.TIME_WIN, "1" );
+		super.pars.put( par.getID(), par );		
+		
+		par = new Parameter<String>( FFTDisplay.OVERLAP_WIN, "0" );
 		super.pars.put( par.getID(), par );		
 	}
 	
@@ -57,7 +59,8 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 				
 				switch ( par.getID() )
 				{
-					case FFTDisplay.SAMPLING_RATE:
+					//case FFTDisplay.SAMPLING_RATE:
+					case FFTDisplay.OVERLAP_WIN:
 					case FFTDisplay.TIME_WIN:
 					{	
 						SettingOptions opt = new SettingOptions( par.getID(), SettingOptions.Type.NUMBER, false, new NumberRange( 0.001, Double.POSITIVE_INFINITY ), par.getID() );
@@ -101,7 +104,25 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 						if( Double.parseDouble( val ) <= 0 )
 						{
 							wType = WarningMessage.ERROR_MESSAGE;
-							msg = "time windows must be greater than 0.\n";
+							msg = "time windows must be > 0.\n";
+						}
+					}
+					catch (Exception e) 
+					{	
+						wType = WarningMessage.ERROR_MESSAGE;
+						msg = e.getMessage();
+					}
+					
+					break;
+				}	
+				case FFTDisplay.OVERLAP_WIN:
+				{					
+					try
+					{
+						if( Double.parseDouble( val ) < 0 )
+						{
+							wType = WarningMessage.ERROR_MESSAGE;
+							msg = "overlapment must be >= 0.\n";
 						}
 					}
 					catch (Exception e) 
@@ -116,10 +137,10 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 				{					
 					try
 					{
-						if( Double.parseDouble( val ) <= 0 )
+						if( Double.parseDouble( val ) < 0 )
 						{
 							wType = WarningMessage.ERROR_MESSAGE;
-							msg = "sampling rate must be greater than 0.\n";
+							msg = "sampling rate must be >= 0.\n";
 						}
 					}
 					catch (Exception e) 
@@ -151,7 +172,7 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	@Override
 	public String getID() 
 	{
-		return super.getClass().getSimpleName();
+		return "DFT display";
 	}
 
 	@Override

@@ -22,11 +22,13 @@
 
 package lslrec.gui.dataPlot;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
@@ -68,6 +70,7 @@ import javax.swing.border.LineBorder;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import lslrec.auxiliar.extra.NumberRange;
@@ -662,6 +665,12 @@ public class CanvasStreamDataPlot extends JPanel
 					chart.getXYPlot().setBackgroundPaint( Color.WHITE );
 					chart.getXYPlot().setRangeGridlinePaint( Color.BLACK );
 					chart.getXYPlot().setDomainGridlinePaint( Color.BLACK );
+					XYLineAndShapeRenderer render = new XYLineAndShapeRenderer();
+					render.setDefaultShapesVisible( false );
+					render.setSeriesStroke( 0, new BasicStroke( 3F ) );
+					chart.getXYPlot().setRenderer( render );
+					chart.getXYPlot().getDomainAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 18 ) );
+					chart.getXYPlot().getRangeAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 18 ) );
 					ValueAxis yaxis = chart.getXYPlot().getRangeAxis();
 
 					try

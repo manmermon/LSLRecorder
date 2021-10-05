@@ -162,7 +162,7 @@ public class Utils
 			
 			for (int k = 0; k < N; k++ )
 			{
-				Complex acum = new Complex( 0, 0 );
+				Complex acum = new Complex( in[ k ], 0 );
 				double angle_0 = 2 * Math.PI * k / N;
 				
 				for (int n = 0; n < N; n++) 
@@ -171,7 +171,7 @@ public class Utils
 					double angle = angle_0 * n;
 					Complex w = new Complex( Math.cos( angle ), Math.sin( angle ) );
 					
-					acum.add( new Complex( in[ n ], 0 ).multiply( w ) );
+					acum = acum.add( new Complex( in[ n ], 0 ).multiply( w ) );
 				}
 				
 				out[ k ] = acum;

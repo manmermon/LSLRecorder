@@ -15,9 +15,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.transform.DftNormalization;
-import org.apache.commons.math3.transform.FastFourierTransformer;
-import org.apache.commons.math3.transform.TransformType;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
@@ -33,10 +30,12 @@ import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 public class FFTDisplay extends LSLRecPluginDataProcessing
 {
 	public static final String TIME_WIN = "time windows (s)";
+	public static final String OVERLAP_WIN = "overlap (%)";
 	public static final String SAMPLING_RATE = "sampling rate (Hz)";
 
-	public double freq = 1;
-	public double time = 1;
+	private double freq = 1;
+	private double time = 1;
+	private double overlapOffset = 0;
 	
 	private JFrame window = null;	
 	private FrequencyPanel freqPanel = null;
@@ -50,7 +49,7 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 	 * @param prevProc
 	 */
 	public FFTDisplay(IStreamSetting setting, LSLRecPluginDataProcessing prevProc)
-	{		
+	{	
 		super( setting, prevProc );
 		
 		this.window = new JFrame();
@@ -91,7 +90,7 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 	@Override
 	public String getID() 
 	{
-		return super.getClass().getSimpleName();
+		return "DFT display";
 	}
 
 	@Override
@@ -113,13 +112,20 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 	@Override
 	public int getBufferLength() 
 	{
-		return 1;
+		return (int)( this.freq * this.time );
 	}
 
 	@Override
 	public int getOverlapOffset() 
 	{
-		return 1;
+		int offset = 1;
+		
+		double p = 1 - this.overlapOffset / 100D;
+		p = ( p > 1 ) ? 1 : p;
+		
+		offset = ( p <= 0 ) ? offset : (int)( this.getBufferLength() * p );
+		
+		return offset;
 	}
 
 	@Override
@@ -135,14 +141,24 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 				{
 					case TIME_WIN:
 					{
-						this.time = (int)(Double.parseDouble( val ));
+						this.time = Double.parseDouble( val );
 						
 						break;
 					}
 					case SAMPLING_RATE:
 					{
-						this.freq = (int)(Double.parseDouble( val ));
+						this.freq = Double.parseDouble( val );
 						
+						if( this.freq <= 0 )
+						{
+							this.freq = 1;
+						}
+						
+						break;
+					}
+					case OVERLAP_WIN:
+					{
+						this.overlapOffset = Double.parseDouble( val );
 						break;
 					}
 					default:
@@ -162,18 +178,24 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 			this.inputs.add( a.doubleValue() );
 		}
 		
-		while( this.inputs.size() > this.time * this.freq )
+		while( this.inputs.size() > this.getBufferLength() )
 		{
 			this.inputs.remove( 0 );
 		}
 		
-		if( this.inputs.size() == this.time * this.freq )
+		if( this.inputs.size() == this.getBufferLength() )
 		{
 			Complex[] dft = Utils.dft( ConvertTo.Casting.NumberArray2DoubleArray( this.inputs.toArray( new Double[0] )  ) );
 		
 			this.inputs.clear();
 			
-			this.freqPanel.drawData( dft );			
+			synchronized ( this.lock )
+			{
+				if( this.freqPanel != null )
+				{
+					this.freqPanel.drawData( dft );
+				}
+			}
 		}
 		
 		return arg0;

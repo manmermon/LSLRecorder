@@ -53,15 +53,6 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 		this.prevProcess = prevProc;
 		
 		this.streamSetting = setting;
-		
-		this.overlapOffset = this.getOverlapOffset();
-		
-		if( this.overlapOffset <= 0 )
-		{
-			this.overlapOffset = 1;
-		}
-		
-		this.overlapCounter = new int[ this.streamSetting.channel_count() ];
 	}
 	
 	private void setBuffer()
@@ -101,6 +92,18 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 		if( this.dataBuffer == null )
 		{
 			this.setBuffer();
+		}
+		
+		if( this.overlapCounter == null )
+		{
+			this.overlapOffset = this.getOverlapOffset();
+			
+			if( this.overlapOffset <= 0 )
+			{
+				this.overlapOffset = 1;
+			}
+			
+			this.overlapCounter = new int[ this.streamSetting.channel_count() ];
 		}
 		
 		List< Number > result = new ArrayList< Number >();
