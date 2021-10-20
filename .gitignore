@@ -48,3 +48,4 @@ config.cfg
 ImportClisData/Python/testClis.py
 *.csv
 .~lock.data_Openpose_Body.csv#
+/LSLRecPlugin/nbproject/private/
