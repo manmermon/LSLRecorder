@@ -170,7 +170,7 @@ public class Panel_StreamingSettings extends JPanel
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
-	private JCheckBox delBinaryFiles;
+	//private JCheckBox delBinaryFiles;
 	//private JCheckBox parallelizeActive;
 	
 	//JBUTTON	
@@ -333,6 +333,7 @@ public class Panel_StreamingSettings extends JPanel
 		}
 		catch( Exception e )
 		{			
+			e.printStackTrace();
 		}		
 	}
 
@@ -487,7 +488,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-			this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
+			//this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
 		}
@@ -545,6 +546,7 @@ public class Panel_StreamingSettings extends JPanel
 		return this.generalDescrOutFile;
 	}
 	
+	/*
 	private JCheckBox getDeleteBinaryFiles()
 	{
 		if( this.delBinaryFiles == null )
@@ -575,6 +577,7 @@ public class Panel_StreamingSettings extends JPanel
 		
 		return this.delBinaryFiles;
 	}
+	//*/
 
 	private JCheckBox getEncryptKeyActive()
 	{
@@ -1911,7 +1914,8 @@ public class Panel_StreamingSettings extends JPanel
 								
 				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 				DocumentBuilder db = dbf.newDocumentBuilder();
-				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes() );
+				
+				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes( "UTF-8" ) );
 				Document doc = db.parse( bis );
 				Node root = (Node)doc.getDocumentElement();
 				tree = this.builtTreeNode( root );				

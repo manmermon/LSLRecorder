@@ -581,7 +581,13 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 
 												public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 											    {
-													String v = ( (ILSLRecPluginDataProcessing) value ).getID();
+													String v = "Plugion Processing";
+													
+													if( value != null )
+													{
+														v = ( (ILSLRecPluginDataProcessing) value ).getID();
+													}
+													
 											        Component cellComponent = super.getTableCellRendererComponent( table, v, isSelected, hasFocus, row, column);
 											        	
 											        if( !table.isCellEditable( row, column ) )
@@ -1121,6 +1127,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		}
 		catch (Exception | Error e) 
 		{
+			e.printStackTrace();
 			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )

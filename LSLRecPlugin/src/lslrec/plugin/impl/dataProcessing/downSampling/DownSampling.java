@@ -36,6 +36,10 @@ public class DownSampling extends LSLRecPluginDataProcessing
 
 	private ParameterList pars = new ParameterList();
 	
+	private int D = 1;
+	
+	private Object lock = new Object();
+	
 	/**
 	 * @param setting
 	 * @param prevProc
@@ -44,7 +48,7 @@ public class DownSampling extends LSLRecPluginDataProcessing
 	{
 		super(setting, prevProc);
 		
-		this.pars.addParameter( new Parameter< Integer >( DECIMATION, 1 ) );
+		this.pars.addParameter( new Parameter< Integer >( DECIMATION, 1 ) );		
 	}	
 	
 	@Override
@@ -81,7 +85,13 @@ public class DownSampling extends LSLRecPluginDataProcessing
 					{
 						try
 						{
-							this.pars.getParameter( id ).setValue( Integer.parseInt( val ) );
+							synchronized ( this.lock )
+							{
+								this.D = Integer.parseInt( val );
+							}
+							
+							this.pars.getParameter( id ).setValue( this.D );
+							
 						}
 						catch (Exception e) 
 						{
@@ -102,14 +112,12 @@ public class DownSampling extends LSLRecPluginDataProcessing
 		Number[] res = null;
 		
 		if( arg0 != null )
-		{
-			int D = (Integer)this.pars.getParameter( DownSampling.DECIMATION ).getValue();
-			if( D <= 0 )
+		{	
+			int s = arg0.length;
+			synchronized ( this.lock )
 			{
-				D = 1;				
-			}
-			
-			int s = arg0.length / D;
+				s /= this.D;
+			}			
 			
 			res = new Number[ s ];
 			

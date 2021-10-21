@@ -3,7 +3,6 @@
  */
 package lslrec.plugin.impl.dataProcessing.painter;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -31,7 +30,6 @@ public class DataPanel extends JPanel
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 9101899790779650335L;
 	private BufferedImage bufferedImage;
 	private Graphics2D graphic = null;
 	
@@ -218,8 +216,9 @@ public class DataPanel extends JPanel
 						update = values.length;
 					}
 					
+					refY[ 0 ] = refY[ 1 ];
 					refY[ 1 ] = values[ to - 1 ];
-					refY[ 0 ] = Double.NaN;
+					//refY[ 0 ] = Double.NaN;
 					if( to -2 >= 0 )
 					{
 						refY[ 0 ] = values[ to - 2 ];

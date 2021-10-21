@@ -48,6 +48,8 @@ import java.util.List;
 
 import javax.swing.UIManager;
 
+import com.sun.jna.Platform;
+
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -60,7 +62,19 @@ public class mainLSLRecorder
 	 */
 	public static void main(String[] args)
 	{
-		String p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_PATH;
+		String OS = System.getProperty("os.name").toLowerCase();
+		
+		String p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_WIN_PATH;
+		
+		if( Platform.getOSType() == Platform.LINUX )
+		{
+			p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_LINUX_PATH;
+		}
+		else if( Platform.getOSType() == Platform.MAC )
+		{
+			p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_MACOS_PATH;
+		}
+		
 		try 
 		{
 			addLibraryPath( p );
@@ -72,8 +86,6 @@ public class mainLSLRecorder
 		
 		try 
 		{
-			String OS = System.getProperty("os.name").toLowerCase();
-			
 			if( OS.indexOf("nix") < 0 
 				&& OS.indexOf("nux") < 0 
 				&& OS.indexOf("aix") < 0 )

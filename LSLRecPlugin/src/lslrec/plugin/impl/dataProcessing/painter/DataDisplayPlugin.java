@@ -182,7 +182,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 					case DataDisplay.VIEW_MIN_Y:
 					case DataDisplay.VIEW_MAX_Y:
 					{	
-						SettingOptions opt = new SettingOptions( par.getID(), SettingOptions.Type.NUMBER, false, par.getID() );
+						SettingOptions opt = new SettingOptions( par.getID(), SettingOptions.Type.NUMBER, false, null, par.getID() );
 						opt.addValue( par.getValue() );
 						
 						opts.add( opt );

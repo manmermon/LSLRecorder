@@ -26,6 +26,7 @@ import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.message.AppState;
 import lslrec.control.message.RegisterSyncMessages;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -36,9 +37,14 @@ import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
+import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.gui.panel.primary.Panel_SocketSetting;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
+import lslrec.config.SettingOptions;
 import lslrec.gui.miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
@@ -66,7 +72,9 @@ import java.awt.image.BufferedImage;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.ActionMap;
@@ -98,6 +106,8 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
@@ -135,7 +145,7 @@ public class AppUI extends JFrame
 	private JTextPane logTextArea;
 
 	// JPopMenu
-	private JPopupMenu popupMenu_2;
+	private JPopupMenu popupMenu_2;	
 	private JMenuItem mntmCopy;
 	private JMenuItem mntmCopyall;
 	private JMenuItem mntmClear;
@@ -162,7 +172,7 @@ public class AppUI extends JFrame
 	private JMenuItem menuWritingTest = null;
 	private JMenuItem menuExit = null;	
 	private JMenuItem menuShowLog = null;
-	
+	private JMenuItem menuAdvanceOpt = null;
 
 	// Processbar
 	private LevelIndicator appTextState = null;
@@ -812,6 +822,133 @@ public class AppUI extends JFrame
 		return this.jLangMenu;
 	}
 
+	private JMenuItem getAdvanceOptionMenu()
+	{
+		if( this.menuAdvanceOpt == null )
+		{
+			this.menuAdvanceOpt = new JMenuItem( Language.getLocalCaption( Language.MENU_ADVANCED ) );
+			
+			this.menuAdvanceOpt.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent arg0) 
+				{
+					JDialog dial = new JDialog( ui );
+					
+					dial.setModal( true );
+					dial.setLayout( new BorderLayout() );
+					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+
+					dial.setTitle( ConfigApp.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
+
+					JPanel main = new JPanel( new BorderLayout() );
+					
+					List< SettingOptions > opts = new ArrayList<SettingOptions>();
+					SettingOptions opt = new SettingOptions( ConfigApp.DEL_BINARY_FILES
+															, SettingOptions.Type.BOOLEAN
+															, false
+															, null
+															, ConfigApp.DEL_BINARY_FILES );
+					opt.addValue( ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ).toString() );
+					opts.add( opt );	
+					
+					opt = new SettingOptions( ConfigApp.STREAM_SEARCHING_TIME
+												, SettingOptions.Type.NUMBER
+												, false
+												, new NumberRange( 1, IDataStream.TIME_FOREVER )
+												, ConfigApp.STREAM_SEARCHING_TIME );
+					opt.addValue( ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ).toString() );
+					opts.add( opt );
+					
+					ParameterList pars = new ParameterList();
+					
+					Parameter par =  new Parameter< Boolean >( ConfigApp.DEL_BINARY_FILES, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
+					par.setLangID( Language.DEL_BINARY_FILES );
+					
+					par.addValueChangeListener( new ChangeListener() 
+					{	
+						@Override
+						public void stateChanged(ChangeEvent e) 
+						{
+							Parameter par = (Parameter)e.getSource();
+							
+							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+							{
+								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+							}
+						}
+					});
+					
+					pars.addParameter( par );
+					
+					par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
+					par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
+					
+					par.addValueChangeListener( new ChangeListener() 
+					{	
+						@Override
+						public void stateChanged(ChangeEvent e) 
+						{
+							Parameter par = (Parameter)e.getSource();
+							
+							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+							{
+								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+							}
+						}
+					});
+					
+					pars.addParameter( par );
+										
+					
+					JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, pars ) );
+
+					main.add( scr, BorderLayout.CENTER );
+
+					dial.add( main );										
+					dial.pack();
+
+					Dimension s = dial.getSize();
+					FontMetrics fm = dial.getFontMetrics( dial.getFont() );
+
+					int t = fm.stringWidth( dial.getTitle() ) * 2;
+					
+					for( String id : pars.getParameterIDs() )
+					{
+						Parameter p = pars.getParameter( id );
+						int wp = (int)(fm.stringWidth( Language.getLocalCaption( p.getLangID() ) ) * 2.5);
+						if( t < wp )
+						{
+							t = wp;
+						}
+					}
+					
+					if( t > s.width )
+					{
+						s.width = t;
+					}
+					s.height += 15;
+
+					dial.setSize( s );
+
+					dial.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+																KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+																JComponent.WHEN_IN_FOCUSED_WINDOW );
+					
+					dial.setLocationRelativeTo( ui );
+					dial.setResizable( false );
+					dial.setIconImage( ui.getIconImage() );
+					dial.setVisible( true );
+				}
+			});
+
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );
+			
+		}
+
+		return this.menuAdvanceOpt;
+	}
+	
 	protected JMenu getFileMenu()
 	{
 		if( this.jFileMenu == null )
@@ -849,6 +986,7 @@ public class AppUI extends JFrame
 			
 			MenuScroller menuScr = new MenuScroller( this.getLangMenu(), 5 );
 			this.menuPreference.add( this.getLangMenu() );
+			this.menuPreference.add( this.getAdvanceOptionMenu() );
 			
 			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_PREFERENCE, this.menuPreference );	
 		}

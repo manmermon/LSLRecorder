@@ -20,9 +20,11 @@
 package lslrec.gui.panel.plugin.item;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -31,11 +33,14 @@ import java.awt.event.MouseWheelListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
@@ -44,6 +49,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
@@ -76,7 +82,7 @@ public class CreatorDefaultSettingPanel
 				gbc.gridy =  c / cols;
 				gbc.weightx = 0.5;
 				gbc.anchor = GridBagConstraints.EAST;
-				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.fill = GridBagConstraints.BOTH;
 				gbc.insets = new Insets( 0, 0, 0, 0 );
 				
 				Parameter par = parameters.getParameter( opt.getIDReferenceParameter() );
@@ -84,13 +90,22 @@ public class CreatorDefaultSettingPanel
 				Component comp = getSettingPanel( opt, par );
 				
 				if( comp != null )
-				{
-					
-					JPanel p = new JPanel( new BorderLayout( 0, 0) );										
-					p.add( comp, BorderLayout.CENTER );					
+				{					
+					JPanel p = new JPanel( );
+					GridLayout bl = new GridLayout( 0, 1);
+					p.setLayout( bl );
+					//p.setAlignmentX( Component.CENTER_ALIGNMENT );
 					
 					String title = par.getDescriptorText();
-					p.setBorder( BorderFactory.createTitledBorder( title ) );
+					
+					if( !( comp instanceof JToggleButton ) )
+					{
+						p.add( new JLabel( " " + title ) );
+					}
+					
+					p.add( comp );
+					p.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) 
+										, BorderFactory.createLineBorder( Color.GRAY ) ) );
 
 					panel.add( p, gbc );
 				}
@@ -113,6 +128,7 @@ public class CreatorDefaultSettingPanel
 			boolean isList = opt.isList();
 			Type dataType = opt.getDataType();
 			int sel = opt.getSelectedValue();
+			NumberRange nr = opt.getCorrectValueInterval();
 
 			if( options != null && options.length > 0 )
 			{
@@ -130,7 +146,30 @@ public class CreatorDefaultSettingPanel
 						case NUMBER:
 						{
 							Double v = Double.parseDouble( val );
-							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null, 1D ) );
+							
+							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null , 1D ) );
+							
+							if( nr != null )
+							{
+								SpinnerNumberModel spm = (SpinnerNumberModel)sp.getModel();
+								spm.setMinimum( new Comparable<Number>() 
+								{
+									@Override
+									public int compareTo(Number o) 
+									{
+										return (int)(nr.getMin() - o.doubleValue());
+									}
+								});
+								
+								spm.setMaximum( new Comparable<Number>() 
+								{
+									@Override
+									public int compareTo(Number o) 
+									{
+										return (int)(nr.getMax() - o.doubleValue());
+									}
+								});
+							}
 														
 							sp.addChangeListener( new ChangeListener()
 							{								
@@ -141,15 +180,23 @@ public class CreatorDefaultSettingPanel
 
 									try
 									{
-										Object val = convertValue( sp.getValue(), par.getValue() );
+										Object newValue = sp.getValue(); 
+										Object val = convertValue( newValue, par.getValue() );
 										
-										saveValue( par, val );
+										if( val.equals( newValue ) )
+										{										
+											saveValue( par, val );
+										}
+										else
+										{
+											sp.setValue( val );
+										}
 									} 
 									catch ( Exception e1)
 									{
 										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 										
-										ExceptionDialog.showMessageDialog( m, true, true );
+										ExceptionDialog.showMessageDialog( m, true, true );										
 									}
 								}
 							});
@@ -214,7 +261,7 @@ public class CreatorDefaultSettingPanel
 								}
 							});
 							
-							c = ch;
+							c = ch;							
 							
 							break;
 						}

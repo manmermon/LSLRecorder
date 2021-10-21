@@ -12,8 +12,19 @@
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.firFilter"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
-        <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.openposePlotter"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{FrequencyPanel.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZPlanePluginWindow.java"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.painter"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Utils.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Marker.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZeroPoleEvent.java"/>
+        <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{Filter.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZPlanePane.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZeroPoleEventListener.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform{ZTransformPlugin.java"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.fftPlot"/>
     </selectedElements>
 </jardesc>

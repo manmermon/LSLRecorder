@@ -28,6 +28,7 @@ import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
@@ -78,7 +79,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 3 - 1, 4 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 10 - 1, 21 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -104,7 +105,9 @@ public class ConfigApp
 	
 	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
 	
-	public static final String SYSTEM_LIB_PATH = "systemLib/";	
+	public static final String SYSTEM_LIB_WIN_PATH = "systemLib/win/";
+	public static final String SYSTEM_LIB_LINUX_PATH = "systemLib/linux/";
+	public static final String SYSTEM_LIB_MACOS_PATH = "systemLib/macox/";
 	//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
 	
 
@@ -157,6 +160,7 @@ public class ConfigApp
 	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
 	
 	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
+	public static final String STREAM_SEARCHING_TIME = "STREAM_SEARCHING_TIME";
 
 	/****
 	 * 
@@ -238,6 +242,8 @@ public class ConfigApp
 		list_Key_Type.put( TRIAL_WINDOW_WIDTH, Integer.class );
 		list_Key_Type.put( TRIAL_WINDOW_HEIGHT, Integer.class );
 		
+		list_Key_Type.put( STREAM_SEARCHING_TIME, Double.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
@@ -247,6 +253,8 @@ public class ConfigApp
 		
 		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
+		
+		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1,  IDataStream.TIME_FOREVER  ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
@@ -502,7 +510,17 @@ public class ConfigApp
 
 		if ( value.getClass().equals( listConfig.get( propertyID ).getClass() ) )
 		{
-			listConfig.put(propertyID, value);
+			ok = !list_Key_RankValues.containsKey( propertyID );
+			if( !ok )
+			{
+				NumberRange nr = list_Key_RankValues.get( propertyID );
+				ok = nr.within( (Number)value );
+			}
+			
+			if( ok )
+			{
+				listConfig.put(propertyID, value);
+			}
 		}
 		else
 		{
@@ -550,7 +568,7 @@ public class ConfigApp
 
 					listConfig.put(key, new Boolean(value));
 				}
-				else if ( (clase.isInstance(new Integer(0))) || (clase.isInstance(new Long(0L))))
+				else if ( Number.class.isAssignableFrom( clase ) )//( (clase.isInstance(new Integer(0))) || (clase.isInstance(new Long(0L))))
 				{
 					try
 					{
@@ -571,11 +589,14 @@ public class ConfigApp
 							{
 								listConfig.put(key, new Integer( (int)v ) );
 							}
-							else
+							else if( clase.isInstance( new Long(0)))
 							{
 								listConfig.put(key, new Long( (long)v ) );
 							}
-
+							else
+							{
+								listConfig.put( key, v );
+							}
 						}
 						else
 						{
@@ -1340,6 +1361,12 @@ public class ConfigApp
 				loadDefaultTrialWindowHeigh();
 				break;
 			}			
+			case STREAM_SEARCHING_TIME:
+			{
+				loadDefaultStreamSearchingTime();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1379,6 +1406,8 @@ public class ConfigApp
 		loadDefaultTrialFullScreen();		
 		loadDefaultTrialWindowWidth();
 		loadDefaultTrialWindowHeigh();
+		
+		loadDefaultStreamSearchingTime();
 		
 		//loadDefaultStreamLibrary();
 	}
@@ -1526,6 +1555,10 @@ public class ConfigApp
 		listConfig.put( TRIAL_WINDOW_HEIGHT, 500 );
 	}
 	
+	private static void loadDefaultStreamSearchingTime()
+	{				
+		listConfig.put( STREAM_SEARCHING_TIME, 1D );
+	}
 	
 	/*
 	private static void loadDefaultStreamLibrary()

@@ -64,7 +64,7 @@ public class Dialog_AboutApp extends JDialog
 	private static final long serialVersionUID = 2004993043954574898L;
 
 	//WEB
-	private final String url = "http://matrix.dte.us.es/grupotais/";
+	private final String url = "http://grupo.us.es/grupotais/";//"http://matrix.dte.us.es/grupotais/";
 	private final String authorEmail = "manmermon@dte.us.es";
 	private final String sourceURL = "https://github.com/manmermon/LSLRecorder";
 
