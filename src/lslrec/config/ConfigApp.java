@@ -79,7 +79,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 10 - 1, 5 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 10 - 1, 21 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -568,7 +568,7 @@ public class ConfigApp
 
 					listConfig.put(key, new Boolean(value));
 				}
-				else if ( (clase.isInstance(new Integer(0))) || (clase.isInstance(new Long(0L))))
+				else if ( Number.class.isAssignableFrom( clase ) )//( (clase.isInstance(new Integer(0))) || (clase.isInstance(new Long(0L))))
 				{
 					try
 					{
@@ -589,11 +589,14 @@ public class ConfigApp
 							{
 								listConfig.put(key, new Integer( (int)v ) );
 							}
-							else
+							else if( clase.isInstance( new Long(0)))
 							{
 								listConfig.put(key, new Long( (long)v ) );
 							}
-
+							else
+							{
+								listConfig.put( key, v );
+							}
 						}
 						else
 						{

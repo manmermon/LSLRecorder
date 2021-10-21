@@ -30,6 +30,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -420,7 +421,9 @@ public class GuiManager
 	
 	public static void loadConfigValues2GuiComponents()
 	{	
-		Set< StringTuple > IDs = guiParameters.keySet();
+		List< StringTuple > IDs = new ArrayList< StringTuple >( guiParameters.keySet() );
+		Collections.sort( IDs );
+		Collections.reverse( IDs );
 
 		for( StringTuple id : IDs )
 		{
@@ -447,6 +450,7 @@ public class GuiManager
 			}
 			else if( c instanceof JTextComponent )
 			{
+				c.setVisible( true );
 				((JTextComponent)c).setText( ConfigApp.getProperty( propID ).toString() );
 			}
 			else if( c instanceof JSpinner )
