@@ -22,6 +22,9 @@ package lslrec.control.message;
 
 public class AppState 
 {
+	public enum State { SAVED, SAVING, RUN, STOPPING, STOP, WAIT, PREPARING, NONE };
+	
+	/*
 	public static final String SAVED = "Saved";
 	public static final String SAVING = "Saving";
 	public static final String RUN = "Run";
@@ -30,4 +33,5 @@ public class AppState
 	public static final String WAIT = "Wait";											
 	public static final String PREPARING = "Initiating";
 	public static final String NONE = "";
+	//*/
 }

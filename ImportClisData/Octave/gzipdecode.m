@@ -27,7 +27,8 @@ function output = gzipdecode(input)
 	    error( 'Input must be either int8 or uint8.' );
 	end
 
-  javaaddpath( './', 'apache-commons/commons-io-2.11.0.jar' )
+  path = [fileparts(mfilename('fullpath')) '/apache-commons/commons-io-2.11.0.jar'];
+  javaaddpath( path )
   
   inByteArray = javaObject( 'java.io.ByteArrayInputStream', input );
 	gzip = javaObject( 'java.util.zip.GZIPInputStream', inByteArray );

@@ -509,7 +509,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	public boolean isSavingData()
 	{			
 		//return this.NumberOfSavingThreads > 0;
-		return this.NumberOfSavingThreads.get() > 0;
+		//return this.NumberOfSavingThreads.get() > 0;
+		return !this.outWriterHandlers.isEmpty();
 	}
 
 	/*
@@ -578,7 +579,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							t.t2.closeStream();
 						}
 						
-						if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
+						//if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
+						if( this.outWriterHandlers.isEmpty() )
 						{								
 							if( this.checkOutWriterTimer != null )
 							{
@@ -752,7 +754,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 									if( this.outWriterHandlers != null )
 									{
-										this.outWriterHandlers.put( binName, saveOutFileThread );
+										//this.outWriterHandlers.put( binName, saveOutFileThread );
+										this.outWriterHandlers.put( saveOutFileThread.getID(), saveOutFileThread );
 
 										saveOutFileThread.startThread();		
 									}
@@ -1015,7 +1018,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				
 				if( this.writeList != null )
 				{
-					this.writeList.put( this.dat.getDataStreamSetting().name(), this.saveOutFileThread );
+					//this.writeList.put( this.dat.getDataStreamSetting().name(), this.saveOutFileThread );
+					this.writeList.put( this.saveOutFileThread.getID(), this.saveOutFileThread );
 		
 					savingPercentage.put( this.saveOutFileThread.getID(), 0 );
 					
