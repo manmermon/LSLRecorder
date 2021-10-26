@@ -259,7 +259,11 @@ public class AppUI extends JFrame
 		{					 
 			if(  !getGlassPane().isVisible( ) )
 			{
-				if( CoreControl.getInstance().isDoingSomething() )
+				AppState.State state = GuiManager.getInstance().getAppState();
+				
+				if( CoreControl.getInstance().isDoingSomething() 
+						|| (  state != AppState.State.NONE && state != AppState.State.SAVED )
+						)
 				{						 
 					String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 							UIManager.getString( "OptionPane.noButtonText" ) };
@@ -548,6 +552,7 @@ public class AppUI extends JFrame
 						
 						bt.setEnabled( false );
 						
+						final boolean enaBtPlay = AppUI.this.getJButtonPlay().isEnabled();
 						AppUI.this.getJButtonPlay().setEnabled( false );
 						
 						Thread t = new Thread()
@@ -567,8 +572,11 @@ public class AppUI extends JFrame
 									}
 									
 									bt.setEnabled( true );
-									
-									AppUI.this.getJButtonPlay().setEnabled( true );
+																		
+									if( enaBtPlay )
+									{
+										AppUI.this.getJButtonPlay().setEnabled( true );
+									}
 								} 
 								catch (Exception e) 
 								{
@@ -1128,7 +1136,7 @@ public class AppUI extends JFrame
 			FontMetrics fm = this.appTextState.getFontMetrics( this.appTextState.getFont() );
 			
 			Dimension d = this.appTextState.getPreferredSize();
-			d.width = fm.stringWidth( AppState.SAVING + " (100%)" + 5 );						
+			d.width = fm.stringWidth( AppState.State.PREPARING.name() + " (100%)" + 5 );						
 			this.appTextState.setPreferredSize( d );			
 		}
 

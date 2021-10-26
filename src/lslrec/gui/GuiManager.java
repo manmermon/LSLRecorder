@@ -95,7 +95,7 @@ public class GuiManager
 {
 	public static final Icon START_ICO = new ImageIcon( BasicPainter2D.paintTriangle(10, 1.0F, Color.BLACK, Color.GREEN, BasicPainter2D.EAST ) );
 	public static final Icon STOP_ICO = new ImageIcon( BasicPainter2D.paintRectangle(10, 10, 1.0F, Color.BLACK, Color.RED ) );
-
+	
 	private static GuiManager ctr = null;
 
 	private Timer sessionTimer;
@@ -105,6 +105,8 @@ public class GuiManager
 	//private OpeningDialog preparingRunDiag;
 	
 	private Boolean isWriteTest = false;
+	
+	private AppState.State appState = AppState.State.NONE;
 	
 	//Map
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
@@ -259,7 +261,7 @@ public class GuiManager
 		
 		if( binFiles.size() > 0 )
 		{ 
-			this.setAppState( AppState.SAVING, 0, true );
+			this.setAppState( AppState.State.SAVING, 0, true );
 			
 			enablePlayButton( false );
 		}
@@ -743,7 +745,12 @@ public class GuiManager
 	}
 	*/
 	
-	public synchronized void setAppState( String msg, int perc, boolean showPerc )
+	public AppState.State getAppState()
+	{
+		return this.appState;
+	}
+	
+	public synchronized void setAppState( AppState.State state, int perc, boolean showPerc )
 	{				
 		LevelIndicator statePanel = AppUI.getInstance().getExecutionTextState();
 		
@@ -753,9 +760,12 @@ public class GuiManager
 			statePanel.setLevels( new int[] { perc} );
 		}
 		
+		this.appState = state;
+		String msg = state.name();
+		
 		if( showPerc )
 		{
-			msg += " (" + perc + "%)";
+			msg += " " + perc + "%";
 		}
 		
 		statePanel.setString( msg  );		

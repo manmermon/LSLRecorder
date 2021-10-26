@@ -395,7 +395,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.disposeLSLDataPlot(); // Delete plots.
             this.disposeLSLDataStringPlot();
 			
-			this.managerGUI.setAppState( AppState.PREPARING, 0, false );
+			this.managerGUI.setAppState( AppState.State.PREPARING, 0, false );
 			
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
@@ -430,7 +430,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						|| actionDialog == JOptionPane.CLOSED_OPTION )
 				{
 					this.isRecording = false;
-					this.managerGUI.setAppState( AppState.STOP, 0, false );
+					this.managerGUI.setAppState( AppState.State.STOP, 0, false );
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshDataStreams();
 
@@ -508,11 +508,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if( !this.ctrlOutputFile.isSavingData() )
 			{
-				this.managerGUI.setAppState( AppState.STOP, 0, false );
+				this.managerGUI.setAppState( AppState.State.STOP, 0, false );
 			}
 			else
 			{
-				this.managerGUI.setAppState( AppState.SAVING, 0, true );
+				this.managerGUI.setAppState( AppState.State.SAVING, 0, true );
 			}
 			
 			this.managerGUI.restoreGUI();
@@ -914,7 +914,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		if ( this.isWaitingForStartCommand )
 		{			
-			this.managerGUI.setAppState( AppState.WAIT, 0, false );
+			this.managerGUI.setAppState( AppState.State.WAIT, 0, false );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.ACTION_START_SYNC, "" ) );
 			this.ctrSocket.toWorkSubordinates( null );
@@ -948,7 +948,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		this.managerGUI.StartSessionTimer();
 		
-		this.managerGUI.setAppState( AppState.RUN, 0, false );
+		this.managerGUI.setAppState( AppState.State.RUN, 0, false );
 		
 		this.isRecording = true;
 				
@@ -1679,7 +1679,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
-					managerGUI.setAppState( AppState.SAVED, 100, false );
+					managerGUI.setAppState( AppState.State.SAVED, 100, false );
 					
 					savingDataProgress = 0;
 					//managerGUI.enablePlayButton( true );
@@ -1699,7 +1699,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
 				{	
-					managerGUI.setAppState( AppState.SAVING, 0, true );
+					managerGUI.setAppState( AppState.State.SAVING, 0, true );
 					
 					managerGUI.enablePlayButton( false );
 				}		
@@ -1718,7 +1718,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					
 					if( val > savingDataProgress )
 					{
-						managerGUI.setAppState( AppState.SAVING, val, true );
+						managerGUI.setAppState( AppState.State.SAVING, val, true );
 					}
 				}
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))
@@ -2115,7 +2115,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				isWaitingForStartCommand = false;
 				isActiveSpecialInputMsg = false;
 
-				managerGUI.setAppState( AppState.STOPPING, 0, false );
+				managerGUI.setAppState( AppState.State.STOPPING, 0, false );
 				//managerGUI.enablePlayButton( false );
 
 				notifiedEventHandler.interruptProcess();
@@ -2169,17 +2169,17 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 						if( ctrlOutputFile.isSavingData() )
 						{
-							managerGUI.setAppState( AppState.SAVING, 0, true );
+							managerGUI.setAppState( AppState.State.SAVING, 0, true );
 						}
 						else
 						{
-							managerGUI.setAppState( AppState.STOP, 0, true );
+							managerGUI.setAppState( AppState.State.STOP, 0, true );
 						}
 					}
 					catch (Exception localException) 
 					{
 						localException.printStackTrace();
-						managerGUI.setAppState( AppState.NONE, 0, false );
+						managerGUI.setAppState( AppState.State.NONE, 0, false );
 					}
 					catch (Error localError) 
 					{}
