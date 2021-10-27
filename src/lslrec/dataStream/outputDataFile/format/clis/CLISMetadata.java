@@ -227,6 +227,7 @@ public class CLISMetadata
 		
 		
 		this.headerSize += ( this.headerInfo.length() + this.headerInfoExtension.length() + checkSumLen + encByteLen ) * 2;
+		this.headerSize += pars.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue().toString().length();
 				
 		//byte[] padding = new byte[ Character.BYTES ];
 		int charByteSize = this.headerInfo.getBytes( this.charCode ).length / this.headerInfo.length(); 
