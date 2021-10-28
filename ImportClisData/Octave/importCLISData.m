@@ -184,7 +184,7 @@ function [data, info] = importCLISData( filename, opts )
             
         end
         
-        fid = fopen( filename );
+        fid = fopen( filename, 'r', 'n' );
         
         header = fgetl( fid );
         
