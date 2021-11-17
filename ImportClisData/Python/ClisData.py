@@ -6,7 +6,8 @@ import numpy as np
 
 
 class ClisData():
-    stringEncoding = "iso-8859-15"
+    #stringEncoding = "iso-8859-15"
+    stringEncoding = "utf-8"
     file = ""
 
 
