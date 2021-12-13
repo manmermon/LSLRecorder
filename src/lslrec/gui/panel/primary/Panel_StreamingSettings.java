@@ -504,6 +504,11 @@ public class Panel_StreamingSettings extends JPanel
 			
 			this.generalDescrOutFile = new JTextField();
 			
+			Dimension d = this.generalDescrOutFile.getSize();
+			FontMetrics fm = this.fileName.getFontMetrics( this.fileName.getFont() );
+			d.width = fm.stringWidth( "W" ) * 30;			
+			this.generalDescrOutFile.setPreferredSize( d );
+			
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				
 				@Override

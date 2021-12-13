@@ -57,6 +57,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
@@ -391,7 +392,7 @@ public class GuiManager
 	
 	
 	private void loadValueConfig(File f)
-	{
+	{		
 		try
 		{	
 			DataProcessingPluginRegistrar.clear();
@@ -399,11 +400,19 @@ public class GuiManager
 			
 			refreshPlugins();
 			
-			ConfigApp.loadConfig( f );
+			WarningMessage msg = ConfigApp.loadConfig( f );
 			
-			loadConfigValues2GuiComponents();
+			if( msg.getWarningType() != WarningMessage.ERROR_MESSAGE )
+			{
+				loadConfigValues2GuiComponents();
+				
+				refreshPlugins();
+			}
 			
-			refreshPlugins();
+			if( msg.getWarningType() != WarningMessage.OK_MESSAGE )
+			{
+				throw new Exception( msg.getMessage() );
+			}
 		}
 		catch (Exception e)
 		{
