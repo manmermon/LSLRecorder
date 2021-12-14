@@ -19,6 +19,7 @@ import org.apache.commons.math3.complex.Complex;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.plugin.impl.dataProcessing.zTransform.FrequencyPanel;
 import lslrec.plugin.impl.dataProcessing.zTransform.Utils;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
@@ -31,7 +32,7 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 {
 	public static final String TIME_WIN = "time windows (s)";
 	public static final String OVERLAP_WIN = "overlap (%)";
-	public static final String SAMPLING_RATE = "sampling rate (Hz)";
+	//public static final String SAMPLING_RATE = "sampling rate (Hz)";
 
 	private double freq = 1;
 	private double time = 1;
@@ -59,6 +60,12 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 		this.window.setContentPane( new JPanel( new BorderLayout() ) );
 		
 		this.window.setFocusableWindowState( false );
+		
+		this.freq = setting.sampling_rate();
+		if( this.freq == IStreamSetting.IRREGULAR_RATE )
+		{
+			this.freq = 1;
+		}
 		
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
 		d.width /= 2;
@@ -145,6 +152,7 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 						
 						break;
 					}
+					/*
 					case SAMPLING_RATE:
 					{
 						this.freq = Double.parseDouble( val );
@@ -156,6 +164,7 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 						
 						break;
 					}
+					//*/
 					case OVERLAP_WIN:
 					{
 						this.overlapOffset = Double.parseDouble( val );

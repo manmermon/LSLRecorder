@@ -44,8 +44,8 @@ public class PlugingTesting
 		//FIRFilterPlugin plg = new FIRFilterPlugin();
 		//PluginAlarmTest plg = new PluginAlarmTest();
 		//OpenposePlotterPlugin plg = new OpenposePlotterPlugin();
-		//ZTransformPlugin plg = new ZTransformPlugin();
-		FFTPlugin plg = new FFTPlugin();
+		ZTransformPlugin plg = new ZTransformPlugin();
+		//FFTPlugin plg = new FFTPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		
