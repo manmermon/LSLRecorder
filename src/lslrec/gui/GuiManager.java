@@ -86,7 +86,7 @@ import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
-import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.loader.java8.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
