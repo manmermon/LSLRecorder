@@ -51,6 +51,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
@@ -783,7 +784,9 @@ public class Dialog_BinaryConverter extends JDialog
 						
 						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 
-						Encoder enc = DataFileFormat.getDataFileEncoder( format.toString() );
+						
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Encoder enc = tenc.t1;
 						List< SettingOptions > opts = enc.getSettiongOptions();
 						
 						ParameterList encPars = enc.getParameters();
@@ -1707,7 +1710,8 @@ public class Dialog_BinaryConverter extends JDialog
 						String f = cb.getSelectedItem( ).toString( );
 						outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, f );			
 						
-						Encoder enc = DataFileFormat.getDataFileEncoder( f );
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( f );
+						Encoder enc = tenc.t1;
 						
 						List< SettingOptions > opts = enc.getSettiongOptions();
 						

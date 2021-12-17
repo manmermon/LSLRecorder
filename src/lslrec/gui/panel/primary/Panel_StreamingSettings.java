@@ -131,6 +131,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 
@@ -870,7 +871,6 @@ public class Panel_StreamingSettings extends JPanel
 			this.fileFormat.setEditable( false );
 
 			final String ID = ConfigApp.OUTPUT_FILE_FORMAT;
-
 			String[] fileFormat = DataFileFormat.getSupportedFileFormat();
 			for( int i = 0; i < fileFormat.length; i++ )
 			{
@@ -894,7 +894,8 @@ public class Panel_StreamingSettings extends JPanel
 						
 						ConfigApp.setProperty( ID , format );
 						
-						Encoder encorder = DataFileFormat.getDataFileEncoder( format );
+						Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+						Encoder encorder = tencoder.t1;
 								
 						String ext = encorder.getOutputFileExtension();
 						
@@ -2059,7 +2060,8 @@ public class Panel_StreamingSettings extends JPanel
 						main.setBackground( Color.green );
 
 						
-						Encoder enc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Encoder enc = tenc.t1;
 						List< SettingOptions > opts = enc.getSettiongOptions();
 						ParameterList pars = enc.getParameters();
 						

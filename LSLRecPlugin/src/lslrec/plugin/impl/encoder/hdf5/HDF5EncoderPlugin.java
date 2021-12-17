@@ -33,7 +33,7 @@ public class HDF5EncoderPlugin extends LSLRecPluginEncoder
 	@Override
 	public String getID() 
 	{
-		return "HDF5 test";
+		return "HDF5";
 	}
 
 	@Override

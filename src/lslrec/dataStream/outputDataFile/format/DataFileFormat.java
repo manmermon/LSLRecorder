@@ -30,23 +30,25 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import lslrec.auxiliar.WarningMessage;
+import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
-import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
-import lslrec.dataStream.outputDataFile.format.matlab.MatlabEncoder;
+//import lslrec.dataStream.outputDataFile.format.hdf5.HDF5Encoder;
+//import lslrec.dataStream.outputDataFile.format.matlab.MatlabEncoder;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 
 public class DataFileFormat
 {
-	public static String MATLAB = "MATLAB";
+	//public static String MATLAB = "MATLAB";
 	//public static String CSV = "CSV";
 
 	public static final String CLIS = "CLIS";
-	public static final String HDF5 = "HDF5";
+	//public static final String HDF5 = "HDF5";
 
 	private static final Map< String, LSLRecPluginEncoder > pluginEncoders = new HashMap< String, LSLRecPluginEncoder>();
 	
@@ -54,8 +56,8 @@ public class DataFileFormat
 	{
 		List< String > formats = new ArrayList< String >();
 		formats.add( CLIS );
-		formats.add( HDF5 );
-		formats.add( MATLAB );
+		//formats.add( HDF5 );
+		//formats.add( MATLAB );
 		
 		for( String id : pluginEncoders.keySet() )
 		{
@@ -69,14 +71,17 @@ public class DataFileFormat
 	{
 		Map< String, String > exts = new LinkedHashMap< String, String >();
 		
-		Encoder enc = getDataFileEncoder( CLIS );		
+		Tuple< Encoder, WarningMessage > tenc = getDataFileEncoder( CLIS );
+		Encoder enc = tenc.t1;		
 		exts.put( CLIS, enc.getOutputFileExtension() );
 		
+		/*
 		enc = getDataFileEncoder( HDF5 );
 		exts.put( HDF5, enc.getOutputFileExtension() );
 		
 		enc = getDataFileEncoder( MATLAB );
 		exts.put( MATLAB, enc.getOutputFileExtension() );
+		*/
 		
 		for( LSLRecPluginEncoder pl : pluginEncoders.values() )
 		{
@@ -112,9 +117,11 @@ public class DataFileFormat
 		return ok;
 	}
 
-	public static Encoder getDataFileEncoder( String format)
+	public static Tuple< Encoder, WarningMessage >  getDataFileEncoder( String format)
 	{
 		Encoder enc = null;
+		
+		WarningMessage wm = new WarningMessage();
 		
 		if ( isSupportedFileFormat( format ) )
 		{	
@@ -124,6 +131,7 @@ public class DataFileFormat
 			{				
 				enc = new ClisEncoder();
 			}
+			/*
 			else if( format.equals( HDF5 ) )
 			{
 				enc = new HDF5Encoder();
@@ -132,18 +140,20 @@ public class DataFileFormat
 			{
 				enc = new MatlabEncoder();
 			}
+			*/
 			else
 			{
 				LSLRecPluginEncoder pl = pluginEncoders.get( format );
 				
 				if( pl != null )
 				{
+					wm = pl.checkSettings();
 					enc = pl.getEncoder( );					
 				}
 			}
 		}
 
-		return enc;
+		return new Tuple<Encoder, WarningMessage>( enc, wm );
 	}
 	
 	public static void addEncoder( LSLRecPluginEncoder encoder )
@@ -158,7 +168,8 @@ public class DataFileFormat
 	{
 		List< SettingOptions > opts = new ArrayList< SettingOptions >();
 		
-		Encoder enc = getDataFileEncoder( format );
+		Tuple< Encoder, WarningMessage > tenc = getDataFileEncoder( format );
+		Encoder enc = tenc.t1;
 		if( enc != null )
 		{
 			opts.addAll( enc.getSettiongOptions() );
@@ -171,7 +182,8 @@ public class DataFileFormat
 	{
 		ParameterList pars = null;
 		
-		Encoder enc = getDataFileEncoder( format );
+		Tuple< Encoder, WarningMessage > tenc = getDataFileEncoder( format );
+		Encoder enc = tenc.t1;
 				
 		if( enc != null )
 		{
