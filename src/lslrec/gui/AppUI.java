@@ -863,7 +863,7 @@ public class AppUI extends JFrame
 					opt = new SettingOptions( ConfigApp.STREAM_SEARCHING_TIME
 												, SettingOptions.Type.NUMBER
 												, false
-												, new NumberRange( 1, IDataStream.TIME_FOREVER )
+												, new NumberRange( 0, IDataStream.TIME_FOREVER )
 												, ConfigApp.STREAM_SEARCHING_TIME );
 					opt.addValue( ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ).toString() );
 					opts.add( opt );
