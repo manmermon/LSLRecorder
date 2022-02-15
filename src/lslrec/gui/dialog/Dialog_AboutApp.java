@@ -53,8 +53,6 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 
-import com.sun.jna.Platform;
-
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.config.ConfigApp;
@@ -277,8 +275,7 @@ public class Dialog_AboutApp extends JDialog
 			DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() );			
 			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.fullNameApp + " " + ConfigApp.version 
 										+ "</b><br/></font><font size='2' face='serif'>" + df.format( ConfigApp.buildDate.getTime() ) 
-										+"</font><font size='2' face='serif'> LSL Library version: "  + LSL.library_version()
-										+ " (" + ( Platform.is64Bit() ? "64 bits)" : "32 bits)" )
+										+"</font><font size='2' face='serif'> LSL Library version: "  + LSL.library_version() 
 										+"</font></p></html>" );
 			
 			this.jLabelVersion.setIcon(new ImageIcon(AppUI.getInstance().getIconImage().getScaledInstance(32, 32, Image.SCALE_FAST )));
