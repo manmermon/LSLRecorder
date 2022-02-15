@@ -67,7 +67,7 @@ import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
 import lslrec.control.message.RegisterSyncMessages;
-import lslrec.gui.GuiTextManager;
+import lslrec.gui.GuiLanguageManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.IPAddressCellEditor;
@@ -203,7 +203,7 @@ public class Panel_SocketSetting extends JPanel
 			TitledBorder border = BorderFactory.createTitledBorder( new LineBorder( SystemColor.inactiveCaption, 2)
 																	, Language.getLocalCaption( Language.SETTING_SOCKET_TAB_INPUT_PANEL ) );
 			
-			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.SETTING_SOCKET_TAB_INPUT_PANEL, border );
+			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.SETTING_SOCKET_TAB_INPUT_PANEL, border );
 			
 			jPanelServerCommands.setBorder( border );
 			jPanelServerCommands.setLayout(new BorderLayout(0, 0));
@@ -274,7 +274,7 @@ public class Panel_SocketSetting extends JPanel
 				}
 			});
 		
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INSERT_TEXT, this.addInMsgBtn );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.INSERT_TEXT, this.addInMsgBtn );
 		}
 		
 		return this.addInMsgBtn;
@@ -357,7 +357,7 @@ public class Panel_SocketSetting extends JPanel
 				}
 			});
 		
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DELETE_TEXT, this.delInMsgBtn );
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DELETE_TEXT, this.delInMsgBtn );
 		}
 		
 		return this.delInMsgBtn;
@@ -608,10 +608,10 @@ public class Panel_SocketSetting extends JPanel
         					
 		table.setModel( this.createClientSocketTableModel( t ) );
 		
-		GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SOCKET_TAB_INPUT_IP_TABLE_ADDRESS
+		GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SOCKET_TAB_INPUT_IP_TABLE_ADDRESS
 											, table.getColumnModel().getColumn( 1 ) );
 		
-		GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SOCKET_TAB_INPUT_IP_TABLE_PORT
+		GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SOCKET_TAB_INPUT_IP_TABLE_PORT
 											, table.getColumnModel().getColumn( 2 ) );
 				
 		table.getColumnModel().getColumn(0).setResizable(false);
@@ -767,10 +767,10 @@ public class Panel_SocketSetting extends JPanel
 			this.jTableServerCommandValue = this.getCreateJTable();
 			this.jTableServerCommandValue.setModel( this.createSocketCommandTablemodel( ) );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_MARK
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_MARK
 											, this.jTableServerCommandValue.getColumnModel().getColumn( 0 ) );
 
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MSG_TEXT
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MSG_TEXT
 											, this.jTableServerCommandValue.getColumnModel().getColumn( 1 ) );
 			
 			FontMetrics fm = this.jTableServerCommandValue.getFontMetrics( this.jTableServerCommandValue.getFont() );			

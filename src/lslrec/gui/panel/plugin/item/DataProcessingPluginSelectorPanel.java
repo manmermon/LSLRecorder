@@ -62,7 +62,7 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.GuiTextManager;
+import lslrec.gui.GuiLanguageManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.BasicPainter2D;
@@ -228,7 +228,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			this.lbWarningMsg.setForeground( Color.ORANGE.darker() );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 												, Language.MSG_WARNING_DATA_PROCESSING
 												, this.lbWarningMsg );
 		}
@@ -272,7 +272,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			GuiManager.setGUIComponent( ID, ID, this.saveOutpuDataProcessing );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 											, Language.SAVE_DATA_PROCESSING_TEXT
 											, this.saveOutpuDataProcessing );
 		}
@@ -646,7 +646,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			this.tablePluginList = this.getCreateJTable();
 			this.tablePluginList.setModel( this.createTablemodel( Language.SETTING_PLUGIN ) );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 											, Language.SETTING_PLUGIN
 											, this.tablePluginList.getColumnModel().getColumn( 0 ) );
 			
@@ -666,7 +666,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			this.tableSelectedPluginList = this.getCreateJTable();
 			this.tableSelectedPluginList.setModel( this.createTablemodel( Language.SELECTED_TEXT ) );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT
+			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 											, Language.SELECTED_TEXT
 											,	this.tableSelectedPluginList.getColumnModel().getColumn( 0 ) );
 			
@@ -831,7 +831,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 				this.btnClear.setText( cap.getCaption( Language.getCurrentLanguage() ) );
 				
-				GuiTextManager.addComponent( GuiTextManager.TEXT
+				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
 												, Language.CLEAR
 												, this.btnClear );
 			}
@@ -895,7 +895,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				Caption cap = Language.getAllCaptions().get(  Language.UP_TEXT );
 				this.buttonUp.setText( cap.getCaption( Language.getCurrentLanguage() ) );
 				
-				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.UP_TEXT, this.buttonUp );
+				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.UP_TEXT, this.buttonUp );
 			}
 			
 			this.buttonUp.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -936,7 +936,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				Caption cap = Language.getAllCaptions().get( Language.DOWN_TEXT );
 				this.buttonDown.setText( cap.getCaption( Language.getCurrentLanguage() ) );
 				
-				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DOWN_TEXT, this.buttonDown );
+				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DOWN_TEXT, this.buttonDown );
 			}
 			
 			this.buttonDown.setAlignmentX(Component.CENTER_ALIGNMENT);
