@@ -14,7 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -25,7 +24,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 
 import lslrec.auxiliar.extra.Tuple;
@@ -256,25 +254,6 @@ public class ZPlanePluginWindow extends JFrame
 		double[] a = coefs.t1;
 		double[] b = coefs.t2;
 		
-		int lenA = a.length;
-		if( lenA < 2 )
-		{
-			lenA++;
-		}
-		
-		int lenB = b.length;
-		if( lenB < 2 )
-		{
-			lenB++;
-		}
-		
-		double[] _a =  Arrays.copyOf( a, lenA );
-		ArrayUtils.reverse( _a );
-		
-		double[] _b = Arrays.copyOf( b, lenB );				
-		ArrayUtils.reverse( _b );
-		
-		
 		double step = Math.PI / fp.getWidth(); 
 		for( double w = 0; w < 2 * Math.PI; w += step )
 		{
@@ -283,9 +262,9 @@ public class ZPlanePluginWindow extends JFrame
 			
 			Complex z = new Complex( r, i );
 			
-			Complex polyNum = Utils.polyval( _b, z );
+			Complex polyNum = Utils.polyval( b, z );
 			
-			Complex polyDen = Utils.polyval( _a, z );
+			Complex polyDen = Utils.polyval( a, z );
 						
 			ws.add( polyNum.divide( polyDen ) );
 		}

@@ -5,7 +5,6 @@ package lslrec.plugin.impl.dataProcessing.zTransform;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -271,12 +270,11 @@ public class ZPlanePane extends JPanel
 			String tRad = String.format( "%.3f", radian  );
 			String tF = String.format( "%.3f",  this.samplingRate * radian / ( 2 * Math.PI )  );
 			
-			Font f = new Font( Font.DIALOG, Font.PLAIN, 18 );
-			Image imgAngRad = BasicPainter2D.text( "R: " + tRad,  super.getFontMetrics( f )
+			Image imgAngRad = BasicPainter2D.text( "R: " + tRad,  super.getFontMetrics( super.getFont() )
 											, Color.BLACK, Color.BLACK, null );
-			Image imgAngNorm = BasicPainter2D.text( "N: " + tNorm,  super.getFontMetrics( f )
+			Image imgAngNorm = BasicPainter2D.text( "N: " + tNorm,  super.getFontMetrics( super.getFont() )
 													, Color.BLACK, Color.BLACK, null );
-			Image imgAngF = BasicPainter2D.text( "F: " + tF,  super.getFontMetrics( f )
+			Image imgAngF = BasicPainter2D.text( "F: " + tF,  super.getFontMetrics( super.getFont() )
 												, Color.BLACK, Color.BLACK, null );
 			
 			int shift = Math.max( imgAngF.getWidth( null ), Math.max( imgAngRad.getWidth( null ), imgAngNorm.getWidth( null ) ) );

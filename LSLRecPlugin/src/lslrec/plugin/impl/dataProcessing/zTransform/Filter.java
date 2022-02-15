@@ -4,13 +4,10 @@
 package lslrec.plugin.impl.dataProcessing.zTransform;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JFrame;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.math3.complex.Complex;
 
 import lslrec.auxiliar.extra.Tuple;
@@ -168,7 +165,7 @@ public class Filter extends LSLRecPluginDataProcessing
 		Complex unit = new Complex( 1, 0 );
 		
 		Complex[] _b = new Complex[] { unit };
-		Complex[] _a = new Complex[] { unit };		
+		Complex[] _a = new Complex[] { unit };
 		for( Marker z : zeros )
 		{
 			Tuple< Double, Double > v = z.getValue();			
@@ -255,41 +252,12 @@ public class Filter extends LSLRecPluginDataProcessing
 		
 		Complex z = new Complex( Math.cos( -w ), Math.sin( -w ) );
 		
-		int lenA = this.a.length;
-		if( lenA < 2 )
-		{
-			lenA++;
-		}
-		
-		int lenB = this.b.length;
-		if( lenB < 2 )
-		{
-			lenB++;
-		}
-		
-		double[] _a =  Arrays.copyOf( this.a, lenA );
-		ArrayUtils.reverse( _a );
-		
-		double[] _b = Arrays.copyOf( this.b, lenB );				
-		ArrayUtils.reverse( _b );
-		
 		synchronized ( this.lock )
 		{
-			Complex N = Utils.polyval( _b, z );
-			Complex D = Utils.polyval( _a, z );
+			Complex N = Utils.polyval( this.b, z );
+			Complex D = Utils.polyval( this.a, z );
 			
-			double preGain = this.Gain;
 			this.Gain = A * D.divide( N ).abs();
-			
-			if( Double.isNaN( this.Gain ) )
-			{
-				this.Gain = 1;
-			}
-			
-			if( this.Gain == 0D )
-			{
-				this.Gain = preGain;
-			}
 			
 			for( int i = 0; i < this.b.length; i++ )
 			{
