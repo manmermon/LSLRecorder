@@ -132,6 +132,8 @@ public class Utils
 	
 	public static Complex polyval( double[] coefs, Complex z )
 	{
+		// coefs[0] + coefs[1] * z + ... + coefs[n-1] * z^{n-1} + coefs[n] * z^{n}  
+	
 		Complex polyNum = new Complex( 0, 0 );
 		
 		for( int k = 0; k < coefs.length; k++ )

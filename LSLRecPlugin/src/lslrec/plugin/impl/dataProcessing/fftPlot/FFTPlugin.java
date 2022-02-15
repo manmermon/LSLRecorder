@@ -132,7 +132,8 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 					}
 					
 					break;
-				}	
+				}
+				/*
 				case FFTDisplay.SAMPLING_RATE:
 				{					
 					try
@@ -150,7 +151,8 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 					}
 					
 					break;
-				}	
+				}
+				//*/	
 				default:
 				{
 					break;

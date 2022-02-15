@@ -109,7 +109,7 @@ import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.DisabledPanel;
@@ -131,6 +131,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 
@@ -429,6 +430,8 @@ public class Panel_StreamingSettings extends JPanel
 		scr.setVisible( true );
 		splitPanel.setVisible( true );
 		
+		GuiTextManager.updateSelectedStreamText();
+		
 		return findDevice;
 	}
 	
@@ -468,7 +471,7 @@ public class Panel_StreamingSettings extends JPanel
 						
 			this.jOutFile.add( p );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.OUTPUT_TEXT, tb );
+			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.OUTPUT_TEXT, tb );
 		}
 
 		return this.jOutFile;
@@ -490,7 +493,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			//this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
 		}
 		
 		return this.jPanelGeneralAddInfoOutFile;
@@ -503,6 +506,11 @@ public class Panel_StreamingSettings extends JPanel
 			final String ID = ConfigApp.OUTPUT_FILE_DESCR;
 			
 			this.generalDescrOutFile = new JTextField();
+			
+			Dimension d = this.generalDescrOutFile.getSize();
+			FontMetrics fm = this.fileName.getFontMetrics( this.fileName.getFont() );
+			d.width = fm.stringWidth( "W" ) * 30;			
+			this.generalDescrOutFile.setPreferredSize( d );
 			
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				
@@ -620,7 +628,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
 			GuiManager.setGUIComponent( ID, ID, this.encryptKeyActive );
 									
 		}
@@ -851,7 +859,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.panelOutFileOption.add( this.getEncryptKeyActive() );			
 			//this.panelOutFileOption.add( this.getParallelizeActive() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lb );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lb );
 		}
 
 		return this.panelOutFileOption;
@@ -865,7 +873,6 @@ public class Panel_StreamingSettings extends JPanel
 			this.fileFormat.setEditable( false );
 
 			final String ID = ConfigApp.OUTPUT_FILE_FORMAT;
-
 			String[] fileFormat = DataFileFormat.getSupportedFileFormat();
 			for( int i = 0; i < fileFormat.length; i++ )
 			{
@@ -889,7 +896,8 @@ public class Panel_StreamingSettings extends JPanel
 						
 						ConfigApp.setProperty( ID , format );
 						
-						Encoder encorder = DataFileFormat.getDataFileEncoder( format );
+						Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+						Encoder encorder = tencoder.t1;
 								
 						String ext = encorder.getOutputFileExtension();
 						
@@ -1029,10 +1037,10 @@ public class Panel_StreamingSettings extends JPanel
 				&& this.deviceInfo.length > 0 )
 		{
 			DefaultMutableTreeNode tmodel = new DefaultMutableTreeNode();
-			tmodel.setUserObject( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) );
+			tmodel.setUserObject( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) + " (" + this.deviceInfo.length + ")" );
 			
-			GuiLanguageManager.removeComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, tmodel );
+			GuiTextManager.removeComponent( GuiTextManager.TEXT, Language.SETTING_LSL_DEVICES );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_DEVICES, tmodel );
 	
 			final HashSet< IMutableStreamSetting > deviceIDs = ( HashSet< IMutableStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 	
@@ -1109,20 +1117,22 @@ public class Panel_StreamingSettings extends JPanel
 	
 			ConfigApp.setProperty( ConfigApp.ID_STREAMS, deviceIDs  );
 	
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_EXTRA );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_STREAM_PLOT );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_SYNC );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_CHUNCK_TOOLTIP );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_INTERLEAVED_TOOLTIP );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, Language.SETTING_LSL_NAME );		
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_EXTRA );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_SYNC );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_CHUNCK_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_INTERLEAVED_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_NAME );		
 			
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_INTERLEAVED_TOOLTIP );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_SYNC );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_EXTRA );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_STREAM_PLOT );
-			GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_NAME );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_INTERLEAVED_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_SYNC );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_EXTRA );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_STREAM_PLOT );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_NAME );
+			
+			GuiTextManager.clearSelectedStreamComponent();
 						
 			for( int i = 0; i < this.deviceInfo.length; i++ )
 			{
@@ -1164,24 +1174,24 @@ public class Panel_StreamingSettings extends JPanel
 					tmodel.insert( t, tmodel.getChildCount() );
 				}				
 	
-				JCheckBox r = new JCheckBox( deviceName );
+				JCheckBox selDataStream = new JCheckBox( deviceName );
 				JCheckBox Sync = new JCheckBox();
 	
 				if( !sourceID.isEmpty() )
 				{	
-					r.setName( sourceID );
+					selDataStream.setName( sourceID );
 				}
 				else
 				{
-					r.setName( deviceName + deviceType );
+					selDataStream.setName( deviceName + deviceType );
 				}
 	
-				r.setToolTipText( deviceName + "- uid: " + uid );
-				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_NAME, r );
+				selDataStream.setToolTipText( deviceName + "- uid: " + uid );
+				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_NAME, selDataStream );
 				
-				r.setHorizontalTextPosition( JCheckBox.RIGHT );
+				selDataStream.setHorizontalTextPosition( JCheckBox.RIGHT );
 	
-				r.addItemListener( new ItemListener()
+				selDataStream.addItemListener( new ItemListener()
 				{	
 					@Override
 					public void itemStateChanged(ItemEvent e) 
@@ -1198,6 +1208,8 @@ public class Panel_StreamingSettings extends JPanel
 								Sync.setSelected( false );
 							}
 						}
+						
+						GuiTextManager.updateSelectedStreamText();
 					}
 				});
 	
@@ -1213,7 +1225,7 @@ public class Panel_StreamingSettings extends JPanel
 				Sync.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_SYNC_TOOLTIP ) );				
 				Sync.setEnabled( info.channel_count() == 1 && info.data_type() == StreamDataType.int32 && devLen > 1 );
 				
-				GuiLanguageManager.addComponent( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP, Sync );
+				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP, Sync );
 	
 				if( Sync.isEnabled() )
 				{
@@ -1229,9 +1241,9 @@ public class Panel_StreamingSettings extends JPanel
 							boolean sel = c.isSelected();
 							dev.setSynchronizationStream( sel );
 	
-							if( sel && r.isSelected())
+							if( sel && selDataStream.isSelected())
 							{
-								r.setSelected( false );
+								selDataStream.setSelected( false );
 							}
 						}
 					});
@@ -1268,7 +1280,7 @@ public class Panel_StreamingSettings extends JPanel
 				JButton addInfo = new JButton();
 				addInfo.setName( Language.getLocalCaption( Language.SETTING_LSL_EXTRA ) );
 				addInfo.setBorder( BorderFactory.createEtchedBorder() );
-				Dimension d = r.getPreferredSize();
+				Dimension d = selDataStream.getPreferredSize();
 				d.width = Math.min( d.width, d.height ) - 1;
 				d.height = d.width;
 				addInfo.setPreferredSize( d );
@@ -1283,7 +1295,7 @@ public class Panel_StreamingSettings extends JPanel
 					addInfo.setText( Language.getLocalCaption( Language.SETTING_LSL_EXTRA ) );
 				}
 				
-				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_EXTRA, addInfo );
+				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_EXTRA, addInfo );
 				
 				addInfo.addActionListener( new ActionListener() 
 				{	
@@ -1359,7 +1371,7 @@ public class Panel_StreamingSettings extends JPanel
 					plot.setText( Language.getLocalCaption( Language.SETTING_LSL_STREAM_PLOT ) );
 				}				
 				
-				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_STREAM_PLOT, plot );
+				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT, plot );
 				
 				plot.addActionListener( new ActionListener() 
 				{					
@@ -1383,7 +1395,7 @@ public class Panel_StreamingSettings extends JPanel
 				JSpinner chunckSize = new JSpinner();
 				chunckSize.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				
-				GuiLanguageManager.addComponent( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP, chunckSize );
+				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP, chunckSize );
 				
 				FontMetrics fm = chunckSize.getFontMetrics( chunckSize.getFont() );
 				
@@ -1453,7 +1465,7 @@ public class Panel_StreamingSettings extends JPanel
 	
 				interleaved.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED_TOOLTIP ) );
 				interleaved.setName( Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED ) );
-				GuiLanguageManager.addComponent( GuiLanguageManager.TOOLTIP, Language.SETTING_LSL_INTERLEAVED, interleaved );
+				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_INTERLEAVED, interleaved );
 	
 				interleaved.setSelected( dev.isInterleavedData() );
 				if( interleaved.isSelected() )
@@ -1471,7 +1483,7 @@ public class Panel_StreamingSettings extends JPanel
 					interleaved.setIcon( ic );
 				}
 				
-				GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_INTERLEAVED, interleaved );
+				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_INTERLEAVED, interleaved );
 	
 				
 				interleaved.addActionListener( new ActionListener() 
@@ -1519,9 +1531,9 @@ public class Panel_StreamingSettings extends JPanel
 				devsPanel.get( 2 ).add( chunckSize );
 				devsPanel.get( 3 ).add( interleaved );
 				devsPanel.get( 4 ).add( Sync );
-				devsPanel.get( 5 ).add( r );
+				devsPanel.get( 5 ).add( selDataStream );
 									
-				this.selectedDeviceGroup.add( r );
+				this.selectedDeviceGroup.add( selDataStream );
 				if( Sync.isEnabled() )
 				{
 					this.syncDeviceGroup.add( Sync );
@@ -1541,7 +1553,7 @@ public class Panel_StreamingSettings extends JPanel
 	
 				if( dev.isSelected() )
 				{
-					r.setSelected( true );
+					selDataStream.setSelected( true );
 				}
 				else if( dev.isSynchronationStream() )
 				{
@@ -1578,15 +1590,14 @@ public class Panel_StreamingSettings extends JPanel
 				gbc.gridy = 0;
 				
 				Component headerAddAct = null;
-				
-				
+								
 				if( panel.getComponentCount() > 0 )
 				{
 					Component c = panel.getComponent( 0 );					
 					String name = c.getName();		
 															
-					String idTransLang = GuiLanguageManager.getTranslateToken( c );				
-					GuiLanguageManager.removeTranslateToken( GuiLanguageManager.TEXT, idTransLang );
+					String idTransLang = GuiTextManager.getTranslateToken( c );				
+					GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, idTransLang );
 					
 					if( i == devsPanel.size() - 2 )
 					{
@@ -1595,7 +1606,7 @@ public class Panel_StreamingSettings extends JPanel
 					}
 					else if( i >= devsPanel.size() - 1 )
 					{
-						JCheckBox jchb = new JCheckBox(  );
+						JCheckBox jchb = new JCheckBox( );
 						
 						//jchb.setBorder( BorderFactory.createEtchedBorder() );	
 						jchb.setFocusable( false );
@@ -1605,7 +1616,7 @@ public class Panel_StreamingSettings extends JPanel
 						jchb.setBackground( Color.WHITE );
 						jchb.setAlignmentX( Component.CENTER_ALIGNMENT );
 						jchb.setMargin( new Insets( 0, 0, 0, 0 ) );
-												
+						
 						jchb.addItemListener( new ItemListener() 
 						{							
 							@Override
@@ -1615,6 +1626,8 @@ public class Panel_StreamingSettings extends JPanel
 								{
 									if( e.getStateChange() == ItemEvent.DESELECTED )
 									{
+										JCheckBox jch = (JCheckBox)e.getSource();
+										
 										for( Component comp : panel.getComponents() )
 										{
 											if( comp instanceof JToggleButton )
@@ -1622,17 +1635,17 @@ public class Panel_StreamingSettings extends JPanel
 												((JToggleButton)comp).setSelected( true );
 											}
 										}
-										
-										((JCheckBox)e.getSource()).setSelected( true );
+																				
+										jch.setSelected( true );
 									}
 								}
 							}
 						});
-												
-						headerAddAct = jchb;
 						
-						name = Language.getLocalCaption( Language.SETTING_LSL_NAME );
-						idTransLang = Language.SETTING_LSL_NAME;
+						name = Language.getLocalCaption( Language.SETTING_LSL_NAME ) ;
+						idTransLang = Language.SETTING_LSL_NAME ;
+						
+						headerAddAct = jchb;
 						
 						colPanel.setLayout( new BorderLayout() );
 						colPanel.setBorder( null );
@@ -1657,7 +1670,7 @@ public class Panel_StreamingSettings extends JPanel
 						
 						if( idTransLang != null )
 						{
-							GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, idTransLang, lb );
+							GuiTextManager.addComponent( GuiTextManager.TEXT, idTransLang, lb );
 						}
 						
 						if( headerAddAct != null )
@@ -1668,6 +1681,8 @@ public class Panel_StreamingSettings extends JPanel
 							headerAddAct.setSize( d );
 							
 							headerPanel.add( headerAddAct, 0 );
+							
+							GuiTextManager.addSelectedStreamComponent( lb, idTransLang );
 							
 							//lb.setBorder( BorderFactory.createEmptyBorder( 1, 0, 0, 0 ) );		
 						}
@@ -1813,8 +1828,7 @@ public class Panel_StreamingSettings extends JPanel
 	{
 		if( this.devInfoTree == null )
 		{
-			this.devInfoTree = new JTree( new DefaultMutableTreeNode() );
-			
+			this.devInfoTree = new JTree( new DefaultMutableTreeNode() );			
 		}
 		
 		return this.devInfoTree;
@@ -1826,14 +1840,15 @@ public class Panel_StreamingSettings extends JPanel
 		{
 			this.tabStreams = new JTabbedPane( );
 
-			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ), new JScrollPane( tree ) );
+			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) 
+									, new JScrollPane( tree ) );
 			Component c = this.tabStreams.getComponentAt( 0 );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_DEVICES, c );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_DEVICES, c );
 			
 			//this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getLSLPlot() );
 			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
 			c = this.tabStreams.getComponentAt( 1 );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_PLOT, c );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_PLOT, c );
 			
 			this.tabStreams.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
 		}
@@ -2016,6 +2031,11 @@ public class Panel_StreamingSettings extends JPanel
 		return nodeText;
 	}
 	
+	private void updateNumberOfSelectedStream()
+	{
+		
+	}
+	
 	private JButton getOutputFormatOptsButton()
 	{
 		if( this.btnOutFormatOptions == null )
@@ -2054,7 +2074,8 @@ public class Panel_StreamingSettings extends JPanel
 						main.setBackground( Color.green );
 
 						
-						Encoder enc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Encoder enc = tenc.t1;
 						List< SettingOptions > opts = enc.getSettiongOptions();
 						ParameterList pars = enc.getParameters();
 						

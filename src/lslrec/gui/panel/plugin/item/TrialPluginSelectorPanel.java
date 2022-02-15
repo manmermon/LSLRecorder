@@ -56,7 +56,7 @@ import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.TrialPluginRegistrar;
@@ -143,7 +143,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			panelWinSizeSetting.add(getLblWinHeight());
 			this.panelWinSizeSetting.add( this.getSpinnerHeight());
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER
+			GuiTextManager.addComponent( GuiTextManager.BORDER
 											, Language.WINDOW_TEXT
 											, this.panelWinSizeSetting.getBorder() );
 		}
@@ -280,7 +280,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			this.tablePluginList = this.getCreateJTable();
 			this.tablePluginList.setModel( this.createTablemodel( Language.SETTING_PLUGIN ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getColumnModel().getColumn( 0 ) );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_PLUGIN, this.tablePluginList.getColumnModel().getColumn( 0 ) );
 			
 			this.tablePluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 						
@@ -451,7 +451,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			
 			GuiManager.setGUIComponent( ID, ID, this.chckbxFullScreen );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+			GuiTextManager.addComponent( GuiTextManager.TEXT
 											, Language.FULLSCREEN
 											, this.chckbxFullScreen );
 		}
@@ -465,7 +465,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		{
 			this.lblWinWidth = new JLabel( Language.getLocalCaption( Language.WIDTH_TEXT ) );
 		
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+			GuiTextManager.addComponent( GuiTextManager.TEXT
 											, Language.WIDTH_TEXT
 											, this.lblWinWidth );
 		}
@@ -612,7 +612,7 @@ public class TrialPluginSelectorPanel extends JPanel
 		{
 			this.lblWinHeight = new JLabel( Language.getLocalCaption( Language.HEIGHT_TEXT ) );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT
+			GuiTextManager.addComponent( GuiTextManager.TEXT
 											, Language.HEIGHT_TEXT
 											, this.lblWinHeight );
 		}

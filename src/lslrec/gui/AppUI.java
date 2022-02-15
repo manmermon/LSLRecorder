@@ -220,7 +220,7 @@ public class AppUI extends JFrame
 		super.setGlassPane( glass );
 		super.getGlassPane().setVisible( false );
 		
-		GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.GENERAL_WAIT_MSG, glass );
+		GuiTextManager.addComponent( GuiTextManager.TEXT, Language.GENERAL_WAIT_MSG, glass );
 
 		super.setJMenuBar( getJJMenuBar() );
 		super.setContentPane( getJContentPane() );
@@ -368,7 +368,7 @@ public class AppUI extends JFrame
 			this.jPanelSelectSyncMethod.add( this.getJButtonRefreshDataStreams() );
 
 			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
 			
 			this.jPanelSelectSyncMethod.add( lb );
 			this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
@@ -468,7 +468,7 @@ public class AppUI extends JFrame
 			
 			GuiManager.setGUIComponent( ID, ID, this.checkActiveSpecialInputMsg );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_SPECIAL_IN_METHOD, this.checkActiveSpecialInputMsg );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SPECIAL_IN_METHOD, this.checkActiveSpecialInputMsg );
 
 		}
 
@@ -608,7 +608,7 @@ public class AppUI extends JFrame
 
 			this.btnRefreshDevices.setIcon( icon );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_LSL_REFRESH, this.btnRefreshDevices );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_REFRESH, this.btnRefreshDevices );
 		}
 
 		return this.btnRefreshDevices;
@@ -794,7 +794,7 @@ public class AppUI extends JFrame
 		{
 			this.jLangMenu = new JMenu( Language.getLocalCaption( Language.LANGUAGE_TEXT ) );
 
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.LANGUAGE_TEXT, this.jLangMenu );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LANGUAGE_TEXT, this.jLangMenu );
 			
 			ButtonGroup menuGr = new ButtonGroup();
 			
@@ -811,7 +811,7 @@ public class AppUI extends JFrame
 
 						if( !m.getText().toLowerCase().equals( Language.getCurrentLanguage().toLowerCase() ) )
 						{
-							GuiLanguageManager.changeLanguage( m.getText() );
+							GuiTextManager.changeLanguage( m.getText() );
 						}
 					}
 				});
@@ -863,7 +863,7 @@ public class AppUI extends JFrame
 					opt = new SettingOptions( ConfigApp.STREAM_SEARCHING_TIME
 												, SettingOptions.Type.NUMBER
 												, false
-												, new NumberRange( 1, IDataStream.TIME_FOREVER )
+												, new NumberRange( 0, IDataStream.TIME_FOREVER )
 												, ConfigApp.STREAM_SEARCHING_TIME );
 					opt.addValue( ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ).toString() );
 					opts.add( opt );
@@ -950,7 +950,7 @@ public class AppUI extends JFrame
 				}
 			});
 
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );
 			
 		}
 
@@ -979,7 +979,7 @@ public class AppUI extends JFrame
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
 			this.jFileMenu.add( this.getMenuExit() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_FILE, this.jFileMenu );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_FILE, this.jFileMenu );
 		}
 
 		return this.jFileMenu;
@@ -996,7 +996,7 @@ public class AppUI extends JFrame
 			this.menuPreference.add( this.getLangMenu() );
 			this.menuPreference.add( this.getAdvanceOptionMenu() );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_PREFERENCE, this.menuPreference );	
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_PREFERENCE, this.menuPreference );	
 		}
 		
 		return this.menuPreference;
@@ -1018,7 +1018,7 @@ public class AppUI extends JFrame
 				}
 			});
 						
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_SHOW_LOG, this.menuShowLog );	
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_SHOW_LOG, this.menuShowLog );	
 		}
 		
 		return this.menuShowLog;
@@ -1033,8 +1033,8 @@ public class AppUI extends JFrame
 			JLabel lbstate = new JLabel( Language.getLocalCaption( Language.INFO_STATE_LABEL ) );
 			JLabel lbTime = new JLabel( Language.getLocalCaption( Language.INFO_SESSION_TIME_LABEL ) ); 
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.INFO_STATE_LABEL, lbstate );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.INFO_SESSION_TIME_LABEL, lbTime );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INFO_STATE_LABEL, lbstate );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INFO_SESSION_TIME_LABEL, lbTime );
 
 			lbstate.setFont( new Font( Font.DIALOG, Font.PLAIN, 12 ) );
 			lbTime.setFont( new Font( Font.DIALOG, Font.PLAIN, 12 ) );
@@ -1226,7 +1226,7 @@ public class AppUI extends JFrame
 			this.jButtomPlayStop.setIcon(GuiManager.START_ICO);
 			this.jButtomPlayStop.setSelectedIcon(GuiManager.STOP_ICO);
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.ACTION_PLAY, this.jButtomPlayStop );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.ACTION_PLAY, this.jButtomPlayStop );
 		}
 
 
@@ -1264,7 +1264,7 @@ public class AppUI extends JFrame
 				}
 			});
 
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_LOAD, this.menuLoad );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_LOAD, this.menuLoad );
 		}
 
 		return this.menuLoad;
@@ -1294,7 +1294,7 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_SAVE, this.menuSave );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_SAVE, this.menuSave );
 		}
 
 		return this.menuSave;
@@ -1316,7 +1316,7 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_EXIT, this.menuExit );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_EXIT, this.menuExit );
 		}
 
 		return this.menuExit;
@@ -1347,7 +1347,7 @@ public class AppUI extends JFrame
 			});
 			
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_WRITE_TEST, this.menuWritingTest );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_WRITE_TEST, this.menuWritingTest );
 		}
 		
 		return this.menuWritingTest;
@@ -1371,7 +1371,7 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_CONVERT, this.menuBin2Clis );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT, this.menuBin2Clis );
 		}
 
 		return this.menuBin2Clis;
@@ -1448,7 +1448,7 @@ public class AppUI extends JFrame
 				}
 			});
 	
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_GNU_GPL, this.jGNUGLP );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_GNU_GPL, this.jGNUGLP );
 		}
 
 		return this.jGNUGLP;
@@ -1540,7 +1540,7 @@ public class AppUI extends JFrame
 				}
 			});
 		
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.MENU_ABOUT, this.jMenuAbout );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ABOUT, this.jMenuAbout );
 		}
 
 		return this.jMenuAbout;
@@ -1562,7 +1562,7 @@ public class AppUI extends JFrame
 
 			this.jPanelInputMsgLog.add( p, BorderLayout.NORTH );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
+			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
 		}
 
 		return this.jPanelInputMsgLog;
@@ -1582,7 +1582,7 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.CLEAR, this.jButtonClearLog );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.CLEAR, this.jButtonClearLog );
 		}
 
 		return jButtonClearLog;
@@ -1658,7 +1658,7 @@ public class AppUI extends JFrame
 		{
 			this.mntmCopy = new JMenuItem( new DefaultEditorKit.CopyAction() );
 			this.mntmCopy.setText( Language.getLocalCaption( Language.COPY ) );
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.COPY, this.mntmCopy );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.COPY, this.mntmCopy );
 			//mntmCopy_2.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_MASK));
 		}
 
@@ -1681,7 +1681,7 @@ public class AppUI extends JFrame
 				}
 			});			
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.COPY_ALL, this.mntmCopyall );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.COPY_ALL, this.mntmCopyall );
 		}
 
 		return this.mntmCopyall;
@@ -1705,7 +1705,7 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.CLEAR, this.mntmClear );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.CLEAR, this.mntmClear );
 		}
 
 		return this.mntmClear;

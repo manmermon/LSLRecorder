@@ -47,7 +47,9 @@ import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.SettingException;
@@ -57,6 +59,7 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
+import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
@@ -757,6 +760,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			WarningMessage trW = trial.checkSettings();
 			
 			this.warnMsg.addMessage( trW.getMessage(), trW.getWarningType() );
+		}
+		
+		String idFormat = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
+		Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( idFormat );
+		if( enc == null && enc.t1 == null)
+		{
+			this.warnMsg.addMessage( "Encoder null", WarningMessage.ERROR_MESSAGE );
+		}
+		else if( !( enc.t1 instanceof ClisEncoder ) )
+		{
+			WarningMessage wm = enc.t2;
+			if( wm != null )
+			{
+				this.warnMsg.addMessage( wm.getMessage(), wm.getWarningType() );
+			}
 		}
 		
 		this.warnMsg.addMessage( outFileMsg.getMessage(), outFileMsg.getWarningType() );
@@ -1805,6 +1823,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					*/
 					
 					Exception ex = new Exception( eventObject.toString() );
+					//ex.printStackTrace();
 										
 					if( eventObject instanceof Exception )
 					{

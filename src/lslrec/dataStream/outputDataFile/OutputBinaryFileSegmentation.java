@@ -26,8 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-
-
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.IMonitoredTask;
@@ -40,10 +39,12 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
@@ -188,9 +189,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			varNames += this.prefixStringLen + streamName + ";";
 			varNames += this.prefixTime + streamName + ";";			
 			
-			this.outputFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames ); // CLIS: To calculate padding header 
+			this.outputFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames ); // CLIS: To calculate padding header
+			this.outputFormat.setParameter( StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
+											, "<"+ StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS+">" 
+												+Long.MAX_VALUE 
+											+ "</"+ StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS+">" );
 						
-			IOutputDataFileWriter wr = DataFileFormat.getDataFileEncoder( outFormat ).getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
+			Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( outFormat );
+			IOutputDataFileWriter wr = enc.t1.getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
 					
 			this.writer = wr;
 		}
@@ -666,7 +672,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		synchronized ( this )
 		{
-			this.totalSampleByChannels += ( to - from ) / Nchannels;
+			//this.totalSampleByChannels += ( to - from ) / Nchannels;
 			
 			while( !this.writer.saveData( dataBlock ) )
 			{			
@@ -880,12 +886,15 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				if( times != null )
 				{
 					while( dataBuffer.size() >= this.maxNumElements )
-					{					
+					{
+						this.totalSampleByChannels += this.maxNumElements;
 						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name );
 					}
 				}
 			}
 			while( times != null );		
+			
+			this.totalSampleByChannels += dataBuffer.size();
 			
 			while( dataBuffer.size() > 0 )
 			{

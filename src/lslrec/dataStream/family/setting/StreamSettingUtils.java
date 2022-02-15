@@ -145,7 +145,6 @@ public class StreamSettingUtils
 						 */
 
 						xml = createNode( doc, nodes, name, value );
-
 					}
 			    }
 			    catch( Exception e )
@@ -170,6 +169,8 @@ public class StreamSettingUtils
     
         transformer = tf.newTransformer();
         transformer.setOutputProperty( OutputKeys.OMIT_XML_DECLARATION, "yes");
+        transformer.setOutputProperty( OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", ""+( 4 * (nodes.getLength() + 1 ) ) );
         
         StringWriter writer = new StringWriter();
         

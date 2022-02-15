@@ -34,7 +34,7 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
-import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.loader.java8.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
@@ -66,6 +66,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
@@ -79,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 10 - 1, 27 );
+	public static final Calendar buildDate = new GregorianCalendar( 2022, 2 - 1, 15 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -254,7 +255,7 @@ public class ConfigApp
 		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
 		
-		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1,  IDataStream.TIME_FOREVER  ) );
+		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 0,  IDataStream.TIME_FOREVER  ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
@@ -462,14 +463,14 @@ public class ConfigApp
 		return "<" + type.name() + "," + id + "," + extra + ">";
 	}
 	
-	public static boolean loadConfig( File f ) throws Exception
+	public static WarningMessage loadConfig( File f ) throws Exception
 	{
 		defaultNameFileConfig = f.getName();
 		
 		Properties prop = new Properties();
 		FileInputStream propFileIn = null;
 		
-		boolean res = true;
+		WarningMessage msg = new WarningMessage();
 
 		try
 		{
@@ -477,31 +478,27 @@ public class ConfigApp
 
 			prop.load( propFileIn );
 						
-			String msg = checkProperties( prop );			
+			String msgCh = checkProperties( prop );			
 			
-			if( !msg.isEmpty() )
+			if( !msgCh.isEmpty() )
 			{
-				res = false;
-				
-				throw new DefaultValueException( "Setting error in " + f + "\n" + msg );
+				msg.setMessage( "Setting error in " + f + "\n" + msgCh, WarningMessage.WARNING_MESSAGE );				
+				//throw new DefaultValueException( );
 			}
 		}
 		catch (DefaultValueException e)
-		{
-			res = false;
-			
-			throw new Exception(e.getMessage());
+		{			
+			//throw new Exception( e.getMessage() );
+			msg.setMessage( e.getMessage(), WarningMessage.ERROR_MESSAGE );
 		}
 		catch (Exception e)
 		{
 			loadDefaultProperties();
 			
-			res = false;
-			
-			throw new Exception(e.getMessage() + ": Default Parameters load.");
+			msg.setMessage( e.getMessage() + ": Default Parameters load.", WarningMessage.ERROR_MESSAGE );			
 		}
 		
-		return res;
+		return msg;
 	}
 
 	public static boolean setProperty(String propertyID, Object value)
@@ -1557,7 +1554,7 @@ public class ConfigApp
 	
 	private static void loadDefaultStreamSearchingTime()
 	{				
-		listConfig.put( STREAM_SEARCHING_TIME, 5D );
+		listConfig.put( STREAM_SEARCHING_TIME, 0D );
 	}
 	
 	/*

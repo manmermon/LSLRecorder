@@ -57,6 +57,7 @@ import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
@@ -85,7 +86,7 @@ import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
-import lslrec.plugin.loader.PluginLoader;
+import lslrec.plugin.loader.java8.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
@@ -391,7 +392,7 @@ public class GuiManager
 	
 	
 	private void loadValueConfig(File f)
-	{
+	{		
 		try
 		{	
 			DataProcessingPluginRegistrar.clear();
@@ -399,11 +400,19 @@ public class GuiManager
 			
 			refreshPlugins();
 			
-			ConfigApp.loadConfig( f );
+			WarningMessage msg = ConfigApp.loadConfig( f );
 			
-			loadConfigValues2GuiComponents();
+			if( msg.getWarningType() != WarningMessage.ERROR_MESSAGE )
+			{
+				loadConfigValues2GuiComponents();
+				
+				refreshPlugins();
+			}
 			
-			refreshPlugins();
+			if( msg.getWarningType() != WarningMessage.OK_MESSAGE )
+			{
+				throw new Exception( msg.getMessage() );
+			}
 		}
 		catch (Exception e)
 		{
@@ -840,7 +849,7 @@ public class GuiManager
 			
 			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, pps );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_PLUGIN, pps );
 		}
 	}
 	

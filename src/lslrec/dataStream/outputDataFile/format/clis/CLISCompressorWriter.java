@@ -29,9 +29,8 @@ import java.util.List;
 import javax.crypto.Cipher;
 
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
-import lslrec.dataStream.family.stream.lsl.LSLUtils;
 
-public class CLISCompressorWriter 
+public class ClisCompressorWriter 
 {
 	private String fileName;
 	
@@ -45,9 +44,9 @@ public class CLISCompressorWriter
 
 	private List< Integer > blockSizes = null;
 	
-	private CLISMetadata metadata;
+	private ClisMetadata metadata;
 	
-	public CLISCompressorWriter( String file, CLISMetadata meta ) throws Exception 
+	public ClisCompressorWriter( String file, ClisMetadata meta ) throws Exception 
 	{
 		this.metadata = meta;
 		
