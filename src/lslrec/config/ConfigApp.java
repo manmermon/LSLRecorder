@@ -255,7 +255,7 @@ public class ConfigApp
 		list_Key_RankValues.put( TRIAL_WINDOW_HEIGHT, new NumberRange( 100,  8e3 ) );
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
 		
-		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 0,  IDataStream.TIME_FOREVER  ) );
+		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 1,  IDataStream.TIME_FOREVER  ) );
 	}
 		
 	public static void saveConfig( File f ) throws Exception
