@@ -66,7 +66,6 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 
-import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
@@ -80,7 +79,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2021, 12 - 1, 13 );
+	public static final Calendar buildDate = new GregorianCalendar( 2021, 11 - 1, 12 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -463,14 +462,14 @@ public class ConfigApp
 		return "<" + type.name() + "," + id + "," + extra + ">";
 	}
 	
-	public static WarningMessage loadConfig( File f ) throws Exception
+	public static boolean loadConfig( File f ) throws Exception
 	{
 		defaultNameFileConfig = f.getName();
 		
 		Properties prop = new Properties();
 		FileInputStream propFileIn = null;
 		
-		WarningMessage msg = new WarningMessage();
+		boolean res = true;
 
 		try
 		{
@@ -478,27 +477,31 @@ public class ConfigApp
 
 			prop.load( propFileIn );
 						
-			String msgCh = checkProperties( prop );			
+			String msg = checkProperties( prop );			
 			
-			if( !msgCh.isEmpty() )
+			if( !msg.isEmpty() )
 			{
-				msg.setMessage( "Setting error in " + f + "\n" + msgCh, WarningMessage.WARNING_MESSAGE );				
-				//throw new DefaultValueException( );
+				res = false;
+				
+				throw new DefaultValueException( "Setting error in " + f + "\n" + msg );
 			}
 		}
 		catch (DefaultValueException e)
-		{			
-			//throw new Exception( e.getMessage() );
-			msg.setMessage( e.getMessage(), WarningMessage.ERROR_MESSAGE );
+		{
+			res = false;
+			
+			throw new Exception(e.getMessage());
 		}
 		catch (Exception e)
 		{
 			loadDefaultProperties();
 			
-			msg.setMessage( e.getMessage() + ": Default Parameters load.", WarningMessage.ERROR_MESSAGE );			
+			res = false;
+			
+			throw new Exception(e.getMessage() + ": Default Parameters load.");
 		}
 		
-		return msg;
+		return res;
 	}
 
 	public static boolean setProperty(String propertyID, Object value)
