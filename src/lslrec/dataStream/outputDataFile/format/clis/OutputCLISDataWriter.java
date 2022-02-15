@@ -40,13 +40,13 @@ import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 
-public class OutputClisDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
+public class OutputCLISDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
 {	
 	private IOutZip zipProcess;
 		
-	private ClisCompressorWriter clisWriter = null;
+	private CLISCompressorWriter clisWriter = null;
 	
-	public OutputClisDataWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
+	public OutputCLISDataWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
 		
@@ -66,8 +66,8 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 		
 		this.taskMonitor( monitor );
 				
-		ClisMetadata metadata = new ClisMetadata( formatPars, streamSettings );		
-		this.clisWriter = new ClisCompressorWriter( (String)formatPars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), metadata );		
+		CLISMetadata metadata = new CLISMetadata( formatPars, streamSettings );		
+		this.clisWriter = new CLISCompressorWriter( (String)formatPars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), metadata );		
 	}
 
 	public void addMetadata( String id, String text ) throws Exception

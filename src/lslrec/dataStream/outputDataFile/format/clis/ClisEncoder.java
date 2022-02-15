@@ -34,7 +34,7 @@ import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputClisDataParallelWriter;
+import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputCLISDataParallelWriter;
 
 public class ClisEncoder implements Encoder 
 {
@@ -99,11 +99,11 @@ public class ClisEncoder implements Encoder
 		Parameter< Boolean> p = pars.getParameter( OutputFileFormatParameters.PARALLELIZE );
 		if( p != null && p.getValue() != null && !p.getValue() )
 		{
-			wr = new OutputClisDataWriter( pars, streamSettings, monitor);
+			wr = new OutputCLISDataWriter( pars, streamSettings, monitor);
 		}
 		else
 		{
-			wr = new OutputClisDataParallelWriter( pars, streamSettings, monitor );
+			wr = new OutputCLISDataParallelWriter( pars, streamSettings, monitor );
 		}
 		
 		return wr;

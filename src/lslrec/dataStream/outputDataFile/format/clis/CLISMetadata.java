@@ -37,14 +37,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
 import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 
-public class ClisMetadata 
+public class CLISMetadata 
 {
 	private final String ENCRYPT_ALGORITHM = "AES";
     private final String ENCRYPT_TRANSFORMATION = "AES/CBC/PKCS5Padding";
@@ -97,7 +96,7 @@ public class ClisMetadata
 	
 	private IStreamSetting streamSetting;
 	
-	public ClisMetadata( OutputFileFormatParameters pars, IStreamSetting settings  ) throws Exception 
+	public CLISMetadata( OutputFileFormatParameters pars, IStreamSetting settings  ) throws Exception 
 	{	
 		this.zip_id = pars.getParameter( OutputFileFormatParameters.ZIP_ID ).getValue().toString();
 		
@@ -229,8 +228,7 @@ public class ClisMetadata
 		
 		this.headerSize += ( this.headerInfo.length() + this.headerInfoExtension.length() + checkSumLen + encByteLen ) * 2;
 		this.headerSize += pars.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue().toString().length();
-		this.headerSize += pars.getParameter( StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS ).getValue().toString().length();
-		
+				
 		//byte[] padding = new byte[ Character.BYTES ];
 		int charByteSize = this.headerInfo.getBytes( this.charCode ).length / this.headerInfo.length(); 
 		this.padding = new byte[ charByteSize ];
