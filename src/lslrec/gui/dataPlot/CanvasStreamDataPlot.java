@@ -75,7 +75,7 @@ import org.jfree.data.xy.DefaultXYDataset;
 
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.language.Language;
-import lslrec.gui.GuiLanguageManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.BasicPainter2D;
@@ -221,7 +221,7 @@ public class CanvasStreamDataPlot extends JPanel
 			
 			JLabel lb = new JLabel(  Language.getLocalCaption( Language.LSL_PLOT_FILTERS ) );			
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.LSL_PLOT_FILTERS, lb );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LSL_PLOT_FILTERS, lb );
 			
 			this.filterRangePanel.add( lb );
 			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
@@ -275,7 +275,7 @@ public class CanvasStreamDataPlot extends JPanel
 				}
 			});
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.APPLY_TEXT, this.applyFilters );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.APPLY_TEXT, this.applyFilters );
 		}
 		
 		return this.applyFilters;

@@ -849,7 +849,7 @@ public class GuiManager
 			
 			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );
 			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.SETTING_PLUGIN, pps );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_PLUGIN, pps );
 		}
 	}
 	
