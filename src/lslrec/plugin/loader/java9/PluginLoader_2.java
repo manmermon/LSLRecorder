@@ -18,7 +18,9 @@
  *   
  */
 
-package lslrec.plugin.loader.java8;
+// Working progress
+
+package lslrec.plugin.loader.java9;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -30,7 +32,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
-import lslrec.plugin.IPluginLoader;
+import lslrec.plugin.loader.ClassPathLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
@@ -39,9 +41,9 @@ import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.ILSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 
-public class PluginLoader implements IPluginLoader
+public class PluginLoader_2 
 {
-	private static PluginLoader loader = null;
+	private static PluginLoader_2 loader = null;
 	
 	private final String DEFAULT_FOLDER = System.getProperty( "user.dir" ) + "/plugins/";
 	
@@ -49,9 +51,11 @@ public class PluginLoader implements IPluginLoader
 	
 	private final Map< PluginType, Class > PLUGIN_TYPES = new HashMap< PluginType, Class >();
 		
-	private ArrayTreeMap< PluginType, ILSLRecPlugin > _Plugins = new ArrayTreeMap< PluginType, ILSLRecPlugin >(); 
+	private ArrayTreeMap< PluginType, ILSLRecPlugin > _Plugins = new ArrayTreeMap< PluginType, ILSLRecPlugin >();
 	
-	private PluginLoader() throws Exception
+	private ClassPathRegistrar classReg = new ClassPathRegistrar(); 
+	
+	private PluginLoader_2() throws Exception
 	{
 		PLUGIN_TYPES.put( PluginType.DATA_PROCESSING,  ILSLRecPluginDataProcessing.class );
 		PLUGIN_TYPES.put( PluginType.ENCODER,  LSLRecPluginEncoder.class );
@@ -74,11 +78,11 @@ public class PluginLoader implements IPluginLoader
 		}
 	}
 	
-	public static PluginLoader getInstance() throws Exception
+	public static PluginLoader_2 getInstance() throws Exception
 	{
 		if( loader == null )
 		{
-			loader = new PluginLoader();
+			loader = new PluginLoader_2();
 		}
 		
 		return loader;
@@ -159,12 +163,10 @@ public class PluginLoader implements IPluginLoader
     					}
     				}
     				
-    				/*
     				if( c == pluginCount )
     				{
     					cp.removeFile( jar );
     				}
-    				*/
     			}
     			catch (Exception e) 
     			{
@@ -180,7 +182,6 @@ public class PluginLoader implements IPluginLoader
      * Get plugins from classpath
      * @return plugin list
      */
-    @Override
     public List< ILSLRecPlugin > getPluginsByType( PluginType plgType ) 
     {
     	List< ILSLRecPlugin > plgs = _Plugins.get( plgType );
@@ -198,13 +199,8 @@ public class PluginLoader implements IPluginLoader
 		        
 		        for ( Iterator it = sl.iterator(); it.hasNext(); ) 
 		        {   
-		        	try
-		        	{
-			        	ILSLRecPlugin pl = (ILSLRecPlugin) it.next();
-			        	_Plugins.putElement( plgType, pl );
-		        	}
-		        	catch( Exception | Error e)
-		        	{}
+		        	ILSLRecPlugin pl = (ILSLRecPlugin) it.next();
+		        	_Plugins.putElement( plgType, pl );
 		        }
     		}
     	}
@@ -213,7 +209,6 @@ public class PluginLoader implements IPluginLoader
         return plgs;
     }
     
-    @Override
     public List< ILSLRecPlugin > getAllPlugins( PluginType plgClss, String id )
     {
     	List< ILSLRecPlugin > plg = new ArrayList< ILSLRecPlugin >();
@@ -234,7 +229,6 @@ public class PluginLoader implements IPluginLoader
     	return plg;
     }
     
-    @Override
     public ILSLRecPlugin createNewPluginInstance( PluginType plgType, String id, boolean registerInstance )
     {    		
     	ILSLRecPlugin pl = null;
@@ -265,7 +259,6 @@ public class PluginLoader implements IPluginLoader
     	return pl;
     }
     
-    @Override
     public ILSLRecPlugin removePluginInstance( PluginType plgCl, String id, int index )
     {
     	ILSLRecPlugin pl = null;
@@ -300,7 +293,6 @@ public class PluginLoader implements IPluginLoader
      * Get all plugins from classpath
      * @return plugin list
      */
-    @Override
     public List< ILSLRecPlugin > getPlugins() 
     { 
         //Load ILslrecPlugins

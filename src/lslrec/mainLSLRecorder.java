@@ -28,9 +28,7 @@ import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_Opening;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.plugin.IPluginLoader;
-import lslrec.plugin.loader.java8.PluginLoader;
-import lslrec.plugin.loader.java9.PluginLoaderJava9;
+import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
@@ -167,7 +165,8 @@ public class mainLSLRecorder
 		}		
 	}
 
-	private static void addLibraryPath(String pathToAdd) throws Exception 
+
+	public static void addLibraryPath(String pathToAdd) throws Exception 
 	{
 		Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
@@ -226,35 +225,20 @@ public class mainLSLRecorder
 	
 	private static void registerPlugins() throws Exception
 	{
-		String javaVersion = System.getProperty("java.version");    	
-    	
-		IPluginLoader loader = null;
+		PluginLoader loader = PluginLoader.getInstance();
+		List< ILSLRecPlugin > plugins = loader.getPlugins();
 		
-    	if( javaVersion.startsWith( "1.") )
-    	{    	
-			loader = PluginLoader.getInstance();		
-    	}
-    	else
-    	{
-    		loader = PluginLoaderJava9.getInstance();    		
-    	}
-    	
-    	if( loader != null )
-    	{
-			List< ILSLRecPlugin > plugins = loader.getPlugins();
-			
-			for( ILSLRecPlugin plg : plugins )
+		for( ILSLRecPlugin plg : plugins )
+		{
+			if( plg instanceof LSLRecPluginEncoder )
 			{
-				if( plg instanceof LSLRecPluginEncoder )
-				{
-					DataFileFormat.addEncoder( (LSLRecPluginEncoder)plg );
-				}
-				else if( plg instanceof LSLRecPluginCompressor )
-				{
-					CompressorDataFactory.addCompressor( (LSLRecPluginCompressor)plg );
-				}
+				DataFileFormat.addEncoder( (LSLRecPluginEncoder)plg );
 			}
-    	}
+			else if( plg instanceof LSLRecPluginCompressor )
+			{
+				CompressorDataFactory.addCompressor( (LSLRecPluginCompressor)plg );
+			}
+		}		
 	}
 	
 	private static void createAppCoreControl()
