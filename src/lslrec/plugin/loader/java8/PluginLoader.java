@@ -140,26 +140,24 @@ public class PluginLoader implements IPluginLoader
     			{
     				cp.addFile( jar );
     				
-    				/*
     				int c = pluginCount;
     				
     				for( PluginType plg : PLUGIN_TYPES.keySet() )
     				{
     					List< ILSLRecPlugin > ps = getPluginsByType( plg );
-    					System.out.println( "PluginLoader.LoadPlugins " + ps );
+    					
     					if( ps != null )
     					{
     						c = ps.size();
 	    				
 		    				if( c != pluginCount )
-		    				{		    					
+		    				{
 		    					pluginCount = c;
 		    					
 		    					break;
 		    				}
     					}
     				}
-    				*/
     				
     				/*
     				if( c == pluginCount )
@@ -173,11 +171,6 @@ public class PluginLoader implements IPluginLoader
     				exs.add( e );
 				}
     		}
-    		
-    		for( PluginType plg : PLUGIN_TYPES.keySet() )
-			{
-				List< ILSLRecPlugin > ps = getPluginsByType( plg );				
-			}
     	}
         
         return exs;
@@ -192,7 +185,6 @@ public class PluginLoader implements IPluginLoader
     {
     	List< ILSLRecPlugin > plgs = _Plugins.get( plgType );
     	    	
-    	//System.out.println("PluginLoader.getPluginsByType() " + plgType);
     	
     	if( plgs == null || plgs.isEmpty() )
     	{	
@@ -201,7 +193,7 @@ public class PluginLoader implements IPluginLoader
     		if( plgClss != null )
     		{
 		        //Load ILslrecPlugins
-		        ServiceLoader sl = ServiceLoader.load( plgClss );
+		        ServiceLoader sl = ServiceLoader.load( plgClss );        
 		        sl.reload();
 		        
 		        for ( Iterator it = sl.iterator(); it.hasNext(); ) 
@@ -313,11 +305,9 @@ public class PluginLoader implements IPluginLoader
     { 
         //Load ILslrecPlugins
     	List< ILSLRecPlugin > lplg = new ArrayList<ILSLRecPlugin>();
-    	
     	for( PluginType pl : PLUGIN_TYPES.keySet() )
     	{
     		List< ILSLRecPlugin > ps = this.getPluginsByType( pl );
-    		
     		if( ps != null )
     		{
     			lplg.addAll( ps );

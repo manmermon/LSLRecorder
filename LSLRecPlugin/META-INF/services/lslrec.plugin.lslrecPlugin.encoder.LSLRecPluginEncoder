@@ -1,3 +1,2 @@
 lslrec.plugin.impl.encoder.hdf5.HDF5EncoderPlugin
 lslrec.plugin.impl.encoder.csv.CSVEncoderPlugin
-lslrec.plugin.impl.encoder.matlab.MatlabEncoderPlugin

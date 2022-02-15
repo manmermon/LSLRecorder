@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import lslrec.auxiliar.WarningMessage;
+
+
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.IMonitoredTask;
@@ -44,7 +45,6 @@ import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
-import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarker;
@@ -195,8 +195,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 												+Long.MAX_VALUE 
 											+ "</"+ StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS+">" );
 						
-			Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( outFormat );
-			IOutputDataFileWriter wr = enc.t1.getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
+			IOutputDataFileWriter wr = DataFileFormat.getDataFileEncoder( outFormat ).getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
 					
 			this.writer = wr;
 		}

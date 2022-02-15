@@ -25,7 +25,6 @@ import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotter;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin;
-import lslrec.plugin.impl.encoder.hdf5.HDF5EncoderPlugin;
 import lslrec.plugin.impl.gui.alarm.PluginAlarmTest;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
 import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
@@ -45,8 +44,8 @@ public class PlugingTesting
 		//FIRFilterPlugin plg = new FIRFilterPlugin();
 		//PluginAlarmTest plg = new PluginAlarmTest();
 		//OpenposePlotterPlugin plg = new OpenposePlotterPlugin();
-		//ZTransformPlugin plg = new ZTransformPlugin();
-		FFTPlugin plg = new FFTPlugin();
+		ZTransformPlugin plg = new ZTransformPlugin();
+		//FFTPlugin plg = new FFTPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		
