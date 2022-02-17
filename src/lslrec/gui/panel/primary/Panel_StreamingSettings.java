@@ -31,8 +31,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -46,7 +44,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
-import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
 
 import java.awt.BorderLayout;
@@ -66,7 +63,6 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -111,15 +107,12 @@ import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
-import lslrec.gui.KeyActions;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
-import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -2032,12 +2025,7 @@ public class Panel_StreamingSettings extends JPanel
 
 		return nodeText;
 	}
-	
-	private void updateNumberOfSelectedStream()
-	{
 		
-	}
-	
 	private JButton getOutputFormatOptsButton()
 	{
 		if( this.btnOutFormatOptions == null )

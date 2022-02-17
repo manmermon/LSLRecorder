@@ -53,7 +53,7 @@ public class GuiTextManager
 	
 	private static List< Tuple< Object, String > > streamTexts = new ArrayList< Tuple< Object, String > >();
 	
-	public static void addComponent( String cateogry, String idTranslateToken, Object c)
+	public static void addComponent( String cateogry, String idTranslateToken, Object c )
 	{
 		ArrayTreeMap< String, Object > cs = components.get( cateogry );
 		
