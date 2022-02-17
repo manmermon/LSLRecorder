@@ -46,6 +46,8 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	private int chuckSize = 1;
 	private boolean interleavedData = false;
 	private boolean isSyncStream = false;
+	
+	private int recordingCheckerTimer;
 		
     /**
      * Construct a new stream_info this.object.
@@ -341,6 +343,17 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	public void setDescription( String desc ) 
 	{
 		
+	}
+	@Override
+	public int getRecordingCheckerTimer() 
+	{
+		return this.recordingCheckerTimer;
+	}
+	
+	@Override
+	public void setRecordingCheckerTimer( int t ) 
+	{
+		this.recordingCheckerTimer = t;
 	}
 }
 

@@ -185,7 +185,7 @@ public class ClisMetadata
 		
 		if( BLOCK_SIZE == null )
 		{
-			BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE;
+			BLOCK_SIZE = (int)( Math.pow( 2, 20 ) * (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) );
 		}
 		
 		BLOCK_SIZE = (int)( Math.ceil( BLOCK_SIZE / encryptBlockSize) * encryptBlockSize );

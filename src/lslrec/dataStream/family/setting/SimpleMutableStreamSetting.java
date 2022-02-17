@@ -38,6 +38,7 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	 * @param stringLenType
 	 * @param numChs
 	 * @param samplingRate
+	 * @param recordingCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 * @param extraInfo
@@ -45,11 +46,12 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	 */
 	public SimpleMutableStreamSetting(StreamLibrary libType, String name, StreamDataType dataType
 										, StreamDataType timeDataType, StreamDataType stringLenType
-										, int numChs, double samplingRate, String sourceID
-										, String uid, Map<String, String> extraInfo, int chunkSize) 
+										, int numChs, double samplingRate, int recordingCheckerTimer
+										, String sourceID, String uid, Map<String
+										, String> extraInfo, int chunkSize) 
 	{
 		super(libType, name, dataType, timeDataType, stringLenType, numChs, chunkSize
-				, samplingRate, sourceID, uid, extraInfo
+				, samplingRate, recordingCheckerTimer, sourceID, uid, extraInfo
 				);
 	}
 	
@@ -93,5 +95,11 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	public void setDescription(String desc)
 	{
 		super.desc = desc;
+	}
+
+	@Override
+	public void setRecordingCheckerTimer(int t) 
+	{
+		super.recordingCheckerTimer = t;
 	}
 }

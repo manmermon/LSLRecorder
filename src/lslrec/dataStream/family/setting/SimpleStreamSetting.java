@@ -65,6 +65,8 @@ public class SimpleStreamSetting implements IStreamSetting
 	private int ver;
 	
 	private double createdAt;
+	
+	protected int recordingCheckerTimer = 3;
 		
 	/**
 	 * 
@@ -76,6 +78,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param numChs
 	 * @param chunkSize
 	 * @param samplingRate
+	 * @param recordingCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 * @param extraInfo
@@ -87,7 +90,8 @@ public class SimpleStreamSetting implements IStreamSetting
 								, StreamDataType stringLenType
 								, int numChs
 								, int chunkSize
-								, double samplingRate								
+								, double samplingRate
+								, int recordingCheckerTimer
 								, String sourceID
 								, String uid
 								, Map< String, String > extraInfo								  
@@ -123,6 +127,8 @@ public class SimpleStreamSetting implements IStreamSetting
 		
 		this.samplint_rate = samplingRate;
 
+		this.recordingCheckerTimer = recordingCheckerTimer;
+		
 		this.sourceID = sourceID;
 		this.uid = uid;
 		
@@ -162,6 +168,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param numChs
 	 * @param chunkSize
 	 * @param samplingRate
+	 * @param recordingCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 */
@@ -171,12 +178,13 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int numChs
 								, int chunkSize
 								, double samplingRate
+								, int recordingCheckerTimer
 								, String sourceID
 								, String uid								  
 								)
 	{
 		
-		this( libType, name, dataType, numChs, chunkSize, samplingRate, sourceID, uid, null );
+		this( libType, name, dataType, numChs, chunkSize, samplingRate, recordingCheckerTimer, sourceID, uid, null );
 	}
 	
 	/**
@@ -187,6 +195,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param numChs
 	 * @param chunkSize
 	 * @param samplingRate
+	 * @param recordingCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 * @param extraInfo
@@ -197,6 +206,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int numChs
 								, int chunkSize
 								, double samplingRate
+								, int recordingCheckerTimer
 								, String sourceID
 								, String uid
 								, Map< String, String > extraInfo
@@ -206,7 +216,7 @@ public class SimpleStreamSetting implements IStreamSetting
 		
 		this( libType, name, dataType
 				, StreamDataType.double64, StreamDataType.int64
-				, numChs, chunkSize, samplingRate, sourceID, uid, extraInfo );
+				, numChs, chunkSize, samplingRate, recordingCheckerTimer, sourceID, uid, extraInfo );
 	}
 	
 	@Override
@@ -398,6 +408,12 @@ public class SimpleStreamSetting implements IStreamSetting
 	public String getRootNode2ExtraInfoLabel() 
 	{
 		return StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
+	}
+
+	@Override
+	public int getRecordingCheckerTimer() 
+	{
+		return this.recordingCheckerTimer;
 	}
 
 	/*

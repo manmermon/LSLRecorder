@@ -72,4 +72,10 @@ public interface IMutableStreamSetting extends IStreamSetting
      * Set description 
      */
 	public void setDescription( String desc );
+	
+	/**
+	 * Set the time of recording checker timer.
+	 * @param t: t seconds if sampling rate is irregular or t * ( 1 / sampling_rate). 
+	 */
+	public void setRecordingCheckerTimer( int t );
 }

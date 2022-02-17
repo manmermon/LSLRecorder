@@ -229,6 +229,12 @@ public interface IStreamSetting
      * @return number of data type bytes 
      */
     public int getDataTypeBytes( StreamDataType type );
+ 
+    /**
+     * 
+     * @return
+     */
+    public int getRecordingCheckerTimer();
     
     /**
      * The maximum amount of data to buffer.
@@ -271,7 +277,7 @@ public interface IStreamSetting
     {
     	return false;
     }
-    
+       
     public default int streamHashCode()
     {
     	String t = "" + this.name() + this.content_type() + this.source_id();  

@@ -123,7 +123,7 @@ public class mainLSLRecorder
 	    	ConfigApp.setTesting( isDebug );
 	    	ConfigApp.setProperty( ConfigApp.DEL_BINARY_FILES, !isDebug );
 			
-			ExceptionDialog.createExceptionDialog( null );
+			//ExceptionDialog.createExceptionDialog( null );
 						
 			createApplication();
 			

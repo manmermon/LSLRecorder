@@ -112,6 +112,8 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
+import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.SelectedButtonGroup;
@@ -2062,20 +2064,9 @@ public class Panel_StreamingSettings extends JPanel
 					Object format = getJComboxFileFormat().getSelectedItem();
 					if( format != null )
 					{
-						JDialog dial = new JDialog( winOwner );
-
-						dial.setModal( true );
-						dial.setLayout( new BorderLayout() );
-						dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
-
-						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
-
-						JPanel main = new JPanel( new BorderLayout() );
-						main.setBackground( Color.green );
-
-						
 						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
 						Encoder enc = tenc.t1;
+						
 						List< SettingOptions > opts = enc.getSettiongOptions();
 						ParameterList pars = enc.getParameters();
 						
@@ -2102,35 +2093,14 @@ public class Panel_StreamingSettings extends JPanel
 							});
 						}
 						
-						JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, pars ) );
-
-						main.add( scr, BorderLayout.CENTER );
-
-
-						dial.add( main );
-
-						dial.setLocation( winOwner.getLocation() );					
-						dial.pack();
-
-						Dimension s = dial.getSize();
-						FontMetrics fm = dial.getFontMetrics( dial.getFont() );
-
-						int t = fm.stringWidth( dial.getTitle() ) * 2;
-						if( t > s.width )
-						{
-							s.width = t;
-						}
-						s.height += 15;
-
-						dial.setSize( s );
+						Dialog_AdvancedOptions dial = new Dialog_AdvancedOptions( opts, pars );
+						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 						
 						dial.setLocationRelativeTo( winOwner );
-
-						dial.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
-																	KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-																	JComponent.WHEN_IN_FOCUSED_WINDOW );
-						
-						dial.setVisible( true );
+						dial.setResizable( false );
+						dial.setIconImage( winOwner.getIconImage() );
+						dial.setVisible( true );											
+						dial.pack();
 					}
 				}
 			});

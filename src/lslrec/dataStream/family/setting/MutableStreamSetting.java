@@ -47,6 +47,8 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	
 	private String description = null;
 	
+	private int recordingCheckerTime = 3;
+	
 	/**
 	 * 
 	 * @param streamSetting
@@ -289,5 +291,17 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		}
 		
 		return eq;
+	}
+
+	@Override
+	public void setRecordingCheckerTimer( int t ) 
+	{
+		this.recordingCheckerTime = t;
+	}
+	
+	@Override
+	public int getRecordingCheckerTimer() 
+	{
+		return this.recordingCheckerTime;
 	}
 }

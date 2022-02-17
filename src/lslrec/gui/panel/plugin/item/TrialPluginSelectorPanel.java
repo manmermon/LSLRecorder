@@ -108,8 +108,11 @@ public class TrialPluginSelectorPanel extends JPanel
 			tm.addRow( new ILSLRecPluginTrial[] { pl } );
 		}
 		
-		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
-		ExceptionDialog.createExceptionDialog( w );
+		if( !ExceptionDialog.wasCreatedExceptionDialog() )
+		{
+			JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
+			ExceptionDialog.createExceptionDialog( w );
+		}
 	}
 		
 	public void setPluginIDs( List< String > ids )
@@ -336,7 +339,7 @@ public class TrialPluginSelectorPanel extends JPanel
 									lsrecStream = new SimpleStreamSetting( StreamLibrary.LSLREC
 																			, trial.getID()
 																			, StreamDataType.string
-																			, 1, 1, 0D
+																			, 1, 1, 0D, 3
 																			, trial.getID() 
 																			, trial.getID() );
 									

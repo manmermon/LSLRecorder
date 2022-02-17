@@ -32,6 +32,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
+import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledGlassPane;
@@ -74,6 +75,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -479,7 +481,7 @@ public class AppUI extends JFrame
 	{
 		if( this.jBtnInfo == null )
 		{
-			Dimension d = new Dimension( 16, 16 );
+			Dimension d = new Dimension( 20, 16 );
 
 			this.jBtnInfo = new JButton( );			
 
@@ -841,6 +843,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent arg0) 
 				{
+					/*
 					JDialog dial = new JDialog( ui );
 					
 					dial.setModal( true );
@@ -947,6 +950,155 @@ public class AppUI extends JFrame
 					dial.setResizable( false );
 					dial.setIconImage( ui.getIconImage() );
 					dial.setVisible( true );
+					*/
+					
+					List< SettingOptions > opts = new ArrayList< SettingOptions >();
+					ParameterList pars = new ParameterList();
+					
+					String[] optList = new String[] { ConfigApp.DEL_BINARY_FILES, ConfigApp.STREAM_SEARCHING_TIME
+													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE };
+					Map< String, String > optIdLang = new HashMap< String, String >();
+					
+					optIdLang.put( ConfigApp.DEL_BINARY_FILES, Language.DEL_BINARY_FILES );
+					optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
+					optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
+					optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
+										
+					for( String op : optList )
+					{
+						Object val = ConfigApp.getProperty( op );
+						
+						Parameter par =  null;
+						
+						NumberRange rg = ConfigApp.getPropertyRange( op );
+						
+						SettingOptions.Type type = null;
+						
+						if( val instanceof Number )
+						{
+							type =  SettingOptions.Type.NUMBER;
+							
+							if( val instanceof Integer )
+							{
+								par = new Parameter< Integer >( op, (Integer)val );
+							}
+							else if( val instanceof Double )
+							{
+								par = new Parameter< Double >( op, (Double)val );
+							}							
+						}
+						else if( val instanceof String )
+						{
+							type =  SettingOptions.Type.STRING;
+							
+							par = new Parameter< String >( op, val.toString() );
+						}
+						else if( val instanceof Boolean )
+						{
+							type = SettingOptions.Type.BOOLEAN;
+							
+							par = new Parameter< Boolean >( op, (Boolean)val );
+						}
+						
+						if( par != null )
+						{
+							par.setLangID( optIdLang.get( op ) );							
+							par.addValueChangeListener( new ChangeListener() 
+							{	
+								@Override
+								public void stateChanged(ChangeEvent e) 
+								{
+									Parameter par = (Parameter)e.getSource();
+	
+									if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+									{
+										throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+									}
+								}
+							});
+						}
+						
+						pars.addParameter( par );
+						
+						boolean isList = false;
+						
+						SettingOptions opt = new SettingOptions( op
+																, type
+																, isList
+																, rg
+																, op );
+						opt.addValue( val.toString() );
+						
+						opts.add( opt );
+					}
+					
+					/*
+					Parameter par =  new Parameter< Boolean >( ConfigApp.DEL_BINARY_FILES, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
+					par.setLangID( Language.DEL_BINARY_FILES );
+
+					par.addValueChangeListener( new ChangeListener() 
+					{	
+						@Override
+						public void stateChanged(ChangeEvent e) 
+						{
+							Parameter par = (Parameter)e.getSource();
+
+							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+							{
+								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+							}
+						}
+					});
+
+					
+					ParameterList pars = new ParameterList();
+					pars.addParameter( par );
+
+					par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
+					par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
+
+					par.addValueChangeListener( new ChangeListener() 
+					{	
+						@Override
+						public void stateChanged(ChangeEvent e) 
+						{
+							Parameter par = (Parameter)e.getSource();
+
+							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+							{
+								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+							}
+						}
+					});
+
+					pars.addParameter( par );
+
+					par =  new Parameter< Integer >( ConfigApp.RECORDING_CHECKER_TIMER, (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER ) );
+					par.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
+
+					par.addValueChangeListener( new ChangeListener() 
+					{	
+						@Override
+						public void stateChanged(ChangeEvent e) 
+						{
+							Parameter par = (Parameter)e.getSource();
+
+							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+							{
+								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+							}
+						}
+					});
+
+					pars.addParameter( par );
+					*/
+					
+					Dialog_AdvancedOptions diag = new Dialog_AdvancedOptions( opts, pars );
+					diag.setTitle( ConfigApp.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
+					diag.setLocationRelativeTo( ui );
+					diag.setResizable( false );
+					diag.setIconImage( ui.getIconImage() );
+					diag.setVisible( true );
 				}
 			});
 

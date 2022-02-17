@@ -128,8 +128,11 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			tm.addRow( new ILSLRecPluginDataProcessing[] { pl } );
 		}
 		
-		JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
-		ExceptionDialog.createExceptionDialog( w );
+		if( !ExceptionDialog.wasCreatedExceptionDialog() )
+		{
+			JFrame w = (JFrame) SwingUtilities.windowForComponent( this );
+			ExceptionDialog.createExceptionDialog( w );
+		}
 	}
 						
 	public void setPluginIDs( List< String > ids )

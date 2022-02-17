@@ -100,7 +100,7 @@ public class ExceptionDialog
 		pos.y -= d.height / 2;
 		dialog.setLocation(pos);
 		*/
-		dialog.setLocationRelativeTo( null );
+		dialog.setLocationRelativeTo( owner );
 
 		dialog.addWindowListener(new WindowAdapter()
 		{
@@ -124,6 +124,11 @@ public class ExceptionDialog
 		dialog.add( clearBt, BorderLayout.SOUTH );
 		//dialog.toFront();
 		//dialog.setVisible( true );		
+	}
+	
+	public static boolean wasCreatedExceptionDialog()
+	{
+		return dialog != null;
 	}
 	
 	public static void AppExitWhenWindowClosing()
@@ -205,6 +210,7 @@ public class ExceptionDialog
 	{
 		if( dialog != null )
 		{
+			dialog.setLocationRelativeTo( dialog.getOwner() );
 			dialog.setVisible( true );
 			dialog.toFront();
 		}

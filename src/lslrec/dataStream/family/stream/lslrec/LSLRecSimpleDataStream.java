@@ -6,7 +6,6 @@ package lslrec.dataStream.family.stream.lslrec;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.Thread.State;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
@@ -56,6 +55,7 @@ public class LSLRecSimpleDataStream implements IDataStream
 															, channels
 															, chunkSize
 															, samplingRate
+															, 3
 															, name + "-" + System.nanoTime()
 															, name + "-" + System.nanoTime()
 															, new HashMap< String, String >()

@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2022, 2 - 1, 15 );
+	public static final Calendar buildDate = new GregorianCalendar( 2022, 2 - 1, 17 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -102,7 +102,7 @@ public class ConfigApp
 	
 	public static final String HEADER_SEPARATOR = ";" ;
 
-	public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 10 * ( Math.pow( 2, 20 ) ) );
+	//public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 10 * ( Math.pow( 2, 20 ) ) );
 	
 	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
 	
@@ -138,7 +138,9 @@ public class ConfigApp
 	 */
 
 	public static final String ID_STREAMS = "LSL_ID_DEVICES";
-		
+	
+	public static final String STREAM_SEARCHING_TIME = "STREAM_SEARCHING_TIME";
+	
 	/****
 	 * 
 	 * 
@@ -161,7 +163,10 @@ public class ConfigApp
 	public static final String OUTPUT_SAVE_DATA_PROCESSING = "OUTPUT_SAVE_DATA_PROCESSING";
 	
 	public static final String DEL_BINARY_FILES = "DEL_BINARY_FILES";
-	public static final String STREAM_SEARCHING_TIME = "STREAM_SEARCHING_TIME";
+		
+	public static final String RECORDING_CHECKER_TIMER = "RECORDING_CHECKER_TIMER";
+	
+	public static final String SEGMENT_BLOCK_SIZE = "SEGMENTATION_BLOCK_SIZE";
 
 	/****
 	 * 
@@ -245,6 +250,10 @@ public class ConfigApp
 		
 		list_Key_Type.put( STREAM_SEARCHING_TIME, Double.class );
 		
+		list_Key_Type.put( RECORDING_CHECKER_TIMER, Integer.class );
+		
+		list_Key_Type.put( SEGMENT_BLOCK_SIZE, Integer.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 	}
 	
@@ -256,8 +265,16 @@ public class ConfigApp
 		list_Key_RankValues.put( TRIAL_WINDOW_WIDTH, new NumberRange( 100,  8e3 ) );
 		
 		list_Key_RankValues.put( STREAM_SEARCHING_TIME, new NumberRange( 0,  IDataStream.TIME_FOREVER  ) );
-	}
 		
+		list_Key_RankValues.put( RECORDING_CHECKER_TIMER, new NumberRange( 0, Integer.MAX_VALUE ) );
+		list_Key_RankValues.put( SEGMENT_BLOCK_SIZE, new NumberRange( 1, 100 ) );
+	}
+	
+	public static NumberRange getPropertyRange( String id )
+	{
+		return list_Key_RankValues.get( id );
+	}
+	
 	public static void saveConfig( File f ) throws Exception
 	{		
 		defaultNameFileConfig = f.getName();
@@ -1364,6 +1381,18 @@ public class ConfigApp
 				
 				break;
 			}
+			case RECORDING_CHECKER_TIMER:
+			{
+				loadDefaultRecorderTimer();
+				
+				break;
+			}
+			case SEGMENT_BLOCK_SIZE:
+			{
+				loadDefaultOutputSegmentBlockSize();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1405,6 +1434,9 @@ public class ConfigApp
 		loadDefaultTrialWindowHeigh();
 		
 		loadDefaultStreamSearchingTime();
+		
+		loadDefaultRecorderTimer();
+		loadDefaultOutputSegmentBlockSize();
 		
 		//loadDefaultStreamLibrary();
 	}
@@ -1555,6 +1587,16 @@ public class ConfigApp
 	private static void loadDefaultStreamSearchingTime()
 	{				
 		listConfig.put( STREAM_SEARCHING_TIME, 0D );
+	}
+	
+	private static void loadDefaultRecorderTimer()
+	{
+		listConfig.put( RECORDING_CHECKER_TIMER, 3 );
+	}
+	
+	private static void loadDefaultOutputSegmentBlockSize()
+	{
+		listConfig.put( SEGMENT_BLOCK_SIZE, 10 );
 	}
 	
 	/*

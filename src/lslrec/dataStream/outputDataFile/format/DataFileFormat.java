@@ -209,7 +209,7 @@ public class DataFileFormat
 		
 		
 		outPars.setParameter( OutputFileFormatParameters.NUM_BLOCKS, 2L );
-		outPars.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE );
+		outPars.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, (int)( Math.pow( 2, 20 ) * (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) ) );
 		
 		outPars.setParameter( OutputFileFormatParameters.DATA_NAMES, "" );
 		

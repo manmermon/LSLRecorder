@@ -323,20 +323,25 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			
 			//this.timer = new Timer();
 			
-			int time = (int)(3*1000.0D / samplingRate);
-			if (time < 3000)
+			int recordingCheckerTimer = this.streamSetting.getRecordingCheckerTimer();
+			
+			int time = (int)( recordingCheckerTimer * 1000.0D / samplingRate);
+			if (time < 3000 && time > 0)
 			{
 				time = 3000; // 3 seconds
 			}
 						
-			this.timer = new Timer( time, new ActionListener() 
-				{				
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						timeOver();
-					}
-			});
+			if( time > 0 )
+			{
+				this.timer = new Timer( time, new ActionListener() 
+					{				
+						@Override
+						public void actionPerformed(ActionEvent e) 
+						{
+							timeOver();
+						}
+				});
+			}
 			
 			//this.timer.setTimerValue( time );
 			//this.timer.setName( this.getClass() + "-Timer");

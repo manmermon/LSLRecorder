@@ -442,6 +442,7 @@ public class LSLRecPluginTesting
 										, chs
 										, 1
 										, 0
+										, 3
 										, getClass().getCanonicalName()
 										, getClass().getCanonicalName()
 										//, "testing"
@@ -686,7 +687,7 @@ public class LSLRecPluginTesting
 		outFormat.setParameter( OutputFileFormatParameters.CHAR_CODING,  Charset.forName( "UTF-8" )  );		
 		outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, true );
 		outFormat.setParameter( OutputFileFormatParameters.NUM_BLOCKS, 2L );
-		outFormat.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE );		
+		outFormat.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, (int)( Math.pow( 2, 20 ) * (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) ) );		
 		outFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, "" );		
 		outFormat.setParameter( OutputFileFormatParameters.RECORDING_INFO, new HashMap< String, String >() );				
 		outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, true );

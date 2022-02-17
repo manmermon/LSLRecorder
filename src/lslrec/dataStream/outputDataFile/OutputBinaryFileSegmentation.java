@@ -52,6 +52,7 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 
@@ -63,7 +64,7 @@ import lslrec.control.message.EventType;
 
 public class OutputBinaryFileSegmentation extends AbstractStoppableThread implements ITaskMonitor, ITaskIdentity, IMonitoredTask
 {
-	private int BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE; 
+	private int BLOCK_SIZE = (int)(10 *  Math.pow( 2, 20 )); 
 	private int maxNumElements = BLOCK_SIZE / Float.BYTES; // 10 MB
 	
 	private final String prefixData = "data_";
@@ -93,22 +94,31 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	 *  Save output data file
 	 *  
 	 * @param DAT	-> temporal binary data.
-	 * @param SYN -> temporal binary sync markers. 
+	 * @param syncReader -> temporal binary sync markers. 
 	 */
+	/*
 	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader ) throws Exception //SyncMarkerCollectorWriter markCollector ) throws Exception
 	{
 		//this( DAT, markCollector, (byte)10 );
 		this( DAT, syncReader, (byte) 0 ); // Default buffer length
 	}
+	*/
+	/**
+	 *  Save output data file
+	 *  
+	 * @param DAT	-> temporal binary data.
+	 * @param syncReader -> temporal binary sync markers.
+	 * @param bufLen -> buffer length in MiB. 
+	 */
+	//public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader, byte bufLen ) throws Exception //SyncMarkerCollectorWriter markCollector, byte bufLen ) throws Exception
 	
 	/**
 	 *  Save output data file
 	 *  
 	 * @param DAT	-> temporal binary data.
-	 * @param SYN -> temporal binary sync markers.
-	 * @param bufLen -> buffer length in MiB. 
+	 * @param syncReader -> temporal binary sync markers. 
 	 */
-	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader, byte bufLen ) throws Exception //SyncMarkerCollectorWriter markCollector, byte bufLen ) throws Exception
+	public OutputBinaryFileSegmentation( TemporalBinData DAT, SyncMarkerBinFileReader syncReader ) throws Exception //SyncMarkerCollectorWriter markCollector ) throws Exception
 	{
 		if( DAT == null )
 		{
@@ -122,16 +132,23 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		this.syncReader = syncReader;
 		
 		this.DATA = DAT;
-		
-				
-		this.BLOCK_SIZE = ConfigApp.DEFAULT_SEGMENTATION_BLOCK_SIZE;
-		
-		if( bufLen <= 0 )
-		{						
-			bufLen = (byte)10;
+			
+		Parameter< Integer > par = (Parameter< Integer >)this.outputFormat.getParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE );
+		if( par == null )
+		{
+			this.BLOCK_SIZE  = (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE );
+		}
+		else
+		{
+			this.BLOCK_SIZE = (Integer)par.getValue(); 
 		}		
 		
-		this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );		
+		if( this.BLOCK_SIZE <= 0 )
+		{
+			this.BLOCK_SIZE  =  (int)( 10 * Math.pow( 2, 20 ) );
+		}
+		
+		//this.BLOCK_SIZE = (int)( bufLen * Math.pow( 2, 20 ) );		
 		
 		this.setMaxNumElements( this.DATA.getTypeDataBytes(), this.DATA.getDataStreamSetting().channel_count() + 1 );		
 	}

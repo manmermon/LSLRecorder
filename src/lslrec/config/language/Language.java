@@ -1,5 +1,5 @@
 /*
- * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+f * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
  * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
@@ -98,6 +98,8 @@ public class Language
 	public static final String SETTING_LSL_NAME_TOOLTIP = "SETTING_LSL_NAME_TOOLTIP";
 	
 	public static final String SETTING_LSL_SEARCHING_TIME = "SETTING_LSL_SEARCHING_TIME";
+	public static final String SETTING_RECORDING_CHECKER_TIMER= "SETTING_RECORDING_CHECKER_TIMER";
+	public static final String SETTING_SEGMENT_BLOCK_SIZE= "SETTING_SEGMENTATION_BLOCK_SIZE";
 
 	public static final String LSL_PLOT_FILTERS = "LSL_PLOT_FILTERS";
 	public static final String LSL_PLOT_FILTER_LEGEND = "LSL_PLOT_FILTER_LEGEND";
@@ -217,7 +219,9 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
-		
+				
+		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
+		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checker timer (sec or v / Fsampling)" ) );
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
 		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (s)" ) );
 		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );

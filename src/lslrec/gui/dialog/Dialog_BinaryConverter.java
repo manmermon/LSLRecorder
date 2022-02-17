@@ -1004,6 +1004,7 @@ public class Dialog_BinaryConverter extends JDialog
 																						, prevInfo.channel_count()
 																						, prevInfo.getChunkSize()
 																						, prevInfo.sampling_rate()
+																						, prevInfo.getRecordingCheckerTimer()
 																						, prevInfo.source_id()
 																						, prevInfo.uid()
 																						//, prevInfo.hostname()
@@ -1414,6 +1415,7 @@ public class Dialog_BinaryConverter extends JDialog
 																, StreamDataType.valueOf( strLenType )
 																, Integer.parseInt( chs )
 																, frq
+																, 3
 																, sid
 																, System.nanoTime() + ""
 																//, ""

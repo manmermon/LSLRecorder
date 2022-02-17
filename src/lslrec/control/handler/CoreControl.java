@@ -575,10 +575,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			HashSet< IStreamSetting > DEV_ID = new HashSet< IStreamSetting >();
 			Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
+						
+			int recordingCheckerTimer = (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER );
+			
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
 				{						
+					dev.setRecordingCheckerTimer( recordingCheckerTimer );
 					DEV_ID.add( dev );
 					
 					LSLRecPluginDataProcessing process = null;
