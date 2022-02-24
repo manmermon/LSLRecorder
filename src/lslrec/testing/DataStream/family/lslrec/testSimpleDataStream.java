@@ -6,9 +6,9 @@ package lslrec.testing.DataStream.family.lslrec;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lslrec.LSLRecSimpleDataStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.ByteStreamGiver;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.IStoppableThread;
 
 /**

@@ -12,7 +12,8 @@ import java.util.Map;
 import com.sun.jna.Pointer;
 
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 
 
@@ -271,13 +272,13 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	@Override
 	public StreamDataType getTimestampDataType() 
 	{
-		return StreamDataType.double64;
+		return LSLUtils.getTimeMarkType();// StreamDataType.double64;
 	}
 	
 	@Override
-	public StreamDataType getStringLegthDataType() 
+	public StreamDataType getStringLengthDataType() 
 	{
-		return StreamDataType.int64;
+		return LSLUtils.getStringLengthDataType();
 	}
 	
 	@Override
@@ -323,15 +324,15 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	}
 		
 	@Override
-	public int getDataTypeBytes(StreamDataType type) 
+	public int getDataTypeBytes( StreamDataType type) 
 	{	
-		return LSLUtils.getDataTypeBytes( type );
+		return StreamUtils.getDataTypeBytes( type );
 	}
 	
 	@Override
 	public String getRootNode2ExtraInfoLabel() 
 	{
-		String root = "desc";
+		String root = LSLUtils.getAdditionalInformationLabelInXml();
 		
 		return root;
 	}
@@ -344,6 +345,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	{
 		
 	}
+	
 	@Override
 	public int getRecordingCheckerTimer() 
 	{

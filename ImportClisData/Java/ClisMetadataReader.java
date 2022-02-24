@@ -252,5 +252,18 @@ public class ClisMetadataReader
 	{
 		return (Integer)this.fields.get( HEADER_BYTE_SIZE );
 	}
+	
+	public String getHeader()
+	{
+		String h = "";
+		
+		Object hh = this.fields.get( HEADER );
+		if( hh != null )
+		{
+			h = hh.toString();
+		}
+		
+		return h;
+	}
 }
 

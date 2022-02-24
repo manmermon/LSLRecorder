@@ -23,7 +23,7 @@ import java.util.Map;
 
 import com.sun.jna.Pointer;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.ReadInputDataException;
 
 /**
@@ -216,7 +216,7 @@ public interface IStreamSetting
 	 * 
 	 * @return Data type of string length 
 	 */
-	public abstract StreamDataType getStringLegthDataType();
+	public abstract StreamDataType getStringLengthDataType();
     
     /**
      * Get access to the underlying native handle.
@@ -292,7 +292,7 @@ public interface IStreamSetting
     	
     	if( extraInfo != null )
     	{
-    		extra = extraInfo.get( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL );
+    		extra = extraInfo.get( StreamExtraLabels.ID_EXTRA_INFO_LABEL );
     		
     		if( extra == null )
     		{

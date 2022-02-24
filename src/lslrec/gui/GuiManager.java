@@ -237,7 +237,7 @@ public class GuiManager
 		
 		diag.setSize( 550, 450 );
 		
-		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT ) );
+		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
 		
 		diag.setVisible( true );
 				

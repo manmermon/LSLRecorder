@@ -29,9 +29,9 @@ import java.util.List;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class TemporalBinData
 {	
@@ -79,7 +79,7 @@ public class TemporalBinData
 		}
 		else
 		{
-			BinaryDataFormat strLenFormat = new BinaryDataFormat( this.streamSetting.getStringLegthDataType(), this.streamSetting.getDataTypeBytes( this.streamSetting.getStringLegthDataType() ), len );
+			BinaryDataFormat strLenFormat = new BinaryDataFormat( this.streamSetting.getStringLengthDataType(), this.streamSetting.getDataTypeBytes( this.streamSetting.getStringLengthDataType() ), len );
 			this.formats.add( new BinaryDataFormat( this.streamSetting.data_type(), this.dataTypeBytes, strLenFormat ) );
 		}
 		

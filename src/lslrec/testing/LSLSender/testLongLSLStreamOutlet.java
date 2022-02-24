@@ -3,7 +3,7 @@
  */
 package lslrec.testing.LSLSender;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 /**
  * @author Manuel Merino Monge

@@ -34,8 +34,8 @@ import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.family.stream.IDataStream;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
@@ -193,11 +193,11 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		if( this.streamSetting instanceof MutableStreamSetting )
 		{
-			((IMutableStreamSetting)this.streamSetting).setDescription( StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)this.streamSetting ).getStreamSetting() ) );
+			((IMutableStreamSetting)this.streamSetting).setDescription( StreamUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)this.streamSetting ).getStreamSetting() ) );
 		}
 		else if( this.streamSetting instanceof IMutableStreamSetting )
 		{
-			((IMutableStreamSetting)this.streamSetting).setDescription( StreamSettingUtils.getDeepXmlStreamDescription( this.streamSetting ) );
+			((IMutableStreamSetting)this.streamSetting).setDescription( StreamUtils.getDeepXmlStreamDescription( this.streamSetting ) );
 		}
 		
 		try

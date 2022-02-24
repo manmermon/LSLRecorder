@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lsl.LSLUtils;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class TemporalDataStream
 {

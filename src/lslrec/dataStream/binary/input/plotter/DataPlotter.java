@@ -28,7 +28,7 @@ import java.util.List;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 
 public class DataPlotter extends InputDataStreamReceiverTemplate

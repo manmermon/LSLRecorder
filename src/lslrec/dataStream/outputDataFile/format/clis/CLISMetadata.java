@@ -37,10 +37,10 @@ import javax.crypto.spec.SecretKeySpec;
 
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 
@@ -229,7 +229,12 @@ public class ClisMetadata
 		
 		this.headerSize += ( this.headerInfo.length() + this.headerInfoExtension.length() + checkSumLen + encByteLen ) * 2;
 		this.headerSize += pars.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue().toString().length();
-		this.headerSize += pars.getParameter( StreamSettingExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS ).getValue().toString().length();
+		
+		Parameter par = pars.getParameter( StreamExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS );
+		if( par != null )
+		{
+			this.headerSize += par.getValue().toString().length();
+		}
 		
 		//byte[] padding = new byte[ Character.BYTES ];
 		int charByteSize = this.headerInfo.getBytes( this.charCode ).length / this.headerInfo.length(); 
@@ -305,7 +310,15 @@ public class ClisMetadata
 		id = id.replace( "\n", "" ).replace( "\r", "" ).replaceAll( "\\s+", "");
 		//text = text.replace( "\n", "" ).replace( "\r", "" );
 
-		this.header += "<"+id +">" + text + "</" + id + ">";
+		String openID = "";
+		String closeID = "";
+		if( id != null && !id.isEmpty() )
+		{
+			openID = "<"+id +">" ;
+			closeID = "</"+id +">"; 
+		}
+		
+		this.header += openID + text + closeID;
 	}
 	
 	public Charset getCharCode() 

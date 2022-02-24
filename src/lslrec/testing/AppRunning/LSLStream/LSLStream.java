@@ -3,7 +3,7 @@ package lslrec.testing.AppRunning.LSLStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.testing.LSLSender.LSLSimulationParameters;
 import lslrec.testing.LSLSender.LSLSimulationStreaming;

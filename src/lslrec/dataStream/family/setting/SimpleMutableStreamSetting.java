@@ -21,8 +21,7 @@ package lslrec.dataStream.family.setting;
 
 import java.util.Map;
 
-
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 /**
  * @author Manuel Merino Monge

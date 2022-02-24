@@ -2,11 +2,11 @@ package lslrec.testing.DataStream.OutputDataFile;
 
 import java.util.Random;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
 import lslrec.dataStream.outputDataFile.format.hdf5.OutputHDF5DataWriter;
 import lslrec.dataStream.outputDataFile.format.matlab.OutputMatDataWriter;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 
 public class testHDF5 {

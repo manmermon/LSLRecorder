@@ -27,12 +27,14 @@ import lslrec.control.handler.CoreControl;
 import lslrec.control.message.AppState;
 import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.family.stream.IDataStream;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledGlassPane;
@@ -175,6 +177,7 @@ public class AppUI extends JFrame
 	private JMenuItem menuExit = null;	
 	private JMenuItem menuShowLog = null;
 	private JMenuItem menuAdvanceOpt = null;
+	private JMenuItem menuConvertClisTo = null;
 
 	// Processbar
 	private LevelIndicator appTextState = null;
@@ -1121,6 +1124,7 @@ public class AppUI extends JFrame
 			this.jFileMenu.add( this.getMenuSave() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
 			this.jFileMenu.add( this.getMenuBin2Clis() );
+			this.jFileMenu.add( this.getMenuClisTo() );
 			this.jFileMenu.add( this.getMenuWritingTest() );
 			this.jFileMenu.add( this.getShowLogMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
@@ -1509,7 +1513,7 @@ public class AppUI extends JFrame
 	{
 		if( this.menuBin2Clis == null )
 		{
-			this.menuBin2Clis = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT ) );
+			this.menuBin2Clis = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
 			this.menuBin2Clis.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_C, KeyEvent.ALT_MASK ) );
 			
 			this.menuBin2Clis.setIcon( GeneralAppIcon.Convert( 16, Color.BLACK ) );
@@ -1523,11 +1527,53 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT, this.menuBin2Clis );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT_BIN, this.menuBin2Clis );
 		}
 
 		return this.menuBin2Clis;
 	}
+	
+	protected JMenuItem getMenuClisTo()
+	{
+		if( this.menuConvertClisTo == null )
+		{
+			this.menuConvertClisTo = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT_CLIS ) );
+			this.menuConvertClisTo.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_Z, KeyEvent.ALT_MASK ) );
+			
+			this.menuConvertClisTo.setIcon( GeneralAppIcon.Convert( 16, Color.BLACK ) );
+
+			this.menuConvertClisTo.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JMenuItem m = (JMenuItem)e.getSource();
+					
+					Dialog_ConvertClis dgclis = new Dialog_ConvertClis();
+					dgclis.setBounds( 200, 100, 400, 400 );
+										
+					dgclis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
+					dgclis.setTitle( m.getText() );
+					dgclis.setModal( true );
+					dgclis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
+										
+					dgclis.setVisible( true );
+				}
+			});
+			
+			if( DataFileFormat.getSupportedFileFormat().length < 2 )
+			{
+				this.menuConvertClisTo.setEnabled( false );
+				this.menuConvertClisTo.setToolTipText( Language.getLocalCaption( Language.MSG_ENCODER_PLUGIN_NO_FOUND ) );
+			}
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT_CLIS, this.menuConvertClisTo );
+			GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.MSG_ENCODER_PLUGIN_NO_FOUND, this.menuConvertClisTo );
+		}
+
+		return this.menuConvertClisTo;
+	}
+	
 
 	/**
 	 * This method initializes jMenuAcercaDe	

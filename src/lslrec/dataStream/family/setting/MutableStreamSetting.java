@@ -24,7 +24,8 @@ import java.util.Map;
 
 import com.sun.jna.Pointer;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.ReadInputDataException;
 
 /**
@@ -179,7 +180,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 			for( String nodeName : this.extraInfo.keySet() )
 			{
 				String info = this.extraInfo.get( nodeName );
-				desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, nodeName, info );
+				desc = StreamUtils.addElementToXmlStreamDescription( desc, rootNode, nodeName, info );
 			}
 		}
 		
@@ -211,9 +212,9 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	}
 
 	@Override
-	public StreamDataType getStringLegthDataType() 
+	public StreamDataType getStringLengthDataType() 
 	{
-		return this.str.getStringLegthDataType();
+		return this.str.getStringLengthDataType();
 	}
 
 	@Override

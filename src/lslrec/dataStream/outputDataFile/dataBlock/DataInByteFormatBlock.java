@@ -19,7 +19,7 @@
  */
 package lslrec.dataStream.outputDataFile.dataBlock;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class DataInByteFormatBlock extends DataBlock< Byte >
 {

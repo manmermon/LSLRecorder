@@ -42,8 +42,7 @@ import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -52,6 +51,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -641,7 +641,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.encryptKey = "";
 				
 				
-				String nodeId = StreamSettingExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
+				String nodeId = StreamExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
 				String nodeText = "";
 				
 				Map< String, Integer > MARKS = RegisterSyncMessages.getSyncMessagesAndMarks();
@@ -654,7 +654,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, nodeText );
 									
-				nodeId = StreamSettingExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
+				nodeId = StreamExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
 				nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
 				

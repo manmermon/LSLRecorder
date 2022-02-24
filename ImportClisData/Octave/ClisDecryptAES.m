@@ -14,7 +14,8 @@ classdef ClisDecryptAES < handle
             %AES Construct an instance of this class
             %   algorithm options are https://docs.oracle.com/javase/9/docs/specs/security/standard-names.html#messagedigest-algorithms            
             
-            keyEncrypt = passwordEntryDialog( );      
+            keyEncrypt = passwordEntryDialog( );   
+            printf( keyEncrypt )   
             if isempty( keyEncrypt )
                 
                 ME = MException( 'MyComponent:noSuchVariable', 'Password incorrect' );
@@ -42,8 +43,7 @@ classdef ClisDecryptAES < handle
             buf = javaMethod( 'copyOf', 'java.util.Arrays', int8( zeros( 16,1 ) ), 16) ;
             ivpar = javaObject( 'javax.crypto.spec.IvParameterSpec', buf );
             
-            obj.IVPar = ivpar;
-            
+            obj.IVPar = ivpar;            
             
         end
         

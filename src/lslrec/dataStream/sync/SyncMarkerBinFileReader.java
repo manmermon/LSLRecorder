@@ -28,8 +28,8 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class SyncMarkerBinFileReader
 {

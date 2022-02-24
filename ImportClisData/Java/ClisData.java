@@ -11,6 +11,7 @@ import java.util.Map;
 import ImportClisData.Java.ClisDataType.DataType;
 import ImportClisData.Java.Compress.IUnzip;
 import ImportClisData.Java.Compress.UnzipDataFactory;
+import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
 
 public class ClisData
 {
@@ -26,6 +27,18 @@ public class ClisData
 	public ClisData( String filePath ) throws IOException, ClisMetadataException
 	{
 		this.metadata = new  ClisMetadataReader( new File( filePath ) );
+	}
+	
+	public List< MetadataVariableBlock > getVarInfo()
+	{
+		List< MetadataVariableBlock > names = new ArrayList< MetadataVariableBlock >( this.metadata.getVariables() );
+		
+		return names;
+	}
+	
+	public String getHeader()
+	{
+		return this.metadata.getHeader();
 	}
 	
 	public Number[][] importNextDataBlock( int varIndex, int chuckSize ) throws Exception

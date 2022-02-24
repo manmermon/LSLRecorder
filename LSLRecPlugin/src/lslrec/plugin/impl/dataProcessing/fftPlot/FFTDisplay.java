@@ -19,7 +19,7 @@ import org.apache.commons.math3.complex.Complex;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.plugin.impl.dataProcessing.zTransform.FrequencyPanel;
 import lslrec.plugin.impl.dataProcessing.zTransform.Utils;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;

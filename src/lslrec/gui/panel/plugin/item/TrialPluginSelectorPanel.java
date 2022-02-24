@@ -50,9 +50,9 @@ import lslrec.config.language.Language;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -344,7 +344,7 @@ public class TrialPluginSelectorPanel extends JPanel
 																			, trial.getID() );
 									
 									
-									lsrecStream.getExtraInfo().put( StreamSettingExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
+									lsrecStream.getExtraInfo().put( StreamExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
 									
 									LSLRecStream.addDataStream( lsrecStream );
 								}

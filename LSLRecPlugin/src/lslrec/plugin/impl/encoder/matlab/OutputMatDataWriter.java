@@ -29,11 +29,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.Deflater;
 
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
 import us.hebi.matlab.mat.types.MatFile;
@@ -189,7 +189,7 @@ public class OutputMatDataWriter implements IOutputDataFileWriter
 	}
 
 	@Override
-	public boolean finished() 
+	public boolean isFinished() 
 	{
 		return this.savedDataBlock.get();
 	}

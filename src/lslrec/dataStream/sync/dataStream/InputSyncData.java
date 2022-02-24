@@ -29,8 +29,8 @@ import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.sync.SyncMarker;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class InputSyncData extends InputDataStreamReceiverTemplate
 {	

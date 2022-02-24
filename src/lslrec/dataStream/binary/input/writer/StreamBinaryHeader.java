@@ -25,8 +25,8 @@ import java.util.Map;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils;
 
 public class StreamBinaryHeader
 {	
@@ -45,11 +45,11 @@ public class StreamBinaryHeader
 			{
 				if( streamSetting instanceof MutableStreamSetting )
 				{
-					desc = StreamSettingUtils.getDeepXmlStreamDescription( ((MutableStreamSetting) streamSetting).getStreamSetting() );
+					desc = StreamUtils.getDeepXmlStreamDescription( ((MutableStreamSetting) streamSetting).getStreamSetting() );
 				}
 				else
 				{
-					desc = StreamSettingUtils.getDeepXmlStreamDescription( streamSetting );
+					desc = StreamUtils.getDeepXmlStreamDescription( streamSetting );
 				}
 			}
 			
@@ -59,7 +59,7 @@ public class StreamBinaryHeader
 			{
 				for( String id : addInfo.keySet() )
 				{
-					desc = StreamSettingUtils.addElementToXmlStreamDescription( desc, rootNode, id, addInfo.get( id ) );
+					desc = StreamUtils.addElementToXmlStreamDescription( desc, rootNode, id, addInfo.get( id ) );
 				}
 			}
 			
@@ -68,7 +68,7 @@ public class StreamBinaryHeader
 						+ streamSetting.channel_count() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.getChunkSize()+ HEADER_BINARY_SEPARATOR
 						+ streamSetting.getTimestampDataType() + HEADER_BINARY_SEPARATOR
-						+ streamSetting.getStringLegthDataType() + HEADER_BINARY_SEPARATOR
+						+ streamSetting.getStringLengthDataType() + HEADER_BINARY_SEPARATOR
 						+ streamSetting.isInterleavedData() + HEADER_BINARY_SEPARATOR
 						+ desc;
 

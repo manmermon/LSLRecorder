@@ -20,7 +20,7 @@
 package lslrec.testing.LSLSender;
 import java.nio.ByteOrder;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 
 public class LSLSimulationParameters 

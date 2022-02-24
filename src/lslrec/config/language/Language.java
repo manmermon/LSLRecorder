@@ -58,7 +58,8 @@ public class Language
 	public static final String MENU_GNU_GPL = "MENU_GNU_GPL";
 	public static final String MENU_PREFERENCE = "MENU_PREFERENCE";
 	public static final String MENU_SHOW_LOG = "MENU_SHOW_LOG";
-	public static final String MENU_CONVERT = "MENU_CONVERT";
+	public static final String MENU_CONVERT_BIN = "MENU_CONVERT_BIN";
+	public static final String MENU_CONVERT_CLIS = "MENU_CONVERT_CLIS";
 	public static final String MENU_FILE = "MENU_FILE";
 	public static final String MENU_LOAD = "MENU_LOAD";
 	public static final String MENU_SAVE = "MENU_SAVE";
@@ -142,7 +143,8 @@ public class Language
 	public static final String MSG_SELECTED_LSL_SYNC_STREAM_ERROR = "MSG_SELECTED_LSL_SYNC_STREAM_ERROR"; 
 	public static final String MSG_LSL_PLOT_ERROR = "SETTING_LSL_PLOT_ERROR";
 	public static final String MSG_WARNING_DATA_PROCESSING = "MSG_WARNING_DATA_PROCESSING";
-	public static final String MSG_ILLEGAL_VALUE= "MSG_ILLEGAL_VALUE";
+	public static final String MSG_ILLEGAL_VALUE = "MSG_ILLEGAL_VALUE";
+	public static final String MSG_ENCODER_PLUGIN_NO_FOUND = "MSG_ENCODER_PLUGIN_NO_FOUND";
 
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -219,7 +221,8 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
-				
+		
+		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
 		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checker timer (sec or v / Fsampling)" ) );
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
@@ -286,7 +289,8 @@ public class Language
 		captions.put(MENU_LOAD, new Caption(MENU_LOAD, defaultLanguage, "Load setting"));
 		captions.put(MENU_SAVE, new Caption(MENU_SAVE, defaultLanguage, "Save setting"));
 		captions.put(MENU_EXIT, new Caption(MENU_EXIT, defaultLanguage, "Exit"));
-		captions.put(MENU_CONVERT, new Caption(MENU_CONVERT, defaultLanguage, "Convert bin to..."));
+		captions.put(MENU_CONVERT_BIN, new Caption(MENU_CONVERT_BIN, defaultLanguage, "Convert bin to..."));
+		captions.put(MENU_CONVERT_CLIS, new Caption(MENU_CONVERT_CLIS, defaultLanguage, "Convert clis file to..."));
 		captions.put( MENU_WRITE_TEST, new Caption( MENU_WRITE_TEST,  defaultLanguage, "Writing test" ) );
 
 		captions.put(LOAD_TEXT, new Caption(LOAD_TEXT, defaultLanguage, "Load"));

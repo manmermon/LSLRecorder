@@ -223,7 +223,7 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 				
 		synchronized ( this )
 		{
-			if( super.stopWhenTaskDone.get() && this.finished() )
+			if( super.stopWhenTaskDone.get() && this.isFinished() )
 			{
 				super.stopThread = true;
 			}

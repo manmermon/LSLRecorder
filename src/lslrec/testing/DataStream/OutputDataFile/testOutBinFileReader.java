@@ -27,9 +27,9 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.binary.BinaryDataFormat;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.ReaderBinaryFile;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class testOutBinFileReader {
 

@@ -26,8 +26,8 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.testing.StreamOutlet;

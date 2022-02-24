@@ -54,7 +54,7 @@ public abstract interface IOutputDataFileWriter extends IMonitoredTask
 	 * 
 	 * @return True if all data are saved. Otherwise, false
 	 */
-	public boolean finished();
+	public boolean isFinished();
 		
 	/**
 	 * Close output file and finish the writer

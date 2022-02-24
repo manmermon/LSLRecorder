@@ -26,7 +26,6 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
@@ -39,6 +38,7 @@ import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class OutputClisDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
 {	
@@ -221,7 +221,7 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 	}
 		
 	@Override
-	public boolean finished() 
+	public boolean isFinished() 
 	{
 		return true;
 	}

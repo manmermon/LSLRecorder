@@ -143,7 +143,14 @@ public class FileUtils
 			ext = FilePath.substring(index);
 		}
 
-		String aux2 = name + "_" + sourceID + ext;
+		String aux2 = name;
+		
+		if( sourceID != null && !sourceID.isEmpty() )
+		{
+			aux2 += "_" + sourceID;
+		}
+		aux2 += ext;
+		
 		while ( cont )
 		{
 			File file = new File(aux2);
@@ -155,7 +162,13 @@ public class FileUtils
 				c.add( 13, 1 );
 				String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format( c.getTime() );
 
-				aux2 = name + "_" + sourceID + "_" + date + ext;
+				aux2 = name;
+
+				if( sourceID != null && !sourceID.isEmpty() )
+				{
+					aux2 += "_" + sourceID;
+				}
+				aux2 += "_" + date + ext;
 			}
 			else
 			{

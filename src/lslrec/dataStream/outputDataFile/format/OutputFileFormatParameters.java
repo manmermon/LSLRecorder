@@ -36,7 +36,8 @@ public class OutputFileFormatParameters
 	public static final String DATA_NAMES = "DATA_NAME";
 	public static final String RECORDING_INFO = "RECORDING_INFO";
 	public static final String DELETE_BIN = "DELETE_BIN";
-	public static final String RECORDING_CHECKER_TIMER = "RECORDING_CHECKER_TIMER";
+	//public static final String RECORDING_CHECKER_TIMER = "RECORDING_CHECKER_TIMER";
+	public static final String ID_RECORDED_SAMPLES_BY_CHANNELS = "ID_RECORDED_SAMPLES_BY_CHANNELS";
 	
 	private ParameterList pars = new ParameterList();
 	

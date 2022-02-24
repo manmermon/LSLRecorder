@@ -35,7 +35,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.stoppableThread.IStoppableThread;
 
@@ -64,7 +64,7 @@ public class StringPlotter extends InputDataStreamReceiverTemplate
 		
 		this.dataBuffer = new ArrayList<String>();
 		
-		this.strLenBytes = new byte[ lslCfg.channel_count() * lslCfg.getDataTypeBytes( lslCfg.getStringLegthDataType() ) ];
+		this.strLenBytes = new byte[ lslCfg.channel_count() * lslCfg.getDataTypeBytes( lslCfg.getStringLengthDataType() ) ];
 		
 		this.plot = Plot;
 		
@@ -110,7 +110,7 @@ public class StringPlotter extends InputDataStreamReceiverTemplate
 	{
 		System.arraycopy( dataArrayOfBytes, 0, this.strLenBytes, 0, this.strLenBytes.length );
 		
-		Number[] lens = ConvertTo.Transform.ByteArray2ArrayOf( this.strLenBytes, super.streamSetting.getStringLegthDataType() );
+		Number[] lens = ConvertTo.Transform.ByteArray2ArrayOf( this.strLenBytes, super.streamSetting.getStringLengthDataType() );
 		
 		int init = strLenBytes.length;
 			

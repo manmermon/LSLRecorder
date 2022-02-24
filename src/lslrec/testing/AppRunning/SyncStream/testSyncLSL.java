@@ -25,10 +25,10 @@ import java.util.List;
 import com.sun.xml.internal.ws.util.StreamUtils;
 
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.testing.StreamOutlet;
@@ -70,7 +70,7 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 														, StreamDataType.float32.ordinal()
 														, super.getClass().getSimpleName() + "-" + id ) ;
 
-			lslInfo.desc().append_child_value( StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "test" );
+			lslInfo.desc().append_child_value( StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "test" );
 			out = new StreamOutlet( lslInfo );
 			
 			LSLStreamInfo lslInfo_time = new LSLStreamInfo( PREFIX + "Tiempos-" + id
@@ -81,7 +81,7 @@ public class testSyncLSL extends AbstractStoppableThread implements ITimerMonito
 															, super.getClass().getSimpleName() ) ;
 			lslInfo_time.desc().append_child_value( "details", "ch1-time; ch2-mark");
 
-			lslInfo_time.desc().append_child_value( StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
+			lslInfo_time.desc().append_child_value( StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL, "tiempo de cada marca enviada" );
 			out_time = new StreamOutlet( lslInfo_time );
 			
 			_softClose = softClose; 

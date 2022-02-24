@@ -20,11 +20,11 @@
  */
 package lslrec.dataStream.family.stream.lsl;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import lslrec.auxiliar.extra.StringTuple;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class LSLUtils 
 {	
@@ -33,6 +33,7 @@ public class LSLUtils
 		return "desc";
 	}
 
+	/*
 	public static StreamDataType getDataTypeByClass( Object classType )
 	{
 		StreamDataType dataType = StreamDataType.undefined;
@@ -72,69 +73,19 @@ public class LSLUtils
 		
 		return dataType;
 	}
+	*/
 	
-	public static int getDataTypeBytes( StreamDataType type )
-	{
-		int len = -1;
-		
-		switch ( type ) 
-		{
-			case double64:
-			{
-				len = Double.BYTES;
-				break;
-			}
-			case float32:
-			{
-				len = Float.BYTES;
-				break;
-			}
-			case string:
-			{
-				//len = Character.BYTES;
-				
-				Charset c = Charset.forName( "UTF-8" );
-				
-				len = ( "A" ).getBytes( c ).length;
-				break;
-			}
-			case int8:
-			{
-				len = Byte.BYTES;
-				break;
-			}
-			case int16:
-			{
-				len = Short.BYTES;
-				break;
-			}
-			case int32:
-			{
-				len = Integer.BYTES;
-				break;
-			}			
-			case int64:
-			{
-				len = Long.BYTES;
-				break;
-			}
-			default: //undefined
-			{
-				len = -1;
-				
-				break;
-			}
-		}
-		
-		return len;
-	}	
-
 	public static int getTimeMarkBytes( )
 	{
-		return getDataTypeBytes( getTimeMarkType() );
+		return StreamUtils.getDataTypeBytes( getTimeMarkType() );
 	}
 	
 	public static StreamDataType getTimeMarkType( )
+	{
+		return StreamDataType.double64;
+	}
+	
+	public static StreamDataType getStringLengthDataType( )
 	{
 		return StreamDataType.double64;
 	}

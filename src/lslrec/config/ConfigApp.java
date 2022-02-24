@@ -27,7 +27,7 @@ import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2022, 2 - 1, 17 );
+	public static final Calendar buildDate = new GregorianCalendar( 2022, 2 - 1, 24 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -833,7 +833,7 @@ public class ConfigApp
 										
 										if( found )
 										{
-											lslCfg.setAdditionalInfo( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL, info );
+											lslCfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, info );
 											lslCfg.setSelected( select );
 											lslCfg.setChunckSize( chunckSize );
 											lslCfg.setInterleaveadData( interleaved );

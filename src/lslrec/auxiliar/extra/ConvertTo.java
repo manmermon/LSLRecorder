@@ -35,7 +35,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class ConvertTo 
 {
@@ -700,6 +700,35 @@ public class ConvertTo
 
 	public static class Transform
 	{
+		public static Number[] Matrix2Array( Number[][] matrix ) 
+		{
+			Number[] out = null;
+			
+			if( matrix != null )
+			{
+				int rows = matrix.length;
+				int cols = matrix[0].length;
+				int len = rows * cols;
+				
+				out = new Number[ len ];
+				
+				int index = 0;
+				
+				for( int r = 0; r < rows; r++ )
+				{
+					for( int c = 0; c < cols; c++ )
+					{
+						out[ index ] = matrix[ r ][ c ];
+						
+						index++;
+					}
+				}
+				
+			}			
+			
+			return out;		
+		}
+		
 		public static Tuple< Number[][], Number[] > Array2Matrix( Number[] array, long numCols )
 		{
 			Tuple< Number[][], Number[] > res = new Tuple<Number[][], Number[]>( new Number[0][0], new Number[0] );

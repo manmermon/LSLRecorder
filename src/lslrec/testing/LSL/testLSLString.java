@@ -3,9 +3,9 @@ package lslrec.testing.LSL;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.testing.StreamOutlet;
 import lslrec.testing.LSLSender.RandomString;
 

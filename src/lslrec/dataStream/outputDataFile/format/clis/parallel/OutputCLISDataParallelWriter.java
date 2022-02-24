@@ -29,7 +29,6 @@ import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.SettingOptions;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
@@ -37,6 +36,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.ClisCompressorWriter;
 import lslrec.dataStream.outputDataFile.format.clis.ClisMetadata;
 import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableFileWriterTemplate;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputClisDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
@@ -209,7 +209,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	}
 	
 	@Override
-	public boolean finished() 
+	public boolean isFinished() 
 	{	
 		return this.zpThreadList.isEmpty() 
 				&& this.compressDataList.isEmpty();
@@ -230,7 +230,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	@Override
 	protected void CloseWriterActions() throws Exception 
 	{	
-		while( !this.finished() )
+		while( !this.isFinished() )
 		{
 			while( this.DataBlockAvailable() )
 			{ 

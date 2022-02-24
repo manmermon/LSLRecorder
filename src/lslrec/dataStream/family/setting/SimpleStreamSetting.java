@@ -25,7 +25,7 @@ import java.util.Map;
 
 import com.sun.jna.Pointer;
 
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 /**
  * @author Manuel Merino Monge
@@ -334,7 +334,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	}
 
 	@Override
-	public StreamDataType getStringLegthDataType() 
+	public StreamDataType getStringLengthDataType() 
 	{
 		return this.stringLenDataType;
 	}
@@ -407,7 +407,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	@Override
 	public String getRootNode2ExtraInfoLabel() 
 	{
-		return StreamSettingExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
+		return StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
 	}
 
 	@Override

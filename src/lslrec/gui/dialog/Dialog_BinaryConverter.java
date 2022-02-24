@@ -67,11 +67,11 @@ import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
@@ -1000,7 +1000,7 @@ public class Dialog_BinaryConverter extends JDialog
 																						//, prevInfo.content_type()
 																						, prevInfo.data_type()
 																						, prevInfo.getTimestampDataType()
-																						, prevInfo.getStringLegthDataType()
+																						, prevInfo.getStringLengthDataType()
 																						, prevInfo.channel_count()
 																						, prevInfo.getChunkSize()
 																						, prevInfo.sampling_rate()

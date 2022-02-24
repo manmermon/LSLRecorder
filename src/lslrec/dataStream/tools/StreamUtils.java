@@ -17,13 +17,13 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.dataStream.family.setting;
+package lslrec.dataStream.tools;
 
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -35,6 +35,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
@@ -43,9 +44,12 @@ import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
  * @author Manuel Merino Monge
  *
  */
-public class StreamSettingUtils 
+public class StreamUtils 
 {
-	public enum StreamDataType { undefined, /** Can not be transmitted. */
+	public enum StreamDataType 
+	{ 
+		
+		undefined, /** Can not be transmitted. */
 		
 		float32,    /** For up to 24-bit precision measurements in the appropriate physical unit
 		 			*  (e.g., microvolts). Integers from -16777216 to 16777216 are represented accurately. */
@@ -107,6 +111,62 @@ public class StreamSettingUtils
 		}
 		
 		return dataType;
+	}
+	
+	public static int getDataTypeBytes( StreamDataType type )
+	{
+		int len = -1;
+		
+		switch ( type ) 
+		{
+			case double64:
+			{
+				len = Double.BYTES;
+				break;
+			}
+			case float32:
+			{
+				len = Float.BYTES;
+				break;
+			}
+			case string:
+			{
+				//len = Character.BYTES;
+				
+				Charset c = Charset.forName( "UTF-8" );
+				
+				len = ( "A" ).getBytes( c ).length;
+				break;
+			}
+			case int8:
+			{
+				len = Byte.BYTES;
+				break;
+			}
+			case int16:
+			{
+				len = Short.BYTES;
+				break;
+			}
+			case int32:
+			{
+				len = Integer.BYTES;
+				break;
+			}			
+			case int64:
+			{
+				len = Long.BYTES;
+				break;
+			}
+			default: //undefined
+			{
+				len = -1;
+				
+				break;
+			}
+		}
+		
+		return len;
 	}
 	
 	public static String addElementToXmlStreamDescription( String xml, String nodeRoot, String name, String value )
@@ -209,4 +269,5 @@ public class StreamSettingUtils
 		
 		return xml;
 	}
+
 }

@@ -126,7 +126,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	}
 
 	@Override
-	public boolean finished() 
+	public boolean isFinished() 
 	{
 		return this.savedDataBlock.get();
 	}

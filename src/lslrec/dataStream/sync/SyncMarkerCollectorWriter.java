@@ -44,8 +44,8 @@ import lslrec.control.message.EventType;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
 
 public class SyncMarkerCollectorWriter extends AbstractStoppableThread implements INotificationTask
 {	

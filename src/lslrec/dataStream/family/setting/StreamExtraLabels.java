@@ -23,7 +23,7 @@ package lslrec.dataStream.family.setting;
  * @author Manuel Merino Monge
  *
  */
-public class StreamSettingExtraLabels 
+public class StreamExtraLabels 
 {
 	public static final String ID_GENERAL_DESCRIPTION_LABEL = "general";	
 	public static final String ID_RECORD_GENERAL_DESCRIPTION = "recordGeneralDescriptop";

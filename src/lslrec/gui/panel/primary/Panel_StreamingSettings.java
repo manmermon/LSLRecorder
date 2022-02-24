@@ -96,12 +96,12 @@ import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamSettingExtraLabels;
-import lslrec.dataStream.family.setting.StreamSettingUtils;
-import lslrec.dataStream.family.setting.StreamSettingUtils.StreamDataType;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.sync.SyncMethod;
+import lslrec.dataStream.tools.StreamUtils;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -1302,7 +1302,7 @@ public class Panel_StreamingSettings extends JPanel
 						
 						if( extInfo != null )
 						{
-							textInfo = extInfo.get( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL );
+							textInfo = extInfo.get( StreamExtraLabels.ID_EXTRA_INFO_LABEL );
 						}
 						
 						if( textInfo == null )
@@ -1317,7 +1317,7 @@ public class Panel_StreamingSettings extends JPanel
 							textInfo = txInfo;
 						}
 	
-						dev.setAdditionalInfo( StreamSettingExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
+						dev.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
 	
 						/*
 						info.desc().remove_child( dev.getExtraInfoLabel() );
@@ -1909,7 +1909,7 @@ public class Panel_StreamingSettings extends JPanel
 				String xml = inInfo.as_xml();
 				*/
 				
-				String xml = StreamSettingUtils.getDeepXmlStreamDescription( inInfo );
+				String xml = StreamUtils.getDeepXmlStreamDescription( inInfo );
 				String rootNode = inInfo.getRootNode2ExtraInfoLabel();
 				
 				Map< String, String > extraInfo = dev.getExtraInfo();
@@ -1918,7 +1918,7 @@ public class Panel_StreamingSettings extends JPanel
 					for( String id : extraInfo.keySet() )
 					{
 						String value = extraInfo.get( id );
-						xml = StreamSettingUtils.addElementToXmlStreamDescription( xml, rootNode, id,  value );
+						xml = StreamUtils.addElementToXmlStreamDescription( xml, rootNode, id,  value );
 					}
 				}
 								
