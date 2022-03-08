@@ -300,10 +300,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			IStreamSetting stream = streamSetting;
 			
+			/*
 			if( streamSetting instanceof MutableStreamSetting )
 			{
 				stream = ((MutableStreamSetting)streamSetting).getStreamSetting(); 
 			}
+			*/
 			
 			//IStreamSetting[] results = DataStreamFactory.getStreamSettings( streamSetting.getLibraryID() ); 
 			IStreamSetting[] results = DataStreamFactory.getStreamSettings( );

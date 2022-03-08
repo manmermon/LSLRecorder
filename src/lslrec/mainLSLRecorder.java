@@ -207,15 +207,26 @@ public class mainLSLRecorder
 			showError( e, false );
 			e.printStackTrace( );
 		}
-		
-		
-		
+				
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
 		
 		if( plgOK )
 		{
-			GuiManager.getInstance().LoadPluginSetting();
+			try
+			{
+				GuiManager.getInstance().LoadPluginSetting();
+			}
+			catch( Exception e)
+			{
+				new Thread() 
+				{
+					public void run() 
+					{					
+						showError( e, false );
+					};
+				}.start();
+			}
 		}
 		
 		open.dispose();

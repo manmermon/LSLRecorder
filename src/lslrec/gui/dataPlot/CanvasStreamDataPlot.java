@@ -352,6 +352,19 @@ public class CanvasStreamDataPlot extends JPanel
 		return this.jFramePlot;
 	}
 	
+	public boolean isUndock()
+	{
+		return this.getDialogPlot() != null && this.getDialogPlot().isVisible(); 
+	}
+	
+	public void disposeUndockWindow()
+	{
+		if( this.getDialogPlot() != null )
+		{
+			this.getDialogPlot().dispose();
+		}
+	}
+	
 	private void defineFilters( String filterText )
 	{
 		clearFilters();

@@ -231,7 +231,13 @@ public class DataPlotter extends InputDataStreamReceiverTemplate
 
 	protected void postCleanUp() throws Exception
 	{
-				
+		if( this.plot != null )
+		{
+			if( this.plot.isUndock() )
+			{
+				this.plot.disposeUndockWindow();
+			}
+		}
 	}
 
 	@Override
