@@ -78,28 +78,27 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 	private final String name;
 
 	
-	public static StreamingMatrix2D createRowMajor(File folder, String matrixName, long numCols, MatlabType datatype ) throws Exception 
+	public static StreamingMatrix2D createRowMajor( File folder, String matrixName, long numCols, MatlabType datatype ) throws Exception 
 	{
-		return new StreamingMatrix2D(folder, matrixName, numCols, datatype );
+		return new StreamingMatrix2D( folder, matrixName, numCols, datatype );
 	}
 
-	protected StreamingMatrix2D(File folder, String name, long numCols, MatlabType dataType ) throws Exception 
+	protected StreamingMatrix2D( File folder, String name, long numCols, MatlabType dataType ) throws Exception 
 	{
 		super( Mat5.dims(0, (int)numCols));
 		this.mattype = dataType;		
 		
 		this.name = name;
-		Preconditions.checkNotNull(folder);
-		Preconditions.checkState(folder.isDirectory(), "Invalid target directory: " + folder);
+		Preconditions.checkNotNull( folder );
+		Preconditions.checkState( folder.isDirectory(), "Invalid target directory: " + folder );
 
 		// Create a temporary file for each column. The MAT file needs to be stored in column-major
 		// order, so we would otherwise have to iterate through the entire file N times.
-		tmpFiles = new File[(int)numCols ];
+		tmpFiles = new File[ (int)numCols ];
 		columnSinks = new Sink[ (int)numCols ];
 		
 		for (int col = 0; col < numCols; col++) 
 		{
-
 			// Create new temporary file
 			File file = new File(folder.getPath() + "/" + name + col + ".tmp");
 			
@@ -107,7 +106,10 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 			{
 				for (Sink sink : columnSinks) 
 				{
-					sink.close();
+					if( sink != null )
+					{
+						sink.close();
+					}
 				}
 				
 				String msg = "Failed to overwrite existing temporary storage: " + file.getAbsolutePath();
@@ -115,8 +117,8 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 			}
 
 			// Write buffer
-			tmpFiles[col] = file;
-			columnSinks[col] = Sinks.newStreamingFile(tmpFiles[col]);
+			tmpFiles[ col ] = file;
+			columnSinks[ col ] = Sinks.newStreamingFile( tmpFiles[col] );
 
 			switch ( this.mattype ) 
 			{
@@ -176,7 +178,7 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 	}
 
 	@Override
-	public int getMat5Size(String name) 
+	public int getMat5Size( String name ) 
 	{
 		int header = Mat5WriteUtil.computeArrayHeaderSize(name, this);
 		int data = this.datatype.computeSerializedSize( super.getNumElements() );;
@@ -235,14 +237,14 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 	public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException 
 	{
 		int numElements = getNumElements();
-		Mat5WriteUtil.writeMatrixTag(name, this, sink);
-		Mat5WriteUtil.writeArrayHeader(name, isGlobal, this, sink);
-		this.datatype.writeTag(numElements, sink);
-		writeData(sink);
-		this.datatype.writePadding(numElements, sink);
+		Mat5WriteUtil.writeMatrixTag( name, this, sink );
+		Mat5WriteUtil.writeArrayHeader( name, isGlobal, this, sink );
+		this.datatype.writeTag( numElements, sink );
+		writeData( sink );
+		this.datatype.writePadding( numElements, sink );
 	}
 
-	private void writeData(Sink sink) throws IOException 
+	private void writeData( Sink sink ) throws IOException 
 	{
 		if (getNumElements() == 0)
 			return;
@@ -253,14 +255,14 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 		for (int col = 0; col < getNumCols(); col++) 
 		{
 			// Make sure all data is on disk
-			columnSinks[col].close();
+			columnSinks[ col ].close();
 
 			// Map each file and push data to sink
-			FileInputStream input = new FileInputStream(tmpFiles[col]);
+			FileInputStream input = new FileInputStream( tmpFiles[ col ] );
 			try 
 			{
 				int numBytes = getNumRows() * this.byteOfType;
-				sink.writeInputStream(input, numBytes);
+				sink.writeInputStream( input, numBytes );
 			}
 			finally 
 			{
@@ -286,7 +288,7 @@ public final class StreamingMatrix2D extends AbstractArray implements Mat5Serial
 	@Override
 	protected int subHashCode() 
 	{
-		return System.identityHashCode(this);
+		return System.identityHashCode( this );
 	}
 
 	@Override

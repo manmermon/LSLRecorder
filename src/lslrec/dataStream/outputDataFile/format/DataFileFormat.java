@@ -125,7 +125,7 @@ public class DataFileFormat
 		
 		if ( isSupportedFileFormat( format ) )
 		{	
-			format = format.toUpperCase();
+			//format = format.toUpperCase();
 						
 			if ( format.equals( CLIS ) )
 			{				
@@ -160,7 +160,7 @@ public class DataFileFormat
 	{
 		if( encoder != null )
 		{
-			pluginEncoders.put( encoder.getID().toUpperCase(), encoder );
+			pluginEncoders.put( encoder.getID(), encoder );
 		}
 	}
 

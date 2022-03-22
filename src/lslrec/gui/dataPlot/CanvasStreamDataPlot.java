@@ -679,7 +679,7 @@ public class CanvasStreamDataPlot extends JPanel
 					chart.getXYPlot().setRangeGridlinePaint( Color.BLACK );
 					chart.getXYPlot().setDomainGridlinePaint( Color.BLACK );
 					XYLineAndShapeRenderer render = new XYLineAndShapeRenderer();
-					render.setDefaultShapesVisible( false );
+					render.setDefaultShapesVisible( true );
 					render.setSeriesStroke( 0, new BasicStroke( 3F ) );
 					chart.getXYPlot().setRenderer( render );
 					chart.getXYPlot().getDomainAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 18 ) );

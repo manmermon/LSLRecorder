@@ -287,7 +287,9 @@ public class GuiManager
 					folder += File.separator;
 				}
 					
-				format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder + "data" + DataFileFormat.getSupportedFileExtension().get(  (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue() ) );
+				String idEnc = (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue();
+				String ofn = DataFileFormat.getSupportedFileExtension().get( idEnc  );
+				format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder + "data" +  ofn );
 				
 				File dataFile = null;
 				if( dat != null )

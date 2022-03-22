@@ -23,10 +23,12 @@ public class MatlabEncoderPlugin extends LSLRecPluginEncoder
 	{
 		WarningMessage msg = new WarningMessage( );
 		
+		/*
 		msg.setMessage( "Unstable encoder. It may fail, it is recommended "
 						+ "to change the encoder or deselect the advanced "
 						+ "option to delete temporary binary files. "
 						, WarningMessage.WARNING_MESSAGE );
+		//*/
 		
 		return msg;
 	}
