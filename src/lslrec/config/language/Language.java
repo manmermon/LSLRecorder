@@ -224,7 +224,7 @@ public class Language
 		
 		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
-		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checker timer (sec or v / Fsampling)" ) );
+		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checking timer (sec or v / Fsampling)" ) );
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
 		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (s)" ) );
 		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );
