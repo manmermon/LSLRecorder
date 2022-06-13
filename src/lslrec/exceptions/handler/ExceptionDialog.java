@@ -207,6 +207,7 @@ public class ExceptionDialog
 						}
 					}
 
+					dialog.setLocationRelativeTo( dialog.getOwner() );
 					dialog.setVisible( true );
 					dialog.toFront();
 				}

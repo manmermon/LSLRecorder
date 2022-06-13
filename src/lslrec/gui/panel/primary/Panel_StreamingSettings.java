@@ -27,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonModel;
-import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -50,14 +49,17 @@ import javax.swing.SpinnerNumberModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -66,7 +68,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -1010,6 +1011,29 @@ public class Panel_StreamingSettings extends JPanel
 		return this.panelDeviceAndSetting;
 	}
 	
+	public Component findFocus( boolean previous ) 
+	{
+		KeyboardFocusManager kfm = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		
+		Component c = kfm.getFocusOwner();
+		Container root = c.getFocusCycleRootAncestor();
+		
+		FocusTraversalPolicy policy = root.getFocusTraversalPolicy();
+		Component focusComp = policy.getComponentAfter( root, c );
+		
+		if( previous )
+		{
+			focusComp = policy.getComponentBefore(root, c);
+		}
+		
+		if (focusComp == null) 
+		{
+			focusComp = policy.getDefaultComponent( root );
+		}
+		
+		return focusComp;
+	}
+	
 	private Tuple< JPanel, JTree > getUpdateStreamPanel()
 	{
 		JPanel panelLSLSettings  = new JPanel();
@@ -1175,6 +1199,8 @@ public class Panel_StreamingSettings extends JPanel
 					tmodel.insert( t, tmodel.getChildCount() );
 				}				
 	
+				JButton plot = new JButton();
+				
 				JCheckBox selDataStream = new JCheckBox( deviceName );
 				JCheckBox Sync = new JCheckBox();
 	
@@ -1213,6 +1239,47 @@ public class Panel_StreamingSettings extends JPanel
 						GuiTextManager.updateSelectedStreamText();
 					}
 				});
+				
+				selDataStream.addKeyListener( new KeyAdapter() 
+				{
+					@Override
+					public void keyReleased(KeyEvent e) 
+					{	
+						Component c = (Component)e.getSource();
+						
+						int down = 0;
+						if( e.getKeyCode() == KeyEvent.VK_UP )
+						{
+							down = -1;
+						}
+						else if( e.getKeyCode() == KeyEvent.VK_DOWN )
+						{
+							down = 1;
+						}
+						
+						if( down != 0 )
+						{
+							Component focusComp = findFocus( down < 0 );
+							if( focusComp != null )
+							{	
+								for( Component com : devsPanel.get( 5 ).getComponents() )
+								{
+									if( focusComp.equals( com ) )
+									{
+										focusComp.requestFocus();
+	
+										break;
+									}
+								}
+							}
+						}
+						else if( e.getKeyCode() == KeyEvent.VK_D )
+						{
+							plot.doClick();
+						}
+						
+					}
+				});
 	
 				if( !sourceID.isEmpty() )
 				{	
@@ -1223,7 +1290,7 @@ public class Panel_StreamingSettings extends JPanel
 					Sync.setName( deviceName + deviceType );
 				}
 	
-				Sync.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_SYNC_TOOLTIP ) );				
+				Sync.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_SYNC_TOOLTIP ) );				
 				Sync.setEnabled( info.channel_count() == 1 && info.data_type() == StreamDataType.int32 && devLen > 1 );
 				
 				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_SYNC_TOOLTIP, Sync );
@@ -1286,6 +1353,7 @@ public class Panel_StreamingSettings extends JPanel
 				});
 				
 				JButton addInfo = new JButton();
+				addInfo.setToolTipText( selDataStream.getText() );
 				addInfo.setName( Language.getLocalCaption( Language.SETTING_LSL_EXTRA ) );
 				addInfo.setBorder( BorderFactory.createEtchedBorder() );
 				Dimension d = selDataStream.getPreferredSize();
@@ -1363,11 +1431,11 @@ public class Panel_StreamingSettings extends JPanel
 						getJTabDevice( null ).setVisible( true );
 					}
 				});	
-				
-				JButton plot = new JButton();
+								
 				plot.setName( Language.getLocalCaption( Language.SETTING_LSL_STREAM_PLOT ) );
 				plot.setBorder( BorderFactory.createEtchedBorder() );
 				plot.setPreferredSize( d );
+				plot.setToolTipText( selDataStream.getText() );
 				
 				ic = GeneralAppIcon.Plot( (int)(plot.getPreferredSize().width * 0.75D) , Color.BLACK );
 				if( ic != null )
@@ -1401,7 +1469,7 @@ public class Panel_StreamingSettings extends JPanel
 	
 	
 				JSpinner chunckSize = new JSpinner();
-				chunckSize.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
+				chunckSize.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				
 				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP, chunckSize );
 				
@@ -1471,7 +1539,7 @@ public class Panel_StreamingSettings extends JPanel
 				interleaved.setBorder( BorderFactory.createRaisedBevelBorder() );
 				interleaved.setPreferredSize( d );
 	
-				interleaved.setToolTipText( Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED_TOOLTIP ) );
+				interleaved.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED_TOOLTIP ) );
 				interleaved.setName( Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED ) );
 				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_INTERLEAVED, interleaved );
 	
