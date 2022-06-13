@@ -27,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonModel;
+import javax.swing.DropMode;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -63,6 +64,9 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -90,6 +94,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
@@ -1831,7 +1836,43 @@ public class Panel_StreamingSettings extends JPanel
 	{
 		if( this.devInfoTree == null )
 		{
-			this.devInfoTree = new JTree( new DefaultMutableTreeNode() );			
+			this.devInfoTree = new JTree( new DefaultMutableTreeNode() );	
+			this.devInfoTree.getSelectionModel().setSelectionMode( TreeSelectionModel.SINGLE_TREE_SELECTION );
+			this.devInfoTree.addKeyListener( new KeyAdapter() 
+			{				
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					if( e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyCode() == KeyEvent.VK_ENTER )
+					{
+						JTree tree = (JTree)e.getSource();
+						
+						int[] rows = tree.getSelectionRows();
+						
+						for( int i = rows.length - 1; i >= 0; i-- )
+						{
+							int r = rows[ i ];
+							
+							if( r > 0 )
+							{
+								if( tree.isExpanded( r ) )
+								{
+									tree.collapseRow( r );
+								}
+								else
+								{
+									tree.expandRow( r );
+								}
+							}
+						}
+					}
+				}
+				
+				@Override
+				public void keyPressed(KeyEvent e) 
+				{	
+				}
+			});
 		}
 		
 		return this.devInfoTree;
