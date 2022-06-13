@@ -43,6 +43,7 @@ import java.util.Set;
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -461,6 +462,29 @@ public class GuiManager
 					b.setSelected( (Boolean)ConfigApp.getProperty( propID ) );
 				}
 			}
+			else if( c instanceof JButton )
+			{
+				if( propID.equals( ConfigApp.SELECTED_SYNC_METHOD ) )
+				{
+					Set< String > mets = (Set< String > )ConfigApp.getProperty( propID );
+					
+					String btText =  "";
+					for( String m : mets )
+					{
+						if( btText.isEmpty() )
+						{
+							btText = m;
+						}
+						else
+						{
+							btText = mets.size() + " " + Language.getLocalCaption( Language.SETTING_SYNC_METHOD );
+						}
+					}
+					
+					((JButton)c).setText( btText);
+					
+				}
+			}
 			else if( c instanceof JTextComponent )
 			{
 				c.setVisible( true );
@@ -601,7 +625,8 @@ public class GuiManager
 		ui.getMenuWritingTest().setEnabled( enable );
 		
 		ui.getJButtonRefreshDataStreams().setEnabled( enable );
-		ui.getJComboxSyncMethod().setEnabled( enable );
+		//ui.getJComboxSyncMethod().setEnabled( enable );
+		ui.getBtnSyncMethod().setEnabled( enable );
 		ui.getJCheckActiveSpecialInputMsg().setEnabled( enable );
 		
 		ui.getPreferenceMenu().setEnabled( enable );

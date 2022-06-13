@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2022, 4 - 1, 21 );
+	public static final Calendar buildDate = new GregorianCalendar( 2022, 6 - 1, 13 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -225,7 +225,7 @@ public class ConfigApp
  		
 		list_Key_Type.put( SERVER_SOCKET, Set.class);
 
-		list_Key_Type.put( SELECTED_SYNC_METHOD, String.class );
+		list_Key_Type.put( SELECTED_SYNC_METHOD, Set.class );
 		
 		list_Key_Type.put( IS_ACTIVE_SPECIAL_INPUTS, Boolean.class );
 
@@ -877,22 +877,53 @@ public class ConfigApp
 						}
 					}
 				}
-			}
-			else if( key.equals( SELECTED_SYNC_METHOD ) )
-			{				
-				loadDefaultSyncMethod();
-				
-				if( !value.equals( SyncMethod.SYNC_NONE ) 
-						&& !value.equals( SyncMethod.SYNC_SOCKET ) 
-						&& !value.equals( SyncMethod.SYNC_STREAM) )
-				{
-					defaultValue = true;
-					defaultMsg +=  key + "; ";
-				}
-				else
-				{
-					listConfig.put( SELECTED_SYNC_METHOD, value );
-				}
+				else if( key.equals( SELECTED_SYNC_METHOD ) )
+				{				
+					loadDefaultSyncMethod();
+					
+					/*
+					if( !value.equals( SyncMethod.SYNC_NONE ) 
+							&& !value.equals( SyncMethod.SYNC_SOCKET ) 
+							&& !value.equals( SyncMethod.SYNC_STREAM) )
+					//*/
+					
+					
+					value = value.replace("[",  "").replace("]", "");
+					String[] values = value.split( "," );
+					
+					Set< String > meths = (Set< String >)listConfig.get( ConfigApp.SELECTED_SYNC_METHOD );
+					meths.clear();
+					
+					for( String v : values )
+					{
+						if( SyncMethod.isSyncMethod( v.trim() ) )
+						{
+							meths.add( v.trim() );
+						}
+						else
+						{
+							defaultValue = true;
+							defaultMsg += v.trim() + ": unknow sync method.\n";
+						}
+					}
+					
+					if( meths.isEmpty() )
+					{
+						loadDefaultSyncMethod();
+					}
+					
+					/*
+					if( !SyncMethod.isSyncMethod( value ) )
+					{
+						defaultValue = true;
+						defaultMsg +=  key + "; ";
+					}
+					else
+					{
+						listConfig.put( SELECTED_SYNC_METHOD, value );
+					}
+					*/
+				}			
 			}			
 			else if( key.equals( PLUGINS ) )
 			{	
@@ -1457,7 +1488,11 @@ public class ConfigApp
 
 	private static void loadDefaultSyncMethod()
 	{
-		listConfig.put( SELECTED_SYNC_METHOD, SyncMethod.SYNC_NONE );
+		Set< String > syncMet = new TreeSet< String >();
+		
+		syncMet.add( SyncMethod.SYNC_NONE );
+		
+		listConfig.put( SELECTED_SYNC_METHOD, syncMet );
 	}
 	
 	private static void loadDefaultValueIsServerSocketActiveInputSpecialMsg()

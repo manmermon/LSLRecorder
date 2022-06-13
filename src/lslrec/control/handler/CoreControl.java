@@ -41,7 +41,6 @@ import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
@@ -59,7 +58,6 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
-import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
@@ -146,7 +144,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private LSLRecPluginTrial trial = null;
 	//private JFrame trialWindows = null;
 	
-	private LSLRecPluginSyncMethod syncPluginMet = null;
+	private List< LSLRecPluginSyncMethod > syncPluginMet = new ArrayList< LSLRecPluginSyncMethod >();
 	
 	private DeadlockDetector deadlockDetector = null;
 	
@@ -435,7 +433,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						|| actionDialog == JOptionPane.CLOSED_OPTION )
 				{
 					this.isRecording = false;
-					this.managerGUI.setAppState( AppState.State.STOP, 0, false );
+					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshDataStreams();
 
@@ -464,10 +462,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if( !testWriting )
 			{
-				this.isWaitingForStartCommand = this.isActiveSpecialInputMsg
+				this.isWaitingForStartCommand = this.isActiveSpecialInputMsg												
 												&& 
 												( this.streamPars.getInputCommands().containsKey( RegisterSyncMessages.INPUT_START )
-														|| isSyncLSL );
+														|| isSyncLSL
+														|| ( this.trial != null && this.trial.hasSyncMethod() ) );
 			}
 			else
 			{
@@ -580,6 +579,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						
 			int recordingCheckerTimer = (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER );
 			
+			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
+			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+			
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
@@ -598,7 +600,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 				else
 				{
-					if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString().equals( SyncMethod.SYNC_STREAM ) 
+					if( syncMet.contains( SyncMethod.SYNC_STREAM )
 							&& dev.isSynchronationStream() )
 					{
 						DEV_ID.add( dev );
@@ -686,18 +688,35 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private void setSyncPlugin()
 	{
-		if( this.syncPluginMet != null )
+		if( !this.syncPluginMet.isEmpty() )
 		{
-			this.syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
+			for( LSLRecPluginSyncMethod plgSyncMet : this.syncPluginMet )
+			{
+				plgSyncMet.stopThread( IStoppableThread.FORCE_STOP );
+			}
+			
+			this.syncPluginMet.clear();
 		}
 		
-		 this.syncPluginMet = SyncMethod.getSyncPlugin( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString() );
-
-		if( this.syncPluginMet != null )
+		//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
+		Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+		
+		for( String met : SyncMethod.getSyncMethodID() )
 		{
-			this.syncPluginMet.taskMonitor( this.ctrlOutputFile );				
-		}
+			if( syncMet.contains( met ) )
+			{
+				LSLRecPluginSyncMethod plgSyncMet = SyncMethod.getSyncPlugin( met );
+				
+				if( plgSyncMet != null )
+				{
+					plgSyncMet.taskMonitor( this.ctrlOutputFile );
+					
+					this.syncPluginMet.add( plgSyncMet );
+				}
+			}
+		}		
 	}
+	
 	
 	private void setTrialPlugin()
 	{
@@ -792,7 +811,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
 		
-		if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_NONE ) )
+		Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+		
+		if( syncMeths.contains( SyncMethod.SYNC_NONE ) )
 		{
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 		}
@@ -874,11 +895,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			
-			if( ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_STREAM ) && specialInMsg && !existSelectedSyncLSL )
+			
+			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_UNSELECTABLE_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
-			}
-			else if( existSelectedSyncLSL && !ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).equals( SyncMethod.SYNC_STREAM ) )
+					String msg = Language.getLocalCaption( Language.CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG );
+					int warmType = WarningMessage.WARNING_MESSAGE;
+					
+					if( specialInMsg )
+					{
+						msg = Language.getLocalCaption( Language.CHECK_SYNC_UNSELECTABLE_ERROR_MSG );
+						warmType = WarningMessage.ERROR_MESSAGE;
+					}
+					
+					this.warnMsg.addMessage( msg, warmType );
+			}			
+			else if( existSelectedSyncLSL && !syncMeths.contains( SyncMethod.SYNC_STREAM ) )
 			{
 				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
 			}
@@ -956,9 +987,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.trial.startThread();
 		}
 		
-		if( this.syncPluginMet != null )
+		if( !this.syncPluginMet.isEmpty() )
 		{
-			this.syncPluginMet.startThread();
+			for( LSLRecPluginSyncMethod plgSyncMet : this.syncPluginMet )
+			{
+				plgSyncMet.startThread();
+			}
 		}
 	}
 
@@ -1291,7 +1325,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		SocketInformations infos = new SocketInformations();
 
-		if ( ( (String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ) ).equals( SyncMethod.SYNC_SOCKET ) )
+		//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
+		
+		Set< String > syncMet = ( Set< String > )ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+		
+		//if ( SyncMethod.isAllSyncMethod( syncMet ) || syncMet.equals( SyncMethod.SYNC_SOCKET ) )
+		if( syncMet.contains( SyncMethod.SYNC_SOCKET ) )
 		{
 			Set< String > SOCKETS = (Set< String > )ConfigApp.getProperty( ConfigApp.SERVER_SOCKET );
 
@@ -2125,9 +2164,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			if ( isRecording 
 					|| isWaitingForStartCommand )
 			{	
-				if( syncPluginMet != null )
+				if( !syncPluginMet.isEmpty() )
 				{
-					syncPluginMet.stopThread( IStoppableThread.FORCE_STOP );
+					for( LSLRecPluginSyncMethod plgSyncMet : syncPluginMet )
+					{
+						plgSyncMet.stopThread( IStoppableThread.FORCE_STOP );
+					}
+					
+					syncPluginMet.clear();
 				}
 				
 				if( trial != null )

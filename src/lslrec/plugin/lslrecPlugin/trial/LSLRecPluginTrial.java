@@ -224,6 +224,11 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		return this.syncMethod;
 	}
 	
+	public boolean hasSyncMethod()
+	{
+		return this.loadSyncMarkerMethod( this.monitor ) != null;
+	}
+	
 	public final void setGUIPanel( JPanel tesPanel )
 	{
 		this.GUIPanel.setVisible( false );

@@ -26,7 +26,6 @@ import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.message.AppState;
 import lslrec.control.message.RegisterSyncMessages;
-import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
@@ -37,10 +36,11 @@ import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
+import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.primary.Panel_SocketSetting;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
 import lslrec.auxiliar.extra.NumberRange;
@@ -58,6 +58,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
@@ -80,6 +81,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -138,6 +140,7 @@ public class AppUI extends JFrame
 	private JButton jButtonClearLog;
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
+	private JButton jBtnSyncMet;
 		
 	private JToggleButton jButtomPlayStop = null;
 
@@ -192,7 +195,7 @@ public class AppUI extends JFrame
 	private Panel_StreamingSettings streamSettingPanel;
 
 	// JCombox
-	private JComboBox< String > jComboxSyncMethod;	
+	//private JComboBox< String > jComboxSyncMethod;	
 
 	// CheckBox
 	private JCheckBox checkActiveSpecialInputMsg;
@@ -269,7 +272,8 @@ public class AppUI extends JFrame
 				if( CoreControl.getInstance().isDoingSomething() 
 						|| (  state != AppState.State.NONE && state != AppState.State.SAVED )
 						)
-				{						 
+				{						
+					System.out.println("AppUI.closingChecks() " + CoreControl.getInstance().isDoingSomething() );
 					String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 							UIManager.getString( "OptionPane.noButtonText" ) };
 
@@ -376,7 +380,8 @@ public class AppUI extends JFrame
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
 			
 			this.jPanelSelectSyncMethod.add( lb );
-			this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
+			//this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
+			this.jPanelSelectSyncMethod.add( this.getBtnSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getJCheckActiveSpecialInputMsg() );
 			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );			
 		}
@@ -384,6 +389,7 @@ public class AppUI extends JFrame
 		return this.jPanelSelectSyncMethod;
 	}
 
+	/*
 	protected JComboBox< String > getJComboxSyncMethod()	
 	{
 		if( this.jComboxSyncMethod == null )
@@ -402,27 +408,6 @@ public class AppUI extends JFrame
 					JComboBox< String > jc = ( JComboBox< String >)e.getSource();
 
 					String sync = (String)jc.getSelectedItem();
-
-					/*
-					getJCheckActiveSpecialInputMsg().setEnabled( true );
-					
-					if( sync.equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
-					{
-						getJCheckActiveSpecialInputMsg().setSelected( false );
-						getJCheckActiveSpecialInputMsg().setEnabled( false );
-					}
-					
-					if( !sync.equalsIgnoreCase( SyncMethod.SYNC_LSL ) )
-					{
-						try 
-						{
-							getStreamSetting().deselectSyncDevices();
-						}
-						catch (Exception e1) 
-						{
-						}
-					}
-					*/
 					
 					ConfigApp.setProperty( ID, sync );
 				}
@@ -432,6 +417,240 @@ public class AppUI extends JFrame
 		}
 
 		return this.jComboxSyncMethod;
+	}
+	//*/
+	
+	protected JButton getBtnSyncMethod()	
+	{
+		if( this.jBtnSyncMet == null )
+		{
+			final String ID = ConfigApp.SELECTED_SYNC_METHOD;
+
+			this.jBtnSyncMet = new JButton( SyncMethod.SYNC_NONE );
+						
+			String met = "";
+			
+			for( String m : SyncMethod.getSyncMethodID() )
+			{
+				if( m.length() > met.length() )
+				{
+					met = m; 
+				}
+			}
+			
+			ImageIcon ic = new ImageIcon( BasicPainter2D.paintPolygonLine( new int[] { 0, 5, 10 }
+																			, new int[] {0, 5, 0 } 
+																			, 1.5F, Color.DARK_GRAY, null )	 
+										);
+			if( ic != null )
+			{
+				this.jBtnSyncMet.setIcon( ic );
+			}
+			
+			FontMetrics fm = this.jBtnSyncMet.getFontMetrics( this.jBtnSyncMet.getFont() );
+			Dimension d = this.jBtnSyncMet.getPreferredSize();
+			Insets inset = this.jBtnSyncMet.getInsets();
+			d.width = fm.stringWidth( met ) + 5 + ic.getIconWidth() + inset.right + inset.left;
+			if( d.width > 110 )
+			{
+				d.width = 110;
+			}
+			this.jBtnSyncMet.setPreferredSize( d );
+			this.jBtnSyncMet.setSize( d );
+			
+			this.jBtnSyncMet.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					final JButton syncBtn = (JButton)e.getSource();
+
+					JDialog w = new JDialog( AppUI.getInstance() );
+					w.setUndecorated( true );
+										
+					JPanel p = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.TOP ) );
+					w.setContentPane( p );
+					
+					p.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
+					
+					Set< String > mets = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+					
+					if( mets.isEmpty() )
+					{
+						mets.add( SyncMethod.SYNC_NONE );
+					}
+					
+					final List< JCheckBox > synMets = new ArrayList< JCheckBox >();
+					for( String met : SyncMethod.getSyncMethodID() )
+					{
+						JCheckBox ch = new JCheckBox( met );
+						
+						ch.setSelected( mets.contains( met ) );
+						
+						synMets.add( ch );
+						
+						p.add( ch );
+					}
+					
+					boolean selAll = ( mets.size() >= SyncMethod.getSyncMethodID().length - 2 );
+											
+					for( JCheckBox ch : synMets )
+					{
+						ch.addItemListener( new ItemListener() 
+						{	
+							@Override
+							public void itemStateChanged(ItemEvent e) 
+							{	
+								Set< String > mets = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+								
+								JCheckBox ch = (JCheckBox)e.getSource();
+								
+								String sync = ch.getText();
+																
+								if( e.getStateChange() == ItemEvent.SELECTED )
+								{
+									if( SyncMethod.isNoneSyncMethod( sync ) )
+									{	
+										for( JCheckBox ch2 : synMets )
+										{
+											if( !ch2.equals( ch ) )
+											{
+												ch2.setSelected( false );
+											}
+										}
+										
+										syncBtn.setText( sync );
+										syncBtn.setToolTipText( sync );
+									}
+									else
+									{
+										if( SyncMethod.isAllSyncMethod( sync ) )
+										{
+											for( JCheckBox ch2 : synMets )
+											{
+												if(  !ch2.equals( ch ) && !SyncMethod.isNoneSyncMethod( ch2.getText() ) )
+												{
+													ch2.setSelected( true );
+												}
+											}
+											
+											ch.setSelected( true );
+										}
+										else
+										{
+											mets.add( sync );
+										}
+																				
+										for( JCheckBox ch2 : synMets )
+										{											
+											if( SyncMethod.isNoneSyncMethod( ch2.getText() ) )
+											{
+												ch2.setSelected( false );
+												
+												break;
+											}
+										}
+									}
+								}
+								else
+								{
+									mets.remove( sync );
+									
+									if( sync.equals( SyncMethod.SYNC_STREAM ) )
+									{
+										try 
+										{
+											getStreamSetting().unselectSyncDevices();
+										}
+										catch (Exception e1) 
+										{
+											e1.printStackTrace();
+										}
+									}									
+								}
+								
+								boolean selAll = ( mets.size() >= SyncMethod.getSyncMethodID().length - 2 );
+																
+								for( JCheckBox ch2 : synMets )
+								{											
+									if( SyncMethod.isAllSyncMethod( ch2.getText() ) )
+									{
+										ch2.setSelected( selAll );
+										
+										break;
+									}
+								}
+								
+								if( mets.isEmpty() )
+								{
+									for( JCheckBox c : synMets )
+									{
+										if( SyncMethod.isNoneSyncMethod( c.getText() ) )
+										{
+											c.setSelected( true );
+											
+											break;
+										}
+									}
+								}
+								else
+								{
+									String syncText = "";
+									
+									for( String m :  mets )
+									{
+										if( syncText.isEmpty() )
+										{
+											syncText = m;
+										}
+										else
+										{
+											syncText = mets.size() + " " + Language.getLocalCaption( Language.SETTING_SYNC_METHOD );
+											
+											break;
+										}
+									}
+									
+									syncBtn.setText( syncText );									
+									syncBtn.setToolTipText( mets.toString() );
+								}
+							}
+						});
+					
+						if( SyncMethod.isAllSyncMethod( ch.getText() ) )
+						{
+							ch.setSelected( selAll );
+						}
+					}
+										
+					Dimension size = syncBtn.getSize();
+					Point pos = syncBtn.getLocationOnScreen();
+
+					Point loc = new Point( pos.x + 1, pos.y + size.height - 1 ); 
+
+					w.setLocation( loc );					
+
+					w.pack();
+					
+					w.addWindowListener( new WindowAdapter() 
+					{
+						@Override
+						public void windowDeactivated(WindowEvent e) 
+						{
+							e.getWindow().dispose();
+						}
+					});
+					
+					w.setVisible( true );
+					
+										
+				}
+			});
+			
+			GuiManager.setGUIComponent( ID, ID, this.jBtnSyncMet );
+		}
+
+		return this.jBtnSyncMet;
 	}
 
 	protected JCheckBox getJCheckActiveSpecialInputMsg()

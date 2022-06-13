@@ -35,7 +35,9 @@ public class SyncMethod
 {
 	public static final String SYNC_NONE = "None";
 	public static final String SYNC_SOCKET = "Socket";
-	public static final String SYNC_STREAM = "Data stream";
+	public static final String SYNC_STREAM = "Data stream";	
+	public static final String SYNC_ALL = "All";
+	
 	
 	private static final Map< String, LSLRecPluginSyncMethod > syncs = new HashMap< String, LSLRecPluginSyncMethod >();
 	
@@ -46,6 +48,7 @@ public class SyncMethod
 		met.add( SYNC_NONE );
 		met.add( SYNC_SOCKET );
 		met.add( SYNC_STREAM );
+		met.add( SYNC_ALL );
 		
 		for( String id : syncs.keySet() )
 		{
@@ -53,6 +56,40 @@ public class SyncMethod
 		}
 		
 		return met.toArray( new String[0] );
+	}
+	
+	public static boolean isSyncMethod( String m )
+	{
+		boolean check = false;
+		
+		if( m != null )
+		{
+			for( String met : getSyncMethodID() )
+			{
+				check = m.equalsIgnoreCase( met );
+				
+				if( check )
+				{
+					break;
+				}
+			}
+		}
+		
+		return check;
+	}
+	
+	public static boolean isNoneSyncMethod( String met )
+	{
+		boolean check = ( met != null && met.toLowerCase().equals( SyncMethod.SYNC_NONE.toLowerCase() ) );		
+		
+		return check;
+	}
+	
+	public static boolean isAllSyncMethod( String met )
+	{
+		boolean check = ( met != null && met.toLowerCase().equals( SyncMethod.SYNC_ALL.toLowerCase() ) );		
+		
+		return check;
 	}
 	
 	/**

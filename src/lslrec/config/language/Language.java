@@ -119,6 +119,7 @@ public class Language
 	public static final String CHECK_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
 	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
 	public static final String CHECK_LSL_CHUNCKSIZE_WARNING_MSG = "CHECK_LSL_CHUNCKSIZE_WARNING_MSG";
+	public static final String CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG = "CHECK_SYNC_UNSELECT_STREAM_WARNING_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -435,13 +436,15 @@ public class Language
 		captions.put(CHECK_SPECIAL_IN_WARNING_MSG,
 				new Caption(CHECK_SPECIAL_IN_WARNING_MSG, defaultLanguage, "Special inputs are not selected."));
 		captions.put(CHECK_SYNC_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_UNSELECTABLE_ERROR_MSG,
-				defaultLanguage, "LSL sync stream not selected selected."));
+				defaultLanguage, "LSL sync stream not selected."));
 		captions.put(CHECK_SYNC_METHOD_WARNING_MSG,
 				new Caption(CHECK_SYNC_METHOD_WARNING_MSG, defaultLanguage, "Sync method is not selected."));
 		captions.put(CHECK_SYNC_STREAM_WARNING_MSG,
-				new Caption(CHECK_SYNC_STREAM_WARNING_MSG, defaultLanguage, "A LSL stream is set as sync, but its data will not be save because LabStreaming Layer is not sync method."));
+				new Caption(CHECK_SYNC_STREAM_WARNING_MSG, defaultLanguage, "A LSL stream is set as sync, but its data will not be save because Data Stream is not sync method."));
 		captions.put( CHECK_LSL_CHUNCKSIZE_WARNING_MSG
 				, new Caption( CHECK_LSL_CHUNCKSIZE_WARNING_MSG, defaultLanguage, "Check if the next fields are correct: chunk size and interleaved." ) );
+		captions.put(CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG,
+				new Caption(CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG, defaultLanguage, "The Data Stream (sync method) is activated, but noone input data stream is not set as sync."));
 
 		captions.put(INPUT_START_LEGEND,
 				new Caption(INPUT_START_LEGEND, defaultLanguage, "system must start the recording."));

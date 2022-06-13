@@ -77,6 +77,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.swing.border.BevelBorder;
@@ -250,7 +251,7 @@ public class Panel_StreamingSettings extends JPanel
 		return this.disPanel;
 	}
 	
-	public void deselectSyncDevices()
+	public void unselectSyncDevices()
 	{
 		for( ButtonModel bm : this.syncDeviceGroup.getSelections() )
 		{
@@ -1253,7 +1254,14 @@ public class Panel_StreamingSettings extends JPanel
 						
 						if( e.getStateChange() == ItemEvent.SELECTED )
 						{	
-							if( !((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_STREAM ) )
+							Set< String > syncMets = (Set<String>)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+							
+							/*
+							if( !( ((String).equalsIgnoreCase( SyncMethod.SYNC_STREAM ) 
+									|| ((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_ALL ) ) 
+								)
+							*/
+							if( !( syncMets.contains( SyncMethod.SYNC_STREAM ) ) )
 							{
 								/*
 								JOptionPane.showMessageDialog( winOwner
