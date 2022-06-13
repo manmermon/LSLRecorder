@@ -46,9 +46,9 @@ public class SyncMethod
 		List< String > met = new ArrayList< String >();
 		
 		met.add( SYNC_NONE );
-		met.add( SYNC_SOCKET );
-		met.add( SYNC_STREAM );
 		met.add( SYNC_ALL );
+		met.add( SYNC_SOCKET );
+		met.add( SYNC_STREAM );		
 		
 		for( String id : syncs.keySet() )
 		{

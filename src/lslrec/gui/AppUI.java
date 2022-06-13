@@ -91,7 +91,6 @@ import javax.swing.ImageIcon;
 import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -451,9 +450,9 @@ public class AppUI extends JFrame
 			Dimension d = this.jBtnSyncMet.getPreferredSize();
 			Insets inset = this.jBtnSyncMet.getInsets();
 			d.width = fm.stringWidth( met ) + 5 + ic.getIconWidth() + inset.right + inset.left;
-			if( d.width > 110 )
+			if( d.width > 130 )
 			{
-				d.width = 110;
+				d.width = 130;
 			}
 			this.jBtnSyncMet.setPreferredSize( d );
 			this.jBtnSyncMet.setSize( d );
@@ -469,7 +468,7 @@ public class AppUI extends JFrame
 					w.setUndecorated( true );
 										
 					JPanel p = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.TOP ) );
-					w.setContentPane( p );
+					w.setContentPane( new JScrollPane( p ) );
 					
 					p.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 					
@@ -488,8 +487,16 @@ public class AppUI extends JFrame
 						ch.setSelected( mets.contains( met ) );
 						
 						synMets.add( ch );
-						
+												
 						p.add( ch );
+						
+						if( SyncMethod.isNoneSyncMethod( met ) || SyncMethod.isAllSyncMethod( met ) )
+						{
+							JSeparator sp = new JSeparator( JSeparator.HORIZONTAL );							
+							sp.setPreferredSize( new Dimension( syncBtn.getSize().width, 2 ) );
+							
+							p.add( sp );
+						}
 					}
 					
 					boolean selAll = ( mets.size() >= SyncMethod.getSyncMethodID().length - 2 );
@@ -631,6 +638,20 @@ public class AppUI extends JFrame
 					w.setLocation( loc );					
 
 					w.pack();
+					
+					size = w.getSize();
+					
+					if( size.height > 150 )
+					{						
+						size.height = 150;
+					}
+					
+					if( size.width > 150 )
+					{
+						size.width = 150;
+					}
+					
+					w.setSize( size );
 					
 					w.addWindowListener( new WindowAdapter() 
 					{
