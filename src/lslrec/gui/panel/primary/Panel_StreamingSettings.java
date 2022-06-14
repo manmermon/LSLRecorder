@@ -1718,6 +1718,7 @@ public class Panel_StreamingSettings extends JPanel
 						jchb.setAlignmentX( Component.CENTER_ALIGNMENT );
 						jchb.setMargin( new Insets( 0, 0, 0, 0 ) );
 						
+						final Component[] strList = panel.getComponents();
 						jchb.addItemListener( new ItemListener() 
 						{							
 							@Override
@@ -1729,10 +1730,10 @@ public class Panel_StreamingSettings extends JPanel
 									{
 										JCheckBox jch = (JCheckBox)e.getSource();
 										
-										for( Component comp : panel.getComponents() )
+										for( Component comp : strList )
 										{
 											if( comp instanceof JToggleButton )
-											{
+											{												
 												((JToggleButton)comp).setSelected( true );
 											}
 										}
