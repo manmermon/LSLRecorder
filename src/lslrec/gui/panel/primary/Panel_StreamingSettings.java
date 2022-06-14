@@ -68,6 +68,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -1068,20 +1071,14 @@ public class Panel_StreamingSettings extends JPanel
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_DEVICES, tmodel );
 	
 			final HashSet< IMutableStreamSetting > deviceIDs = ( HashSet< IMutableStreamSetting > )ConfigApp.getProperty( ConfigApp.ID_STREAMS );
-	
-			//GridBagLayout bl = new GridBagLayout();			
-			//panelLSLSettings.setLayout( bl );	
-			//panelLSLSettings.setLayout( new FlowLayout( FlowLayout.LEFT, 0, 0 ) );
-			panelLSLSettings.setLayout( new BorderLayout() );
-			
+				
 			List< JPanel > devsPanel = new ArrayList<JPanel>();
 			for( int i = 0; i < 6; i++ )
 			{
 				JPanel p = new JPanel();
 				VerticalFlowLayout ly = new VerticalFlowLayout( VerticalFlowLayout.TOP, 0, 2 );
 				p.setLayout( ly  );
-				//p.setAlignmentX( Component.LEFT_ALIGNMENT );
-				
+								
 				devsPanel.add( p );
 			}
 			
@@ -1158,7 +1155,11 @@ public class Panel_StreamingSettings extends JPanel
 			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_NAME );
 			
 			GuiTextManager.clearSelectedStreamComponent();
-						
+			
+			//
+			//
+			//
+			
 			for( int i = 0; i < this.deviceInfo.length; i++ )
 			{
 				final IStreamSetting info = this.deviceInfo[ i ];
@@ -1199,11 +1200,31 @@ public class Panel_StreamingSettings extends JPanel
 					tmodel.insert( t, tmodel.getChildCount() );
 				}				
 	
-				JButton plot = new JButton();
+				//
+				// 
+				//
 				
+				List< Component > streamComponents = new ArrayList< Component >();
+				
+				JButton addInfo = new JButton();
+				JButton plot = new JButton();
+				JSpinner chunckSize = new JSpinner();
+				JToggleButton interleaved = new JToggleButton();								
 				JCheckBox selDataStream = new JCheckBox( deviceName );
 				JCheckBox Sync = new JCheckBox();
-	
+					
+				streamComponents.add( addInfo );
+				streamComponents.add( plot );
+				streamComponents.add( chunckSize );
+				streamComponents.add( interleaved );
+				streamComponents.add( Sync );
+				streamComponents.add( selDataStream );
+				
+				
+				//
+				//
+				//
+				
 				if( !sourceID.isEmpty() )
 				{	
 					selDataStream.setName( sourceID );
@@ -1245,8 +1266,6 @@ public class Panel_StreamingSettings extends JPanel
 					@Override
 					public void keyReleased(KeyEvent e) 
 					{	
-						Component c = (Component)e.getSource();
-						
 						int down = 0;
 						if( e.getKeyCode() == KeyEvent.VK_UP )
 						{
@@ -1290,6 +1309,10 @@ public class Panel_StreamingSettings extends JPanel
 					Sync.setName( deviceName + deviceType );
 				}
 	
+				//
+				//
+				//
+				
 				Sync.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_SYNC_TOOLTIP ) );				
 				Sync.setEnabled( info.channel_count() == 1 && info.data_type() == StreamDataType.int32 && devLen > 1 );
 				
@@ -1351,8 +1374,11 @@ public class Panel_StreamingSettings extends JPanel
 						}
 					}
 				});
-				
-				JButton addInfo = new JButton();
+
+				//
+				//
+				//
+							
 				addInfo.setToolTipText( selDataStream.getText() );
 				addInfo.setName( Language.getLocalCaption( Language.SETTING_LSL_EXTRA ) );
 				addInfo.setBorder( BorderFactory.createEtchedBorder() );
@@ -1431,7 +1457,11 @@ public class Panel_StreamingSettings extends JPanel
 						getJTabDevice( null ).setVisible( true );
 					}
 				});	
-								
+
+				//
+				//
+				//
+							
 				plot.setName( Language.getLocalCaption( Language.SETTING_LSL_STREAM_PLOT ) );
 				plot.setBorder( BorderFactory.createEtchedBorder() );
 				plot.setPreferredSize( d );
@@ -1467,8 +1497,11 @@ public class Panel_StreamingSettings extends JPanel
 					}
 				});
 	
-	
-				JSpinner chunckSize = new JSpinner();
+
+				//
+				//
+				//
+				
 				chunckSize.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				
 				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP, chunckSize );
@@ -1535,7 +1568,11 @@ public class Panel_StreamingSettings extends JPanel
 					}
 				});		
 	
-				JToggleButton interleaved = new JToggleButton();
+
+				//
+				//
+				//
+				
 				interleaved.setBorder( BorderFactory.createRaisedBevelBorder() );
 				interleaved.setPreferredSize( d );
 	
@@ -1560,8 +1597,7 @@ public class Panel_StreamingSettings extends JPanel
 				}
 				
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_INTERLEAVED, interleaved );
-	
-				
+					
 				interleaved.addActionListener( new ActionListener() 
 				{	
 					@Override
@@ -1581,52 +1617,25 @@ public class Panel_StreamingSettings extends JPanel
 						dev.setInterleaveadData( bt.isSelected() );
 					}
 				});
-	
-	
-				/*
-				JPanel deviceGroup = new JPanel();
-				deviceGroup.setAlignmentX( Component.LEFT_ALIGNMENT );
-								
-				deviceGroup.setLayout( new BoxLayout( deviceGroup, BoxLayout.X_AXIS ) );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-				deviceGroup.add( addInfo );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-				deviceGroup.add( plot );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-				deviceGroup.add( chunckSize );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-				deviceGroup.add( interleaved );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 10, 0 ) ) );
-				deviceGroup.add( Sync );
-				deviceGroup.add( Box.createRigidArea( new Dimension( 10, 0 ) ) );
-				deviceGroup.add( r );				
-				*/
+
+				//
+				//
+				//
 				
-				devsPanel.get( 0 ).add( addInfo );				
-				devsPanel.get( 1 ).add( plot );
-				devsPanel.get( 2 ).add( chunckSize );
-				devsPanel.get( 3 ).add( interleaved );
-				devsPanel.get( 4 ).add( Sync );
-				devsPanel.get( 5 ).add( selDataStream );
+				for( int istrC = 0; istrC < streamComponents.size(); istrC++ ) 
+				{	
+					Component strC = streamComponents.get( istrC );
+					
+					devsPanel.get( istrC ).add( strC );					
+				}
 									
+				
 				this.selectedDeviceGroup.add( selDataStream );
 				if( Sync.isEnabled() )
 				{
 					this.syncDeviceGroup.add( Sync );
 				}
-					
-				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.weightx = 1.0;
-				gbc.anchor = GridBagConstraints.NORTHWEST;
-				gbc.gridy = panelLSLSettings.getComponentCount() + 1;
-	
-				if( i == this.deviceInfo.length - 1 )
-				{
-					gbc.weighty = 1.0;
-				}
-	
-				//panelLSLSettings.add( deviceGroup, gbc );
-	
+		
 				if( dev.isSelected() )
 				{
 					selDataStream.setSelected( true );
@@ -1643,27 +1652,44 @@ public class Panel_StreamingSettings extends JPanel
 					}
 				}
 			}
-				
-			JPanel auxPanel = new JPanel();
-			auxPanel.setLayout( new GridBagLayout() );
+			
+			//
+			//
+			//
+			
+			GridBagLayout gb = new GridBagLayout();
+			
+			gb.columnWidths = new int[ devsPanel.size() * 2 + 2];
+			
+			double[] cW = new double[ devsPanel.size() * 2 + 2 ];
+			cW[ cW.length - 1 ] = Double.MIN_VALUE;
+			cW[ cW.length - 2 ] = 1.0;
+			gb.columnWeights = new double[ devsPanel.size() * 2 + 2 ];
+			
+			gb.rowHeights = new int[ this.deviceInfo.length * 2 + 2 ];
+			double[] rW = new double[ this.deviceInfo.length * 2 + 2  ];
+			rW[ rW.length - 1 ] = Double.MIN_VALUE;
+			gb.rowWeights = rW;
+			
+			panelLSLSettings.setLayout( gb );
 			
 			for( int i = 0; i < devsPanel.size(); i++ )
 			{
-				JPanel panel = devsPanel.get( i );
-				
-				JPanel colPanel = new JPanel();				
-				VerticalFlowLayout fly = new VerticalFlowLayout( VerticalFlowLayout.CENTER, 0, 0 );
-								
-				colPanel.setLayout( fly );
-				
 				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.fill = GridBagConstraints.NONE;
-				gbc.ipady = 0;
+				gbc.fill = GridBagConstraints.BOTH;
 				gbc.weighty = 0;
 				gbc.weightx = 0;
-				gbc.anchor = GridBagConstraints.NORTHWEST;		
-				gbc.gridx = GridBagConstraints.RELATIVE;
+				gbc.anchor = GridBagConstraints.CENTER;		
+				gbc.gridx = i;//
 				gbc.gridy = 0;
+				
+				if( i >= devsPanel.size() - 1 )
+				{
+					gbc.fill = GridBagConstraints.HORIZONTAL;
+					gbc.weightx = 1.0;
+				}
+				
+				JPanel panel = devsPanel.get( i );
 				
 				Component headerAddAct = null;
 								
@@ -1684,7 +1710,6 @@ public class Panel_StreamingSettings extends JPanel
 					{
 						JCheckBox jchb = new JCheckBox( );
 						
-						//jchb.setBorder( BorderFactory.createEtchedBorder() );	
 						jchb.setFocusable( false );
 						jchb.setFocusCycleRoot( false );
 						jchb.setFocusPainted( false );
@@ -1721,13 +1746,7 @@ public class Panel_StreamingSettings extends JPanel
 						name = Language.getLocalCaption( Language.SETTING_LSL_NAME ) ;
 						idTransLang = Language.SETTING_LSL_NAME ;
 						
-						headerAddAct = jchb;
-						
-						colPanel.setLayout( new BorderLayout() );
-						colPanel.setBorder( null );
-						
-						gbc.fill = GridBagConstraints.HORIZONTAL;
-						gbc.weightx = 1.0;
+						headerAddAct = jchb;						
 					}
 					
 					if( name != null && !name.isEmpty() )
@@ -1758,136 +1777,67 @@ public class Panel_StreamingSettings extends JPanel
 							
 							headerPanel.add( headerAddAct, 0 );
 							
-							GuiTextManager.addSelectedStreamComponent( lb, idTransLang );
-							
-							//lb.setBorder( BorderFactory.createEmptyBorder( 1, 0, 0, 0 ) );		
+							GuiTextManager.addSelectedStreamComponent( lb, idTransLang );									
 						}
 						
-						colPanel.add( headerPanel, BorderLayout.NORTH, 0 );
+						panelLSLSettings.add( headerPanel, gbc );
+						
 					}
 					
+					/*
 					for( Component com : panel.getComponents() )
 					{
 						if( com.getPreferredSize().height > maxHeightComponent )
 						{
 							maxHeightComponent = com.getPreferredSize().height ;
 						}
-					}					
-				}
-				
-				colPanel.add( panel, BorderLayout.CENTER );				
-				
-				auxPanel.add( colPanel, gbc );
-				
-				//panelLSLSettings.add( colPanel );
-			}
-			
-			panelLSLSettings.add( auxPanel, BorderLayout.NORTH );
-				
-			for( JPanel panel : devsPanel )
-			{			
-				for( Component com : panel.getComponents() )
-				{
-					Dimension d = com.getPreferredSize();
-					d.height = maxHeightComponent;
-					com.setPreferredSize( d );
-				}
-			}
-			
-			/*
-			if( panelLSLSettings.getComponentCount() > 0 )
-			{
-				JPanel dGr = (JPanel)panelLSLSettings.getComponent( 0 );
-	
-				JPanel header = new JPanel( );
-				header.setBackground( header.getBackground().brighter() );
-	
-				BoxLayout ly = new BoxLayout( header, BoxLayout.LINE_AXIS );
-				header.setLayout( ly );
-				header.setBorder( BorderFactory.createMatteBorder( 0, 0, 1, 0, Color.BLACK ) );
-	
-				Insets pad = new Insets( 0, 0, 0, 0 );
-				String lb = "";
-				boolean prevPad = true;
-				Component[] cs = dGr.getComponents();
-	
-				for( int iC = 0; iC < cs.length - 1; iC++ )
-				{
-					Component c = cs[ iC ];
-					String name = c.getName();					
-	
-					if( name != null && !name.isEmpty() )
-					{
-						prevPad = false;
-	
-						if( !lb.isEmpty() )
-						{
-							Dimension dc = c.getPreferredSize();
-							FontMetrics fm = c.getFontMetrics( c.getFont() );
-	
-							//while( fm.stringWidth( name ) > dc.width + pad.left + pad.right / 2 ) 
-							//{
-							//	name = name.substring( 0, name.length() - 1 );
-							//}
-	
-							if( header.getComponentCount() > 0 )
-							{
-								JSeparator s = new JSeparator( JSeparator.VERTICAL );
-								Dimension ds = new Dimension( s.getPreferredSize().width, s.getMaximumSize().height );
-								s.setMaximumSize( ds );
-								header.add( s );
-							}
-	
-							header.add( new JLabel( lb ) );							
-							header.add( Box.createRigidArea( new Dimension( 5, 0 ) )  );
-	
-							//prevPad = true;
-							pad.left = (int)Math.ceil( pad.right / 2.0D );
-							pad.right = 0;
-						}
-	
-						lb = name;
 					}
-					else
-					{
-						if( prevPad )
-						{
-							pad.left += c.getPreferredSize().width;
-						}
-						else
-						{
-							pad.right += c.getPreferredSize().width;
-						}
-					}
-				}
-	
-				if( header.getComponentCount() > 0 )
-				{
-					JSeparator s = new JSeparator( JSeparator.VERTICAL );
-					Dimension ds = new Dimension( s.getPreferredSize().width, s.getMaximumSize().height );
-					s.setMaximumSize( ds );
-					header.add( s );
-	
-					header.add( new JLabel( "Sync" ) );
-					header.add( Box.createRigidArea( new Dimension( 2, 0 ) )  );
-	
-					s = new JSeparator( JSeparator.VERTICAL );
-					ds = new Dimension( s.getPreferredSize().width, s.getMaximumSize().height );
-					s.setMaximumSize( ds );					
-					header.add( s );
-	
-					header.add( new JLabel( "Stream's name" ) );
+					*/					
 				}				
-	
-				GridBagConstraints gbcHeader = new GridBagConstraints();
-				gbcHeader.weightx = 1.0;
-				gbcHeader.anchor = GridBagConstraints.NORTHWEST;
-				gbcHeader.fill = GridBagConstraints.BOTH;
-				gbcHeader.gridy = 0;
-	
-				panelLSLSettings.add( header, gbcHeader, 0 );
 			}
-			*/
+			
+			
+			for( int i = 0; i < devsPanel.size(); i++ )
+			{
+				JPanel panel = devsPanel.get( i );
+																
+				int y = 1;
+				for( Component c : panel.getComponents() )
+				{
+					GridBagConstraints gbc = new GridBagConstraints();
+					gbc.fill = GridBagConstraints.NONE;
+					gbc.anchor = GridBagConstraints.CENTER;		
+					gbc.gridx = i;
+					gbc.insets = new Insets( 0, 0, 2, 0 );
+					
+					if( i >= devsPanel.size() - 1 )
+					{
+						gbc.fill = GridBagConstraints.HORIZONTAL;
+					}
+					
+					gbc.gridy = y;
+					
+					panelLSLSettings.add( c, gbc );
+					//*
+					y++;
+					
+					gbc = new GridBagConstraints();
+					gbc.fill = GridBagConstraints.HORIZONTAL;
+					gbc.anchor = GridBagConstraints.CENTER;		
+					gbc.gridx = i;
+					gbc.gridy = y;
+					gbc.insets = new Insets( 0, 0, 2, 0 );
+					
+					JSeparator jsp = new JSeparator( JSeparator.HORIZONTAL );
+					panelLSLSettings.add( jsp, gbc );
+						
+					y++;					
+				}
+			}
+						
+			//
+			//
+			//
 			
 			model = (DefaultTreeModel)tree.getModel();
 			model.setRoot( tmodel );
