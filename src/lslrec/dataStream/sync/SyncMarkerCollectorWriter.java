@@ -613,7 +613,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	public synchronized void SaveSyncMarker( SyncMarker mark ) throws Exception 
 	{
 		if( mark != null )
-		{
+		{	
 			this.markerList.add( mark );
 			
 			synchronized ( this ) 

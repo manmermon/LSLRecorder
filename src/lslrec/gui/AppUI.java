@@ -662,6 +662,10 @@ public class AppUI extends JFrame
 						}
 					});
 					
+					w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+															KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+															JComponent.WHEN_IN_FOCUSED_WINDOW );
+					
 					w.setVisible( true );
 					
 										
@@ -727,8 +731,10 @@ public class AppUI extends JFrame
 			Dimension d = new Dimension( 20, 16 );
 
 			this.jBtnInfo = new JButton( );			
-
-			this.jBtnInfo.setText( "?" );			
+			
+			FontMetrics fm = this.jBtnInfo.getFontMetrics( this.jBtnInfo.getFont() );
+			this.jBtnInfo.setIcon( new ImageIcon( BasicPainter2D.paintText( 0, 0, "?", fm, null, Color.BLACK, null ) ) );
+			
 			this.jBtnInfo.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 			this.jBtnInfo.setBackground( Color.YELLOW.darker() );
 			this.jBtnInfo.setForeground( Color.BLACK );
@@ -806,6 +812,8 @@ public class AppUI extends JFrame
 							{
 								try 
 								{	
+									CoreControl.getInstance().disposeDataPlots();
+									
 									getStreamSetting().refreshDataStreams();
 									
 									if( GuiManager.getInstance().refreshPlugins() )

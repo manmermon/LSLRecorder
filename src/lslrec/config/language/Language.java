@@ -183,6 +183,7 @@ public class Language
 	public static final String ENCRYPT_KEY_TEXT = "ENCRYPT_KEY";
 	public static final String PARALLELIZE_TEXT = "PARALLELIZE_TEXT";
 	public static final String PASSWORD_TEXT = "PASSWORD_TEXT";
+	public static final String DECRYPT_KEY_TEXT = "DECRYPT_KEY_TEXT";
 		
 	public static final String SORT_TEXT = "SORT_TEXT";
 
@@ -367,6 +368,7 @@ public class Language
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
 		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
 		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt" ) );
+		captions.put( DECRYPT_KEY_TEXT, new Caption( DECRYPT_KEY_TEXT, defaultLanguage, "Decrypt" ) );
 		captions.put( PARALLELIZE_TEXT, new Caption( PARALLELIZE_TEXT, defaultLanguage, "Parallelize" ) );
 
 		captions.put(AUTOSCROLL, new Caption(AUTOSCROLL, defaultLanguage, "Autoscroll"));

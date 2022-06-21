@@ -91,6 +91,11 @@ public class StringPlotter extends InputDataStreamReceiverTemplate
 	{
 		return super.getName();
 	}
+	
+	public String getStreamUID()
+	{
+		return super.streamSetting.uid();
+	}
 
 	@Override
 	protected void postCleanUp() throws Exception 

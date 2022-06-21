@@ -85,7 +85,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	private List tempSampleBytes;
 	private List< Double > tempTimeMark;
 	
-	private double timeCorrection;
+	private Double timeCorrection = null;
 	private double[] timeMark;	
 	//protected int LSLFormatData = LSLUtils.float32;
 
@@ -118,6 +118,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	private AtomicBoolean postCleanDone = new AtomicBoolean( false );
 
 	protected IStreamSetting streamSetting = null;
+	
+	private Object syncTimeCorrection = new Object();
 		
 	public InputDataStreamReceiverTemplate( IStreamSetting lslCfg ) throws Exception
 	{		
@@ -185,7 +187,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		*/
 				
 		this.inLet = DataStreamFactory.createDataStream( this.streamSetting );
-
+		
 		if( this.inLet == null)
 		{
 			throw new SettingException( "Unsupported Library.");
@@ -200,19 +202,46 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			((IMutableStreamSetting)this.streamSetting).setDescription( StreamUtils.getDeepXmlStreamDescription( this.streamSetting ) );
 		}
 		
+		this.createArrays();
+		
+		//*
+		Thread t = new Thread()
+		{
+			@Override
+			public void run() 
+			{
+				synchronized ( syncTimeCorrection )
+				{
+					try
+					{	
+						timeCorrection = inLet.time_correction( );
+					}
+					catch( Exception | Error e )
+					{
+						timeCorrection =  0D;
+					}
+				}
+			}
+		};
+		
+		t.setName( super.getName() + "-timeCorrection" );
+		t.start();
+				
+		//*/
+		
+		/*
 		try
 		{			
-			this.timeCorrection = this.inLet.time_correction( );
+			timeCorrection = inLet.time_correction( );
 		}
 		catch( Exception | Error e )
 		{
-			this.timeCorrection =  0D;
+			timeCorrection =  0D;
 		}
-		
-		this.createArrays();
+		//*/
 		
 		// Avoid unnecessary buffering data, waste unnecessary system, and network resources.
-		this.inLet.close_stream();
+		inLet.close_stream();
 	}
 
 	protected int createArrayData( ) throws Exception
@@ -283,10 +312,21 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		return nBytes;
 	}
 	
+	public boolean isReadyToStart()
+	{
+		synchronized ( this.syncTimeCorrection )
+		{
+			return this.timeCorrection != null;
+		}
+	}
+		
 	@Override
 	protected void preStart() throws Exception
 	{
-		super.preStart(); 
+		synchronized ( this.syncTimeCorrection )
+		{
+			super.preStart(); 
+		}
 		
 		synchronized ( this.isRecording )
 		{
@@ -350,7 +390,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			//this.timer.startThread();					
 		}		
 		
-		this.timeCorrection = this.inLet.time_correction();
+		//this.timeCorrection = this.inLet.time_correction();
 	}
 
 	protected void startUp() throws Exception
@@ -398,27 +438,13 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		byte[] data = this.readData();
 		
 		if( data != null )
-		{
-			/*
-			if (this.timer != null)
-			{
-				this.timer.interruptTimer();
-			}
-			*/
-			
+		{	
 			if (this.timer != null)
 			{
 				this.timer.stop();
 			}
 						
 			this.managerData( data, ConvertTo.Transform.doubleArray2byteArray( this.timeMark ) );
-			
-			/*
-			if (this.timer != null)
-			{
-				this.timer.restartTimer();
-			}
-			*/
 			
 			if (this.timer != null)
 			{
@@ -1559,38 +1585,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		}
 	}
 
-
-	/*
-	@Override
-	public List<EventInfo> getResult( boolean clear)
-	{
-		List< EventInfo > lst = new ArrayList< EventInfo >();
-		
-		synchronized( this.events )
-		{			
-			lst.addAll( this.events );			
-			
-			if( clear )
-			{
-				this.events.clear();
-			}
-		}
-		
-		return lst;
-	}
-	 */
-
-	/*
-	@Override
-	public void clearResult()
-	{
-		synchronized ( this.events)
-		{
-			this.events.clear();
-		}		
-	}
-	*/
-		
 	private void timeOver( )
 	{	
 		this.stopThread( IStoppableThread.FORCE_STOP );
@@ -1671,8 +1665,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			throw new SettingException( "Monitor non defined. Use taskMonitor( ... ) function to set it." );
 		}
 	}
-	
-	//public void reportClockTime(long time) {}
 
 	protected abstract void postCleanUp() throws Exception;
 

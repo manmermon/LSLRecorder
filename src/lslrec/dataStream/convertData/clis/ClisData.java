@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Cipher;
+
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.dataStream.convertData.clis.compress.IUnzip;
@@ -25,9 +27,9 @@ public class ClisData
 	
 	private int readData = 0;
 	
-	public ClisData( String filePath ) throws IOException, ClisMetadataException
+	public ClisData( String filePath ) throws Exception
 	{
-		this.metadata = new  ClisMetadataReader( new File( filePath ) );
+		this.metadata = new ClisMetadataReader( new File( filePath ) );
 	}
 	
 	public List< MetadataVariableBlock > getVarInfo()
@@ -257,6 +259,12 @@ public class ClisData
 		if( file.read( bytes ) > 0 )
 		{
 			IUnzip unzip = UnzipDataFactory.createUnzipStream( this.metadata.getCompressTechnique() );
+			
+			Cipher decrypt = this.metadata.getDecrypt();
+			if( decrypt != null )
+			{    
+				bytes = decrypt.doFinal( bytes );		        
+			}
 			
 			bytes = unzip.unzipData( bytes );		
 						

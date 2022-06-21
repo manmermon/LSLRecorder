@@ -14,7 +14,7 @@ public class ReceiveData {
        StreamInlet inlet = null; 
        for( IStreamSetting st : results )
        {
-    	   if( st.getLibraryID() == StreamLibrary.LSL && st.name().equalsIgnoreCase( "SerialPort" ) )
+    	   if( st.getLibraryID() == StreamLibrary.LSL && st.name().equalsIgnoreCase( "Simulation" ) )
     	   {
     		   inlet = new StreamInlet( (LSLStreamInfo)st );
     		   break;

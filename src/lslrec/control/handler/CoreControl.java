@@ -23,6 +23,7 @@
 package lslrec.control.handler;
 
 import lslrec.auxiliar.thread.DeadlockDetector;
+import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -213,12 +214,15 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		this.notifiedEventHandler = new NotifiedEventHandler();
 		this.notifiedEventHandler.setName( this.notifiedEventHandler.getClass().getName() );
 		this.notifiedEventHandler.startThread();
+		
+		//		
+		LostWaitedThread.getInstance().startThread();
 	}
 
 	/**
 	 * Delete plot thread.
 	 */
-	public void disposeLSLDataPlot()
+	private void disposeLSLDataPlot()
 	{
 		if (this.ctrLSLDataPlot != null)
 		{
@@ -230,14 +234,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				if( !this.ctrLSLDataPlot.getState().equals( Thread.State.TERMINATED ) )
 				{
-					this.ctrLSLDataPlot.stop();
+					this.ctrLSLDataPlot.stopThread( IStoppableThread.FORCE_STOP );
 				}
 			}
 			catch ( Error e)
 			{
 				if( !this.ctrLSLDataPlot.getState().equals( Thread.State.TERMINATED ) )
 				{
-					this.ctrLSLDataPlot.stop();
+					this.ctrLSLDataPlot.stopThread( IStoppableThread.FORCE_STOP );
 				}
 			}
 			
@@ -248,7 +252,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	/**
 	 * Delete string plot thread.
 	 */
-	public void disposeLSLDataStringPlot()
+	private void disposeLSLDataStringPlot()
 	{
 		if (this.ctrLSLDataStringPlot != null)
 		{
@@ -260,19 +264,25 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
 				{
-					this.ctrLSLDataStringPlot.stop();
+					this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
 				}
 			}
 			catch ( Error e)
 			{
 				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
 				{
-					this.ctrLSLDataStringPlot.stop();
+					this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
 				}
 			}
 			
 			this.ctrLSLDataStringPlot = null;
 		}
+	}
+	
+	public void disposeDataPlots()
+	{
+		this.disposeLSLDataPlot();
+		this.disposeLSLDataStringPlot();
 	}
 
 	/**
@@ -285,8 +295,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		try
 		{
-			this.disposeLSLDataStringPlot();
-			this.disposeLSLDataPlot(); // Delete previous plot
+			// Delete plots.
+			this.disposeDataPlots();
 			
 			PlotPanel.setVisible( false );
 			PlotPanel.removeAll();
@@ -383,6 +393,26 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 	}
+	
+	public boolean isPlotingStream( IStreamSetting stream )
+	{
+		boolean check = false;
+		
+		if( stream != null )
+		{
+			if( this.ctrLSLDataPlot != null )
+			{
+				check = this.ctrLSLDataPlot.getStreamUID().equals( stream.uid() );
+			}
+			
+			if( this.ctrLSLDataStringPlot != null )
+			{
+				check = check || this.ctrLSLDataPlot.getStreamUID().equals( stream.uid() );
+			}
+		}
+		
+		return check;
+	}
 
 	/**
 	 * Start to record data
@@ -395,8 +425,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			this.warnMsg = new WarningMessage(); // To check setting
 			
-			this.disposeLSLDataPlot(); // Delete plots.
-            this.disposeLSLDataStringPlot();
+			// Delete plots.
+			this.disposeDataPlots();
 			
 			this.managerGUI.setAppState( AppState.State.PREPARING, 0, false );
 			
@@ -581,7 +611,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
-			
+						
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
@@ -596,7 +626,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					
-					DataProcesses.put( dev, process );
+					DataProcesses.put( dev, process );					
 				}
 				else
 				{
@@ -967,6 +997,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void waitStartCommand() throws Exception
 	{
+		while( !this.ctrlOutputFile.isSetTimeCorrectionInStreams() )
+		{
+			synchronized( this )
+			{
+				super.wait( 100L );
+			}
+		}
+		
 		if ( this.isWaitingForStartCommand )
 		{			
 			this.managerGUI.setAppState( AppState.State.WAIT, 0, false );
@@ -982,7 +1020,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if( this.trial != null )
 		{				
-			//this.trialWindows.setVisible( true );
 			this.trial.showTrialWindow();
 			this.trial.startThread();
 		}
@@ -1729,7 +1766,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.eventRegister.clear();
 			this.eventRegister = null;
 		}
-
+		
 		@Override
 		protected void runInLoop() throws Exception
 		{
@@ -1752,6 +1789,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
 						deadlockDetector = null;
 					}
+					
+					LostWaitedThread.getInstance().wakeup();
 					
 					managerGUI.enablePlayButton( true );
 					

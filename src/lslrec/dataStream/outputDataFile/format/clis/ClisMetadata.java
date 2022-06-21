@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.spec.KeySpec;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;
@@ -46,8 +47,9 @@ import lslrec.config.Parameter;
 
 public class ClisMetadata 
 {
-	private final String ENCRYPT_ALGORITHM = "AES";
-    private final String ENCRYPT_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+	private static final String ENCRYPT_ALGORITHM = "AES";
+    private static final String ENCRYPT_TRANSFORMATION = "AES/CBC/PKCS5Padding";
+    private static final String SECRETKEY_ALGORITHM = "PBKDF2WithHmacSHA1";
 		
 	private final String ID_LABEL_VER = "ver";
 	private final String ID_LABEL_COMPRESS = "compress";
@@ -89,10 +91,10 @@ public class ClisMetadata
 	private boolean generatedChecksum = false;
 	
 	private String checkSumValue = "";
-	
+
 	private Cipher cipher = null;
 	private IvParameterSpec cipherPars =  new IvParameterSpec( new byte[16] );
-	
+
 	private byte[] encrpytKeyMetadata = null;
 	
 	private IStreamSetting streamSetting;
@@ -140,18 +142,18 @@ public class ClisMetadata
 		
 		if( encryptKey != null && !encryptKey.isEmpty() )
 		{			
-			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+			SecretKeyFactory skf = SecretKeyFactory.getInstance( getSecretKeyAlgorithm() );
 			KeySpec spec = new PBEKeySpec( encryptKey.toCharArray(), new byte[ 8 ], 10000, 128 );
 			SecretKey tmp = skf.generateSecret( spec );
-			SecretKeySpec skey = new SecretKeySpec(tmp.getEncoded(), this.getEncryptID() );
+			SecretKeySpec skey = new SecretKeySpec(tmp.getEncoded(), getEncryptID() );
 			
-			this.cipher = Cipher.getInstance( this.getEncryptTransform() );
+			this.cipher = Cipher.getInstance( getEncryptTransform() );
 	        this.cipher.init( Cipher.ENCRYPT_MODE, skey, this.cipherPars );		        
 	        
 	        cipherBlockSize = this.cipher.getBlockSize();	        
 	        encryptBlockSize = this.cipher.getBlockSize();
 	        
-	        this.encrpytKeyMetadata = this.cipher.doFinal( encryptKey.getBytes( this.charCode ) );		
+	        this.encrpytKeyMetadata = this.cipher.doFinal( encryptKey.getBytes( this.charCode ) );	        
 		}
 		
 		Long numBlocks = (Long)pars.getParameter( OutputFileFormatParameters.NUM_BLOCKS ).getValue();
@@ -263,14 +265,19 @@ public class ClisMetadata
 		return this.cipher;
 	}
 	
-	public String getEncryptID()
+	public static String getSecretKeyAlgorithm()
 	{
-		return this.ENCRYPT_ALGORITHM;
+		return SECRETKEY_ALGORITHM;
 	}
 	
-	public String getEncryptTransform()
+	public static String getEncryptID()
 	{
-		return this.ENCRYPT_TRANSFORMATION;
+		return ENCRYPT_ALGORITHM;
+	}
+	
+	public static String getEncryptTransform()
+	{
+		return ENCRYPT_TRANSFORMATION;
 	}
 	
 	public byte[] getPadding() 

@@ -24,6 +24,7 @@
 package lslrec.control.handler;
 
 import lslrec.auxiliar.thread.LaunchThread;
+import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;
@@ -62,6 +63,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -110,7 +112,9 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private Map< String, Integer > savingPercentage = new  HashMap< String, Integer >();
 	
 	//private boolean isSyncThreadActive = false;
-		
+	
+	private Timer checkWaitingLock = null;
+	
 	/**
 	 * Private constructor.
 	 */
@@ -196,6 +200,28 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		//this.isSyncThreadActive = false;
 	}
 
+	public boolean isSetTimeCorrectionInStreams()
+	{
+		boolean set = ( this.temps == null );
+		
+		if (this.temps != null)
+		{
+			synchronized ( this.temps )
+			{
+				int counterTimeCorrectionReady = 0;
+
+				for( TemporalOutDataFileWriter tw : this.temps )
+				{
+					counterTimeCorrectionReady =  tw.isReadyToStart() ? counterTimeCorrectionReady + 1 : counterTimeCorrectionReady;
+				}
+
+				set = ( counterTimeCorrectionReady >= this.temps.size() );					
+			}
+		}
+		
+		return set;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see Controls.HandlerMinionTemplate#startWork(java.lang.Object)
@@ -210,13 +236,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				Tuple t = (Tuple)info;
 				
 				String act = (String)t.t1;
-				
+								
 				if( act.equals( ACTION_START_SYNC ) )
 				{					
 					this.startSyncThread( );
 				}
 				else if ( act.toString().equals( ACTION_START_RECORD ) )
-				{
+				{	
 					this.startSyncThread( );
 					
 					if( !this.isRecorderThreadOn )
@@ -232,12 +258,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 														
 							tLaunch.startThread();
 						}
-					}
+					}					
 				}
 				else if ( act.toString().equals( ACTION_SET_MARK ) )
 				{						
 					if( this.saveSyncMarker.get() )
-					{
+					{						
 						this.syncCollector.SaveSyncMarker( (SyncMarker)t.t2 );
 					}
 				}
@@ -250,6 +276,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		if( this.syncCollector.getState().equals( Thread.State.NEW ) )
 		{
 			this.syncCollector.startThread();
+			
+			synchronized( this )
+			{
+				super.wait( 100L );
+			}
 		}
 		
 		if( this.syncInputData != null  && !this.inputSyncLauched )
@@ -281,9 +312,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					};
 					
 					tLauch.start();					
-				}				
-				
-				//this.isSyncThreadActive = origin.equals( PARAMETER_START_SYNC ) && ( this.syncInputData.size() > 0 );
+				}
 			}			
 		}
 	}
@@ -413,6 +442,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			{
 				//List< Tuple< LSL.StreamInfo, LSLConfigParameters > > syncs = new ArrayList< Tuple< LSL.StreamInfo, LSLConfigParameters > >();
 				
+				Set< String > nameStreams = new HashSet< String >();
+								
 				for ( int indexInlets = 0; indexInlets < streamSettings.size(); indexInlets++)
 				{
 					IStreamSetting t = streamSettings.get( indexInlets );
@@ -429,7 +460,33 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						if( !test )
 						{
-							temp = new TemporalOutDataFileWriter( t, fileFormat.clone(), indexInlets );
+							OutputFileFormatParameters fformat = fileFormat.clone();
+							if( !nameStreams.contains( t.name() ) )
+							{
+								nameStreams.add( t.name() );
+							}
+							else
+							{
+								Parameter< String > outFile = fformat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME  );
+								
+								String out = outFile.getValue();
+								
+								int lastDot = out.lastIndexOf( "." );
+								
+								String suffix = "_1";
+								if( lastDot < 0 )
+								{
+									out += suffix;
+								}
+								else
+								{
+									out = out.substring( 0, lastDot ) + suffix + out.substring( lastDot );
+								}										
+								
+								outFile.setValue( out );
+							}
+							
+							temp = new TemporalOutDataFileWriter( t, fformat, indexInlets );
 							
 							if( processes != null )
 							{
@@ -639,7 +696,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					}										
 				}
 				else if ( event.getEventType().equals( EventType.INPUT_MARK_READY ) )
-				{							
+				{	
 					super.supervisor.eventNotification( this, new EventInfo( event.getIdSource(), event.getEventType(),  event.getEventInformation() ) );
 					
 					this.startWorking( new Tuple( ACTION_SET_MARK, event.getEventInformation() ) );
@@ -707,8 +764,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							this.NumberOfSavingThreads.addAndGet( list.size() );
 						}
 
+						int counterFile = -1;
 						for( Tuple< TemporalBinData, SyncMarkerBinFileReader > set : list )
 						{	
+							counterFile++;
 							String binName = "";
 							
 							try
@@ -728,12 +787,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 									synchronized( this.sync ) 
 									{
-										res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), binName );
+										res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), binName, "" + counterFile );
 
 										try
 										{
-											super.sleep( 1000L ); // To avoid problems if 2 or more input streaming are called equal.
-											long tSleep = ThreadLocalRandom.current().nextLong( 1000L, 1100L );
+											// To avoid problems if 2 or more input streaming are called equal.
+											long tSleep = ThreadLocalRandom.current().nextLong( 20L, 30L );
 
 											super.sleep( tSleep );
 										}
@@ -792,26 +851,31 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					int perc = (Integer) event.getEventInformation();
 					
 					this.savingPercentage.put( event.getIdSource(), perc );
-					
-					int minPerc = Integer.MAX_VALUE;					
-					for( Integer Perc : this.savingPercentage.values() )
+										
+					synchronized ( this.savingPercentage )
 					{
-						if( Perc < minPerc)
+						int minPerc = Integer.MAX_VALUE;					
+						for( Integer Perc : this.savingPercentage.values() )
 						{
-							minPerc = Perc;
+							if( Perc < minPerc)
+							{
+								minPerc = Perc;
+							}
 						}
+						
+						if( perc == minPerc )
+						{					
+							this.supervisor.eventNotification( this, event );
+						}						
 					}
 					
-					if( perc == minPerc )
-					{					
-						this.supervisor.eventNotification( this, event );
-					}					
+					this.checkWriterWatingLock();					
 				}
 				else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )
 				{			
 					if( !this.isRunBinData.get() )
 					{
-						this.NumberOfSavingThreads.incrementAndGet();
+						this.NumberOfSavingThreads.incrementAndGet();						
 					}
 					
 					this.InitCheckOutOWriters();
@@ -827,12 +891,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						synchronized( this.sync ) 
 						{
-							res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), dat.getDataStreamSetting().name() );
+							res = FileUtils.checkOutputFileName( dat.getOutputFileFormat().getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString(), dat.getDataStreamSetting().name(), "" );
 							
 							try
-							{
-								super.sleep( 1000L ); // To avoid problems if 2 or more input streaming are called equal.
-								long tSleep = ThreadLocalRandom.current().nextLong( 1000L, 1100L );
+							{						
+								// To avoid problems if 2 or more input streaming are called equal.
+								long tSleep = ThreadLocalRandom.current().nextLong( 20L, 30L );
 								
 								super.sleep( tSleep );
 							}
@@ -841,7 +905,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							}
 						}
 						
-						if (!((Boolean)res.t2).booleanValue())
+						if (!( (Boolean)res.t2 ).booleanValue())
 						{
 							dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 						}
@@ -921,6 +985,24 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 	}
 	
+	private void checkWriterWatingLock()
+	{
+		if( this.checkWaitingLock != null )
+		{
+			this.checkWaitingLock.stop();
+		}
+		
+		this.checkWaitingLock = new Timer( 2_000 , new ActionListener() // 2 s 
+		{	
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				LostWaitedThread.getInstance().wakeup();
+			}
+		});
+			
+		this.checkWaitingLock.start();
+	}
 	
 	private void CheckOutWriters()
 	{

@@ -68,9 +68,6 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
@@ -165,7 +162,8 @@ public class Panel_StreamingSettings extends JPanel
 	private JPanel panelDeviceAndSetting;
 	private JPanel panelDataPlotter;
 	private JPanel jOutFile;
-
+	private JPanel panelSelectDevPanel;
+	
 	//JCOMBOX
 	private JComboBox< String > fileFormat;
 
@@ -184,7 +182,7 @@ public class Panel_StreamingSettings extends JPanel
 	private JButton btnOutFormatOptions;
 
 	// JScrollPanel
-	private JScrollPane scrollPanelSelectDevPanel;
+	//private JPanel panelSelectDevPanel;
 	
 	//ISTREAMSETTINGS
 	private IStreamSetting[] deviceInfo;
@@ -382,10 +380,13 @@ public class Panel_StreamingSettings extends JPanel
 		JSplitPane splitPanel = this.getContentPanelStreamInfo();
 		splitPanel.setVisible( false );
 				
-		JScrollPane scr = this.getScrollPanelSelectDevPanel();
+		JPanel scr = this.getPanelSelectDevPanel();
+		//scr.getVerticalScrollBar().setUnitIncrement( 10 );
 		scr.setVisible( false );
+		scr.removeAll();
+		//scr.setViewportView( update.t1 );
+		scr.add( update.t1, BorderLayout.CENTER );		
 		
-		scr.setViewportView( update.t1 );
 		
 		boolean findDevice = false;
 
@@ -977,9 +978,10 @@ public class Panel_StreamingSettings extends JPanel
 		
 			Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
 			
-			JScrollPane scr = this.getScrollPanelSelectDevPanel();
+			JPanel scr = this.getPanelSelectDevPanel();
 			scr.setVisible( false );
-			scr.setViewportView( deviceInfo.t1 );
+			scr.removeAll();
+			scr.add( deviceInfo.t1, BorderLayout.CENTER );
 			scr.setVisible( true );
 						
 			this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
@@ -990,14 +992,14 @@ public class Panel_StreamingSettings extends JPanel
 		return this.splitPanelDevices;
 	}
 
-	private JScrollPane getScrollPanelSelectDevPanel()
+	private JPanel getPanelSelectDevPanel()
 	{
-		if( this.scrollPanelSelectDevPanel == null )
+		if( this.panelSelectDevPanel == null )
 		{
-			this.scrollPanelSelectDevPanel = new JScrollPane();
+			this.panelSelectDevPanel = new JPanel( new BorderLayout() );
 		}
 		
-		return this.scrollPanelSelectDevPanel;
+		return this.panelSelectDevPanel;
 	}
 	
 	private JPanel getPanelDeviceAndSetting( )
@@ -1008,7 +1010,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.panelDeviceAndSetting.setLayout( new BorderLayout() );
 			
 			this.panelDeviceAndSetting.add( this.getJPanelOutFile(), BorderLayout.NORTH );
-			this.panelDeviceAndSetting.add( this.getScrollPanelSelectDevPanel(), BorderLayout.CENTER );
+			this.panelDeviceAndSetting.add( this.getPanelSelectDevPanel(), BorderLayout.CENTER );
 		}
 			
 		return this.panelDeviceAndSetting;
@@ -1082,7 +1084,7 @@ public class Panel_StreamingSettings extends JPanel
 				devsPanel.add( p );
 			}
 			
-			int maxHeightComponent = Integer.MIN_VALUE;
+			//int maxHeightComponent = Integer.MIN_VALUE;
 			
 			
 			//Remove unplugged devices
@@ -1281,7 +1283,7 @@ public class Panel_StreamingSettings extends JPanel
 							Component focusComp = findFocus( down < 0 );
 							if( focusComp != null )
 							{	
-								for( Component com : devsPanel.get( 5 ).getComponents() )
+								for( Component com : panelLSLSettings.getComponents() )
 								{
 									if( focusComp.equals( com ) )
 									{
@@ -1480,20 +1482,44 @@ public class Panel_StreamingSettings extends JPanel
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT, plot );
 				
 				plot.addActionListener( new ActionListener() 
-				{					
+				{								
 					@Override
 					public void actionPerformed(ActionEvent e) 
-					{
+					{	
 						try 
 						{
-							tabStreams.setSelectedIndex( 1 );
-	
-							CoreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
+							if( !CoreControl.getInstance().isPlotingStream( dev ) )
+							{	
+								Thread t = new Thread()
+										{
+											public void run() 
+											{
+												try 
+												{
+													CoreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
+												}
+												catch (Exception e) 
+												{
+												}
+												
+												tabStreams.setSelectedIndex( 1 );
+												tabStreams.getSelectedComponent().setVisible( false );
+												tabStreams.getSelectedComponent().setVisible( true );
+											};
+										};
+										
+								t.start();								
+								
+							}
+							else
+							{
+								CoreControl.getInstance().disposeDataPlots();
+							}
 						}
 						catch (Exception e1) 
 						{
 							e1.printStackTrace();
-						}
+						}						
 					}
 				});
 	
@@ -1657,38 +1683,30 @@ public class Panel_StreamingSettings extends JPanel
 			//
 			//
 			
+			panelLSLSettings.setLayout( new BorderLayout() );
+			
 			GridBagLayout gb = new GridBagLayout();
 			
-			gb.columnWidths = new int[ devsPanel.size() * 2 + 2];
+			gb.columnWidths = new int[ devsPanel.size() + 1];
 			
-			double[] cW = new double[ devsPanel.size() * 2 + 2 ];
+			double[] cW = new double[ devsPanel.size() + 1 ];
 			cW[ cW.length - 1 ] = Double.MIN_VALUE;
-			cW[ cW.length - 2 ] = 1.0;
-			gb.columnWeights = new double[ devsPanel.size() * 2 + 2 ];
+			cW[ cW.length - 2 ] = 1.0;			
+			gb.columnWeights = cW;
 			
-			gb.rowHeights = new int[ this.deviceInfo.length * 2 + 2 ];
-			double[] rW = new double[ this.deviceInfo.length * 2 + 2  ];
+			gb.rowHeights = new int[ 2 ];
+			double[] rW = new double[ 2  ];
 			rW[ rW.length - 1 ] = Double.MIN_VALUE;
 			gb.rowWeights = rW;
+									
+			JPanel topHeaderPanel = new JPanel( gb );
+									
 			
-			panelLSLSettings.setLayout( gb );
+			panelLSLSettings.add( topHeaderPanel, BorderLayout.NORTH );
 			
+			List< Component > hideHeader = new ArrayList< Component >();			
 			for( int i = 0; i < devsPanel.size(); i++ )
-			{
-				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.fill = GridBagConstraints.BOTH;
-				gbc.weighty = 0;
-				gbc.weightx = 0;
-				gbc.anchor = GridBagConstraints.CENTER;		
-				gbc.gridx = i;//
-				gbc.gridy = 0;
-				
-				if( i >= devsPanel.size() - 1 )
-				{
-					gbc.fill = GridBagConstraints.HORIZONTAL;
-					gbc.weightx = 1.0;
-				}
-				
+			{									
 				JPanel panel = devsPanel.get( i );
 				
 				Component headerAddAct = null;
@@ -1757,11 +1775,12 @@ public class Panel_StreamingSettings extends JPanel
 						lb.setOpaque( true );
 						Font f = lb.getFont();
 						lb.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
-						lb.setBorder( null );
+						lb.setBorder( BorderFactory.createEmptyBorder( 5, 0, 5, 0) );
+						
 						
 						JPanel headerPanel = new JPanel( new FlowLayout( FlowLayout.LEFT, 2, 2 ) );							
 						headerPanel.add( lb );
-						headerPanel.setBorder( BorderFactory.createMatteBorder( 0, 1, 1, 0, Color.BLACK ) );
+						headerPanel.setBorder( BorderFactory.createMatteBorder( 1, 1, 1, 1, Color.DARK_GRAY ) );
 						headerPanel.setBackground( lb.getBackground() );
 						
 						if( idTransLang != null )
@@ -1773,30 +1792,71 @@ public class Panel_StreamingSettings extends JPanel
 						{							
 							Dimension d = headerAddAct.getPreferredSize();
 							d.height = lb.getPreferredSize().height;// - 2;// - lb.getInsets().top - lb.getInsets().bottom ;
+							//d.width = 0;
 							headerAddAct.setPreferredSize( d );
 							headerAddAct.setSize( d );
 							
-							headerPanel.add( headerAddAct, 0 );
+							headerPanel.add( headerAddAct, 0 );	
 							
-							GuiTextManager.addSelectedStreamComponent( lb, idTransLang );									
+							GuiTextManager.addSelectedStreamComponent( lb, idTransLang );
 						}
 						
-						panelLSLSettings.add( headerPanel, gbc );
+						GridBagConstraints gbc = new GridBagConstraints();
+						gbc.fill = ( ( i >= devsPanel.size() - 1) ) ? GridBagConstraints.BOTH : GridBagConstraints.NONE ;
+						gbc.weighty = 0;
+						gbc.weightx = ( i >= devsPanel.size() - 1) ? 1 : 0;
+						gbc.anchor = GridBagConstraints.FIRST_LINE_START;		
+						gbc.gridx = i;//
+						gbc.gridy = 0;
 						
-					}
-					
-					/*
-					for( Component com : panel.getComponents() )
-					{
-						if( com.getPreferredSize().height > maxHeightComponent )
-						{
-							maxHeightComponent = com.getPreferredSize().height ;
-						}
-					}
-					*/					
+						topHeaderPanel.add( headerPanel, gbc );
+						
+						Dimension s = headerPanel.getPreferredSize();
+						hideHeader.add( Box.createRigidArea( new Dimension( s.width, 0 ) ) );
+					}							
 				}				
 			}
 			
+			gb = new GridBagLayout();
+			
+			gb.columnWidths = new int[ devsPanel.size() * 2 + 2];
+			
+			cW = new double[ devsPanel.size() * 2 + 2 ];
+			cW[ cW.length - 1 ] = Double.MIN_VALUE;
+			cW[ cW.length - 2 ] = 1.0;
+			gb.columnWeights = new double[ devsPanel.size() * 2 + 2 ];
+			
+			gb.rowHeights = new int[ this.deviceInfo.length * 2 + 2 ];
+			rW = new double[ this.deviceInfo.length * 2 + 2  ];
+			rW[ rW.length - 1 ] = Double.MIN_VALUE;
+			gb.rowWeights = rW;
+			
+			JPanel streamPanel = new JPanel( gb );
+			
+			JScrollPane scroll = new JScrollPane( streamPanel );
+			scroll.getVerticalScrollBar().setUnitIncrement( 10 );
+			
+			panelLSLSettings.add( scroll, BorderLayout.CENTER );
+			
+			
+			for( int is = 0; is < hideHeader.size(); is++ )
+			{
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.weighty = 0;
+				gbc.weightx = 0;
+				gbc.anchor = GridBagConstraints.CENTER;		
+				gbc.gridx = is;//
+				gbc.gridy = 0;
+				
+				if( is >= hideHeader.size() - 1 )
+				{
+					gbc.fill = GridBagConstraints.HORIZONTAL;
+					gbc.weightx = 1.0;
+				}
+				
+				streamPanel.add( hideHeader.get( is ) , gbc );
+			}
 			
 			for( int i = 0; i < devsPanel.size(); i++ )
 			{
@@ -1818,7 +1878,8 @@ public class Panel_StreamingSettings extends JPanel
 					
 					gbc.gridy = y;
 					
-					panelLSLSettings.add( c, gbc );
+					//panelLSLSettings.add( c, gbc );
+					streamPanel.add( c, gbc );
 					//*
 					y++;
 					
@@ -1830,7 +1891,9 @@ public class Panel_StreamingSettings extends JPanel
 					gbc.insets = new Insets( 0, 0, 2, 0 );
 					
 					JSeparator jsp = new JSeparator( JSeparator.HORIZONTAL );
-					panelLSLSettings.add( jsp, gbc );
+					jsp.setFocusable( false );
+					//panelLSLSettings.add( jsp, gbc );
+					streamPanel.add( jsp, gbc );
 						
 					y++;					
 				}

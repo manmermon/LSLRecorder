@@ -18,7 +18,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +51,7 @@ import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -59,7 +59,6 @@ import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.control.message.AppState;
 import lslrec.dataStream.convertData.clis.ClisData;
-import lslrec.dataStream.convertData.clis.ClisMetadataException;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
@@ -354,7 +353,7 @@ public class Dialog_ConvertClis extends JDialog
 												outFile = file.substring( 0, lastDot ) + outExtFile;
 											}
 
-											Tuple< String, Boolean > check = FileUtils.checkOutputFileName( outFile, "");
+											Tuple< String, Boolean > check = FileUtils.checkOutputFileName( outFile, "", "");
 
 											if( !check.t2 )
 											{
@@ -407,40 +406,6 @@ public class Dialog_ConvertClis extends JDialog
 											
 											IOutputDataFileWriter wr = enc.getWriter( outFormat, msst, itm );
 											
-											
-											/*											 
-											Map< String, Number[][] > data = clis.importAllData();
-											
-											for( String var : data.keySet() )
-											{
-												Number[][] vData = data.get( var );
-
-												int chs = vData[0].length;
-
-												if( chs > 1 )
-												{
-													v = var;
-													varType = clis.getDataType( var );
-												}
-											}
-											
-											int iSeq = 0;
-											for( String var : data.keySet() )
-											{
-												varType = clis.getDataType( var );
-
-												Number[][] vData = data.get( var );
-
-												nChs = vData[0].length;
-
-												DataBlock db = DataBlockFactory.getDataBlock( varType, iSeq, var, nChs, ConvertTo.Transform.Matrix2Array( vData ) );
-
-												wr.saveData( db );
-
-												iSeq++;
-											}
-											*/
-											
 											int iSeq = 0;
 											for( int iv = 0; iv < lmvb.size(); iv++ )
 											{												
@@ -477,24 +442,6 @@ public class Dialog_ConvertClis extends JDialog
 												}
 											}
 											
-											/*
-											int iSeq = 0;
-											for( String var : data.keySet() )
-											{
-												varType = clis.getDataType( var );
-
-												Number[][] vData = data.get( var );
-
-												nChs = vData[0].length;
-
-												DataBlock db = DataBlockFactory.getDataBlock( varType, iSeq, var, nChs, ConvertTo.Transform.Matrix2Array( vData ) );
-
-												wr.saveData( db );
-
-												iSeq++;
-											}
-											*/
-
 											wr.addMetadata( "", header );
 											while( !wr.isFinished() )
 											{
@@ -503,8 +450,9 @@ public class Dialog_ConvertClis extends JDialog
 													super.wait( 100L );
 												}
 											}
-
+											
 											wr.close();
+											clis.close();
 											
 											updateProgress( ff.getName(), i + 1 );
 											
@@ -522,6 +470,8 @@ public class Dialog_ConvertClis extends JDialog
 							}
 							catch (Exception ex) 
 							{
+								LostWaitedThread.getInstance().wakeup();
+								
 								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
 								ExceptionDialog.showMessageDialog( msg, true, true );
 
@@ -732,7 +682,7 @@ public class Dialog_ConvertClis extends JDialog
 				this.fileFormat.addItem( formats[ i ] );
 			}
 			
-			this.fileFormat.removeItem( DataFileFormat.CLIS );
+			//this.fileFormat.removeItem( DataFileFormat.CLIS );
 			
 			fileFormat.addItemListener( new ItemListener( ) 
 			{				
@@ -1035,7 +985,7 @@ public class Dialog_ConvertClis extends JDialog
 							{
 								currentClisFile = new ClisData( file );
 							} 
-							catch (IOException | ClisMetadataException e1) 
+							catch ( Exception e1) 
 							{
 								currentClisFile = null;
 							}

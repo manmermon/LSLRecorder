@@ -60,7 +60,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		super( lslCfg );
 		
 		String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
-
+		
 		if( outFormat == null )
 		{
 			throw new IllegalArgumentException( "Output file format null" );
@@ -70,7 +70,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		
 		super.setName( super.streamSetting.name() + "(" + super.streamSetting.uid() + ")");
 		
-		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );
+		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );		
 	}
 
 	public void setDataProcessing( LSLRecPluginDataProcessing process, boolean save ) throws Exception

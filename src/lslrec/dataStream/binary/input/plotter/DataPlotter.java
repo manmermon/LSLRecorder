@@ -246,6 +246,11 @@ public class DataPlotter extends InputDataStreamReceiverTemplate
 		return this.getName();
 	}
 	
+	public String getStreamUID()
+	{
+		return super.streamSetting.uid();
+	}
+	
 	@Override
 	protected void startMonitor() throws Exception 
 	{

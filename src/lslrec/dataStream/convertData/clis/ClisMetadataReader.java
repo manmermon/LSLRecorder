@@ -3,11 +3,31 @@ package lslrec.dataStream.convertData.clis;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.swing.Box;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
+
+import lslrec.config.language.Language;
+import lslrec.dataStream.outputDataFile.format.clis.ClisMetadata;
+import lslrec.gui.GuiManager;
 
 public class ClisMetadataReader 
 {
@@ -24,7 +44,10 @@ public class ClisMetadataReader
 	
 	private RandomAccessFile fileStreamReader = null;
 	
-	public ClisMetadataReader( File file ) throws IOException, ClisMetadataException 
+	private Cipher decrypt = null;
+	private IvParameterSpec decryptPars =  new IvParameterSpec( new byte[16] );
+		
+	public ClisMetadataReader( File file ) throws Exception 
 	{
 		this.fileStreamReader = new RandomAccessFile( file, "r" );
 		 		
@@ -40,8 +63,118 @@ public class ClisMetadataReader
 		{
 			this.processMetadataFields( Arrays.copyOfRange( parts, 1, parts.length ) );
 		}
+		
+		if( this.isEncryptedData() )
+		{	
+			JPasswordField jpf = new JPasswordField( 16 );
+		    JLabel jl = new JLabel( Language.getLocalCaption( Language.DECRYPT_KEY_TEXT ) + " - " +Language.getLocalCaption( Language.PASSWORD_TEXT ) + ": ");
+		    Box box = Box.createHorizontalBox();
+		    box.add(jl);
+		    box.add(jpf);
+			
+			int ok = JOptionPane.showConfirmDialog( GuiManager.getInstance().getAppUI(), box, Language.getLocalCaption( Language.PASSWORD_TEXT ), JOptionPane.OK_CANCEL_OPTION );
+			
+			
+			String password = "";
+			
+		    if ( ok == JOptionPane.OK_OPTION) 
+		    {
+		    	char[] pass = jpf.getPassword();
+		    	
+		    	if( pass != null )
+		    	{
+		    		password = new String( pass );
+		    	}
+		    }
+			
+			this.setDecrypt( password );
+			
+			if( !this.checkDecryptPassword( password ) )
+			{
+				throw new ClisMetadataException( Language.getLocalCaption( Language.PASSWORD_TEXT ) 
+													+ ": " 
+													+ Language.getLocalCaption( Language.DIALOG_ERROR )  );
+			}
+		}
+	}
+
+	private boolean isEncryptedData()
+	{
+		Object encrypt = this.fields.get( ENCRYPT );
+		
+		return ( encrypt != null && encrypt instanceof byte[] );
+	}
+	
+	private boolean checkDecryptPassword( String password ) throws Exception
+	{
+		boolean ok = this.decrypt != null && password != null;
+		
+		if( ok )
+		{
+			Object encrypt = this.fields.get( ENCRYPT );
+			
+			if( encrypt != null && encrypt instanceof byte[] )
+			{
+				byte[] pass = (byte[]) encrypt;
+				
+				try
+				{
+					pass = this.decrypt.doFinal( pass );
+					byte[] dec = password.getBytes( Charset.forName( "UTF-8" ) );
+					
+					ok = ( dec.length == pass.length );
+							
+					if( ok )
+					{
+						for( int ip = 0; ip < dec.length && ok; ip++ )
+						{
+							ok = ( dec[ ip ] == pass[ ip ] );
+						}
+					}
+				}
+				catch (Exception e) 
+				{
+					ok = false;
+				}
+			}
+			else
+			{ 
+				ok = false;
+			}
+		}
+		
+		return ok;
 	}
 		
+	private void setDecrypt( String password ) throws Exception
+	{
+		/*
+		SecretKeyFactory sfk = SecretKeyFactory.getInstance( ClisMetadata.getSecretKeyAlgorithm()  );
+		
+		byte[] stat = new byte[ 8 ];
+		PBEKeySpec spec = new PBEKeySpec( password.toCharArray(), stat, 10000, 128 );
+		SecretKey sk = sfk.generateSecret( spec );
+		
+		IvParameterSpec ivpar = new IvParameterSpec( new byte[ 16 ] );
+		
+		this.decrypt = Cipher.getInstance( ClisMetadata.getEncryptTransform() );
+		this.decrypt.init( Cipher.DECRYPT_MODE, new SecretKeySpec( sk.getEncoded(), ClisMetadata.getEncryptID() ), ivpar );
+		*/
+		
+		SecretKeyFactory skf = SecretKeyFactory.getInstance( ClisMetadata.getSecretKeyAlgorithm() );
+		KeySpec spec = new PBEKeySpec( password.toCharArray(), new byte[ 8 ], 10000, 128 );
+		SecretKey tmp = skf.generateSecret( spec );
+		SecretKeySpec skey = new SecretKeySpec(tmp.getEncoded(), ClisMetadata.getEncryptID() );
+				
+		this.decrypt = Cipher.getInstance( ClisMetadata.getEncryptTransform() );
+        this.decrypt.init( Cipher.DECRYPT_MODE, skey, this.decryptPars );
+	}
+	
+	public Cipher getDecrypt()
+	{
+		return this.decrypt;
+	}
+
 	private void getVersion( String vers ) throws ClisMetadataException
 	{
 		String[] ver = vers.split( "=" );
@@ -149,7 +282,6 @@ public class ClisMetadataReader
 			{
 				byte[] encryptKey = new byte[ len ];
 				
-				
 	 			if( this.fileStreamReader.read( encryptKey ) > 0 )
 				{
 					this.fields.put( ENCRYPT, encryptKey );
@@ -164,7 +296,7 @@ public class ClisMetadataReader
 			
 			if( this.fileStreamReader.read( bytes ) > 0 )
 			{
-				this.fields.put( HEADER, new String( bytes ) );
+				this.fields.put( HEADER, bytes );
 			}
 		}
 
@@ -259,7 +391,21 @@ public class ClisMetadataReader
 		Object hh = this.fields.get( HEADER );
 		if( hh != null )
 		{
-			h = hh.toString();
+			byte[] aux = (byte[])hh;
+			if( this.decrypt != null )
+			{
+				try 
+				{ 
+					aux = this.decrypt.doFinal( aux );					
+					//hh = new String( this.decrypt.doFinal( hh.toString().getBytes() )  );
+				}
+				catch (IllegalBlockSizeException | BadPaddingException e) 
+				{
+					e.printStackTrace();
+				}
+			}
+			
+			h = new String( aux, Charset.forName( "UTF-8")  );
 		}
 		
 		return h;

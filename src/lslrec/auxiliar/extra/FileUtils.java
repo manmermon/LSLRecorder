@@ -121,19 +121,22 @@ public class FileUtils
 	 * 
 	 * @param FilePath -> absolute file path.
 	 * @param sourceID -> LSL streaming name.
+	 * @param suffix -> suffix if file exist
 	 * 
 	 * @return Join file name and LSL name. File extension is conserved. Example: 
 	 * 		- FilePath "data.clis"
 	 * 		- sourceID "SerialPort"
 	 * 	output is "data_SerialPort.clis"
 	 */
-	public static Tuple< String, Boolean > checkOutputFileName( String FilePath, String sourceID )
+	public static Tuple< String, Boolean > checkOutputFileName( String FilePath, String sourceID, String suffix )
 	{		
 		boolean ok = true;
 		boolean cont = true;
 
 		Calendar c = Calendar.getInstance();
 
+		suffix = ( suffix == null ) ? "" : suffix;
+		
 		int index = FilePath.lastIndexOf(".");
 		String name = FilePath;
 		String ext = "";
@@ -160,7 +163,7 @@ public class FileUtils
 				ok = false;
 
 				c.add( 13, 1 );
-				String date = new SimpleDateFormat("yyyyMMdd_HHmmss").format( c.getTime() );
+				String date = new SimpleDateFormat("yyyyMMdd_HHmmss.SSS").format( c.getTime() );
 
 				aux2 = name;
 
@@ -168,7 +171,7 @@ public class FileUtils
 				{
 					aux2 += "_" + sourceID;
 				}
-				aux2 += "_" + date + ext;
+				aux2 += "_" + date + suffix + ext;
 			}
 			else
 			{

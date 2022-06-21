@@ -111,7 +111,7 @@ public class InputSyncData extends InputDataStreamReceiverTemplate
 		
 		//this.notifierThread = null;
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * @see OutputDataFile.readInputData#managerData(byte[])
@@ -131,6 +131,7 @@ public class InputSyncData extends InputDataStreamReceiverTemplate
 		double time = ConvertTo.Transform.ByteArray2Double( Arrays.copyOfRange( timeArrayOfBytes, 0, super.streamSetting.getDataTypeBytes( super.streamSetting.getTimestampDataType() ) ) );		
 		
 		//EventInfo event = new EventInfo( eventType.INPUT_MARK_READY, new Tuple< Integer, Double >( mark, super.timeMark[ 0 ] ) );	
+		
 		EventInfo event = new EventInfo( this.getID(), EventType.INPUT_MARK_READY, new SyncMarker( mark, time ) );
 		/*
 		synchronized ( super.events )

@@ -1,4 +1,4 @@
-package ImportClisData.Java;
+package lslrec.dataStream.convertData.clis;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,10 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ImportClisData.Java.ClisDataType.DataType;
-import ImportClisData.Java.Compress.IUnzip;
-import ImportClisData.Java.Compress.UnzipDataFactory;
-import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
+import javax.crypto.Cipher;
+
+import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.extra.Tuple;
+import lslrec.dataStream.convertData.clis.compress.IUnzip;
+import lslrec.dataStream.convertData.clis.compress.UnzipDataFactory;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class ClisData
 {
@@ -24,16 +27,35 @@ public class ClisData
 	
 	private int readData = 0;
 	
-	public ClisData( String filePath ) throws IOException, ClisMetadataException
+	public ClisData( String filePath ) throws Exception
 	{
-		this.metadata = new  ClisMetadataReader( new File( filePath ) );
+		this.metadata = new ClisMetadataReader( new File( filePath ) );
 	}
 	
 	public List< MetadataVariableBlock > getVarInfo()
 	{
 		List< MetadataVariableBlock > names = new ArrayList< MetadataVariableBlock >( this.metadata.getVariables() );
-		
+			
 		return names;
+	}	
+	
+	public StreamDataType getDataType( String var )
+	{
+		StreamDataType t = StreamDataType.undefined;
+		
+		List< MetadataVariableBlock > vars = this.getVarInfo();
+		
+		for( MetadataVariableBlock v : vars )
+		{
+			if( v.getName().equals( var ) )
+			{
+				t = v.getDataType();
+				
+				break;
+			}
+		}
+		
+		return t;
 	}
 	
 	public String getHeader()
@@ -60,7 +82,7 @@ public class ClisData
 				this.currentVar = new  Tuple<Integer, String>( varIndex, varBlock.getName() );
 			}
 			
-			if( this.currentVar.x != varIndex )
+			if( this.currentVar.t1 != varIndex )
 			{
 				this.currentVar = new Tuple<Integer, String>( varIndex, varBlock.getName() );
 				this.currentBlockIndex = 0;
@@ -88,13 +110,13 @@ public class ClisData
 			{
 				int size = blockSize.get( currentBlockIndex );
 				
-				List< Number > currentDataBlock = this.data.get( this.currentVar.y );
+				List< Number > currentDataBlock = this.data.get( this.currentVar.t2 );
 				boolean newBlock = ( currentDataBlock == null );
 								
 				if( newBlock )
 				{
 					currentDataBlock = new ArrayList< Number >();
-					this.data.put( this.currentVar.y, currentDataBlock );
+					this.data.put( this.currentVar.t2, currentDataBlock );
 					
 					currentDataBlock.addAll( this.getNextDataBlock( file, size, varBlock.getDataType() ) );
 				}
@@ -229,7 +251,7 @@ public class ClisData
 		return DATA;		
 	}
 	
-	private List< Number > getNextDataBlock( RandomAccessFile file, int size, DataType dataType ) throws IllegalArgumentException, IOException, Exception
+	private List< Number > getNextDataBlock( RandomAccessFile file, int size, StreamDataType dataType ) throws IllegalArgumentException, IOException, Exception
 	{
 		List< Number > currentDataBlock = new ArrayList<Number>();		
 		byte[] bytes = new byte[ size ];
@@ -238,9 +260,15 @@ public class ClisData
 		{
 			IUnzip unzip = UnzipDataFactory.createUnzipStream( this.metadata.getCompressTechnique() );
 			
-			bytes = unzip.unzipData( bytes );		
+			Cipher decrypt = this.metadata.getDecrypt();
+			if( decrypt != null )
+			{    
+				bytes = decrypt.doFinal( bytes );		        
+			}
 			
-			Number[] values = ConvertTo.ByteArray2ArrayOf( bytes, dataType );
+			bytes = unzip.unzipData( bytes );		
+						
+			Number[] values = ConvertTo.Transform.ByteArray2ArrayOf( bytes, dataType );
 			
 			for( Number v : values )
 			{
