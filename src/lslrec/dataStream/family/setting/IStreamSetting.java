@@ -310,4 +310,8 @@ public interface IStreamSetting
 					+ 	", " 	+ this.isSynchronationStream()	// 8
 					+ 	">";
     }    
+    
+    /** Destroy a previously created LSLStreamInfo this.object. */
+    public void destroy();
+
 }

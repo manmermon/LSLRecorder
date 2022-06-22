@@ -136,63 +136,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			this.chunckLength = 1;
 		}
 		
-
-		/*
-		int nBytes = this.streamSetting.getDataTypeBytes( this.streamSetting.data_type() );
-		
-		long maxMem = Runtime.getRuntime().maxMemory() / 2;
-		maxMem /= nBytes;
-		
-		int bufSize = 1000_000;
-		
-		double samplingRate = this.streamSetting.sampling_rate();
-		
-		if( samplingRate != IStreamSetting.IRREGULAR_RATE )
-		{
-			bufSize = 360; // 360 s
-			
-			if( bufSize * samplingRate * this.streamSetting.channel_count() * this.streamSetting.getChunkSize() > maxMem )
-			{
-				bufSize = (int)( maxMem / ( samplingRate * this.streamSetting.channel_count() * this.streamSetting.getChunkSize() ) ) ;
-				
-				if( bufSize < 1 )
-				{
-					throw new ReadInputDataException( "The maximum amount of data to LSL buffer is greater than available memory." );
-				}
-			}				
-		}
-		*/
-				
-		/*
-		int chunk = 0;
-		
-		if( this.streamSetting.getChunkSize() > 1 )
-		{
-			chunk = this.streamSetting.getChunkSize();
-		}
-		*/
-		
-		this.inLet = null;
-		
-		/*
-		switch( this.streamSetting.getLibraryID() )
-		{
-			case LSL:
-			{
-				this.inLet = new StreamInlet( (LSLStreamInfo)this.streamSetting, bufSize, chunk, false );
-				
-				break;
-			}			
-		}
-		*/
-				
-		this.inLet = DataStreamFactory.createDataStream( this.streamSetting );
-		
-		if( this.inLet == null)
-		{
-			throw new SettingException( "Unsupported Library.");
-		}
-		
 		if( this.streamSetting instanceof MutableStreamSetting )
 		{
 			((IMutableStreamSetting)this.streamSetting).setDescription( StreamUtils.getDeepXmlStreamDescription( ((MutableStreamSetting)this.streamSetting ).getStreamSetting() ) );
@@ -204,8 +147,15 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		this.createArrays();
 		
+		this.inLet = DataStreamFactory.createDataStream( this.streamSetting );
+		
+		if( this.inLet == null)
+		{
+			throw new SettingException( "Unsupported Library.");
+		}
+						
 		//*
-		Thread t = new Thread()
+		Thread th = new Thread()
 		{
 			@Override
 			public void run() 
@@ -224,8 +174,13 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			}
 		};
 		
-		t.setName( super.getName() + "-timeCorrection" );
-		t.start();
+		th.setName( super.getName() + "-timeCorrection" );
+		th.start();
+		
+		synchronized ( this )
+		{
+			super.wait( 50L );
+		}
 				
 		//*/
 		
@@ -1009,6 +964,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			{
 				this.timer.stop();
 			}
+			
+			//this.streamSetting.destroy();
 			
 			if( !this.postCleanDone.get() )
 			{

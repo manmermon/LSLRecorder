@@ -305,4 +305,9 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	{
 		return this.recordingCheckerTime;
 	}
+
+	@Override
+	public void destroy() 
+	{		
+	}
 }

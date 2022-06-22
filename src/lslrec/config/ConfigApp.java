@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2022, 6 - 1, 20 );
+	public static final Calendar buildDate = new GregorianCalendar( 2022, 6 - 1, 22 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -92,7 +92,7 @@ public class ConfigApp
 											;
 	
 	public static final String appDateRange = "2018-" + buildDate.get( Calendar.YEAR );
-	public static final String defaultPathFile = System.getProperty("user.dir") + File.separatorChar;
+	public static final String defaultPathFile = System.getProperty("user.dir") + File.separatorChar + "records" + File.separatorChar;
 
 	public static final String defaultNameFileConfigExtension = "cfg";
 	

@@ -207,10 +207,18 @@ public class LSL
          *                In all other cases (recover is false or the stream is not recoverable) functions may throw a
          *                LostException if the stream's source is lost (e.g., due to an app or computer crash).
          */
-        public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen, boolean recover) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, recover?1:0); if(obj == null) throw new IOException("Unable to open LSL inlet.");}
-        public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, 1);if(obj == null) throw new IOException("Unable to open LSL inlet."); }
-        public StreamInlet(LSLStreamInfo info, int max_buflen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, 0, 1); if(obj == null) throw new IOException("Unable to open LSL inlet.");}
-        public StreamInlet(LSLStreamInfo info) throws IOException { obj = inst.lsl_create_inlet(info.handle(), 360, 0, 1); if(obj == null) throw new IOException("Unable to open LSL inlet.");}
+        public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen, boolean recover) throws IOException 
+        {         	
+        	obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, ( recover ) ? 1 : 0);
+        	
+        	if(obj == null)
+        	{   
+        		throw new IOException("Unable to open LSL inlet (" + info.name() + ")." );
+        	}
+        }
+        public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, 1);if(obj == null) throw new IOException("Unable to open LSL inlet (" + info.name() + ")." ); }
+        public StreamInlet(LSLStreamInfo info, int max_buflen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, 0, 1); if(obj == null) throw new IOException("Unable to open LSL inlet (" + info.name() + ")." );}
+        public StreamInlet(LSLStreamInfo info) throws IOException { obj = inst.lsl_create_inlet(info.handle(), 360, 0, 1); if(obj == null) throw new IOException("Unable to open LSL inlet (" + info.name() + ")." );}
 
         /**
          * Disconnect and close the inlet.
@@ -455,52 +463,58 @@ public class LSL
     }
 
     private static LSLDll inst;
-    static {
-        System.setProperty("jna.debug_load", "true");
-        System.setProperty("jna.debug_load.jna", "true");
-        
-        String libPath = ConfigApp.SYSTEM_LIB_WIN_PATH;
-        String libName = "";
-        String libNameAlt = "";
-        
-        switch ( Platform.getOSType() ) 
-        {
-            case Platform.WINDOWS:
-            {
-            	libName = ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
-            	libNameAlt = "liblsl.dll";
-                break;
-            }
-            case Platform.MAC:
-            {
-            	libPath = ConfigApp.SYSTEM_LIB_MACOS_PATH;
-            	
-            	libName = ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
-            	libNameAlt = "liblsl.dylib";
-                break;
-            }
-            case Platform.ANDROID:
-            {
-                // For JNA <= 5.1.0
-                System.setProperty("jna.nosys", "false");
-                libName = "lsl";         
-                libNameAlt = "lsl";
-                break;
-            }
-            default:
-            {
-            	libPath = ConfigApp.SYSTEM_LIB_LINUX_PATH;
-            	libName += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );
-            	libNameAlt = "liblsl.so";
-                break;
-            }
-        }
-        
-        inst = (LSLDll)Native.loadLibrary( libPath + libName, LSLDll.class);        
-        if (inst == null)
-        {
-            //inst = (LSLDll)Native.loadLibrary( ConfigApp.SYSTEM_LIB_PATH  + "liblsl.so", LSLDll.class );
-        	inst = (LSLDll)Native.loadLibrary( libName + libNameAlt, LSLDll.class );
-        }
+    static 
+    {
+    	loadLibrary();
+    }
+    
+    private static void loadLibrary()
+    {
+    	 System.setProperty("jna.debug_load", "true");
+         System.setProperty("jna.debug_load.jna", "true");
+         
+         String libPath = ConfigApp.SYSTEM_LIB_WIN_PATH;
+         String libName = "";
+         String libNameAlt = "";
+         
+         switch ( Platform.getOSType() ) 
+         {
+             case Platform.WINDOWS:
+             {
+             	libName = ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
+             	libNameAlt = "liblsl.dll";
+                 break;
+             }
+             case Platform.MAC:
+             {
+             	libPath = ConfigApp.SYSTEM_LIB_MACOS_PATH;
+             	
+             	libName = ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
+             	libNameAlt = "liblsl.dylib";
+                 break;
+             }
+             case Platform.ANDROID:
+             {
+                 // For JNA <= 5.1.0
+                 System.setProperty("jna.nosys", "false");
+                 libName = "lsl";         
+                 libNameAlt = "lsl";
+                 break;
+             }
+             default:
+             {
+             	libPath = ConfigApp.SYSTEM_LIB_LINUX_PATH;
+             	libName += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );
+             	libNameAlt = "liblsl.so";
+                 break;
+             }
+         }
+                  
+         inst = (LSLDll)Native.loadLibrary( libPath + libName, LSLDll.class);
+         if (inst == null)
+         {
+             //inst = (LSLDll)Native.loadLibrary( ConfigApp.SYSTEM_LIB_PATH  + "liblsl.so", LSLDll.class );
+         	inst = (LSLDll)Native.loadLibrary( libName + libNameAlt, LSLDll.class );
+         }
     }
 }

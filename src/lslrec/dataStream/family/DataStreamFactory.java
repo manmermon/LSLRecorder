@@ -137,6 +137,7 @@ public class DataStreamFactory
 												, streamSetting.getStreamBufferLength()
 												, streamSetting.getChunkSize()
 												, streamSetting.recoverLostStream() );
+					
 					break;
 				}
 				case LSLREC:

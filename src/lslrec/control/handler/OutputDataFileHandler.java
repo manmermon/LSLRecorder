@@ -24,7 +24,6 @@
 package lslrec.control.handler;
 
 import lslrec.auxiliar.thread.LaunchThread;
-import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;
@@ -113,7 +112,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	//private boolean isSyncThreadActive = false;
 	
-	private Timer checkWaitingLock = null;
+	//private Timer checkWaitingLock = null;
 	
 	/**
 	 * Private constructor.
@@ -157,11 +156,15 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			this.NumberOfSavingThreads.set( this.temps.size() );
 			
+			this.savingPercentage.clear();
+			
 			for ( TemporalOutDataFileWriter temp : this.temps )
 			{					
 				if( !temp.getState().equals( Thread.State.NEW ) )
 				{					
 					temp.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+					
+					this.savingPercentage.put( temp.getID(), 0 );
 				}
 				else
 				{
@@ -200,7 +203,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		//this.isSyncThreadActive = false;
 	}
 
-	public boolean isSetTimeCorrectionInStreams()
+	public boolean isReadyInputStreams()
 	{
 		boolean set = ( this.temps == null );
 		
@@ -443,11 +446,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				//List< Tuple< LSL.StreamInfo, LSLConfigParameters > > syncs = new ArrayList< Tuple< LSL.StreamInfo, LSLConfigParameters > >();
 				
 				Set< String > nameStreams = new HashSet< String >();
-								
+							
 				for ( int indexInlets = 0; indexInlets < streamSettings.size(); indexInlets++)
 				{
 					IStreamSetting t = streamSettings.get( indexInlets );
-					
+				
 					if( t.isSynchronationStream() )
 					{
 						InputSyncData sync = new InputSyncData( t );
@@ -457,7 +460,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					else
 					{	
 						TemporalOutDataFileWriter temp;
-						
+
 						if( !test )
 						{
 							OutputFileFormatParameters fformat = fileFormat.clone();
@@ -468,11 +471,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							else
 							{
 								Parameter< String > outFile = fformat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME  );
-								
+
 								String out = outFile.getValue();
-								
+
 								int lastDot = out.lastIndexOf( "." );
-								
+
 								String suffix = "_1";
 								if( lastDot < 0 )
 								{
@@ -482,12 +485,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								{
 									out = out.substring( 0, lastDot ) + suffix + out.substring( lastDot );
 								}										
-								
+
 								outFile.setValue( out );
 							}
-							
+
 							temp = new TemporalOutDataFileWriter( t, fformat, indexInlets );
-							
+
 							if( processes != null )
 							{
 								LSLRecPluginDataProcessing p = processes.get( t );
@@ -504,7 +507,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 						this.temps.add( temp );
 					}
-				}
+				}				
 				
 				//this.syncCollector.SetLSLInStream( syncs );
 			}
@@ -567,7 +570,32 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{			
 		//return this.NumberOfSavingThreads > 0;
 		//return this.NumberOfSavingThreads.get() > 0;
-		return !this.outWriterHandlers.isEmpty();
+		
+		boolean saving = !this.outWriterHandlers.isEmpty();
+		
+		if( saving )
+		{
+			List< String > terminatedwriter = new ArrayList<String>();
+			
+			for( String id : this.outWriterHandlers.keySet() )
+			{
+				OutputBinaryFileSegmentation obs = this.outWriterHandlers.get( id );
+				
+				if( obs.getState().equals( State.TERMINATED ) )
+				{
+					terminatedwriter.add( id );
+				}				
+			}
+			
+			for( String id : terminatedwriter )
+			{
+				this.outWriterHandlers.remove( id );
+			}
+			
+			saving = !this.outWriterHandlers.isEmpty();
+		}
+		
+		return saving;
 	}
 
 	/*
@@ -636,8 +664,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							t.t2.closeStream();
 						}
 						
-						//if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
-						if( this.outWriterHandlers.isEmpty() )
+						if( this.NumberOfSavingThreads.decrementAndGet() < 1 )
+						//if( this.outWriterHandlers.isEmpty() )
 						{								
 							if( this.checkOutWriterTimer != null )
 							{
@@ -648,7 +676,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							this.savingPercentage.clear();
 							
 							super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, t.t1 )  );
-							
+														
 							if( t.t2 != null )
 							{
 								t.t2.closeAndRemoveTempBinaryFile();
@@ -869,7 +897,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						}						
 					}
 					
-					this.checkWriterWatingLock();					
+					//this.checkWriterWatingLock();					
 				}
 				else if ( event.getEventType().equals( EventType.SAVED_OUTPUT_TEMPORAL_FILE ) )
 				{			
@@ -985,6 +1013,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 	}
 	
+	/*
 	private void checkWriterWatingLock()
 	{
 		if( this.checkWaitingLock != null )
@@ -992,7 +1021,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.checkWaitingLock.stop();
 		}
 		
-		this.checkWaitingLock = new Timer( 2_000 , new ActionListener() // 2 s 
+		this.checkWaitingLock = new Timer( 30_000 , new ActionListener() // 30 s 
 		{	
 			@Override
 			public void actionPerformed(ActionEvent e) 
@@ -1003,6 +1032,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 		this.checkWaitingLock.start();
 	}
+	//*/
 	
 	private void CheckOutWriters()
 	{
@@ -1102,8 +1132,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{
 					//this.writeList.put( this.dat.getDataStreamSetting().name(), this.saveOutFileThread );
 					this.writeList.put( this.saveOutFileThread.getID(), this.saveOutFileThread );
-		
-					savingPercentage.put( this.saveOutFileThread.getID(), 0 );
 					
 					this.saveOutFileThread.startThread();		
 				}
@@ -1135,7 +1163,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			{				
 				this.error = true;
 				
-				if( !this.saveOutFileThread.getState().equals( Thread.State.NEW ) )
+				if( this.saveOutFileThread != null && !this.saveOutFileThread.getState().equals( Thread.State.NEW ) )
 				{
 					this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
 				}

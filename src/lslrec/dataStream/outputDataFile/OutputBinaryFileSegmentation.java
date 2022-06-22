@@ -740,7 +740,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			//EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * this.totalReadedBlock) / this.DATA.getDataBinaryFileSize() ) );
 			
 			double perc = ( 100.0D * seqNum) / this.maxSequenceNumber;
-			EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)perc );
+			EventInfo ev = new EventInfo( this.DATA.getDataStreamSetting().uid(), EventType.SAVING_DATA_PROGRESS, (int)perc );
 			
 			this.notifTask.addEvent( ev );
 			synchronized ( this.notifTask )

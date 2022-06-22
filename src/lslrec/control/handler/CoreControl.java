@@ -306,7 +306,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			IStreamSetting[] results = LSL.resolve_streams();
 			*/
 			
-			IStreamSetting stream = streamSetting;
+			//IStreamSetting stream = streamSetting;
 			
 			/*
 			if( streamSetting instanceof MutableStreamSetting )
@@ -352,7 +352,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PlotPanel.add( LSLCanvaPlot, BorderLayout.CENTER );
 					
 					// Plot data
-					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, stream );
+					//this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, stream );
+					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, inletInfo );
 					this.ctrLSLDataPlot.startThread();
 				}
 				else
@@ -362,7 +363,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PlotPanel.add( new JScrollPane( log ), BorderLayout.CENTER );
 					
 					// String data plot
-					this.ctrLSLDataStringPlot = new StringPlotter( log, stream );
+					//this.ctrLSLDataStringPlot = new StringPlotter( log, stream );
+					this.ctrLSLDataStringPlot = new StringPlotter( log, inletInfo );
 					this.ctrLSLDataStringPlot.startThread();
 				}
 				
@@ -526,7 +528,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						
 			this.waitStartCommand();
 		}
-		catch (Exception | Error e )
+		catch ( Exception | Error e )
 		{			
 			if( this.ctrSocket != null )
 			{
@@ -986,6 +988,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if( this.ctrlOutputFile.isSavingData() )
 		{
+			LostWaitedThread.getInstance().wakeup();
 			this.warnMsg.addMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE );
 		}
 	}
@@ -997,7 +1000,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void waitStartCommand() throws Exception
 	{
-		while( !this.ctrlOutputFile.isSetTimeCorrectionInStreams() )
+		while( !this.ctrlOutputFile.isReadyInputStreams() )
 		{
 			synchronized( this )
 			{
@@ -1821,6 +1824,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					if( val > savingDataProgress )
 					{
 						managerGUI.setAppState( AppState.State.SAVING, val, true );
+						savingDataProgress = val;
+						
+						/*
+						if( savingDataProgress >= 100 )
+						{
+							LostWaitedThread.getInstance().wakeup();
+						}
+						*/
 					}
 				}
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))

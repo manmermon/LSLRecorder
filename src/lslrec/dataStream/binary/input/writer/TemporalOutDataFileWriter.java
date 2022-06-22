@@ -69,8 +69,9 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		this.outputFormat = outFormat;
 		
 		super.setName( super.streamSetting.name() + "(" + super.streamSetting.uid() + ")");
+				
+		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );
 		
-		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );		
 	}
 
 	public void setDataProcessing( LSLRecPluginDataProcessing process, boolean save ) throws Exception
@@ -253,6 +254,6 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	@Override
 	public String getID() 
 	{
-		return this.getName();
+		return super.streamSetting.uid();
 	}
 }

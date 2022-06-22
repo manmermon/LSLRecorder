@@ -75,6 +75,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
     public LSLStreamInfo(Pointer handle) { this.obj = handle; }
 
     /** Destroy a previously created LSLStreamInfo this.object. */
+    @Override
     public void destroy() { this.inst.lsl_destroy_streaminfo( this.obj ); }
 
 

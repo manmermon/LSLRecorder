@@ -630,6 +630,7 @@ public class GuiManager
 		ui.getJCheckActiveSpecialInputMsg().setEnabled( enable );
 		
 		ui.getPreferenceMenu().setEnabled( enable );
+		ui.getMenuClisTo().setEnabled( enable );
 				
 		try 
 		{

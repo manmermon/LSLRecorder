@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import lslrec.auxiliar.task.NotificationTask;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
 
 public class LostWaitedThread extends AbstractStoppableThread 
 {
@@ -75,6 +77,23 @@ public class LostWaitedThread extends AbstractStoppableThread
 						try 
 						{
 							((IOutputDataFileWriter)th).close();
+						}
+						catch (Exception e) 
+						{
+						}
+						
+						th.notify();
+					}
+					
+					find = true;
+				}
+				else if( th instanceof NotificationTask )
+				{
+					synchronized ( th )
+					{
+						try 
+						{
+							((NotificationTask)th).stopThread( IStoppableThread.FORCE_STOP );
 						}
 						catch (Exception e) 
 						{

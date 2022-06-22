@@ -416,6 +416,11 @@ public class SimpleStreamSetting implements IStreamSetting
 		return this.recordingCheckerTimer;
 	}
 
+	@Override
+	public void destroy() 
+	{	
+	}
+
 	/*
 	@Override
 	public void setAdditionalInfo(String id, String info) 
