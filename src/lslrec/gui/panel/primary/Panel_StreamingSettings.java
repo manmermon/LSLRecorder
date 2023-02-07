@@ -117,6 +117,7 @@ import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.NoneSelectedButtonGroup;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
@@ -1162,6 +1163,8 @@ public class Panel_StreamingSettings extends JPanel
 			//
 			//
 			
+			NoneSelectedButtonGroup plotGroup = new NoneSelectedButtonGroup();
+			
 			for( int i = 0; i < this.deviceInfo.length; i++ )
 			{
 				final IStreamSetting info = this.deviceInfo[ i ];
@@ -1209,7 +1212,7 @@ public class Panel_StreamingSettings extends JPanel
 				List< Component > streamComponents = new ArrayList< Component >();
 				
 				JButton addInfo = new JButton();
-				JButton plot = new JButton();
+				JToggleButton plot = new JToggleButton();
 				JSpinner chunckSize = new JSpinner();
 				JToggleButton interleaved = new JToggleButton();								
 				JCheckBox selDataStream = new JCheckBox( deviceName );
@@ -1479,6 +1482,8 @@ public class Panel_StreamingSettings extends JPanel
 					plot.setText( Language.getLocalCaption( Language.SETTING_LSL_STREAM_PLOT ) );
 				}				
 				
+				plotGroup.add( plot );
+				
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT, plot );
 				
 				plot.addActionListener( new ActionListener() 
@@ -1520,6 +1525,24 @@ public class Panel_StreamingSettings extends JPanel
 						{
 							e1.printStackTrace();
 						}						
+					}
+				});
+				
+				plot.addItemListener( new ItemListener() 
+				{					
+					@Override
+					public void itemStateChanged(ItemEvent e) 
+					{
+						JToggleButton jtb = (JToggleButton)e.getSource();
+						
+						if( e.getStateChange() == ItemEvent.SELECTED )
+						{
+							jtb.setBackground( Color.GREEN );
+						}
+						else
+						{
+							jtb.setBackground( null );
+						}
 					}
 				});
 	
