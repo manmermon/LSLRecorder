@@ -36,6 +36,7 @@ import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
+import lslrec.gui.dialog.Dialog_PlotClis;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -167,6 +168,7 @@ public class AppUI extends JFrame
 	private JMenu jFileMenu = null;
 	private JMenu jLangMenu = null;
 	private JMenu menuPreference = null;
+	private JMenu menuClis = null;
 	//private JMenu menuLibrary = null;
 	
 	// menuItem	
@@ -174,12 +176,13 @@ public class AppUI extends JFrame
 	private JMenuItem jGNUGLP = null;	
 	private JMenuItem menuLoad = null;
 	private JMenuItem menuSave = null;
-	private JMenuItem menuBin2Clis = null;
+	private JMenuItem menuConvertBinary = null;
 	private JMenuItem menuWritingTest = null;
 	private JMenuItem menuExit = null;	
 	private JMenuItem menuShowLog = null;
 	private JMenuItem menuAdvanceOpt = null;
 	private JMenuItem menuConvertClisTo = null;
+	private JMenuItem menuClisDataPlot = null;
 
 	// Processbar
 	private LevelIndicator appTextState = null;
@@ -1371,8 +1374,8 @@ public class AppUI extends JFrame
 			this.jFileMenu.add( this.getMenuLoad() );
 			this.jFileMenu.add( this.getMenuSave() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
-			this.jFileMenu.add( this.getMenuBin2Clis() );
-			this.jFileMenu.add( this.getMenuClisTo() );
+			this.jFileMenu.add( this.getMenuConvertBinary() );
+			this.jFileMenu.add( this.getClisMenu() );
 			this.jFileMenu.add( this.getMenuWritingTest() );
 			this.jFileMenu.add( this.getShowLogMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
@@ -1404,6 +1407,50 @@ public class AppUI extends JFrame
 		}
 		
 		return this.menuPreference;
+	}
+	
+	protected JMenu getClisMenu()
+	{
+		if( this.menuClis == null )
+		{
+			this.menuClis = new JMenu( DataFileFormat.CLIS );
+			this.menuClis.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK ).getScaledInstance( 16, 16, BufferedImage.SCALE_SMOOTH ) ) );
+						
+			this.menuClis.add( this.getMenuClisTo() );
+			this.menuClis.add( this.getMenuClisDataPlot() );				
+		}
+		
+		return this.menuClis;
+	}
+	
+	private JMenuItem getMenuClisDataPlot()
+	{
+		if( this.menuClisDataPlot == null )
+		{
+			this.menuClisDataPlot = new JMenuItem( DataFileFormat.CLIS + "-" + Language.getLocalCaption( Language.SETTING_LSL_PLOT ) );
+			this.menuClisDataPlot.setIcon( GeneralAppIcon.ImageIcon( 16, Color.BLACK ) );
+			
+			this.menuClisDataPlot.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JMenuItem m = (JMenuItem)e.getSource();
+					
+					Dialog_PlotClis plotClis = new Dialog_PlotClis();
+					plotClis.setBounds( 200, 100, 800, 400 );
+										
+					plotClis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
+					plotClis.setTitle( m.getText() );
+					plotClis.setModal( true );
+					plotClis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
+										
+					plotClis.setVisible( true );
+				}
+			});
+		}
+		
+		return this.menuClisDataPlot;
 	}
 	
 	private JMenuItem getShowLogMenu()
@@ -1757,16 +1804,16 @@ public class AppUI extends JFrame
 		return this.menuWritingTest;
 	}
 	
-	protected JMenuItem getMenuBin2Clis()
+	protected JMenuItem getMenuConvertBinary()
 	{
-		if( this.menuBin2Clis == null )
+		if( this.menuConvertBinary == null )
 		{
-			this.menuBin2Clis = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
-			this.menuBin2Clis.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_C, KeyEvent.ALT_MASK ) );
+			this.menuConvertBinary = new JMenuItem( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
+			this.menuConvertBinary.setAccelerator( KeyStroke.getKeyStroke( KeyEvent.VK_C, KeyEvent.ALT_MASK ) );
 			
-			this.menuBin2Clis.setIcon( GeneralAppIcon.Convert( 16, Color.BLACK ) );
+			this.menuConvertBinary.setIcon( GeneralAppIcon.Convert( 16, Color.BLACK ) );
 
-			this.menuBin2Clis.addActionListener( new ActionListener() 
+			this.menuConvertBinary.addActionListener( new ActionListener() 
 			{	
 				@Override
 				public void actionPerformed(ActionEvent e) 
@@ -1775,10 +1822,10 @@ public class AppUI extends JFrame
 				}
 			});
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT_BIN, this.menuBin2Clis );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_CONVERT_BIN, this.menuConvertBinary );
 		}
 
-		return this.menuBin2Clis;
+		return this.menuConvertBinary;
 	}
 	
 	protected JMenuItem getMenuClisTo()

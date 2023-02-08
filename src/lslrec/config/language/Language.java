@@ -216,13 +216,21 @@ public class Language
 	public static final String WIDTH_TEXT = "WIDTH_TEXT";
 	public static final String HEIGHT_TEXT = "HEIGHT_TEXT";
 	public static final String WINDOW_TEXT = "WINDOW_TEXT";
-			
+	
+	public static final String VARIABLE_TEXT = "VARIABLE_TEXT";
+	public static final String VARIABLES_TEXT = "VARIABLE_TEXT";
+	public static final String STEP_TEXT = "STEP_TEXT";
+	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
 	static 
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put( VARIABLE_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variable" ) );
+		captions.put( VARIABLES_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variables" ) );
+		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );
 		
 		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );

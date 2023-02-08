@@ -620,7 +620,7 @@ public class GuiManager
 		
 		ui.getMenuLoad().setEnabled( enable );
 		ui.getMenuSave().setEnabled( enable );
-		ui.getMenuBin2Clis().setEnabled( enable );
+		ui.getMenuConvertBinary().setEnabled( enable );
 		ui.getMenuExit().setEnabled( enable );
 		ui.getMenuWritingTest().setEnabled( enable );
 		
