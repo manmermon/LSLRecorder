@@ -82,26 +82,42 @@ public class Dialog_PlotClis extends JDialog
 	private static final long serialVersionUID = 2257212620236071644L;
 	
 	private JPanel centerPanel = null;
-	private JPanel southPanel;	
+	//private JPanel southPanel;	
 	private JPanel centerOutputFormatPanel;
 	private JPanel loadFilePanel;
 	private JPanel infoFilePanel;
 	private JPanel loadFileBtnPanel;	
 	private JPanel plotPanel;
+	private JPanel panelMovePlotCtr;
+	private JPanel panelPlotYAxis;
+	private JPanel panelPlotCanva;
+	private JPanel panelPlotCtr;
 	
 	private JButton btnLoadFile;
-	private JButton btnClose;
-		
+	//private JButton btnClose;
+	private JButton btnPrevious;
+	private JButton btnNext;
+	private JButton btnEnd;
+	private JButton btnBegin;
+	
 	private JTextField clisFileText;
 	
 	private JLabel lblLoadFile;	
+	private JLabel lblVariable;
+	private JLabel lblChannel;
+	private JLabel lblStep;
+	private JLabel canva;
+	
+	private JComboBox<String> cbVariables;
+	
+	private JSpinner spinnerChannel;
+	private JSpinner spinnerStep;
 	
 	private String currentFolderPath;
 	
 	private ClisData currentClisFile = null;
 	private Map< String, Number[][] > clisData = null;
 	private int sampleIndex_A = 0;
-	private int sampleIndex_B = 1000;
 	private MetadataVariableBlock currentVar = null;
 	
 	
@@ -110,19 +126,6 @@ public class Dialog_PlotClis extends JDialog
 	 */
 	private static Dialog_PlotClis dgclis = null;
 	//private JPanel panelPlotCtr;
-	private JPanel panelMovePlotCtr;
-	private JPanel panelPlotYAxis;
-	private JPanel panelPlotCanva;
-	private JPanel panelPlotCtr;
-	private JLabel lblVariable;
-	private JComboBox<String> cbVariables;
-	private JLabel lblChannel;
-	private JSpinner spinnerChannel;
-	private JLabel lblStep;
-	private JSpinner spinnerStep;
-	private JButton btnPrevious;
-	private JButton btnNext;
-	private JLabel canva;
 	
 	public static void main(String[] args) {
 		try {
@@ -192,7 +195,7 @@ public class Dialog_PlotClis extends JDialog
 		
 		Container container = super.getContentPane();
 		container.add( this.getCenterPanel(), BorderLayout.CENTER);
-		super.getContentPane().add( this.getSouthPanel(), BorderLayout.SOUTH);
+		//super.getContentPane().add( this.getSouthPanel(), BorderLayout.SOUTH);
 		super.getContentPane().add( this.getLoadFilePanel(), BorderLayout.NORTH);
 	}
 	
@@ -212,6 +215,7 @@ public class Dialog_PlotClis extends JDialog
 		return this.centerPanel;
 	}
 		
+	/*
 	private JPanel getSouthPanel() 
 	{
 		if (southPanel == null) 
@@ -223,7 +227,8 @@ public class Dialog_PlotClis extends JDialog
 		}
 		return southPanel;
 	}
-	
+	*/
+	/*
 	private JButton getBtnOk() 
 	{
 		if (btnClose == null) 
@@ -243,6 +248,7 @@ public class Dialog_PlotClis extends JDialog
 		
 		return btnClose;
 	}
+	*/
 	
 	private JPanel getLoadFilePanel() 
 	{
@@ -333,7 +339,7 @@ public class Dialog_PlotClis extends JDialog
 		if( this.centerOutputFormatPanel == null )
 		{
 			this.centerOutputFormatPanel = new JPanel( );
-			centerOutputFormatPanel.setBorder(new EmptyBorder(0, 0, 0, 5));
+			centerOutputFormatPanel.setBorder(new EmptyBorder(5, 0, 0, 5));
 			BoxLayout bl = new BoxLayout( this.centerOutputFormatPanel, BoxLayout.X_AXIS );
 			this.centerOutputFormatPanel.setLayout( bl );
 			
@@ -457,8 +463,10 @@ public class Dialog_PlotClis extends JDialog
 			
 			this.panelMovePlotCtr.add( this.getLblStep() );
 			this.panelMovePlotCtr.add( this.getSpinnerStep() );
+			this.panelMovePlotCtr.add( this.getBtnBegin() );
 			this.panelMovePlotCtr.add( this.getBtnPrevious() );
 			this.panelMovePlotCtr.add( this.getBtnNext() );
+			this.panelMovePlotCtr.add( this.getBtnEnd() );
 		}
 		
 		return this.panelMovePlotCtr;
@@ -586,9 +594,8 @@ public class Dialog_PlotClis extends JDialog
 				{
 					int step = (Integer)getSpinnerStep().getValue();
 					sampleIndex_A = 0;
-					sampleIndex_B = sampleIndex_A + step;
 					
-					drawDataPlot( sampleIndex_A, sampleIndex_B );
+					drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 				}
 			});
 		}
@@ -656,7 +663,8 @@ public class Dialog_PlotClis extends JDialog
 				public void actionPerformed(ActionEvent e) 
 				{
 					updateSampleIndexes( false );
-					drawDataPlot( sampleIndex_A, sampleIndex_B );
+					int step = (Integer)getSpinnerStep().getValue();
+					drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 				}
 			});
 		}
@@ -673,11 +681,72 @@ public class Dialog_PlotClis extends JDialog
 				public void actionPerformed(ActionEvent e) 
 				{
 					updateSampleIndexes( true );
-					drawDataPlot( sampleIndex_A, sampleIndex_B );
+					int step = (Integer)getSpinnerStep().getValue();
+					drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 				}
 			});
 		}
 		return btnNext;
+	}
+	
+	private JButton getBtnBegin() 
+	{
+		if (btnBegin == null) {
+			btnBegin = new JButton();
+			
+			btnBegin.setIcon(  GeneralAppIcon.toBegin( 10, 10, true, Color.BLACK, Color.GRAY, null ) );			
+			
+			btnBegin.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					updateSampleIndexes( true );
+					int step = (Integer)getSpinnerStep().getValue();
+					sampleIndex_A = 0;
+					drawDataPlot( sampleIndex_A, sampleIndex_A + step );
+				}
+			});
+		}
+		return btnBegin;
+	}
+	
+	private JButton getBtnEnd() 
+	{
+		if (btnEnd == null) {
+			btnEnd = new JButton();
+			
+			btnEnd.setIcon(  GeneralAppIcon.toEnd( 10, 10, true, Color.BLACK, Color.GRAY, null ) );			
+			
+			btnEnd.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					updateSampleIndexes( true );
+					int step = (Integer)getSpinnerStep().getValue();
+					sampleIndex_A = 0;
+					
+					if( currentVar != null && clisData != null )
+					{
+						Number[][] dat = clisData.get( currentVar.getName() ) ;
+						
+						if( dat != null )
+						{
+							sampleIndex_A = dat.length - step;
+							
+							if( sampleIndex_A < 0 )
+							{
+								sampleIndex_A = 0;
+							}
+						}
+					}
+					
+					drawDataPlot( sampleIndex_A, sampleIndex_A + step );
+				}
+			});
+		}
+		return btnEnd;
 	}
 	
 	private void updateSampleIndexes( boolean up )
@@ -692,20 +761,12 @@ public class Dialog_PlotClis extends JDialog
 			}
 			
 			int A = this.sampleIndex_A + step;
-			int B = this.sampleIndex_B + step;
-			
-			if( A > B )
-			{
-				int aux = B;
-				B = A;
-				A = aux;
-			}
 			
 			Number[][] dat = this.clisData.get( this.currentVar.getName() );
 			
 			int rows = dat.length;
 			
-			if( A >= rows )
+			if( A > rows )
 			{
 				A = rows - Math.abs( step );
 			}
@@ -713,23 +774,8 @@ public class Dialog_PlotClis extends JDialog
 			{
 				A = 0;
 			}
-			
-			if( B > rows )
-			{
-				B = rows;
-				A = B - step;
-			}
-			else if( B < 0 )
-			{
-				B = A + Math.abs( step );
-			}
-			else if( ( B - A ) < Math.abs( step ) )
-			{
-				B = A + Math.abs( step );
-			}
-			
+						
 			this.sampleIndex_A = A;
-			this.sampleIndex_B = B;
 		}
 	}
 	
@@ -804,9 +850,8 @@ public class Dialog_PlotClis extends JDialog
 						
 						int step = (Integer)getSpinnerStep().getValue();
 						sampleIndex_A = 0;
-						sampleIndex_B = step;
 						
-						drawDataPlot( sampleIndex_A, sampleIndex_B );
+						drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 					}
 				}
 				else
@@ -956,7 +1001,8 @@ public class Dialog_PlotClis extends JDialog
 								this.wait( 100L );
 							}
 							
-							drawDataPlot( sampleIndex_A, sampleIndex_B);
+							int step = (Integer)getSpinnerStep().getValue();
+							drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 						}
 						
 						protected void runExceptionManager(Throwable e) 

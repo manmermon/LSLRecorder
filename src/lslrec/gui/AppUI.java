@@ -1427,7 +1427,7 @@ public class AppUI extends JFrame
 	{
 		if( this.menuClisDataPlot == null )
 		{
-			this.menuClisDataPlot = new JMenuItem( DataFileFormat.CLIS + "-" + Language.getLocalCaption( Language.SETTING_LSL_PLOT ) );
+			this.menuClisDataPlot = new JMenuItem( Language.getLocalCaption( Language.SETTING_LSL_PLOT ) );
 			this.menuClisDataPlot.setIcon( GeneralAppIcon.ImageIcon( 16, Color.BLACK ) );
 			
 			this.menuClisDataPlot.addActionListener( new ActionListener() 
@@ -1448,6 +1448,8 @@ public class AppUI extends JFrame
 					plotClis.setVisible( true );
 				}
 			});
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_PLOT, this.menuClisDataPlot );	
 		}
 		
 		return this.menuClisDataPlot;

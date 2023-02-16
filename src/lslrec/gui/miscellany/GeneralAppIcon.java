@@ -1891,4 +1891,81 @@ public class GeneralAppIcon
 		
 		return new ImageIcon( base );		
 	}
+	
+	public static ImageIcon toEnd( int width, int height, boolean horizontaOrientation, Color border, Color fill, Color background )
+	{
+		Image base = BasicPainter2D.createEmptyImage( width, height, background );
+		
+		Image trg = BasicPainter2D.paintTriangle( width-1, 1F, border, fill, BasicPainter2D.EAST );
+		
+		int endDim = width / 8;
+		if( endDim < 1 )
+		{
+			endDim = 1;
+		}
+		
+		Image end = BasicPainter2D.paintRectangle( endDim, height, 1F, border, background );
+		
+		int xe = width - end.getWidth( null );
+		int ye = height - end.getHeight( null );
+		
+		if( !horizontaOrientation )
+		{
+			endDim = height / 8;
+			if( endDim < 1 )
+			{
+				endDim = 1;
+			}
+			
+			trg = BasicPainter2D.paintTriangle( width-1, 1F, border, fill, BasicPainter2D.SOUTH );
+			
+			end = BasicPainter2D.paintRectangle( width, endDim, 1F, border, background );
+			
+			xe = width - end.getWidth( null );
+			ye = height - end.getHeight( null );
+		}
+		
+		BasicPainter2D.compoundImages( base, 0, 0, trg );
+		BasicPainter2D.compoundImages( base, xe, ye, end );
+		
+		return new ImageIcon( base );
+	}
+	
+	public static ImageIcon toBegin( int width, int height, boolean horizontaOrientation, Color border, Color fill, Color background )
+	{
+		Image base = BasicPainter2D.createEmptyImage( width, height, background );
+		
+		Image trg = BasicPainter2D.paintTriangle( width-1, 1F, border, fill, BasicPainter2D.WEST );
+		int xt = width - trg.getWidth( null );
+		int yt = height - trg.getHeight( null );
+		
+		int endDim = width / 8;
+		if( endDim < 1 )
+		{
+			endDim = 1;
+		}
+		
+		Image end = BasicPainter2D.paintRectangle( endDim, height, 1F, border, background );
+		
+		if( !horizontaOrientation )
+		{
+			endDim = height / 8;
+			if( endDim < 1 )
+			{
+				endDim = 1;
+			}
+			
+			trg = BasicPainter2D.paintTriangle( width-1, 1F, border, fill, BasicPainter2D.NORTH );
+			
+			end = BasicPainter2D.paintRectangle( width, endDim, 1F, border, background );
+			
+			xt = width - trg.getWidth( null );
+			yt = height - trg.getHeight( null );			
+		}
+		
+		BasicPainter2D.compoundImages( base, xt, yt, trg );
+		BasicPainter2D.compoundImages( base, 0, 0, end );
+		
+		return new ImageIcon( base );
+	}
 }

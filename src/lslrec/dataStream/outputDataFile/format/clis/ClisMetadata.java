@@ -24,7 +24,6 @@ import java.security.MessageDigest;
 import java.security.spec.KeySpec;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.crypto.BadPaddingException;

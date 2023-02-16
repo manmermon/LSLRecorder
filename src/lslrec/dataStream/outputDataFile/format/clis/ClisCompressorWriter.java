@@ -17,6 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
+
 package lslrec.dataStream.outputDataFile.format.clis;
 
 import java.io.File;
