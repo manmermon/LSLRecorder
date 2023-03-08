@@ -25,6 +25,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -299,15 +300,16 @@ public class Dialog_PlotClis extends JDialog
 						}
 						selExt = new String[] { ext };
 					}
-					
+										
 					String[] FILE = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
 					if( FILE != null && FILE.length > 0 )
 					{						
-						getTxtClisFile().setText( FILE[ 0 ] );
+						getTxtClisFile().setText( FILE[ 0 ] );						
 						
 						try 
 						{
 							currentClisFile = new ClisData( FILE[ 0 ] );
+							currentFolderPath = (new File( FILE[ 0 ] )).getAbsolutePath();
 						} 
 						catch ( Exception e1) 
 						{
@@ -869,7 +871,9 @@ public class Dialog_PlotClis extends JDialog
 	}	
 	private void clearClisData()
 	{	
-		clisData = null;
+		this.clisData = null;
+		this.currentVar = null;
+		this.sampleIndex_A = 0;
 		
 		getCbVariables().setSelectedIndex( -1 );
 		getCbVariables().removeAllItems();
