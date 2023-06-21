@@ -49,3 +49,5 @@ ImportClisData/Python/testClis.py
 *.csv
 .~lock.data_Openpose_Body.csv#
 /LSLRecPlugin/nbproject/private/
+ImportClisData/Python/__pycache__/ClisData.cpython-310.pyc
+ImportClisData/Python/__pycache__/ClisData.cpython-37.pyc

@@ -651,6 +651,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{
 					super.supervisor.eventNotification( this, event );
 				}
+				else if ( event.getEventType().equals( EventType.WARNING ) )
+				{
+					super.supervisor.eventNotification( this, event );
+				}
 				else if( event.getEventType().equals( EventType.OUTPUT_DATA_FILE_SAVED ) )
 				{	
 					synchronized ( this.outWriterHandlers ) 

@@ -84,6 +84,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
@@ -1487,38 +1489,72 @@ public class Panel_StreamingSettings extends JPanel
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT, plot );
 				
 				plot.addActionListener( new ActionListener() 
-				{								
+				{			
+					Semaphore isRunning = new Semaphore( 1, true );
+					
 					@Override
 					public void actionPerformed(ActionEvent e) 
 					{	
 						try 
-						{
-							if( !CoreControl.getInstance().isPlotingStream( dev ) )
-							{	
-								Thread t = new Thread()
-										{
-											public void run() 
-											{
-												try 
-												{
-													CoreControl.getInstance().createLSLDataPlot( getPanelPlot(), dev );
-												}
-												catch (Exception e) 
-												{
-												}
-												
-												tabStreams.setSelectedIndex( 1 );
-												tabStreams.getSelectedComponent().setVisible( false );
-												tabStreams.getSelectedComponent().setVisible( true );
-											};
-										};
-										
-								t.start();								
-								
-							}
-							else
+						{	
+							if( isRunning.tryAcquire() )
 							{
-								CoreControl.getInstance().disposeDataPlots();
+								JToggleButton jtb = (JToggleButton)e.getSource();
+																
+								if( !CoreControl.getInstance().isPlotingStream( dev ) )
+								{	
+									plotGroup.clearSelection();
+									Enumeration< AbstractButton > abts = plotGroup.getElements();
+									while( abts.hasMoreElements() )
+									{
+										AbstractButton ab = abts.nextElement();
+										ab.setBackground( null );
+										ab.setEnabled( false );
+									}
+									
+									jtb.setSelected( true );
+									jtb.setBackground( Color.GREEN );
+
+									final JPanel plotPanel = getPanelPlot();
+									plotPanel.removeAll();
+									
+									Thread t = new Thread()
+									{
+										public void run() 
+										{
+											try 
+											{
+												CoreControl.getInstance().createLSLDataPlot( plotPanel, dev );
+											}
+											catch (Exception e) 
+											{
+											}
+
+											tabStreams.setSelectedIndex( 1 );
+											tabStreams.getSelectedComponent().setVisible( false );
+											tabStreams.getSelectedComponent().setVisible( true );
+											
+											Enumeration< AbstractButton > abts = plotGroup.getElements();
+											while( abts.hasMoreElements() )
+											{
+												AbstractButton ab = abts.nextElement();
+												ab.setEnabled( true );
+											}
+											
+											isRunning.release();
+										};
+									};
+
+									t.start();									
+								}
+								else
+								{
+									jtb.setBackground( null );
+
+									CoreControl.getInstance().disposeDataPlots();
+									
+									isRunning.release();
+								}								
 							}
 						}
 						catch (Exception e1) 
@@ -1528,6 +1564,7 @@ public class Panel_StreamingSettings extends JPanel
 					}
 				});
 				
+				/*
 				plot.addItemListener( new ItemListener() 
 				{					
 					@Override
@@ -1545,6 +1582,7 @@ public class Panel_StreamingSettings extends JPanel
 						}
 					}
 				});
+				//*/
 	
 
 				//
