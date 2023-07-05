@@ -179,6 +179,7 @@ public class ClisCompressorWriter
 			ByteBuffer byteBuffer = this.metadata.getCharCode().encode( charBuffer );
 			byte[] bytes = Arrays.copyOfRange( byteBuffer.array(), byteBuffer.position(), byteBuffer.limit() );
 			*/
+			//System.out.println("ClisCompressorWriter.saveMetadata() " + this.toString() );
 			byte[] bytes = this.metadata.getMetaDataProtocol();
 	
 			this.fStream.seek( 0 );

@@ -53,104 +53,115 @@ public class ExceptionDialog
 {
 	private static JDialog dialog;
 	private static TextAreaPrintStream log;
-		
+	
+	private static Object sync = new Object();
+	
 	public static void createExceptionDialog( Window owner ) 
 	{
-		if( dialog != null )
-		{			
-			dialog.setVisible( false );
-			dialog.dispose();
-			
-			dialog = null;
-		}
-		
-		JTextPane jta = new JTextPane();
-		jta.setAutoscrolls( true );
-		jta.setEditable( false );
-		//jta.setLineWrap( true );
-		//jta.setTabSize( 0 );
-
-		log = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
-
-		dialog = new JDialog( owner );
-
-		Icon icono = GeneralAppIcon.Warning( 16, Color.RED );
-		
-		int w = icono.getIconWidth();
-		int h = icono.getIconHeight();
-		
-		
-		GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice gd = ge.getDefaultScreenDevice();
-		GraphicsConfiguration gc = gd.getDefaultConfiguration();
-		
-		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		if( dim == null )
+		synchronized( sync )
 		{
-			dim = new Dimension( 200, 200 );
-		}
-		
-		BufferedImage img = gc.createCompatibleImage( w, h, BufferedImage.TYPE_INT_ARGB ); 
-		Graphics2D g = img.createGraphics();
-		icono.paintIcon( null, g, 0, 0 );
-		dialog.setIconImage( img );
-		
-		Dimension d = new Dimension( (int)( dim.width /3 ), dim.height / 2 );
-		dialog.setSize( d );
-
-		/*
-		Point pos = ge.getCenterPoint();
-		pos.x -= d.width / 2;
-		pos.y -= d.height / 2;
-		dialog.setLocation(pos);
-		*/
-		dialog.setLocationRelativeTo( owner );
-
-		dialog.addWindowListener(new WindowAdapter()
-		{
-			public void windowClosing(WindowEvent e)
-			{
+			if( dialog != null )
+			{			
+				dialog.setVisible( false );
 				dialog.dispose();
+				
+				dialog = null;
 			}
-		});		
-		
-		JButton clearBt = new JButton( "Clear" );
-		clearBt.addActionListener( new ActionListener() 
-		{	
-			@Override
-			public void actionPerformed(ActionEvent e) 
+			
+			JTextPane jta = new JTextPane();
+			jta.setAutoscrolls( true );
+			jta.setEditable( false );
+			//jta.setLineWrap( true );
+			//jta.setTabSize( 0 );
+	
+			log = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
+	
+			dialog = new JDialog( owner );
+	
+			Icon icono = GeneralAppIcon.Warning( 16, Color.RED );
+			
+			int w = icono.getIconWidth();
+			int h = icono.getIconHeight();
+			
+			
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			GraphicsDevice gd = ge.getDefaultScreenDevice();
+			GraphicsConfiguration gc = gd.getDefaultConfiguration();
+			
+			Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+			if( dim == null )
 			{
-				log.flush();
+				dim = new Dimension( 200, 200 );
 			}
-		});
-		
-		dialog.add( new JScrollPane( jta ), BorderLayout.CENTER );
-		dialog.add( clearBt, BorderLayout.SOUTH );
-		//dialog.toFront();
-		//dialog.setVisible( true );		
-		
-		dialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
-													KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-													JComponent.WHEN_IN_FOCUSED_WINDOW );
+			
+			BufferedImage img = gc.createCompatibleImage( w, h, BufferedImage.TYPE_INT_ARGB ); 
+			Graphics2D g = img.createGraphics();
+			icono.paintIcon( null, g, 0, 0 );
+			dialog.setIconImage( img );
+			
+			Dimension d = new Dimension( (int)( dim.width /3 ), dim.height / 2 );
+			dialog.setSize( d );
+	
+			/*
+			Point pos = ge.getCenterPoint();
+			pos.x -= d.width / 2;
+			pos.y -= d.height / 2;
+			dialog.setLocation(pos);
+			*/
+			dialog.setLocationRelativeTo( owner );
+	
+			dialog.addWindowListener(new WindowAdapter()
+			{
+				public void windowClosing(WindowEvent e)
+				{
+					dialog.dispose();
+				}
+			});		
+			
+			JButton clearBt = new JButton( "Clear" );
+			clearBt.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					log.flush();
+				}
+			});
+			
+			dialog.add( new JScrollPane( jta ), BorderLayout.CENTER );
+			dialog.add( clearBt, BorderLayout.SOUTH );
+			//dialog.toFront();
+			//dialog.setVisible( true );		
+			
+			dialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+														JComponent.WHEN_IN_FOCUSED_WINDOW );
+		}
 	}
 	
 	public static boolean wasCreatedExceptionDialog()
 	{
-		return dialog != null;
+		synchronized ( sync )
+		{
+			return dialog != null;
+		}		
 	}
 	
 	public static void AppExitWhenWindowClosing()
 	{
-		if( dialog != null )
+		synchronized ( sync )
 		{
-			dialog.addWindowListener( new WindowAdapter() 
+			if( dialog != null )
 			{
-				@Override
-				public void windowClosing(WindowEvent e) 
+				dialog.addWindowListener( new WindowAdapter() 
 				{
-					System.exit( 0 );
-				} 
-			});
+					@Override
+					public void windowClosing(WindowEvent e) 
+					{
+						System.exit( 0 );
+					} 
+				});
+			}
 		}
 	}
 
@@ -163,53 +174,72 @@ public class ExceptionDialog
 			{
 				super.setName( "ExceptionDialog-showMessage-" + super.getId() );
 				
-				if( dialog != null )
+				synchronized ( sync )
 				{
-					if( !concatMsg )
+					if( dialog != null )
 					{
-						log.flush();
-					}
-
-					dialog.setTitle( msg.getTitleException() );
-
-					ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
-					Color msgColor = Color.ORANGE;
-
-					if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
-					{
-						ic = GeneralAppIcon.Error( 64, Color.RED );
-						msgColor = Color.RED;
-					}
-					else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
-					{
-						ic = GeneralAppIcon.Info( 64, Color.BLACK );
-						msgColor = Color.BLACK;
-					}
-
-					log.SetColorText( msgColor );
-
-					if( ic != null )
-					{
-						dialog.setIconImage( ic.getImage() );
-					}
-
-					Throwable ex = msg.getException();
-
-					if( ex != null )
-					{
-						if( printExceptionTrace )
+						if( !concatMsg )
 						{
-							ex.printStackTrace( log );
+							log.flush();
 						}
-						else
+	
+						dialog.setTitle( msg.getTitleException() );
+	
+						ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
+						Color msgColor = Color.ORANGE;
+	
+						if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
 						{
-							log.println( ex.getMessage() );
+							ic = GeneralAppIcon.Error( 64, Color.RED );
+							msgColor = Color.RED;
 						}
+						else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
+						{
+							ic = GeneralAppIcon.Info( 64, Color.BLACK );
+							msgColor = Color.BLACK;
+						}
+	
+						log.SetColorText( msgColor );
+	
+						if( ic != null )
+						{
+							dialog.setIconImage( ic.getImage() );
+						}
+	
+						Throwable ex = msg.getException();
+	
+						if( ex != null )
+						{
+							if( printExceptionTrace )
+							{
+								ex.printStackTrace( log );
+							}
+							else
+							{
+								log.println( ex.getMessage() );
+							}
+						}
+						
+						dialog.setLocationRelativeTo( dialog.getOwner() );
+							
+						boolean show = false;
+						
+						while( !show )
+						{
+							try
+							{
+								dialog.setVisible( true );
+								
+								show = true;
+							}
+							catch (Exception e) 
+							{								
+							}
+						}
+						
+						dialog.toFront();
 					}
-
-					dialog.setLocationRelativeTo( dialog.getOwner() );
-					dialog.setVisible( true );
-					dialog.toFront();
+						
 				}
 			}
 		}).start();
@@ -217,11 +247,14 @@ public class ExceptionDialog
 
 	public static void showDialog()
 	{
-		if( dialog != null )
+		synchronized ( sync )
 		{
-			dialog.setLocationRelativeTo( dialog.getOwner() );
-			dialog.setVisible( true );
-			dialog.toFront();
+			if( dialog != null )
+			{
+				dialog.setLocationRelativeTo( dialog.getOwner() );
+				dialog.setVisible( true );
+				dialog.toFront();
+			}
 		}
 	}
 }

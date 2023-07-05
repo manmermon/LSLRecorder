@@ -269,7 +269,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			this.setMaxNumElements( streamSettings.getDataTypeBytes( streamSettings.data_type() ), nChannel + 1 );
 			
 			if( streamSettings.data_type() != StreamDataType.string )
-			{			
+			{
+				//System.out.println("OutputBinaryFileSegmentation.runInLoop() ProcessDataAndSync" );
 				counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );			
 			}
 			else
@@ -286,23 +287,35 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				counterDataBlock = this.ProcessStringDataAndSync( counterDataBlock, varName, NonSyncMarker, false );				
 			}
 			
+			// Header info
+			
+			lslXML = StreamUtils.addElementToXmlStreamDescription( lslXML
+					, rootNode
+					, StreamExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
+					, "" + ( this.totalSampleByChannels / ( nChannel + 1 ) ) ); // nChannel + 1: channels + marker column ;
+
+			this.writer.addMetadata( info + lslName, lslXML ); // output file header
+			
 			// Save time stamps			
 			String timeName = timeVarName + lslName;
 			 
 			
 			this.DATA.reset();
 			this.setMaxNumElements( streamSettings.getDataTypeBytes( streamSettings.getTimestampDataType() ), 1 );
+			//System.out.println("OutputBinaryFileSegmentation.runInLoop() ProcessTimeStream " + super.getName());
 			counterDataBlock = this.ProcessTimeStream(  this.DATA, streamSettings.getTimestampDataType(), counterDataBlock, timeName );
 			
+			/*
 			// Header info
 			
 			lslXML = StreamUtils.addElementToXmlStreamDescription( lslXML
 																			, rootNode
 																			, StreamExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
 																			//, "" + ( this.totalSampleByChannels / ( nChannel + 2 ) ) ); // nChannel + 2: channels + marker column + time ;			
-																			, "" + this.totalSampleByChannels ); // nChannel + 2: channels + marker column + time ;
+																			//, "" + this.totalSampleByChannels ); // nChannel + 2: channels + marker column + time ;
 			
 			this.writer.addMetadata( info + lslName, lslXML ); // output file header
+			//*/
 		}
 		else
 		{
@@ -618,9 +631,12 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 							
 							for( Object d : dat )
 							{
-								for( Byte b : d.toString().getBytes() )
+								if( d != null )
 								{
-									dataBuffer.add( b );
+									for( Byte b : d.toString().getBytes() )
+									{
+										dataBuffer.add( b );
+									}
 								}
 							}
 							
@@ -689,6 +705,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		synchronized ( this )
 		{
 			//this.totalSampleByChannels += ( to - from ) / Nchannels;
+			this.totalSampleByChannels += ( to - from );
 			
 			while( !this.writer.saveData( dataBlock ) )
 			{			
@@ -903,14 +920,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 					while( dataBuffer.size() >= this.maxNumElements )
 					{
-						this.totalSampleByChannels += this.maxNumElements;
+						//this.totalSampleByChannels += this.maxNumElements;
 						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name );
 					}
 				}
 			}
 			while( times != null );		
 			
-			this.totalSampleByChannels += dataBuffer.size();
+			//this.totalSampleByChannels += dataBuffer.size();
 			
 			while( dataBuffer.size() > 0 )
 			{
@@ -991,7 +1008,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				}
 			}
 			*/
-			
+						
 			super.stopThread = true;
 			
 			this.outputFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, false );
@@ -1008,7 +1025,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				String cl = "";
 				if( e != null )
 				{
-					cl = e.getClass().getName();
+					cl = e.getClass().getName() + ": " +  e.getMessage();
 					
 					for( StackTraceElement track : e.getStackTrace() )
 					{
@@ -1022,7 +1039,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				synchronized ( this.notifTask )
 				{
 					this.notifTask.notify();
-				}				
+				}
 			}			
 		}
 	}
@@ -1048,15 +1065,57 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 		}
 		
+		/*
 		if( !this.writer.isFinished() )
 		{
 			this.writer.close();
-			
+						
 			if( this.writer instanceof IStoppableThread )
 			{
 				((IStoppableThread)this.writer).stopThread( IStoppableThread.FORCE_STOP );
 			}
 		}
+		*/
+		
+		boolean loop = true;
+		int counter = 0;
+		while( loop )
+		{
+			this.writer.close();
+			
+			synchronized ( this ) 
+			{
+				this.wait( 50L );
+			}
+			
+			counter++;
+			loop = counter < 20 && !this.writer.isFinished();
+		}
+		
+		if( this.writer instanceof IStoppableThread )
+		{
+			IStoppableThread stWriter = (IStoppableThread)this.writer;
+			
+			boolean writerStop = false;
+			while( !writerStop )
+			{		
+				stWriter.stopThread( IStoppableThread.FORCE_STOP );
+				
+				synchronized ( this ) 
+				{
+					this.wait( 50L );
+				}
+				
+				writerStop = true;
+				if( stWriter instanceof AbstractStoppableThread )
+				{
+					writerStop = ( (AbstractStoppableThread)stWriter).getState().equals( Thread.State.TERMINATED );
+				}
+				//System.out.println("OutputBinaryFileSegmentation.cleanUp() Writer.stop Force "+ this.writer.getFileName() );
+			}
+		}
+		
+		//System.out.println("OutputBinaryFileSegmentation.cleanUp() Writer was stoppped " + this.writer.getFileName() );
 				
 		this.writer = null;
 			
@@ -1088,6 +1147,16 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			EventInfo event = new EventInfo( this.getID(), EventType.OUTPUT_DATA_FILE_SAVED, t);
 			this.notifTask.addEvent( event );
+			synchronized ( this.notifTask )
+			{
+				this.notifTask.notify();
+			}
+			
+			synchronized ( this ) 
+			{
+				this.wait( 50L );
+			}
+			
 			this.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 			synchronized ( this.notifTask )
 			{

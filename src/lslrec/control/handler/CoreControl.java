@@ -326,7 +326,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				IStreamSetting info = results[i];
 				if ( info.uid().equals( streamSetting.uid() ) )
 				{
-					inletInfo = results[i];
+					//inletInfo = results[i];
+					inletInfo = streamSetting;
 				}
 			}
 
@@ -336,7 +337,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				double frq = inletInfo.sampling_rate();
 
 				// Data plot queue length								
-				int queueLength = ((int)(5.0D * frq)) * streamSetting.getChunkSize();
+				int queueLength = ((int)(5.0D * frq)) * inletInfo.getChunkSize();
 				if (queueLength < 10)
 				{
 					queueLength = 100;
@@ -1135,7 +1136,19 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		this.notifiedEventHandler.registreNotification( event );
 		
-		this.notifiedEventHandler.treatEvent();
+		//this.notifiedEventHandler.treatEvent();
+		Thread t = new Thread()
+		{
+			@Override
+			public void run() 
+			{
+				super.setName( "coreControl-eventNotification.treatEvent" );				
+				//System.out.println("CoreControl.eventNotification(...) " + super.getName() + " >> " + event );
+				notifiedEventHandler.treatEvent();
+			}
+		};
+		
+		t.start();
 	}
 
 	/**
@@ -1782,25 +1795,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 				{
-					managerGUI.setAppState( AppState.State.SAVED, 100, false );
-					
-					savingDataProgress = 0;
-					//managerGUI.enablePlayButton( true );
-					
-					if( deadlockDetector != null )
-					{ 
-						deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
-						deadlockDetector = null;
-					}
-					
-					LostWaitedThread.getInstance().wakeup();
-					
-					managerGUI.enablePlayButton( true );
-					
-					if( closeWhenDoingNothing && !isDoingSomething() )
-					{
-						System.exit( 0 );
-					}
+					this.setAllFilesSaved();
 				}
 				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
 				{	
@@ -1832,6 +1827,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 							LostWaitedThread.getInstance().wakeup();
 						}
 						*/
+						
+						/*
+						if( savingDataProgress >= 100 ) //&& !ctrlOutputFile.isSavingData() )
+						{
+							System.out.println("CoreControl.controlNotifiedManager.runInLoop() savingDataProgress >= 100");
+							this.setAllFilesSaved();
+						}
+						//*/
 					}
 				}
 				else if (event_type.equals( EventType.SOCKET_EVENTS ))
@@ -1967,6 +1970,29 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						}.start();
 					}
 				}
+			}
+		}
+		
+		private void setAllFilesSaved()
+		{
+			managerGUI.setAppState( AppState.State.SAVED, 100, false );
+			
+			savingDataProgress = 0;
+			//managerGUI.enablePlayButton( true );
+			
+			if( deadlockDetector != null )
+			{ 
+				deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
+				deadlockDetector = null;
+			}
+			
+			LostWaitedThread.getInstance().wakeup();
+			
+			managerGUI.enablePlayButton( true );
+			
+			if( closeWhenDoingNothing && !isDoingSomething() )
+			{
+				System.exit( 0 );
 			}
 		}
 		

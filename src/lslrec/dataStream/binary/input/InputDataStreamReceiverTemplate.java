@@ -27,6 +27,7 @@ import lslrec.auxiliar.task.IMonitoredTask;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.auxiliar.task.NotificationTask;
+import lslrec.exceptions.LostException;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.UnsupportedTypeException;
@@ -346,7 +347,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			
 			//this.timer.startThread();					
 		}
-		else
+		else if( !this.streamSetting.isSynchronationStream() )
 		{
 			int time = recordingCheckerTimer * 1000;
 			String msg = "No data received " + String.format(Locale.getDefault(), "%d", time/1000 ) + "s from " + streamSetting.name() + " (irregular sampling rate).";
@@ -912,8 +913,20 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				
 	protected void runExceptionManager( Throwable e )
 	{
-		if ( !(e instanceof InterruptedException) 
-				|| ( e instanceof Error ) )
+		boolean spread = true;
+		
+		synchronized ( this.isStreamClosed ) 
+		{
+			spread = (e instanceof LostException) && !this.isStreamClosed.get() ;		
+		}
+		
+		if( !spread )
+		{
+			spread = ( !(e instanceof InterruptedException) && !(e instanceof LostException) )
+						|| ( e instanceof Error );
+		}
+		
+		if ( spread )
 		{
 			if( this.timer != null )
 			{

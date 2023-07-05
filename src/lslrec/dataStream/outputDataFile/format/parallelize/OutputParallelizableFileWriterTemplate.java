@@ -245,7 +245,8 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			{
 				ex.printStackTrace();
 			}
-						
+
+			//System.out.println("OutputParallelizableFileWriterTemplate.cleanUp() CloseWriterActions " + this.toString());
 			this.CloseWriterActions();
 		}
 		catch( Exception ex )
@@ -285,6 +286,14 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 				|| !processing )
 		{
 			super.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
+			
+			synchronized( this )
+			{
+				if( super.getState().equals( Thread.State.WAITING ) )
+				{
+					super.notify();
+				}
+			}
 		}
 		else
 		{

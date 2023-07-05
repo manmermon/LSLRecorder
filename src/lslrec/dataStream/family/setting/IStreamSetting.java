@@ -217,7 +217,7 @@ public interface IStreamSetting
 	 * @return Data type of string length 
 	 */
 	public abstract StreamDataType getStringLengthDataType();
-    
+    	
     /**
      * Get access to the underlying native handle.
      */
@@ -253,7 +253,7 @@ public interface IStreamSetting
 		
     	double samplingRate = this.sampling_rate();
 		
-    	int bufSize = 1000_000;
+    	int bufSize = 10_000;
     	
 		if( samplingRate != IStreamSetting.IRREGULAR_RATE )
 		{

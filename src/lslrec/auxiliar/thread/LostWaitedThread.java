@@ -35,7 +35,7 @@ public class LostWaitedThread extends AbstractStoppableThread
 		return lwt;
 	}
 	
-	private boolean checkLostWaitOutpuFile( Long id )
+	private boolean checkLostWaitOutputFile( Long id )
 	{
 		boolean find = false;
 		
@@ -89,20 +89,23 @@ public class LostWaitedThread extends AbstractStoppableThread
 				}
 				else if( th instanceof NotificationTask )
 				{
-					synchronized ( th )
+					if( th.getState().equals( Thread.State.WAITING ) )
 					{
-						try 
+						synchronized ( th )
 						{
-							((NotificationTask)th).stopThread( IStoppableThread.FORCE_STOP );
-						}
-						catch (Exception e) 
-						{
+							try 
+							{
+								((NotificationTask)th).stopThread( IStoppableThread.FORCE_STOP );
+							}
+							catch (Exception e) 
+							{
+							}
+							
+							th.notify();
 						}
 						
-						th.notify();
+						find = true;
 					}
-					
-					find = true;
 				}
 			}
 		}
@@ -135,7 +138,7 @@ public class LostWaitedThread extends AbstractStoppableThread
 		{
 			while( !this.idThreads.isEmpty() )
 			{
-				while( this.checkLostWaitOutpuFile( this.idThreads.poll() ) )
+				while( this.checkLostWaitOutputFile( this.idThreads.poll() ) )
 				{
 					super.wait( 100L );
 				}
@@ -143,7 +146,7 @@ public class LostWaitedThread extends AbstractStoppableThread
 		}
 		else
 		{
-			while( this.checkLostWaitOutpuFile( null ) )
+			while( this.checkLostWaitOutputFile( null ) )
 			{
 				super.wait( 100L );
 			}

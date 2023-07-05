@@ -660,6 +660,7 @@ public class GuiManager
 
 	public void enablePlayButton( boolean enable )
 	{
+		//System.out.println("GuiManager.enablePlayButton() " + enable);
 		AppUI.getInstance().getJButtonPlay().setEnabled( enable );
 	}
 	

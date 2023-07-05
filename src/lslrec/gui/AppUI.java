@@ -106,6 +106,7 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -134,22 +135,27 @@ public class AppUI extends JFrame
 	private JPanel jPanelAppState = null;
 	private JPanel jPanelInputMsgLog;
 	private JPanel jPanelSelectSyncMethod;
-	//private JPanel jPanelMenus;
-
+	//private JPanel jPanelMenus;		
+	private JTabbedPane jTabPanelInMsg;
+	private JPanel jPanelAppStateLog;
+	
 	// Button
 	private JButton jButtonClearLog;
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
 	private JButton jBtnSyncMet;
+	private JButton jButtonClearAppStateLog;
 		
 	private JToggleButton jButtomPlayStop = null;
 
 	// ScrollPanel
-	private JScrollPane scrollPane_2;
+	private JScrollPane scrollPaneInputMessage;
 	private JScrollPane scrollPanelCtrl;
+	private JScrollPane scrollPaneAppStateLog;
 
 	// TextPanel
 	private JTextPane logTextArea;
+	private JTextPane appStateLogTextArea;
 
 	// JPopMenu
 	private JPopupMenu popupMenu_2;	
@@ -202,6 +208,7 @@ public class AppUI extends JFrame
 	// CheckBox
 	private JCheckBox checkActiveSpecialInputMsg;
 	private JCheckBox checkAutoScroll;
+	private JCheckBox checkAutoScrollAppStateLog;
 
 	private AppUI() 
 	{
@@ -921,7 +928,8 @@ public class AppUI extends JFrame
 			this.jPanelInputMsg.setFocusCycleRoot(false);
 
 			this.jPanelInputMsg.setLeftComponent( this.getSocketSetting() );
-			this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
+			//this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
+			this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
 		}
 		
 		return this.jPanelInputMsg;
@@ -2041,12 +2049,34 @@ public class AppUI extends JFrame
 		return this.jMenuAbout;
 	}
 
+	private JTabbedPane getLogTabPane()
+	{
+		if( this.jTabPanelInMsg == null )
+		{
+			this.jTabPanelInMsg = new JTabbedPane();
+			
+			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.INPUT_MSGS ), this.getInputLogPanel() );
+			Component c = this.jTabPanelInMsg.getComponentAt( 0 );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
+
+			/*
+			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.LOG ), this.getAppStateLogPanel() );
+			c = this.jTabPanelInMsg.getComponentAt( 1 );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );
+			*/
+			
+			this.jTabPanelInMsg.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
+		}
+		
+		return this.jTabPanelInMsg;
+	}
+	
 	private JPanel getInputLogPanel()
 	{
 		if( this.jPanelInputMsgLog == null )
 		{
 			this.jPanelInputMsgLog = new JPanel( new BorderLayout() );
-			this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
+			//this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
 			
 			this.jPanelInputMsgLog.add( this.getScrollPaneLog(), BorderLayout.CENTER );
 
@@ -2057,10 +2087,32 @@ public class AppUI extends JFrame
 
 			this.jPanelInputMsgLog.add( p, BorderLayout.NORTH );
 			
-			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
+			//GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
 		}
 
 		return this.jPanelInputMsgLog;
+	}
+	
+	private JPanel getAppStateLogPanel()
+	{
+		if( this.jPanelAppStateLog == null )
+		{
+			this.jPanelAppStateLog = new JPanel( new BorderLayout() );
+			//this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
+			
+			this.jPanelAppStateLog.add( this.getScrollPaneAppStateLog(), BorderLayout.CENTER );
+
+			JPanel p = new JPanel( new BorderLayout() ); 
+
+			p.add( this.getCheckAutoScrollAppStateLog(), BorderLayout.EAST );
+			p.add( this.getJButtonClearAppStateLog(), BorderLayout.CENTER );
+
+			this.jPanelAppStateLog.add( p, BorderLayout.NORTH );
+			
+			//GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
+		}
+
+		return this.jPanelAppStateLog;
 	}
 
 	private JButton getJButtonClearLog()
@@ -2082,17 +2134,47 @@ public class AppUI extends JFrame
 
 		return jButtonClearLog;
 	}
+	
+	private JButton getJButtonClearAppStateLog()
+	{
+		if( jButtonClearAppStateLog == null )
+		{
+			jButtonClearAppStateLog = new JButton( Language.getLocalCaption( Language.CLEAR ) );			
+			jButtonClearAppStateLog.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent arg0) 
+				{
+					getAppStateLogTextArea().setText( "" );
+				}
+			});
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.CLEAR, this.jButtonClearAppStateLog );
+		}
+
+		return jButtonClearAppStateLog;
+	}
+
+	private JScrollPane getScrollPaneAppStateLog() 
+	{
+		if ( this.scrollPaneAppStateLog == null) 
+		{
+			this.scrollPaneAppStateLog = new JScrollPane();
+			this.scrollPaneAppStateLog.setViewportView( this.getAppStateLogTextArea() );
+		}
+		return this.scrollPaneAppStateLog;
+	}
 
 	private JScrollPane getScrollPaneLog() 
 	{
-		if ( this.scrollPane_2 == null) 
+		if ( this.scrollPaneInputMessage == null) 
 		{
-			this.scrollPane_2 = new JScrollPane();
-			this.scrollPane_2.setViewportView( this.getLogTextArea() );
+			this.scrollPaneInputMessage = new JScrollPane();
+			this.scrollPaneInputMessage.setViewportView( this.getLogTextArea() );
 		}
-		return this.scrollPane_2;
+		return this.scrollPaneInputMessage;
 	}
-
+	
 	private JTextPane getLogTextArea() 
 	{
 		if ( this.logTextArea == null)
@@ -2105,6 +2187,18 @@ public class AppUI extends JFrame
 		return this.logTextArea;
 	}
 
+	private JTextPane getAppStateLogTextArea() 
+	{
+		if ( this.appStateLogTextArea == null)
+		{
+			this.appStateLogTextArea = new JTextPane();
+			this.appStateLogTextArea.setEditable(false);
+			this.appStateLogTextArea.setBorder( BorderFactory.createEtchedBorder() );
+			this.addPopup( this.appStateLogTextArea, getPopupMenu_2() );
+		}
+		return this.appStateLogTextArea;
+	}
+	
 	private void addPopup( Component component, final JPopupMenu popup ) 
 	{
 		component.addMouseListener(new MouseAdapter() 
@@ -2278,5 +2372,16 @@ public class AppUI extends JFrame
 		}
 
 		return this.checkAutoScroll;
+	}
+	
+	private JCheckBox getCheckAutoScrollAppStateLog()
+	{
+		if( this.checkAutoScrollAppStateLog == null )
+		{
+			this.checkAutoScrollAppStateLog = new JCheckBox(  Language.getLocalCaption( Language.AUTOSCROLL ) );
+			this.checkAutoScrollAppStateLog.setSelected( true );				
+		}
+
+		return this.checkAutoScrollAppStateLog;
 	}
 }

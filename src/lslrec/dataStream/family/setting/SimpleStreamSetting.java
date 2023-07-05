@@ -19,6 +19,7 @@
  */
 package lslrec.dataStream.family.setting;
 
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +40,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	private StreamDataType timeDataType = StreamDataType.double64;
 	
 	private StreamDataType stringLenDataType = StreamDataType.int64;
-	
+		
 	private Map< String, String > extraInfo = new HashMap<String, String>();
 	
 	protected int chunkSize = 1;

@@ -371,6 +371,7 @@ public class ClisMetadata
 			
 			if( this.generatedChecksum )
 			{
+				//System.out.println("ClisMetadata.getMetadataProtocolInfoExtension()");
 				StringBuilder sb = new StringBuilder();
 				for(int i=0; i< bytes.length ;i++)
 			    {
@@ -431,6 +432,7 @@ public class ClisMetadata
 			{
 			}
 			
+			//System.out.println("ClisMetadata.getMetaDataProtocol() TRUE ");
 			metaExtension = this.getMetadataProtocolInfoExtension( true );
 			
 			aux3 = new byte[ metaExtension.length + aux1.length + aux2.length ];

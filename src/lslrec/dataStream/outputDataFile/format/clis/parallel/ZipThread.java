@@ -21,6 +21,7 @@ package lslrec.dataStream.outputDataFile.format.clis.parallel;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
@@ -123,6 +124,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 			{
 				case float32:
 				{
+					/*
 					float[] aux = new float[data.length];
 					int i = 0;
 					for (Object value  : data)
@@ -132,11 +134,36 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 					}
 	
 					compressData = this.zip.zipData( aux );
+					//*/
 	
+					float[] aux = new float[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Float)value).floatValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
+					}
+					
 					break;
 				}
 				case double64:
 				{
+					/*
 					double[] aux = new double[data.length];
 					int i = 0;
 					for (Object value : data)
@@ -144,13 +171,38 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 						aux[i] = ((Double)value).doubleValue();
 						i++;
 					}
-	
+						
 					compressData = this.zip.zipData( aux );
+					//*/
+					
+					double[] aux = new double[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Double)value).doubleValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
+					}
 	
 					break;
 				}
 				case int64:
 				{
+					/*
 					long[] aux = new long[ data.length ];
 					int i = 0;
 					
@@ -161,24 +213,60 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 					}
 	
 					compressData = this.zip.zipData( aux );
+					*/
+					
+					long[] aux = new long[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Long)value).longValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
+					}
 	
 					break;
 				}
 				case  string:
 				{
+					/*
 					String aux = new String();
 					for( Object value : data )
 					{
 						aux += (Character)value;
 	
-					}
+					}	
+					//*/
+					
+					String aux = new String();
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux += (Character)value;
+						}
+					}					
 	
 					compressData = this.zip.zipData( aux.toCharArray(), this.charCode );
-	
+					
 					break;
 				}
 				case int8:
 				{
+					/*
 					byte[] aux = new byte[data.length];
 					int i = 0;
 					for( Object value : data )
@@ -188,11 +276,36 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 					}
 	
 					compressData = this.zip.zipData( aux );
+					//*/
+					
+					byte[] aux = new byte[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Byte)value).byteValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
+					}
 	
 					break;
 				}
 				case int16:
 				{
+					/*
 					short[] aux = new short[data.length];
 					int i = 0;
 					for (Object value : data)
@@ -202,17 +315,66 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 					}
 	
 					compressData = this.zip.zipData( aux );
+					//*/
+					
+					short[] aux = new short[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Short)value).shortValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
+					}
 	
 					break;
 				}
 				default: // LSLUtils.int32
 				{
+					/*
 					int[] aux = new int[data.length];
 					int i = 0;
 					for (Object value : data)
 					{
 						aux[i] = ((Integer)value).intValue();
 						i++;
+					}
+					//*/
+					
+					int[] aux = new int[data.length];
+					int i = 0;
+					for (Object value : data)
+					{
+						if( value != null )
+						{
+							aux[ i ] = ((Integer)value).intValue();
+							i++;
+						}
+					}
+					
+					if( i > 0 )
+					{
+						if( i < data.length )
+						{
+							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
+						}
+						else
+						{
+							compressData = this.zip.zipData( aux );
+						}
 					}
 	
 					compressData = this.zip.zipData( aux );

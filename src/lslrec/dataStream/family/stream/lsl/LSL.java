@@ -209,6 +209,7 @@ public class LSL
          */
         public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen, boolean recover) throws IOException 
         {         	
+        	//System.out.println("LSL.StreamInlet.StreamInlet() max_buflen="+ max_buflen + ", max_chunklen=" + max_chunklen + ", recover="+recover +", info=" + info.toString() );
         	obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, ( recover ) ? 1 : 0);
         	
         	if(obj == null)

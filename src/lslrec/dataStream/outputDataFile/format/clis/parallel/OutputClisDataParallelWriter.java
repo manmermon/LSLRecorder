@@ -147,9 +147,12 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	{		
 		boolean available = false;
 				
-		if( !this.compressDataList.isEmpty() )
+		synchronized ( this.compressDataList )
 		{
-			available = this.compressDataList.firstKey() == this.nextNumSeqCompressedDataBlock;
+			if( !this.compressDataList.isEmpty() )
+			{
+				available = this.compressDataList.firstKey() == this.nextNumSeqCompressedDataBlock;
+			}
 		}
 				
 		return available;  
@@ -168,7 +171,10 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 		{	
 			this.clisWriter.saveCompressedData( ConvertTo.Casting.ByterArray2byteArray( block.getData() ), block.getName(), block.getDataType(), block.getNumCols() );
 			
-			this.compressDataList.remove( this.nextNumSeqCompressedDataBlock );
+			synchronized ( this.compressDataList )
+			{
+				this.compressDataList.remove( this.nextNumSeqCompressedDataBlock );
+			}
 			
 			this.nextNumSeqCompressedDataBlock++;
 			
@@ -211,9 +217,14 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	
 	@Override
 	public boolean isFinished() 
-	{	
+	{
+		/*
 		return this.zpThreadList.isEmpty() 
 				&& this.compressDataList.isEmpty();
+		*/
+		
+		return this.zpThreadList.size() < 1 
+				&& this.compressDataList.keySet().size() < 1 ;
 	}
 
 	@Override
@@ -238,7 +249,10 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 				this.ProcessDataBlock();
 			}
 			
-			this.compressDataList.clear();
+			synchronized ( this.compressDataList )
+			{
+				this.compressDataList.clear();
+			}
 			
 			//*
 			try
@@ -251,6 +265,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 			//*/
 		}
 		
+		//System.out.println("OutputClisDataParallelWriter.CloseWriterActions() " + metadata );
 		this.clisWriter.saveMetadata();
 		this.clisWriter.close();		
 	}

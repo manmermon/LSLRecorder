@@ -162,6 +162,7 @@ public class Language
 	public static final String WAIT = "WAIT";
 	public static final String WAITING = "WAITING";
 	public static final String LOG = "LOG";
+	public static final String APP_STATE_LOG = "APP_STATE_LOG";
 
 	public static final String CLEAR = "CLEAR";
 	public static final String INPUT_MSGS = "INPUT_MSGS";
@@ -361,6 +362,7 @@ public class Language
 		captions.put(WAIT, new Caption(WAIT, defaultLanguage, "Wait"));
 		captions.put(WAITING, new Caption(WAITING, defaultLanguage, "Waiting"));
 		captions.put(LOG, new Caption(LOG, defaultLanguage, "Log"));
+		captions.put(APP_STATE_LOG, new Caption(APP_STATE_LOG, defaultLanguage, "App-state log"));
 
 		captions.put(CLEAR, new Caption(CLEAR, defaultLanguage, "Clear"));
 		captions.put(INPUT_MSGS, new Caption(INPUT_MSGS, defaultLanguage, "Input messages"));

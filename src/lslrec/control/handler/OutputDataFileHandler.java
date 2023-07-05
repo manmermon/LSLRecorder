@@ -64,6 +64,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -109,6 +110,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private Timer checkOutWriterTimer = null;
 	
 	private Map< String, Integer > savingPercentage = new  HashMap< String, Integer >();
+	
+	private Semaphore taskDoneSem = new Semaphore( 1, true );
 	
 	//private boolean isSyncThreadActive = false;
 	
@@ -523,8 +526,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	 * @see Auxiliar.Tasks.ITaskMonitor#taskDone(Auxiliar.Tasks.INotificationTask)
 	 */
 	@Override
-	public synchronized void taskDone( INotificationTask task ) throws Exception
+	public void taskDone( INotificationTask task ) throws Exception
 	{
+		this.taskDoneSem.acquire();
+		
 		if (task != null)
 		{
 			List<EventInfo> events = task.getResult( true );
@@ -538,6 +543,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					super.notify();
 				}
 			}
+		}
+		
+		if( this.taskDoneSem.availablePermits() < 1 )
+		{
+			this.taskDoneSem.release();
 		}
 	}
 	
@@ -571,29 +581,42 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		//return this.NumberOfSavingThreads > 0;
 		//return this.NumberOfSavingThreads.get() > 0;
 		
-		boolean saving = !this.outWriterHandlers.isEmpty();
+		//*
+		boolean saving = false;
 		
-		if( saving )
+		synchronized ( this.outWriterHandlers ) 
 		{
-			List< String > terminatedwriter = new ArrayList<String>();
+			String[] iwh = this.outWriterHandlers.keySet().toArray( new String[0]);		
+			int nWH = iwh.length;
+			saving = ( nWH > 0 );
+			// Problem with this.outWriterHandlers.isEmpty() and  this.outWriterHandlers.size()  
 			
-			for( String id : this.outWriterHandlers.keySet() )
+			if( saving )
 			{
-				OutputBinaryFileSegmentation obs = this.outWriterHandlers.get( id );
-				
-				if( obs.getState().equals( State.TERMINATED ) )
+				List< String > terminatedwriter = new ArrayList<String>();
+							
+				for( String id : this.outWriterHandlers.keySet() )
 				{
-					terminatedwriter.add( id );
-				}				
+					OutputBinaryFileSegmentation obs = this.outWriterHandlers.get( id );
+					
+					if( obs.getState().equals( State.TERMINATED ) )
+					{
+						terminatedwriter.add( id );
+					}				
+				}
+				
+				for( String id : terminatedwriter )
+				{
+					this.outWriterHandlers.remove( id );
+				}
+				
+				iwh = this.outWriterHandlers.keySet().toArray( new String[0]);		
+				nWH = iwh.length;
+				saving = ( nWH > 0 );
 			}
-			
-			for( String id : terminatedwriter )
-			{
-				this.outWriterHandlers.remove( id );
-			}
-			
-			saving = !this.outWriterHandlers.isEmpty();
 		}
+		//*/
+		
 		
 		return saving;
 	}
@@ -637,15 +660,16 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			}
 		}
 		
-		boolean continued = true;
+		//boolean continued = true;
 		
 		do
 		{
 			final EventInfo event  = this._events.poll();
 			
-			continued = ( event != null );
+			//continued = ( event != null );
 			
-			if( continued )
+			//if( continued )
+			if( event != null )
 			{
 				if ( event.getEventType().equals( EventType.PROBLEM ) )
 				{
@@ -983,7 +1007,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				}
 			}
 		}
-		while( continued );
+		//while( continued );
+		while( !this._events.isEmpty() );
 	}	
 	
 	/*
@@ -1004,7 +1029,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		if( this.checkOutWriterTimer == null )
 		{
-			this.checkOutWriterTimer = new Timer( 10_000 , new ActionListener() // 10 s 
+			this.checkOutWriterTimer = new Timer( 5_000 , new ActionListener() // 5 s 
 			{	
 				@Override
 				public void actionPerformed(ActionEvent e) 
@@ -1040,7 +1065,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	private void CheckOutWriters()
 	{
-		if( !this.outWriterHandlers.isEmpty() )
+		if( this.outWriterHandlers.size() > 0 )
 		{
 			synchronized ( this.outWriterHandlers )
 			{
@@ -1054,7 +1079,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			}
 		}
 		
-		if( this.outWriterHandlers.isEmpty() && this.NumberOfSavingThreads.get() < 1 )
+		if( this.outWriterHandlers.size() < 1 && this.NumberOfSavingThreads.get() < 1 )
 		{
 			super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, "" )  );
 			this.checkOutWriterTimer.stop();

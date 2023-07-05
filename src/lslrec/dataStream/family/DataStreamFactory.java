@@ -136,8 +136,7 @@ public class DataStreamFactory
 					bds = new LSL.StreamInlet( (LSLStreamInfo)stream
 												, streamSetting.getStreamBufferLength()
 												, streamSetting.getChunkSize()
-												, streamSetting.recoverLostStream() );
-					
+												, streamSetting.recoverLostStream() );					
 					break;
 				}
 				case LSLREC:

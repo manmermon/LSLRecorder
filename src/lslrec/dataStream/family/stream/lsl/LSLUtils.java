@@ -87,7 +87,7 @@ public class LSLUtils
 	
 	public static StreamDataType getStringLengthDataType( )
 	{
-		return StreamDataType.double64;
+		return StreamDataType.int64;
 	}
 	
 	public static int numberOfRepeatedtNodoName( XMLElement child , String label )
