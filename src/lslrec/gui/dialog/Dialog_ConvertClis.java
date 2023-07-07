@@ -20,6 +20,8 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -36,6 +38,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -232,13 +235,13 @@ public class Dialog_ConvertClis extends JDialog
 		super.setBounds( 100, 100, 450, 300 );
 		
 		this.progressTaskBar = new Dialog_ProgressTask( this );
+		this.progressTaskBar.setTitle( this.getTitle() );
 		this.progressTaskBar.setVisible( false );
 		this.progressTaskBar.setResizable( false );
 		this.progressTaskBar.pack();
 		Dimension sptb = this.progressTaskBar.getSize();
 		sptb.width = ( super.getSize().width * 3 ) / 4; 
 		this.progressTaskBar.setSize( sptb );
-				
 		
 		super.getContentPane().setLayout( new BorderLayout() );
 		
@@ -308,7 +311,13 @@ public class Dialog_ConvertClis extends JDialog
 							checkEncryptKey();
 							
 							JTable t = getTableFileData();
-																	
+								
+							Timer actTimer = null;
+							
+							Thread thrExc = this;
+							
+							dcc.setEnabled( false );
+							
 							try
 							{													
 								String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
@@ -324,6 +333,7 @@ public class Dialog_ConvertClis extends JDialog
 										int nFiles = t.getRowCount();
 																										
 										progressTaskBar.setMaximum( nFiles );
+										progressTaskBar.setTitle( dcc.getTitle() + " " +idEncoder );
 																				
 										if( wm.getWarningType() == WarningMessage.WARNING_MESSAGE )
 										{
@@ -336,14 +346,67 @@ public class Dialog_ConvertClis extends JDialog
 										{
 											outExtFile = "." + idEncoder;
 										}								
-																	
+																				
 										for( int i = 0; i < nFiles; i++ )
 										{
 											String file = t.getValueAt( i, 0).toString();
 											
 											File ff = new File( file );
 											
-											updateProgress( ff.getName(), i );
+											if( actTimer != null )
+											{
+												actTimer.stop();
+											}
+											
+											final int ii = i;
+											actTimer =  new Timer( 1100, new ActionListener() 
+											{									
+												int c = 0;
+												
+												@Override
+												public void actionPerformed(ActionEvent e) 
+												{
+													if( thrExc.getState().equals( Thread.State.RUNNABLE ) )
+													{
+														c++;														
+														
+														switch( c )
+														{
+															case 1:
+															{
+																updateProgress( "/ " + ff.getName(), ii );
+																
+																break;
+															}
+															case 2:
+															{
+																updateProgress( "- " + ff.getName(), ii );
+																
+																break;
+															}
+															case 3:
+															{
+																updateProgress( "\\ " + ff.getName(), ii );
+																
+																break;
+															}
+															default:
+															{
+																updateProgress( "| " + ff.getName(), ii );
+																
+																break;
+															}
+														}
+													}
+													
+													c = c % 4;
+												}
+											});
+											
+											actTimer.setRepeats( true );
+											actTimer.start();
+											
+											updateProgress(  "| " + ff.getName(), i );
 																						
 											String outFile = file + outExtFile;
 											if( file.endsWith( ".clis" ) )
@@ -405,7 +468,7 @@ public class Dialog_ConvertClis extends JDialog
 											outFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames.toString() );
 											
 											IOutputDataFileWriter wr = enc.getWriter( outFormat, msst, itm );
-											
+																						
 											int iSeq = 0;
 											for( int iv = 0; iv < lmvb.size(); iv++ )
 											{												
@@ -477,9 +540,17 @@ public class Dialog_ConvertClis extends JDialog
 
 								ex.printStackTrace();
 							}
-							
+							finally 
+							{
+								if( actTimer != null )
+								{
+									actTimer.stop();
+								}
+								
+								dcc.setEnabled( false );
+							}
 							//JOptionPane.showMessageDialog( dcc, AppState.State.SAVED );
-							
+														
 							progressTaskBar.dispose();
 							
 							JOptionPane.showConfirmDialog( dcc
@@ -491,6 +562,8 @@ public class Dialog_ConvertClis extends JDialog
 							dcc.dispose();
 						};
 					};
+					
+					exc.setName( "exc-" + super.getClass().getCanonicalName() );
 					
 					exc.start();
 					

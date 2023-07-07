@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
 <jardesc>
     <jar path="LSLRecorder/plugins/pluginEncoder.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/LSLRecPlugin/EncoderPlugins.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
@@ -11,9 +11,9 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.encoder.hdf5"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.encoder.csv"/>
         <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.encoder.hdf5"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.encoder.matlab"/>
     </selectedElements>
 </jardesc>

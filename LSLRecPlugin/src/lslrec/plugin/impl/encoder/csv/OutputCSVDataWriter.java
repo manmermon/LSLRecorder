@@ -38,6 +38,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	private String currentVar = null;
 	private Charset charCode = Charset.forName( "UTF-8" );
 	
+	
 	private byte[] padding = null;
 	
 	public OutputCSVDataWriter( String file, ITaskMonitor monitor, OutputFileFormatParameters pars, IStreamSetting settings ) throws Exception 
@@ -90,12 +91,13 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 			headerSize = 2;
 		}
 		
-		this.padding = new byte[ (int)headerSize];
+		this.padding = new byte[ (int)headerSize + 1 ];
 
-		for( int i = 0; i < this.padding.length; i++ )
+		for( int i = 0; i < this.padding.length - 1; i++ )
 		{
 			this.padding[ i ] = ' ';
 		}
+		this.padding[ this.padding.length - 1 ] = '\n';
 		
 		this.FWriter.write( this.padding );
 	}
@@ -117,6 +119,12 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	@Override
 	public void close() throws Exception 
 	{
+		if( this.currentVar != null )
+		{
+			String var = "</" + this.currentVar + ">";
+			this.FWriter.write( var.getBytes() );
+		}
+		
 		this.FWriter.seek( 0 );
 		this.header = this.header.substring(0, this.header.length()-1 );
 		this.header += "\n\n";
@@ -150,16 +158,24 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 			if( this.currentVar == null )
 			{
 				this.currentVar = varName;
-				this.FWriter.write( this.currentVar.getBytes() );
+				
+				//this.FWriter.write( this.currentVar.getBytes() );
+				String var = "<" + this.currentVar + ">";
+				this.FWriter.write( var.getBytes() );
 				this.FWriter.write( this.EOL );
 			}
 			else if( !this.currentVar.equals( varName ))
 			{
-				this.currentVar = varName;
+				String var = "</" + this.currentVar + ">";
+				this.FWriter.write( var.getBytes() );
 				
+				this.currentVar = varName;				
 				this.FWriter.write( this.EOL );
 				this.FWriter.write( this.EOL );
-				this.FWriter.write( this.currentVar.getBytes()  );
+				
+				//this.FWriter.write( this.currentVar.getBytes()  );
+				var = "<" + this.currentVar + ">";				
+				this.FWriter.write( var.getBytes() );
 				this.FWriter.write( this.EOL );
 				
 				this.addCounter = 0;
