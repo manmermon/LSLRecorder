@@ -211,6 +211,8 @@ public class Panel_StreamingSettings extends JPanel
 	//Tuple
 	//private Tuple< String, String > currentSelectedDev;
 	//private LSLConfigParameters currentSelectedDev;
+	
+	private NoneSelectedButtonGroup plotGroup;
 
 	/**
 	 * Create the panel.
@@ -246,9 +248,14 @@ public class Panel_StreamingSettings extends JPanel
 	}
 
 	public void enableSettings( boolean enable )
-	{
-		this.getDisabledPanel( ).setEnabled( enable );
+	{		
+		if( this.plotGroup != null )
+		{
+			this.plotGroup.clearSelection();
+		}
 		
+		this.getDisabledPanel( ).setEnabled( enable );
+			
 		this.setEnablePluginSetting( enable );
 	}
 	
@@ -1165,7 +1172,7 @@ public class Panel_StreamingSettings extends JPanel
 			//
 			//
 			
-			NoneSelectedButtonGroup plotGroup = new NoneSelectedButtonGroup();
+			this.plotGroup = new NoneSelectedButtonGroup();
 			
 			for( int i = 0; i < this.deviceInfo.length; i++ )
 			{
@@ -1513,7 +1520,7 @@ public class Panel_StreamingSettings extends JPanel
 									}
 									
 									jtb.setSelected( true );
-									jtb.setBackground( Color.GREEN );
+									//jtb.setBackground( Color.GREEN );
 
 									final JPanel plotPanel = getPanelPlot();
 									plotPanel.removeAll();
@@ -1549,7 +1556,7 @@ public class Panel_StreamingSettings extends JPanel
 								}
 								else
 								{
-									jtb.setBackground( null );
+									//jtb.setBackground( null );
 
 									CoreControl.getInstance().disposeDataPlots();
 									
@@ -1564,7 +1571,7 @@ public class Panel_StreamingSettings extends JPanel
 					}
 				});
 				
-				/*
+				//*
 				plot.addItemListener( new ItemListener() 
 				{					
 					@Override
