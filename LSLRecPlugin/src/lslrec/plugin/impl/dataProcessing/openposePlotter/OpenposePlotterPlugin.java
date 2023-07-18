@@ -192,4 +192,8 @@ public class OpenposePlotterPlugin extends LSLRecConfigurablePluginAbstract impl
 		return disp;
 	}
 
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

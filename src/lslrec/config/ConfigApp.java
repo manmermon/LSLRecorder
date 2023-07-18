@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2023, 7 - 1, 07 );
+	public static final Calendar buildDate = new GregorianCalendar( 2023, 7 - 1, 13 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -355,8 +355,12 @@ public class ConfigApp
 		/*
 		 * Plugin setting format:
 		 * 
-		 * [<type,id,V>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...;<type,id>={<idParameter,value>,<idParameter,value>,..,<idParameter,value>}]
+		 * [<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...]
 		 * 
+		 * where:
+		 * 	1. If TRIAL: V = true/false (selected/no selected)
+		 *  2. If DATA_PROCESSING: V = stream.name@@@stream.source_id (Stream on which to apply it).
+		 *  3. Others: V is empty.
 		 */
 		String p = "[";
 		try
@@ -932,8 +936,12 @@ public class ConfigApp
 					/*
 					 * Format data:
 					 * 
-					 * [<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>;<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>;...;<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>}>]
+					 * [<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>};<type,id,V,{<idParameter,value>,<idParameter,value>,..,<idParameter,value>};...]
 					 * 
+					 * where:
+					 * 	1. If TRIAL: V = (true/false) (selected/no selected)
+					 *  2. If DATA_PROCESSING: V = stream.name@@@stream.source_id (Stream on which to apply it).
+					 *  3. Others: V is empty.
 					 */
 
 					value = value.replaceAll( ">\\s+;\\s+<", ">;<" );

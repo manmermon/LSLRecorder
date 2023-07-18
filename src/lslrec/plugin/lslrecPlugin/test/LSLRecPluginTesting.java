@@ -20,6 +20,7 @@
 package lslrec.plugin.lslrecPlugin.test;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 
@@ -29,12 +30,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 
+import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -46,8 +49,10 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
+import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
@@ -61,14 +66,20 @@ import lslrec.stoppableThread.IStoppableThread;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JTextArea;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseWheelEvent;
@@ -99,7 +110,7 @@ public class LSLRecPluginTesting
 	private AbstractStoppableThread thr = null;
 	
 	private JToggleButton btnStartTest = null;
-	
+		
 	private JFrame window = null;
 	
 	//private JFrame plgWin = null;
@@ -110,6 +121,62 @@ public class LSLRecPluginTesting
 	private int overlapCounter = 0;
 	
 	private StreamLibrary lib = StreamLibrary.LSL;
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					LSLRecPluginTesting test = new LSLRecPluginTesting( new LSLRecConfigurablePluginAbstract() {
+						
+						@Override
+						public int compareTo(ILSLRecPlugin o) {
+							// TODO Auto-generated method stub
+							return 0;
+						}
+						
+						@Override
+						public String getID() {
+							// TODO Auto-generated method stub
+							return "TEST";
+						}
+						
+						@Override
+						public PluginType getType() {
+							// TODO Auto-generated method stub
+							return PluginType.ENCODER;
+						}
+						
+						@Override
+						public WarningMessage checkSettings() {
+							// TODO Auto-generated method stub
+							return null;
+						}
+						
+						@Override
+						protected void setSettingPanel(JPanel panel) 
+						{	
+						}
+						
+						@Override
+						public List<Parameter<String>> getSettings() 
+						{
+							List< Parameter< String > > parlist = new ArrayList<Parameter<String>>();
+							parlist.add( new Parameter<String>( "prueba", "true") );
+							
+							super.loadSettings( parlist );
+							
+							return super.getSettings();
+						}
+					});
+					
+					test.startTest();
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 	
 	public LSLRecPluginTesting( ILSLRecPlugin plg )
 	{
@@ -224,6 +291,69 @@ public class LSLRecPluginTesting
 			comboBox.setSelectedItem( StreamDataType.float32 );
 						
 			panel_1.add(comboBox);
+			
+			JButton pluginOptions = new JButton();
+			pluginOptions.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK ).getScaledInstance( 16, 16, Image.SCALE_SMOOTH ) ) );
+			
+			pluginOptions.setEnabled( ( plugin instanceof ILSLRecConfigurablePlugin ) 
+										&& ( ((ILSLRecConfigurablePlugin)plugin).getSettings() != null )
+										&& ( !( ((ILSLRecConfigurablePlugin)plugin).getSettings().isEmpty() ) ) );
+			
+			pluginOptions.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					List< Parameter< String > > pars = ((ILSLRecConfigurablePlugin)plugin).getSettings();
+										
+					JDialog dial = new JDialog();
+					
+					JPanel pmain = new JPanel();
+					dial.setContentPane( pmain );
+					
+					pmain.setLayout( new BorderLayout() );
+				
+					JPanel p = new JPanel();
+					pmain.add( new JScrollPane( p ), BorderLayout.CENTER );
+					
+					p.setLayout( new BoxLayout( p, BoxLayout.Y_AXIS ) );
+										
+					for( Parameter< String > par : pars )
+					{
+						JPanel p2 = new JPanel();
+						p2.setLayout( new BoxLayout( p2, BoxLayout.X_AXIS ) );
+						
+						p2.add( new JLabel( par.getID() + " " ) );
+						
+						JTextField tx = new JTextField( par.getValue() );
+						tx.addFocusListener( new FocusListener() 
+						{						
+							@Override
+							public void focusLost(FocusEvent e) 
+							{
+								par.setValue( tx.getText() );
+							}
+							
+							@Override
+							public void focusGained(FocusEvent e) 
+							{	
+							}
+						});
+						p2.add( tx );
+						
+						p.add( p2 );
+					}
+					
+					dial.setSize( 200, 300);
+					dial.setLocationRelativeTo( window );
+					//dial.pack();
+					dial.setResizable( true );
+					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+					dial.setVisible( true );
+				}
+			});
+			
+			panel_1.add( pluginOptions );
 			
 			panel_1.add( new JLabel( "Channels:") );
 			JSpinner sp = new JSpinner( new SpinnerNumberModel( 1, 1, null, 1 ) );
@@ -680,7 +810,7 @@ public class LSLRecPluginTesting
 		Encoder encoder = plgEncoder.getEncoder();
 		OutputFileFormatParameters outFormat = new OutputFileFormatParameters();
 		
-		Tuple< String, Boolean > nameFile = FileUtils.checkOutputFileName( "./plugin.dat", "test" );
+		Tuple< String, Boolean > nameFile = FileUtils.checkOutputFileName( "./plugin.dat", "test", "" );
 		outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, nameFile.t1 );		
 		outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, encoder.getID() );		
 		outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, "" );

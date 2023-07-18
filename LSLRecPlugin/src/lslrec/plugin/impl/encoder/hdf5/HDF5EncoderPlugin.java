@@ -73,4 +73,8 @@ public class HDF5EncoderPlugin extends LSLRecPluginEncoder
 	{		
 	}
 
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

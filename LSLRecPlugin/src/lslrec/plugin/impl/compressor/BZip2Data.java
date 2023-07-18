@@ -119,4 +119,9 @@ public class BZip2Data extends LSLRecPluginCompressor
 	{
 		return new WarningMessage();
 	}
+
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

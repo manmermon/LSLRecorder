@@ -19,7 +19,6 @@
  */
 package lslrec.gui.panel.plugin.item;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -33,7 +32,6 @@ import java.awt.event.MouseWheelListener;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;

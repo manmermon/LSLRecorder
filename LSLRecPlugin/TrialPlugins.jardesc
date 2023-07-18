@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="WINDOWS-1252" standalone="no"?>
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
 <jardesc>
     <jar path="LSLRecorder/plugins/pluginTrials.jar"/>
     <options buildIfNeeded="true" compress="true" descriptionLocation="/LSLRecPlugin/TrialPlugins.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
@@ -11,10 +11,10 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.alarm"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.arithmetic"/>
         <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.memory"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.arithmetic"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.alarm"/>
     </selectedElements>
 </jardesc>

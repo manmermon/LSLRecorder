@@ -194,4 +194,9 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 		
 		return disp;
 	}
+
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

@@ -2275,7 +2275,10 @@ public class Panel_StreamingSettings extends JPanel
 								{
 									Parameter par = (Parameter)e.getSource();
 									
-									ConfigApp.setProperty( par.getID(), par.getValue() );
+									if( ConfigApp.getProperty( par.getID() ) != null )
+									{
+										ConfigApp.setProperty( par.getID(), par.getValue() );
+									}
 								}
 							});
 						}
@@ -2284,9 +2287,9 @@ public class Panel_StreamingSettings extends JPanel
 						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 						
 						dial.setLocationRelativeTo( winOwner );
-						dial.setResizable( false );
+						//dial.setResizable( false );
 						dial.setIconImage( winOwner.getIconImage() );
-						dial.setVisible( true );											
+						dial.setVisible( true );
 						dial.pack();
 					}
 				}

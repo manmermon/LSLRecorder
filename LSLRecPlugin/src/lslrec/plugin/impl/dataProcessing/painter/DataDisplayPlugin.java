@@ -220,4 +220,9 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 		return disp;
 	}
 
+
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

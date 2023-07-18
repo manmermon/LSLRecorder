@@ -167,4 +167,8 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 		return ds;
 	}
 
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

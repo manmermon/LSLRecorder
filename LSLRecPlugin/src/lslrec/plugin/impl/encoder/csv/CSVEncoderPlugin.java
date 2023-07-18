@@ -19,9 +19,15 @@
  */
 package lslrec.plugin.impl.encoder.csv;
 
+import java.util.List;
+
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import lslrec.auxiliar.WarningMessage;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
@@ -70,6 +76,117 @@ public class CSVEncoderPlugin extends LSLRecPluginEncoder
 
 	@Override
 	protected void setSettingPanel(JPanel arg0) 
-	{		
+	{
+	}
+	
+	@Override
+	public List<Parameter<String>> getSettings() 
+	{
+		ParameterList parlist = enc.getParameters();
+		
+		List< Parameter< String > > pars = super.getSettings();
+		
+		for( String parId : parlist.getParameterIDs() )
+		{
+			Parameter par = parlist.getParameter( parId );
+
+			Parameter< String > parCopy = new Parameter<String>( parId, par.getValue().toString() );
+			
+			parCopy.addValueChangeListener( new ChangeListener() 
+			{				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					
+					Object val = parCopy.getValue();
+					
+					if( par.getValue() instanceof Boolean )
+					{
+						par.setValue( Boolean.parseBoolean( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Double )
+					{
+						par.setValue( Double.parseDouble( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Float )
+					{
+						par.setValue( Float.parseFloat( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Long )
+					{
+						par.setValue( Long.parseLong( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Integer )
+					{
+						par.setValue( Integer.parseInt( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Short )
+					{
+						par.setValue( Short.parseShort( val.toString() ) );
+					}
+					else if( par.getValue() instanceof Byte )
+					{
+						par.setValue( Byte.parseByte( val.toString() ) );
+					}
+					else
+					{
+						par.setValue( val.toString() );
+					}
+				}
+			});
+			
+			super.pars.put( parId, parCopy );			
+		}
+		
+		return super.getSettings();
+	}
+	
+	@Override
+	protected void postLoadSettings() 
+	{
+		ParameterList parlist = enc.getParameters();
+		
+		for( Parameter< String > par : super.getSettings() )
+		{
+			Parameter pEnc = parlist.getParameter( par.getID() );
+			
+			if( pEnc != null )
+			{
+				Object val = pEnc.getValue();
+				String newValue = par.getValue();
+				
+				if( val instanceof Boolean )
+				{
+					pEnc.setValue( Boolean.parseBoolean( newValue ) );
+				}
+				else if( val instanceof Double )
+				{
+					pEnc.setValue( Double.parseDouble( newValue ) );
+				}
+				else if( val instanceof Float )
+				{
+					pEnc.setValue( Float.parseFloat( newValue ) );
+				}
+				else if( val instanceof Long )
+				{
+					pEnc.setValue( Long.parseLong( newValue ) );
+				}
+				else if( val instanceof Integer )
+				{
+					pEnc.setValue( Integer.parseInt( newValue ) );
+				}
+				else if(  val instanceof Short )
+				{
+					pEnc.setValue( Short.parseShort( newValue ) );
+				}
+				else if( val instanceof Byte )
+				{
+					pEnc.setValue( Byte.parseByte( newValue ) );
+				}
+				else
+				{
+					pEnc.setValue( newValue );
+				}
+			}
+		}
 	}
 }

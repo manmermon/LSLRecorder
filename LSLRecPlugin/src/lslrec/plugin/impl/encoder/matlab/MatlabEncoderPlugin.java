@@ -68,4 +68,9 @@ public class MatlabEncoderPlugin extends LSLRecPluginEncoder
 	protected void setSettingPanel( JPanel arg0 ) 
 	{	
 	}
+
+	@Override
+	protected void postLoadSettings() 
+	{	
+	}
 }

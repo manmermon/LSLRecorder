@@ -56,7 +56,9 @@ public abstract class LSLRecConfigurablePluginAbstract implements ILSLRecConfigu
 			for( Parameter< String > p : pars )
 			{
 				this.pars.put( p.getID(), p );
-			}			
+			}
+			
+			this.postLoadSettings( );
 		}
 	}
 	
@@ -79,4 +81,6 @@ public abstract class LSLRecConfigurablePluginAbstract implements ILSLRecConfigu
 	}
 	
 	protected abstract void setSettingPanel( JPanel panel );
+	
+	protected abstract void postLoadSettings( );
 }

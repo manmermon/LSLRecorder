@@ -334,6 +334,7 @@ public class Dialog_ConvertClis extends JDialog
 																										
 										progressTaskBar.setMaximum( nFiles );
 										progressTaskBar.setTitle( dcc.getTitle() + " " +idEncoder );
+										progressTaskBar.setVisible( true );
 																				
 										if( wm.getWarningType() == WarningMessage.WARNING_MESSAGE )
 										{
@@ -555,7 +556,7 @@ public class Dialog_ConvertClis extends JDialog
 							
 							JOptionPane.showConfirmDialog( dcc
 															, AppState.State.SAVED
-															, dcc.getTitle() 
+															, dcc.getTitle()
 															, JOptionPane.DEFAULT_OPTION
 															, JOptionPane.INFORMATION_MESSAGE, null );
 							
@@ -576,11 +577,11 @@ public class Dialog_ConvertClis extends JDialog
 	
 	private void updateProgress( String note, int v )
 	{
-		progressTaskBar.setVisible( false );
+		//progressTaskBar.setVisible( false );
 		progressTaskBar.setLocationRelativeTo( this );
 		progressTaskBar.setNote( note );
 		progressTaskBar.setProgress( v );
-		progressTaskBar.setVisible( true );
+		//progressTaskBar.setVisible( true );
 	}
 	
 	private JButton getBtnCancel() 
@@ -867,7 +868,7 @@ public class Dialog_ConvertClis extends JDialog
 						
 						dial.getContentPane().add( main );
 						
-						dial.setLocation( ref.getLocation() );					
+						dial.setLocationRelativeTo( ref );					
 						dial.pack();
 						
 						Dimension s = dial.getSize();
