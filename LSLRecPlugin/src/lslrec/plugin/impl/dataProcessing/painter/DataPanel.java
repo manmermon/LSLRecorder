@@ -4,6 +4,7 @@
 package lslrec.plugin.impl.dataProcessing.painter;
 
 import java.awt.Color;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -30,6 +31,8 @@ public class DataPanel extends JPanel
 	/**
 	 * 
 	 */
+	private static final long serialVersionUID = -4294929303882372536L;
+	
 	private BufferedImage bufferedImage;
 	private Graphics2D graphic = null;
 	
@@ -244,9 +247,16 @@ public class DataPanel extends JPanel
 	
 	private void drawVerticalBar( Color c, int index )
 	{
+		int x = (int)(  this.width * index / this.xLen );
 		this.graphic.setColor( c );
-		this.graphic.drawLine( (int)(  this.width * index / this.xLen ), 0
-								,(int)(  this.width * index/ this.xLen ), this.height );
+		this.graphic.drawLine( x, 0, x , this.height );
+		
+		FontMetrics fm = super.getFontMetrics( super.getFont() );
+		String vMax = String.format( "%.2f", this.minY + this.ySpan );
+		String vMin = String.format( "%.2f", this.minY );
+
+		this.graphic.drawString( vMax, 5, fm.getHeight() );			 
+		this.graphic.drawString( vMin, 5, this.height - 5 );		
 	}
 	
 	private void clearDrawData( Color c, double x, int w )

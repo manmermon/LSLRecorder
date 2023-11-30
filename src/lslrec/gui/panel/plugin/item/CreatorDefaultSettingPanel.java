@@ -75,39 +75,41 @@ public class CreatorDefaultSettingPanel
 			int c = 0;
 			for( SettingOptions opt : opts )
 			{
-				GridBagConstraints gbc = new GridBagConstraints();
-				gbc.gridx = ( c % cols );
-				gbc.gridy =  c / cols;
-				gbc.weightx = 0.5;
-				gbc.anchor = GridBagConstraints.EAST;
-				gbc.fill = GridBagConstraints.BOTH;
-				gbc.insets = new Insets( 0, 0, 0, 0 );
-				
-				Parameter par = parameters.getParameter( opt.getIDReferenceParameter() );
-				
-				Component comp = getSettingPanel( opt, par );
-				
-				if( comp != null )
-				{					
-					JPanel p = new JPanel( );
-					GridLayout bl = new GridLayout( 0, 1);
-					p.setLayout( bl );
-					//p.setAlignmentX( Component.CENTER_ALIGNMENT );
-					
-					String title = par.getDescriptorText();
-					
-					if( !( comp instanceof JToggleButton ) )
-					{
-						p.add( new JLabel( " " + title ) );
-					}
-					
-					p.add( comp );
-					p.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) 
-										, BorderFactory.createLineBorder( Color.GRAY ) ) );
+				if( opt != null )
+				{
+					GridBagConstraints gbc = new GridBagConstraints();
+					gbc.gridx = ( c % cols );
+					gbc.gridy =  c / cols;
+					gbc.weightx = 0.5;
+					gbc.anchor = GridBagConstraints.EAST;
+					gbc.fill = GridBagConstraints.BOTH;
+					gbc.insets = new Insets( 0, 0, 0, 0 );
 
-					panel.add( p, gbc );
+					Parameter par = parameters.getParameter( opt.getIDReferenceParameter() );
+
+					Component comp = getSettingPanel( opt, par );
+
+					if( comp != null )
+					{					
+						JPanel p = new JPanel( );
+						GridLayout bl = new GridLayout( 0, 1);
+						p.setLayout( bl );
+						//p.setAlignmentX( Component.CENTER_ALIGNMENT );
+
+						String title = par.getDescriptorText();
+
+						if( !( comp instanceof JToggleButton ) )
+						{
+							p.add( new JLabel( " " + title ) );
+						}
+
+						p.add( comp );
+						p.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) 
+								, BorderFactory.createLineBorder( Color.GRAY ) ) );
+
+						panel.add( p, gbc );
+					}
 				}
-				
 				c++;
 			}
 		}

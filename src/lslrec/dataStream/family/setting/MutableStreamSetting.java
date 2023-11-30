@@ -49,6 +49,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	private String description = null;
 	
 	private int recordingCheckerTime = 3;
+	private boolean enableCheckerTimer = true;
 	
 	/**
 	 * 
@@ -75,6 +76,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		this.selected = this.str.isSelected();
 		this.syncStream = this.str.isSynchronationStream();
 		this.interleaved = this.str.isInterleavedData();
+		this.enableCheckerTimer = this.str.isEnableRecordingCheckerTimer();
 	}
 	
 	@Override
@@ -306,6 +308,18 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		return this.recordingCheckerTime;
 	}
 
+	@Override
+	public void enableRecordingCheckerTimer(boolean check) 
+	{
+		this.enableCheckerTimer = check;
+	}
+	
+	@Override
+	public boolean isEnableRecordingCheckerTimer() 
+	{
+		return this.enableCheckerTimer;
+	}
+	
 	@Override
 	public void destroy() 
 	{		

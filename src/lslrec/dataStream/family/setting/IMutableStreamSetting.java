@@ -78,4 +78,6 @@ public interface IMutableStreamSetting extends IStreamSetting
 	 * @param t: t seconds if sampling rate is irregular or t * ( 1 / sampling_rate). 
 	 */
 	public void setRecordingCheckerTimer( int t );
+	
+	public void enableRecordingCheckerTimer( boolean check );	
 }

@@ -57,114 +57,107 @@ import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
-public class mainLSLRecorder
-{
+public class mainLSLRecorder {
 	/*
 	 * @param args
 	 */
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) {
 		String OS = System.getProperty("os.name").toLowerCase();
-		
-		String p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_WIN_PATH;
-		
-		if( Platform.getOSType() == Platform.LINUX )
+
+		String p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_WIN_PATH;
+
+		if (Platform.getOSType() == Platform.LINUX) 
 		{
-			p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_LINUX_PATH;
+			p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_LINUX_PATH;
 		}
-		else if( Platform.getOSType() == Platform.MAC )
+		else if (Platform.getOSType() == Platform.MAC) 
 		{
-			p = System.getProperty( "user.dir" ) + "/" + ConfigApp.SYSTEM_LIB_MACOS_PATH;
+			p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_MACOS_PATH;
 		}
-		
+
 		try 
 		{
-			addLibraryPath( p );
-		} 
+			addLibraryPath(p);
+		}
 		catch (Exception e) 
 		{
-			showError( e, false );
+			showError(e, false);
 		}
-		
+
 		try 
 		{
-			if( OS.indexOf("nix") < 0 
-				&& OS.indexOf("nux") < 0 
-				&& OS.indexOf("aix") < 0 )
+			if (OS.indexOf("nix") < 0
+					&& OS.indexOf("nux") < 0
+					&& OS.indexOf("aix") < 0) 
 			{
-				UIManager.setLookAndFeel( UIManager.getSystemLookAndFeelClassName() );
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			}
 			else
 			{
-				UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			}
-		} 
+		}
 		catch (Exception e) 
 		{
 			try 
 			{
 				// Set cross-platform Java L&F (also called "Metal")
-				UIManager.setLookAndFeel( UIManager.getCrossPlatformLookAndFeelClassName() );
+				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
 			}
-			catch ( Exception e1) 
-			{
-			}
+			catch (Exception e1) {			}
 		}
-		
-		try
+
+		try 
 		{
 			Language.loadLanguages();
 			Language.setDefaultLocalLanguage();
-			
 
-			boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().
-	    			getInputArguments().toString().indexOf("jdwp") >= 0;
-			
-	    	ConfigApp.setTesting( isDebug );
-	    	ConfigApp.setProperty( ConfigApp.DEL_BINARY_FILES, !isDebug );
-			
-			//ExceptionDialog.createExceptionDialog( null );
-						
+			boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
+					.indexOf("jdwp") >= 0;
+
+			ConfigApp.setTesting(isDebug);
+			ConfigApp.setProperty(ConfigApp.DEL_BINARY_FILES, !isDebug);
+
+			// ExceptionDialog.createExceptionDialog( null );
+
 			createApplication();
-			
+
 			// load configuration
 			try
 			{
-				if( args.length > 1 )
+				if (args.length > 1) 
 				{
-					if( args[0].equals( "-c" ) )
+					if (args[0].equals("-c")) 
 					{
-						GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
-						
-						ConfigApp.loadConfig( new File( args[ 1 ] ) );
-						
-						//appUI.getInstance().checkConfig();
+						GuiManager.getInstance().getAppUI().getGlassPane().setVisible(true);
+
+						ConfigApp.loadConfig(new File(args[1]));
+
+						// appUI.getInstance().checkConfig();
 					}
 				}
-			}
-			catch( Throwable e)
+			} 
+			catch (Throwable e) 
 			{
 				new Thread() 
 				{
-					public void run() 
-					{					
-						showError( e, false );
+					public void run()
+					{
+						showError(e, false);
 					};
 				}.start();
-			}
-			finally
+			} 
+			finally 
 			{
 				GuiManager.loadConfigValues2GuiComponents();
-				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
+				GuiManager.getInstance().getAppUI().getGlassPane().setVisible(false);
 			}
-		}
-		catch (Throwable e2)
+		} 
+		catch (Throwable e2) 
 		{
-			showError( e2, true );
-		}
-		finally
-		{			
-		}		
+			showError(e2, true);
+		} 
+		finally {		}
 	}
 
 	private static void addLibraryPath(String pathToAdd) throws Exception 
@@ -172,9 +165,10 @@ public class mainLSLRecorder
 		Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
 		String[] paths = (String[]) usrPathsField.get(null);
-		for (String path : paths)
+		
+		for (String path : paths) 
 		{
-			if (path.equals(pathToAdd))
+			if (path.equals(pathToAdd)) 
 			{
 				return;
 			}
@@ -186,153 +180,153 @@ public class mainLSLRecorder
 	}
 
 	public static void createApplication() throws Throwable
-	{	
+	{
 		// Opening dialog
 		Dialog_Opening open = showOpeningDialog();
-		
-		// 
+
+		//
 		// Load plugins
 		//
 
-		//if( false )
+		// if( false )
 		boolean plgOK = true;
-		
-		try
+
+		try 
 		{
 			registerPlugins();
 		}
-		catch( Exception | Error e )
+		catch (Exception | Error e) 
 		{
 			plgOK = false;
-			showError( e, false );
-			e.printStackTrace( );
+			showError(e, false);
+			e.printStackTrace();
 		}
-				
+
 		// Load GUI
-		ExceptionDialog.createExceptionDialog( createAppGUI() );
-		
-		if( plgOK )
+		ExceptionDialog.createExceptionDialog(createAppGUI());
+
+		if (plgOK)
 		{
-			try
+			try 
 			{
 				GuiManager.getInstance().LoadPluginSetting();
 			}
-			catch( Exception e)
+			catch (Exception e) 
 			{
 				new Thread() 
 				{
 					public void run() 
-					{					
-						showError( e, false );
+					{
+						showError(e, false);
 					};
 				}.start();
 			}
 		}
-		
+
 		open.dispose();
-		
+
 		// Load Controllers
 		createAppCoreControl();
 	}
-	
-	private static void registerPlugins() throws Exception
+
+	private static void registerPlugins() throws Exception 
 	{
-		String javaVersion = System.getProperty("java.version");    	
-    	
+		String javaVersion = System.getProperty("java.version");
+
 		IPluginLoader loader = null;
-		
-    	if( javaVersion.startsWith( "1.") )
-    	{    	
-			loader = PluginLoader.getInstance();		
-    	}
-    	else
-    	{
-    		loader = PluginLoaderJava9.getInstance();    		
-    	}
-    	
-    	if( loader != null )
-    	{
-			List< ILSLRecPlugin > plugins = loader.getPlugins();
-			
-			for( ILSLRecPlugin plg : plugins )
+
+		if (javaVersion.startsWith("1.")) 
+		{
+			loader = PluginLoader.getInstance();
+		}
+		else
+		{
+			loader = PluginLoaderJava9.getInstance();
+		}
+
+		if (loader != null) 
+		{
+			List<ILSLRecPlugin> plugins = loader.getPlugins();
+
+			for (ILSLRecPlugin plg : plugins) 
 			{
-				if( plg instanceof LSLRecPluginEncoder )
+				if (plg instanceof LSLRecPluginEncoder) 
 				{
-					DataFileFormat.addEncoder( (LSLRecPluginEncoder)plg );
+					DataFileFormat.addEncoder((LSLRecPluginEncoder) plg);
 				}
-				else if( plg instanceof LSLRecPluginCompressor )
+				else if (plg instanceof LSLRecPluginCompressor) 
 				{
-					CompressorDataFactory.addCompressor( (LSLRecPluginCompressor)plg );
+					CompressorDataFactory.addCompressor((LSLRecPluginCompressor) plg);
 				}
 			}
-    	}
+		}
 	}
-	
-	private static void createAppCoreControl()
+
+	private static void createAppCoreControl() 
 	{
-		try
+		try 
 		{
 			CoreControl ctrl = CoreControl.getInstance();
 			ctrl.start();
 		}
-		catch (Exception e)
+		catch (Exception e) 
 		{
-			showError( e, true );
+			showError(e, true);
 		}
 	}
 
-	private static Dialog_Opening showOpeningDialog()
+	private static Dialog_Opening showOpeningDialog() 
 	{
-		Dimension openDim = new Dimension( 500, 200 );
-		Dialog_Opening openDialog = new Dialog_Opening( openDim 
-												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
-												, ConfigApp.shortNameApp
-												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
-												, Color.WHITE );
-		openDialog.setVisible( true );
-		openDialog.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
-		
-		openDialog.setLocationRelativeTo( null ); //setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 - openDim.height / 2 );		
-		
+		Dimension openDim = new Dimension(500, 200);
+		Dialog_Opening openDialog = new Dialog_Opening(openDim, GeneralAppIcon.getIconoAplicacion(128, 128).getImage(),
+													ConfigApp.shortNameApp,
+													"<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>",
+													Color.WHITE);
+		openDialog.setVisible(true);
+		openDialog.setDefaultCloseOperation(Dialog_Opening.DISPOSE_ON_CLOSE);
+
+		openDialog.setLocationRelativeTo(null); // setLocation( dm.width / 2 - openDim.width / 2, dm.height / 2 -
+												// openDim.height / 2 );
+
 		return openDialog;
 	}
-	
-	private static AppUI createAppGUI() throws Exception
-	{	
+
+	private static AppUI createAppGUI() throws Exception 
+	{
 		Toolkit t = Toolkit.getDefaultToolkit();
 		Dimension dm = t.getScreenSize();
-	
+
 		AppUI ui = AppUI.getInstance();
-		
-		Insets pad = t.getScreenInsets( ui.getGraphicsConfiguration() );
-		
+
+		Insets pad = t.getScreenInsets(ui.getGraphicsConfiguration());
+
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
-		
+
 		String mode = "";
-		
-		if( ConfigApp.isTesting() )
+
+		if (ConfigApp.isTesting()) 
 		{
 			mode = " - execute test";
 		}
-		
-		ui.setTitle(  ConfigApp.fullNameApp + mode );
-		
+
+		ui.setTitle(ConfigApp.fullNameApp + mode);
+
 		ui.setBackground(SystemColor.info);
 
 		dm.width = (dm.width / 2 - (pad.left + pad.right));
 		dm.height = (dm.height / 2 - (pad.top + pad.bottom));
 
-		if( dm.width < 650 )
+		if (dm.width < 650) 
 		{
 			dm.width = 650;
 		}
-		
-		if( dm.height < 650 )
+
+		if (dm.height < 650) 
 		{
 			dm.height = 650;
 		}
-		
-		ui.setSize( dm );
+
+		ui.setSize(dm);
 
 		ui.toFront();
 		Dimension d = new Dimension(dm);
@@ -340,22 +334,23 @@ public class mainLSLRecorder
 
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gd.getDefaultConfiguration());
-		ui.setLocation( insets.left + 1, insets.top + 1 );
+		ui.setLocation(insets.left + 1, insets.top + 1);
 
 		ui.setVisible(true);
-						
+
 		return ui;
 	}
-	
-	private static void showError( Throwable e, final boolean fatalError )
+
+	private static void showError(Throwable e, final boolean fatalError) 
 	{
-		if( fatalError )
+		if (fatalError) 
 		{
 			ExceptionDialog.AppExitWhenWindowClosing();
 		}
-		
-		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionDictionary.ERROR_MESSAGE );
-		
-		ExceptionDialog.showMessageDialog( msg, true, true );
+
+		ExceptionMessage msg = new ExceptionMessage(e, Language.getLocalCaption(Language.DIALOG_ERROR),
+														ExceptionDictionary.ERROR_MESSAGE);
+
+		ExceptionDialog.showMessageDialog(msg, true, true);
 	}
 }

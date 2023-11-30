@@ -220,7 +220,10 @@ public class ExceptionDialog
 							}
 						}
 						
-						dialog.setLocationRelativeTo( dialog.getOwner() );
+						if( !dialog.isVisible() )
+						{							
+							dialog.setLocationRelativeTo( dialog.getOwner() );
+						}
 							
 						boolean show = false;
 						
@@ -251,7 +254,10 @@ public class ExceptionDialog
 		{
 			if( dialog != null )
 			{
-				dialog.setLocationRelativeTo( dialog.getOwner() );
+				if( !dialog.isVisible() )
+				{
+					dialog.setLocationRelativeTo( dialog.getOwner() );
+				}
 				dialog.setVisible( true );
 				dialog.toFront();
 			}

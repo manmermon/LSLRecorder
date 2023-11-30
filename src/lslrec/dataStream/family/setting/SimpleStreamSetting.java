@@ -68,6 +68,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	private double createdAt;
 	
 	protected int recordingCheckerTimer = 3;
+	protected boolean enableCheckerTimer = true;
 		
 	/**
 	 * 
@@ -80,6 +81,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param chunkSize
 	 * @param samplingRate
 	 * @param recordingCheckerTimer
+	 * @param enableCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 * @param extraInfo
@@ -93,6 +95,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int chunkSize
 								, double samplingRate
 								, int recordingCheckerTimer
+								, boolean enableCheckerTimer
 								, String sourceID
 								, String uid
 								, Map< String, String > extraInfo								  
@@ -129,6 +132,7 @@ public class SimpleStreamSetting implements IStreamSetting
 		this.samplint_rate = samplingRate;
 
 		this.recordingCheckerTimer = recordingCheckerTimer;
+		this.enableCheckerTimer = enableCheckerTimer;
 		
 		this.sourceID = sourceID;
 		this.uid = uid;
@@ -170,6 +174,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param chunkSize
 	 * @param samplingRate
 	 * @param recordingCheckerTimer
+	 * @param enableCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 */
@@ -180,12 +185,13 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int chunkSize
 								, double samplingRate
 								, int recordingCheckerTimer
+								, boolean enableCheckerTimer
 								, String sourceID
 								, String uid								  
 								)
 	{
 		
-		this( libType, name, dataType, numChs, chunkSize, samplingRate, recordingCheckerTimer, sourceID, uid, null );
+		this( libType, name, dataType, numChs, chunkSize, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID, uid, null );
 	}
 	
 	/**
@@ -197,6 +203,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param chunkSize
 	 * @param samplingRate
 	 * @param recordingCheckerTimer
+	 * @param enableCheckerTimer
 	 * @param sourceID
 	 * @param uid
 	 * @param extraInfo
@@ -208,6 +215,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, int chunkSize
 								, double samplingRate
 								, int recordingCheckerTimer
+								, boolean enableCheckerTimer
 								, String sourceID
 								, String uid
 								, Map< String, String > extraInfo
@@ -217,7 +225,7 @@ public class SimpleStreamSetting implements IStreamSetting
 		
 		this( libType, name, dataType
 				, StreamDataType.double64, StreamDataType.int64
-				, numChs, chunkSize, samplingRate, recordingCheckerTimer, sourceID, uid, extraInfo );
+				, numChs, chunkSize, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID, uid, extraInfo );
 	}
 	
 	@Override
@@ -417,6 +425,12 @@ public class SimpleStreamSetting implements IStreamSetting
 		return this.recordingCheckerTimer;
 	}
 
+	@Override
+	public boolean isEnableRecordingCheckerTimer() 
+	{
+		return this.enableCheckerTimer;
+	}
+	
 	@Override
 	public void destroy() 
 	{	

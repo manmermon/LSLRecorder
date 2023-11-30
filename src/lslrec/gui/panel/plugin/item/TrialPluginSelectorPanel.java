@@ -339,7 +339,7 @@ public class TrialPluginSelectorPanel extends JPanel
 									lsrecStream = new SimpleStreamSetting( StreamLibrary.LSLREC
 																			, trial.getID()
 																			, StreamDataType.string
-																			, 1, 1, 0D, 3
+																			, 1, 1, 0D, 3, true
 																			, trial.getID() 
 																			, trial.getID() );
 									

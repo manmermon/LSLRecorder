@@ -208,6 +208,15 @@ public interface IStreamSetting
 	public abstract boolean isSynchronationStream();
 	
 	/**
+	 * 
+	 * @return recording checking timer. Default true
+	 */
+	public default boolean isEnableRecordingCheckerTimer()
+	{
+		return true;
+	}
+	
+	/**
 	 * @return data type of timestamp
 	 */
 	public abstract StreamDataType getTimestampDataType();

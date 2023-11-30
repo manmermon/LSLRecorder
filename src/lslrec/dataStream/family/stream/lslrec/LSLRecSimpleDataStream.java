@@ -56,6 +56,7 @@ public class LSLRecSimpleDataStream implements IDataStream
 															, chunkSize
 															, samplingRate
 															, 3
+															, true
 															, name + "-" + System.nanoTime()
 															, name + "-" + System.nanoTime()
 															, new HashMap< String, String >()

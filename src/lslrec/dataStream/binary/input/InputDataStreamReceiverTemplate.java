@@ -347,7 +347,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			
 			//this.timer.startThread();					
 		}
-		else if( !this.streamSetting.isSynchronationStream() )
+		else if( !this.streamSetting.isSynchronationStream() && this.streamSetting.isEnableRecordingCheckerTimer() )
 		{
 			int time = recordingCheckerTimer * 1000;
 			String msg = "No data received " + String.format(Locale.getDefault(), "%d", time/1000 ) + "s from " + streamSetting.name() + " (irregular sampling rate).";

@@ -16,46 +16,33 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class dataSyncFileToClisFormat {
 
-	public static void main(String[] args) 
-	{
+	public static void main(String[] args) {
 		String filePath = "G:/data.clis.sync";
-		
-		try
-		{
+
+		try {
 			OutputFileFormatParameters par = DataFileFormat.getDefaultOutputFileFormatParameters();
-			par.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, filePath );
-			
-			
-			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL
-																, "LSLSync"
-																, StreamDataType.int32
-																//, StreamDataType.double64
-																//, StreamDataType.int64
-																, 1
-																, 1
-																, 0
-																, ""
-																, ""
-																, null
-																//, 1
-																);
-			
-			BinaryFileStreamSetting binSet = new BinaryFileStreamSetting( sss, new File( filePath ) );
-			TemporalBinData dat = new TemporalBinData( binSet, par );
-					
+			par.setParameter(OutputFileFormatParameters.OUT_FILE_NAME, filePath);
 
-			BinaryFileStreamSetting redSet = new BinaryFileStreamSetting( sss, new File( filePath ) );
-			SyncMarkerBinFileReader reader = new SyncMarkerBinFileReader( redSet, StreamBinaryHeader.HEADER_END, false );
+			SimpleStreamSetting sss = new SimpleStreamSetting(StreamLibrary.LSL, "LSLSync", StreamDataType.int32
+			// , StreamDataType.double64
+			// , StreamDataType.int64
+					, 1, 1, 0, 3, true, "", "", null
+			// , 1
+			);
 
-			OutputBinaryFileSegmentation saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
+			BinaryFileStreamSetting binSet = new BinaryFileStreamSetting(sss, new File(filePath));
+			TemporalBinData dat = new TemporalBinData(binSet, par);
+
+			BinaryFileStreamSetting redSet = new BinaryFileStreamSetting(sss, new File(filePath));
+			SyncMarkerBinFileReader reader = new SyncMarkerBinFileReader(redSet, StreamBinaryHeader.HEADER_END, false);
+
+			OutputBinaryFileSegmentation saveOutFileThread = new OutputBinaryFileSegmentation(dat, reader);
 			saveOutFileThread.startThread();
-			
+
 			saveOutFileThread.join();
-			
+
 			System.out.println("dataSyncFileToClisFormat.main() END");
-		}
-		catch (Exception e) 
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

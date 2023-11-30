@@ -117,6 +117,7 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.NoneSelectedButtonGroup;
@@ -127,6 +128,7 @@ import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
+import lslrec.config.SettingOptions.Type;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -138,6 +140,7 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 
 public class Panel_StreamingSettings extends JPanel
@@ -1432,7 +1435,45 @@ public class Panel_StreamingSettings extends JPanel
 						}
 						
 	
-						String txInfo = JOptionPane.showInputDialog( deviceName + " (" + uid + ").\n" + Language.getLocalCaption( Language.SETTING_LSL_EXTRA_TOOLTIP ) + ":", textInfo );
+						List< SettingOptions > opts = new ArrayList< SettingOptions >();
+						SettingOptions opt = new SettingOptions( StreamExtraLabels.ID_EXTRA_INFO_LABEL, SettingOptions.Type.STRING, false, null,  StreamExtraLabels.ID_EXTRA_INFO_LABEL );
+						opt.addValue( textInfo );
+						opts.add( opt );
+						
+						ParameterList parlist = new ParameterList();
+						Parameter< String > extra = new Parameter<String>( StreamExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
+						extra.setLangID( Language.SETTING_LSL_EXTRA_TOOLTIP );
+						parlist.addParameter( extra );
+						
+						if( dev.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
+						{	
+							opts.add( null );
+							
+							opt = new SettingOptions( Language.SETTING_RECORDING_CHECKER_TIMER, SettingOptions.Type.BOOLEAN, false, null,  Language.SETTING_RECORDING_CHECKER_TIMER );
+							opt.addValue( "true" );
+							opts.add( opt );
+														
+							Parameter< Boolean > check = new Parameter<Boolean>( Language.SETTING_RECORDING_CHECKER_TIMER, dev.isEnableRecordingCheckerTimer() );
+							check.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
+							parlist.addParameter( check );
+						}
+						
+						Dialog_AdvancedOptions dialogOpts = new Dialog_AdvancedOptions(opts, parlist );
+						dialogOpts.setTitle( deviceName + " (" + uid + ")" );
+						dialogOpts.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
+						dialogOpts.pack();
+						Dimension size = dialogOpts.getSize();
+						FontMetrics fm = dialogOpts.getFontMetrics( dialogOpts.getFont() );
+						size.width = fm.stringWidth( dialogOpts.getTitle() ) + 60;
+						dialogOpts.setSize( size );
+						dialogOpts.setVisible(true);
+						
+						
+						
+						//String txInfo = JOptionPane.showInputDialog( deviceName + " (" + uid + ").\n" + Language.getLocalCaption( Language.SETTING_LSL_EXTRA_TOOLTIP ) + ":", textInfo );
+						
+						String txInfo = parlist.getParameter(StreamExtraLabels.ID_EXTRA_INFO_LABEL ).getValue().toString();
+						
 						if( txInfo != null )
 						{
 							textInfo = txInfo;
@@ -1440,6 +1481,13 @@ public class Panel_StreamingSettings extends JPanel
 	
 						dev.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
 	
+						
+						Parameter< Boolean > par = parlist.getParameter( Language.SETTING_RECORDING_CHECKER_TIMER );
+						if( par != null )
+						{
+							dev.enableRecordingCheckerTimer( par.getValue() );
+						}
+						
 						/*
 						info.desc().remove_child( dev.getExtraInfoLabel() );
 						info.desc().append_child_value( dev.getExtraInfoLabel(), textInfo );
@@ -2287,9 +2335,9 @@ public class Panel_StreamingSettings extends JPanel
 						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 						
 						dial.setLocationRelativeTo( winOwner );
-						//dial.setResizable( false );
+						dial.setResizable( false );
 						dial.setIconImage( winOwner.getIconImage() );
-						dial.setVisible( true );
+						dial.setVisible( true );											
 						dial.pack();
 					}
 				}

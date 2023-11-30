@@ -52,3 +52,4 @@ ImportClisData/Python/testClis.py
 ImportClisData/Python/__pycache__/ClisData.cpython-310.pyc
 ImportClisData/Python/__pycache__/ClisData.cpython-37.pyc
 *.cfg
+binaries/.LSLRecPluginInterface.jar.~492b

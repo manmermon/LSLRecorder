@@ -96,6 +96,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
 																	, 3
+																	, false
 																	, ""
 																	, ""
 																	//, ""
@@ -255,6 +256,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, 1
 																	, SimpleStreamSetting.IRREGULAR_RATE
 																	, 3
+																	, false
 																	, ""
 																	, ""
 																	//, ""

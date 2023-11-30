@@ -20,8 +20,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -318,9 +316,10 @@ public class Dialog_ConvertClis extends JDialog
 							
 							dcc.setEnabled( false );
 							
+							String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
+							
 							try
-							{													
-								String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
+							{	
 								Tuple< Encoder, WarningMessage > tEnc = DataFileFormat.getDataFileEncoder( idEncoder );
 								
 								Encoder enc = tEnc.t1;
@@ -460,6 +459,7 @@ public class Dialog_ConvertClis extends JDialog
 																								, 1
 																								, 0
 																								, 3
+																								, true
 																								, ""
 																								, ""
 																								, null );
@@ -556,7 +556,7 @@ public class Dialog_ConvertClis extends JDialog
 							
 							JOptionPane.showConfirmDialog( dcc
 															, AppState.State.SAVED
-															, dcc.getTitle()
+															, dcc.getTitle() + " " + idEncoder
 															, JOptionPane.DEFAULT_OPTION
 															, JOptionPane.INFORMATION_MESSAGE, null );
 							
@@ -812,6 +812,7 @@ public class Dialog_ConvertClis extends JDialog
 					Object format = getComboBoxOutputFormat().getSelectedItem();
 					if( format != null )
 					{
+						/*
 						JDialog dial = new JDialog( ref );
 						
 						dial.setModal( true );
@@ -884,6 +885,21 @@ public class Dialog_ConvertClis extends JDialog
 						dial.setSize( s );
 						
 						dial.setVisible( true );
+						//*/
+						
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Encoder enc = tenc.t1;
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						
+						ParameterList pars = enc.getParameters();
+						
+						Dialog_AdvancedOptions dial = new Dialog_AdvancedOptions( opts, pars );
+						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+						
+						dial.setLocationRelativeTo( ref );
+						dial.setResizable( false );
+						dial.setVisible( true );											
+						dial.pack();
 					}
 				}
 			});

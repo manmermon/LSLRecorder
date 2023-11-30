@@ -49,6 +49,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	private boolean isSyncStream = false;
 	
 	private int recordingCheckerTimer;
+	private boolean enableCheckerTimer = true;
 		
     /**
      * Construct a new stream_info this.object.
@@ -357,6 +358,12 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	public void setRecordingCheckerTimer( int t ) 
 	{
 		this.recordingCheckerTimer = t;
+	}
+	
+	@Override
+	public void enableRecordingCheckerTimer(boolean check) 
+	{
+		this.enableCheckerTimer = check;
 	}
 }
 
