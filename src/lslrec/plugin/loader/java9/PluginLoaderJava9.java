@@ -139,6 +139,7 @@ public class PluginLoaderJava9 implements IPluginLoader
     	}
     	catch (Exception e) 
     	{
+    		e.printStackTrace();
     		exs.add( e );
 		}        
     	

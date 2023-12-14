@@ -36,7 +36,6 @@ import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.stream.IDataStream;
-import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
@@ -317,59 +316,62 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		int recordingCheckerTimer = this.streamSetting.getRecordingCheckerTimer();
 		
-		if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
+		if(  recordingCheckerTimer > 0 )
 		{
-			this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
-			
-			//this.timer = new Timer();
-						
-			int time = (int)( recordingCheckerTimer * 1000.0D / samplingRate) ;
-			if ( time < 30 )
+			if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
 			{
-				time = 30; // 0.03 seconds
-			}
-						
-			if( time > 0 )
-			{
-				this.timer = new Timer( time, new ActionListener() 
-					{				
-						@Override
-						public void actionPerformed(ActionEvent e) 
-						{
-							timeOver();
-						}
-				});
-			}
-			
-			//this.timer.setTimerValue( time );
-			//this.timer.setName( this.getClass() + "-Timer");
-			//this.timer.setTimerMonitor( this );
-			
-			//this.timer.startThread();					
-		}
-		else if( !this.streamSetting.isSynchronationStream() && this.streamSetting.isEnableRecordingCheckerTimer() )
-		{
-			int time = recordingCheckerTimer * 1000;
-			String msg = "No data received " + String.format(Locale.getDefault(), "%d", time/1000 ) + "s from " + streamSetting.name() + " (irregular sampling rate).";
-			
-			this.timer = new Timer( time, new ActionListener() 
-			{				
-				@Override
-				public void actionPerformed(ActionEvent e) 
+				this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
+				
+				//this.timer = new Timer();
+							
+				int time = (int)( recordingCheckerTimer * 1000.0D / samplingRate) ;
+				if ( time < 3000 )
 				{
-					if( notifTask != null )
-					{	
-						EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
-						
-						notifTask.addEvent( event );
-						
-						synchronized ( notifTask )
-						{
-							notifTask.notify();
+					time = 3000; // 3000 milliseconds
+				}
+							
+				if( time > 0 )
+				{
+					this.timer = new Timer( time, new ActionListener() 
+						{				
+							@Override
+							public void actionPerformed(ActionEvent e) 
+							{
+								timeOver();
+							}
+					});
+				}
+				
+				//this.timer.setTimerValue( time );
+				//this.timer.setName( this.getClass() + "-Timer");
+				//this.timer.setTimerMonitor( this );
+				
+				//this.timer.startThread();					
+			}
+			else if( !this.streamSetting.isSynchronationStream() && this.streamSetting.isEnableRecordingCheckerTimer() )
+			{
+				int time = recordingCheckerTimer * 1000; // seconds
+				String msg = "No data received " + String.format(Locale.getDefault(), "%d", time/1000 ) + "s from " + streamSetting.name() + " (irregular sampling rate).";
+				
+				this.timer = new Timer( time, new ActionListener() 
+				{				
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{
+						if( notifTask != null )
+						{	
+							EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
+							
+							notifTask.addEvent( event );
+							
+							synchronized ( notifTask )
+							{
+								notifTask.notify();
+							}
 						}
 					}
-				}
-			});
+				});
+			}
 		}
 		
 		//this.timeCorrection = this.inLet.time_correction();
