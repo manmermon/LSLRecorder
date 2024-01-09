@@ -22,6 +22,7 @@
 
 package lslrec.control.handler;
 
+import lslrec.auxiliar.thread.BeepSound;
 import lslrec.auxiliar.thread.DeadlockDetector;
 import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.config.ConfigApp;
@@ -151,6 +152,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private Object lock = new Object();
 	
+	private BeepSound beep = new BeepSound();
+	
 	/**
 	 * Create main control unit.
 	 * 
@@ -161,6 +164,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		this.setName( this.getClass().getSimpleName() );
 		
 		this.createControlUnits();
+		
+		this.beep.startThread();
 	}
 
 	/**
@@ -1049,8 +1054,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		this.managerGUI.setAppState( AppState.State.RUN, 0, false );
 		
+		this.beep.play();
+		
 		this.isRecording = true;
-				
+		
 		this.ctrlOutputFile.toWorkSubordinates( new Tuple< String, OutputFileFormatParameters >( OutputDataFileHandler.ACTION_START_RECORD 
 																								,  null) );
 		
@@ -2263,6 +2270,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				managerGUI.setAppState( AppState.State.STOPPING, 0, false );
 				//managerGUI.enablePlayButton( false );
 
+				beep.play();
+				
 				notifiedEventHandler.interruptProcess();
 				notifiedEventHandler.clearEvent();
 
