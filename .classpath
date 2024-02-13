@@ -9,5 +9,6 @@
 	<classpathentry kind="lib" path="lib/commons-compress-1.19.jar"/>
 	<classpathentry kind="lib" path="lib/icmp4j_all_mod.jar"/>
 	<classpathentry kind="lib" path="lib/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="lib/flatlaf-3.3.jar"/>	
 	<classpathentry kind="output" path="bin"/>
 </classpath>

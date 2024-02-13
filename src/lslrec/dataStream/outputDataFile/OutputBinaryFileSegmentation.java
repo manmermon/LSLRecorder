@@ -253,7 +253,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			{
 				for( String id : addInfo.keySet() )
 				{
-					lslXML = StreamUtils.addElementToXmlStreamDescription( lslXML, rootNode, id, addInfo.get( id ) );
+					lslXML = StreamUtils.addElementToXmlStreamDescription( lslXML, rootNode, id, addInfo.get( id ) );					
 				}
 			}
 			
@@ -294,6 +294,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					, StreamExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
 					, "" + ( this.totalSampleByChannels / ( nChannel + 1 ) ) ); // nChannel + 1: channels + marker column ;
 
+			lslXML = lslXML.replaceAll( "(?m)^[ \t]*\r?\n","" ); // Remove lines just containing blanks and tabs 
+			
 			this.writer.addMetadata( info + lslName, lslXML ); // output file header
 			
 			// Save time stamps			

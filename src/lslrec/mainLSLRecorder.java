@@ -29,8 +29,7 @@ import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_Opening;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.IPluginLoader;
-import lslrec.plugin.loader.java8.PluginLoader;
-import lslrec.plugin.loader.java9.PluginLoaderJava9;
+import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
@@ -50,6 +49,7 @@ import java.util.List;
 
 import javax.swing.UIManager;
 
+import com.formdev.flatlaf.FlatLightLaf;
 import com.sun.jna.Platform;
 
 import lslrec.config.language.Language;
@@ -61,7 +61,8 @@ public class mainLSLRecorder {
 	/*
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void main( String[] args ) 
+	{		
 		String OS = System.getProperty("os.name").toLowerCase();
 
 		String p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_WIN_PATH;
@@ -86,15 +87,30 @@ public class mainLSLRecorder {
 
 		try 
 		{
-			if (OS.indexOf("nix") < 0
-					&& OS.indexOf("nux") < 0
-					&& OS.indexOf("aix") < 0) 
+			boolean LFload = true;
+			
+			try 
 			{
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			    UIManager.setLookAndFeel( new FlatLightLaf() );
+			} 
+			catch( Exception ex ) 
+			{
+				LFload = false;
+			    System.err.println( "Failed to initialize LaF" );
 			}
-			else
+			
+			if( !LFload )
 			{
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+				if (OS.indexOf("nix") < 0
+						&& OS.indexOf("nux") < 0
+						&& OS.indexOf("aix") < 0) 
+				{
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				}
+				else
+				{
+					UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+				}
 			}
 		}
 		catch (Exception e) 
@@ -113,7 +129,7 @@ public class mainLSLRecorder {
 			Language.setDefaultLocalLanguage();
 
 			boolean isDebug = java.lang.management.ManagementFactory.getRuntimeMXBean().getInputArguments().toString()
-					.indexOf("jdwp") >= 0;
+									.indexOf("jdwp") >= 0;
 
 			ConfigApp.setTesting(isDebug);
 			ConfigApp.setProperty(ConfigApp.DEL_BINARY_FILES, !isDebug);
@@ -205,7 +221,7 @@ public class mainLSLRecorder {
 		// Load GUI
 		ExceptionDialog.createExceptionDialog(createAppGUI());
 
-		if (plgOK)
+		if ( plgOK )
 		{
 			try 
 			{
@@ -237,13 +253,15 @@ public class mainLSLRecorder {
 
 		if (javaVersion.startsWith("1.")) 
 		{
-			loader = PluginLoader.getInstance();
+			//loader = PluginLoader.getInstance();
 		}
 		else
 		{
-			loader = PluginLoaderJava9.getInstance();
+			//loader = PluginLoaderJava9.getInstance();
 		}
 
+		loader = PluginLoader.getInstance();
+		
 		if (loader != null) 
 		{
 			List<ILSLRecPlugin> plugins = loader.getPlugins();
@@ -280,7 +298,9 @@ public class mainLSLRecorder {
 		Dimension openDim = new Dimension(500, 200);
 		Dialog_Opening openDialog = new Dialog_Opening(openDim, GeneralAppIcon.getIconoAplicacion(128, 128).getImage(),
 													ConfigApp.shortNameApp,
-													"<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>",
+													"<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1>"
+															+ (ConfigApp.isTesting() ? "<br><h5>Debug mode on</h5>" : "" )															
+															+ "</center></html>",
 													Color.WHITE);
 		openDialog.setVisible(true);
 		openDialog.setDefaultCloseOperation(Dialog_Opening.DISPOSE_ON_CLOSE);
@@ -306,7 +326,7 @@ public class mainLSLRecorder {
 
 		if (ConfigApp.isTesting()) 
 		{
-			mode = " - execute test";
+			mode = " - debug mode";
 		}
 
 		ui.setTitle(ConfigApp.fullNameApp + mode);

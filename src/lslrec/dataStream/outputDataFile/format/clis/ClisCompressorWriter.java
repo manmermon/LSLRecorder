@@ -25,6 +25,7 @@ import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.crypto.Cipher;
@@ -163,8 +164,16 @@ public class ClisCompressorWriter
 		return encryptData;
 	}
 	
-	public void saveMetadata() throws Exception
+	/**
+	 * 
+	 * @return integer:  >=0: OK; 
+	 * 					  <0: truncate metadata.  
+	 * @throws Exception
+	 */
+	public int saveMetadata() throws Exception
 	{
+		int ok = 0;
+		
 		if( this.fStream != null )
 		{
 			this.metadata.addMetadataProtocolInfo(  this.currentVarName
@@ -181,6 +190,14 @@ public class ClisCompressorWriter
 			*/
 			//System.out.println("ClisCompressorWriter.saveMetadata() " + this.toString() );
 			byte[] bytes = this.metadata.getMetaDataProtocol();
+			long padLen = this.metadata.getPadding().length * this.metadata.getHeaderSize();
+						
+			if( padLen < bytes.length )
+			{
+				ok = -1;
+				
+				bytes = Arrays.copyOf( bytes, (int)padLen );
+			}
 	
 			this.fStream.seek( 0 );
 			this.fStream.write( bytes );
@@ -195,6 +212,8 @@ public class ClisCompressorWriter
 			}
 			*/
 		}
+		
+		return ok;
 	}
 	
 	public void close() throws Exception

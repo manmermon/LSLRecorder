@@ -67,6 +67,7 @@ public class Language
 	public static final String MENU_WRITE_TEST = "MENU_WRITE_TEST";
 	public static final String MENU_LIBRARY = "MENU_LIBRARY";
 	public static final String MENU_ADVANCED = "MENU_ADVANCED";
+	public static final String MENU_THEME = "MENU_THEME";
 	
 	public static final String LOAD_TEXT = "LOAD_TEXT";
 	
@@ -239,6 +240,7 @@ public class Language
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
 		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (s)" ) );
 		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );
+		captions.put( MENU_THEME, new Caption( MENU_THEME,  defaultLanguage, "Theme" ) );
 		
 		captions.put(DEL_BINARY_FILES, new Caption(DEL_BINARY_FILES, defaultLanguage, "Delete binary files"));
 		captions.put( FULLSCREEN, new Caption(FULLSCREEN, defaultLanguage, "fullscreen"));

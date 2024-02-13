@@ -24,8 +24,15 @@ package lslrec.gui;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -45,6 +52,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
@@ -87,7 +95,7 @@ import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.gui.panel.primary.Panel_StreamingSettings;
-import lslrec.plugin.loader.java8.PluginLoader;
+import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
@@ -239,6 +247,18 @@ public class GuiManager
 		diag.setSize( 550, 450 );
 		
 		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
+		
+		diag.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowOpened(WindowEvent e) 
+			{
+				JDialog dial = (JDialog)e.getSource();
+				GuiManager.getInstance().adjustDialog2Screen( dial );
+			}
+		});
+		
+		diag.setLocationRelativeTo( AppUI.getInstance() );
 		
 		diag.setVisible( true );
 				
@@ -868,6 +888,7 @@ public class GuiManager
 	
 	public void LoadPluginSetting( ) throws Exception 
 	{
+		//List< ILSLRecPlugin > ps = PluginLoader.getInstance().getPlugins();
 		List< ILSLRecPlugin > ps = PluginLoader.getInstance().getPlugins();
 		
 		if( ps != null && !ps.isEmpty() )
@@ -908,4 +929,24 @@ public class GuiManager
 		
 		return del;
 	}
+	
+	public void adjustDialog2Screen( JDialog dialog )
+	{
+		if( dialog != null )
+		{
+			Dimension scrnSize = Toolkit.getDefaultToolkit().getScreenSize();
+			Rectangle winSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+	
+			int taskBarHeight = scrnSize.height - winSize.height;
+			int taskBarWidth = scrnSize.width - winSize.width;
+			
+			Point loc = dialog.getLocationOnScreen();
+			
+			loc.y = ( loc.y < taskBarHeight ) ? taskBarHeight : loc.y;			
+			loc.x = ( loc.x < taskBarWidth ) ? taskBarWidth : loc.x;
+			
+			dialog.setLocation( loc );
+		}
+	}
+	
 }

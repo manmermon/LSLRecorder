@@ -239,7 +239,7 @@ public class StreamUtils
  
         return writer.getBuffer().toString(); 
 	}
-
+	
 	public static String getDeepXmlStreamDescription( IStreamSetting streamsetting )
 	{
 		String xml = "";

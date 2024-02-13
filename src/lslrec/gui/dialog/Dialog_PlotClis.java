@@ -555,10 +555,11 @@ public class Dialog_PlotClis extends JDialog
 			
 			Font f = spinnerChannel.getFont();
 			FontMetrics fm = spinnerChannel.getFontMetrics( f );
-			int w = fm.stringWidth( StringUtils.repeat( "9", 5 ) );
+			int w = fm.stringWidth( StringUtils.repeat( "9", 5 ) )*2;
 			
 			Dimension d = new Dimension( w, fm.getHeight() + 5 );
 			spinnerChannel.setPreferredSize( d );
+			spinnerChannel.setSize( d );
 			
 			spinnerChannel.addMouseWheelListener( new MouseWheelListener() 
 			{				
@@ -609,6 +610,7 @@ public class Dialog_PlotClis extends JDialog
 		}
 		return lblStep;
 	}
+	
 	private JSpinner getSpinnerStep() {
 		if (spinnerStep == null) {
 			spinnerStep = new JSpinner();
@@ -617,7 +619,7 @@ public class Dialog_PlotClis extends JDialog
 			
 			Font f = spinnerStep.getFont();
 			FontMetrics fm = spinnerStep.getFontMetrics( f );
-			int w = fm.stringWidth( StringUtils.repeat( "9", 9 ) );
+			int w = fm.stringWidth( StringUtils.repeat( "9", 12 ) );
 			
 			Dimension d = new Dimension( w, fm.getHeight() + 5 );
 			spinnerStep.setPreferredSize( d );
@@ -881,6 +883,8 @@ public class Dialog_PlotClis extends JDialog
 		SpinnerNumberModel spnm = (SpinnerNumberModel)getSpinnerChannel().getModel();
 		spnm.setMaximum( null );
 		spnm.setValue( 1 );
+		
+		this.getCanva().setIcon( null );
 	}
 	
 	private void drawDataPlot( int init, int end )

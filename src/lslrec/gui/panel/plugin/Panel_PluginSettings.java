@@ -33,7 +33,7 @@ import lslrec.config.language.Language;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.panel.plugin.item.DataProcessingPluginSelectorPanel;
 import lslrec.gui.panel.plugin.item.TrialPluginSelectorPanel;
-import lslrec.plugin.loader.java8.PluginLoader;
+import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
@@ -108,10 +108,11 @@ public class Panel_PluginSettings extends JPanel
 	{
 		JTabbedPane plugingTabPanel = this.getTabbedPanel();
 		
-		PluginLoader loader;
+		lslrec.plugin.loader.PluginLoader loader;
 		try 
 		{
-			loader = PluginLoader.getInstance();
+			//loader = PluginLoader.getInstance();
+			loader = lslrec.plugin.loader.PluginLoader.getInstance();
 		
 			for( PluginType pluginType : PluginType.values() )
 			{	

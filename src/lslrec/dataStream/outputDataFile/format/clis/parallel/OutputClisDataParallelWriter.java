@@ -20,6 +20,7 @@
 
 package lslrec.dataStream.outputDataFile.format.clis.parallel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.SettingOptions;
+import lslrec.config.language.Language;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -38,6 +40,9 @@ import lslrec.dataStream.outputDataFile.format.clis.ClisCompressorWriter;
 import lslrec.dataStream.outputDataFile.format.clis.ClisMetadata;
 import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableFileWriterTemplate;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
+import lslrec.exceptions.handler.ExceptionDialog;
+import lslrec.exceptions.handler.ExceptionDictionary;
+import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputClisDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread
@@ -266,8 +271,17 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 		}
 		
 		//System.out.println("OutputClisDataParallelWriter.CloseWriterActions() " + metadata );
-		this.clisWriter.saveMetadata();
-		this.clisWriter.close();		
+		boolean ok = ( this.clisWriter.saveMetadata() >= 0 );
+		this.clisWriter.close();
+		
+		if( !ok )
+		{
+			ExceptionMessage msg = new ExceptionMessage( new IOException( "Metadata truncate in " + this.clisWriter.getFileName() )
+														, Language.getLocalCaption( Language.DIALOG_ERROR )
+														, ExceptionDictionary.WARNING_MESSAGE );
+			
+			ExceptionDialog.showMessageDialog( msg,	true, true );
+		}
 	}
 
 	@Override

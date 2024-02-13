@@ -111,8 +111,11 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.AttributeSet;
@@ -123,6 +126,14 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+
+import com.formdev.flatlaf.FlatDarculaLaf;
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatIntelliJLaf;
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 
 public class AppUI extends JFrame
 {
@@ -175,6 +186,7 @@ public class AppUI extends JFrame
 	private JMenu jLangMenu = null;
 	private JMenu menuPreference = null;
 	private JMenu menuClis = null;
+	private JMenu jThemeMenu = null;
 	//private JMenu menuLibrary = null;
 	
 	// menuItem	
@@ -210,8 +222,17 @@ public class AppUI extends JFrame
 	private JCheckBox checkAutoScroll;
 	private JCheckBox checkAutoScrollAppStateLog;
 
+	private boolean LFFlatlaf = false;
+	
 	private AppUI() 
 	{
+		LookAndFeel lf = UIManager.getLookAndFeel();
+		
+		if( lf instanceof FlatLaf )
+		{
+			this.LFFlatlaf = true;
+		}
+		
 		initialize();
 	}
 
@@ -238,9 +259,21 @@ public class AppUI extends JFrame
 		super.getGlassPane().setVisible( false );
 		
 		GuiTextManager.addComponent( GuiTextManager.TEXT, Language.GENERAL_WAIT_MSG, glass );
-
-		super.setJMenuBar( getJJMenuBar() );
-		super.setContentPane( getJContentPane() );
+		
+		super.setJMenuBar( this.getJJMenuBar() );		
+		super.setContentPane( this.getJContentPane() );
+		
+		JPanel appStatePanel = this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height );
+		if( !this.LFFlatlaf )
+		{
+			this.jJMenuBar.add( appStatePanel );
+		}
+		else
+		{
+			this.getJContentPane().add( appStatePanel, BorderLayout.SOUTH );
+		}
+		
+		this.setBackgroundContainer( this.jJMenuBar, Color.LIGHT_GRAY.brighter() );
 
 		super.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
 
@@ -971,9 +1004,8 @@ public class AppUI extends JFrame
 			this.jJMenuBar.add( this.getFileMenu() );
 			//this.jJMenuBar.add( this.getStreamLibraryMenu() );
 			//this.jJMenuBar.add( this.getLangMenu() );
-			this.jJMenuBar.add( this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height ) );
-
-			this.setBackgroundContainer( this.jJMenuBar,Color.LIGHT_GRAY.brighter() );
+		
+			//this.setBackgroundContainer( this.jJMenuBar, Color.LIGHT_GRAY.brighter() );
 		}
 		return this.jJMenuBar;
 	}
@@ -1094,6 +1126,81 @@ public class AppUI extends JFrame
 		return this.jLangMenu;
 	}
 
+	
+	private JMenu getThemeMenu()
+	{
+		if( this.jThemeMenu == null )
+		{
+			this.jThemeMenu = new JMenu( Language.getLocalCaption( Language.MENU_THEME ) );
+
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_THEME, this.jThemeMenu );
+			
+			ButtonGroup menuGr = new ButtonGroup();
+			
+			List< LookAndFeelInfo > lfs = new ArrayList<UIManager.LookAndFeelInfo>();
+			
+			try
+			{
+				lfs.add( new LookAndFeelInfo( "FlatLaf Light", FlatLightLaf.class.getName() ) );
+				lfs.add( new LookAndFeelInfo( "FlatLaf Dark", FlatDarkLaf.class.getName() ) );
+				lfs.add( new LookAndFeelInfo( "FlatLaf Darcula", FlatDarculaLaf.class.getName() ) );
+				lfs.add( new LookAndFeelInfo( "FlatLaf IntelliJ", FlatIntelliJLaf.class.getName() ) );				
+				lfs.add( new LookAndFeelInfo( "FlatLaf macOS Light", FlatMacLightLaf.class.getName() ) );
+				lfs.add( new LookAndFeelInfo( "FlatLaf macOS Dark", FlatMacDarkLaf.class.getName() ) );
+			}
+			catch (Exception e) 
+			{
+			}
+			
+			LookAndFeelInfo[] installedLFs = UIManager.getInstalledLookAndFeels();
+			if( installedLFs != null )
+			{
+				for( LookAndFeelInfo lfi : installedLFs )
+				{
+					lfs.add( lfi );
+				}
+			}
+			
+			LookAndFeel currentLF = UIManager.getLookAndFeel();
+
+			for( LookAndFeelInfo lf : lfs )
+			{
+				String LFinfo = lf.getName();
+				JRadioButtonMenuItem lfMenu = new JRadioButtonMenuItem( LFinfo );
+
+				lfMenu.addActionListener( new ActionListener() 
+				{	
+					@Override
+					public void actionPerformed(ActionEvent e) 
+					{	
+						try
+						{
+							String idLF = lf.getClassName();
+							UIManager.setLookAndFeel( idLF );
+							SwingUtilities.updateComponentTreeUI( AppUI.getInstance() );
+							AppUI.getInstance().pack();
+						}
+						catch (Exception ex) 
+						{
+							ex.printStackTrace();
+						}
+					}
+				});
+
+				if( currentLF != null && lfMenu.getText().toLowerCase().equals( currentLF.getName().toLowerCase() ) )
+				{
+					lfMenu.setSelected( true );
+				}
+
+				menuGr.add( lfMenu );
+
+				this.jThemeMenu.add( lfMenu );
+			}
+		}
+
+		return this.jThemeMenu;
+	}
+	
 	private JMenuItem getAdvanceOptionMenu()
 	{
 		if( this.menuAdvanceOpt == null )
@@ -1409,6 +1516,7 @@ public class AppUI extends JFrame
 			
 			MenuScroller menuScr = new MenuScroller( this.getLangMenu(), 5 );
 			this.menuPreference.add( this.getLangMenu() );
+			this.menuPreference.add( this.getThemeMenu() );
 			this.menuPreference.add( this.getAdvanceOptionMenu() );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_PREFERENCE, this.menuPreference );	
@@ -1452,7 +1560,17 @@ public class AppUI extends JFrame
 					plotClis.setTitle( m.getText() );
 					plotClis.setModal( true );
 					plotClis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
-										
+					
+					plotClis.addWindowListener( new WindowAdapter()
+					{
+						@Override
+						public void windowOpened(WindowEvent e) 
+						{
+							JDialog dial = (JDialog)e.getSource();
+							GuiManager.getInstance().adjustDialog2Screen( dial );
+						}
+					});
+					
 					plotClis.setVisible( true );
 				}
 			});
@@ -1489,7 +1607,7 @@ public class AppUI extends JFrame
 	{
 		if( this.jPanelAppState == null )
 		{
-			this.jPanelAppState = new JPanel( new FlowLayout( FlowLayout.RIGHT, 1, 0 ) );
+			this.jPanelAppState = new JPanel( new FlowLayout( FlowLayout.RIGHT, 2, 2 ) );
 
 			JLabel lbstate = new JLabel( Language.getLocalCaption( Language.INFO_STATE_LABEL ) );
 			JLabel lbTime = new JLabel( Language.getLocalCaption( Language.INFO_SESSION_TIME_LABEL ) ); 
@@ -1521,6 +1639,10 @@ public class AppUI extends JFrame
 				c.setPreferredSize( d );
 				c.setSize( d );
 			}
+			
+			Dimension d = this.jPanelAppState.getPreferredSize();
+			d.height = maxHeight;
+			this.jPanelAppState.setPreferredSize( d );
 		}
 
 		return this.jPanelAppState;
