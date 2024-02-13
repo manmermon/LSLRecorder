@@ -221,18 +221,9 @@ public class AppUI extends JFrame
 	private JCheckBox checkActiveSpecialInputMsg;
 	private JCheckBox checkAutoScroll;
 	private JCheckBox checkAutoScrollAppStateLog;
-
-	private boolean LFFlatlaf = false;
 	
 	private AppUI() 
-	{
-		LookAndFeel lf = UIManager.getLookAndFeel();
-		
-		if( lf instanceof FlatLaf )
-		{
-			this.LFFlatlaf = true;
-		}
-		
+	{		
 		initialize();
 	}
 
@@ -262,18 +253,6 @@ public class AppUI extends JFrame
 		
 		super.setJMenuBar( this.getJJMenuBar() );		
 		super.setContentPane( this.getJContentPane() );
-		
-		JPanel appStatePanel = this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height );
-		if( !this.LFFlatlaf )
-		{
-			this.jJMenuBar.add( appStatePanel );
-		}
-		else
-		{
-			this.getJContentPane().add( appStatePanel, BorderLayout.SOUTH );
-		}
-		
-		this.setBackgroundContainer( this.jJMenuBar, Color.LIGHT_GRAY.brighter() );
 
 		super.setDefaultCloseOperation( JFrame.DO_NOTHING_ON_CLOSE );
 
@@ -388,6 +367,7 @@ public class AppUI extends JFrame
 
 			this.jContentPane.add( this.getJScrollPanelActCtr(), BorderLayout.NORTH );
 			this.jContentPane.add( this.getJPanelOper(),  BorderLayout.CENTER );
+			this.jContentPane.add(this.getAppStatePanel( this.getJJMenuBar().getPreferredSize().height ), BorderLayout.SOUTH );
 		}
 
 		return this.jContentPane;
@@ -1004,8 +984,9 @@ public class AppUI extends JFrame
 			this.jJMenuBar.add( this.getFileMenu() );
 			//this.jJMenuBar.add( this.getStreamLibraryMenu() );
 			//this.jJMenuBar.add( this.getLangMenu() );
+			//this.jJMenuBar.add( this.getAppStatePanel( this.jJMenuBar.getPreferredSize().height ) );
 		
-			//this.setBackgroundContainer( this.jJMenuBar, Color.LIGHT_GRAY.brighter() );
+			this.setBackgroundContainer( this.jJMenuBar, Color.LIGHT_GRAY.brighter() );
 		}
 		return this.jJMenuBar;
 	}
