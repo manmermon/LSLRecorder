@@ -130,7 +130,6 @@ import javax.swing.text.StyledDocument;
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
-import com.formdev.flatlaf.FlatLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
@@ -148,25 +147,25 @@ public class AppUI extends JFrame
 	private JPanel jPanelSelectSyncMethod;
 	//private JPanel jPanelMenus;		
 	private JTabbedPane jTabPanelInMsg;
-	private JPanel jPanelAppStateLog;
+	//private JPanel jPanelAppStateLog;
 	
 	// Button
 	private JButton jButtonClearLog;
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
 	private JButton jBtnSyncMet;
-	private JButton jButtonClearAppStateLog;
+	//private JButton jButtonClearAppStateLog;
 		
 	private JToggleButton jButtomPlayStop = null;
 
 	// ScrollPanel
 	private JScrollPane scrollPaneInputMessage;
 	private JScrollPane scrollPanelCtrl;
-	private JScrollPane scrollPaneAppStateLog;
+	//private JScrollPane scrollPaneAppStateLog;
 
 	// TextPanel
 	private JTextPane logTextArea;
-	private JTextPane appStateLogTextArea;
+	//private JTextPane appStateLogTextArea;
 
 	// JPopMenu
 	private JPopupMenu popupMenu_2;	
@@ -220,7 +219,7 @@ public class AppUI extends JFrame
 	// CheckBox
 	private JCheckBox checkActiveSpecialInputMsg;
 	private JCheckBox checkAutoScroll;
-	private JCheckBox checkAutoScrollAppStateLog;
+	//private JCheckBox checkAutoScrollAppStateLog;
 	
 	private AppUI() 
 	{		
@@ -2180,11 +2179,12 @@ public class AppUI extends JFrame
 		{
 			this.jPanelInputMsgLog = new JPanel( new BorderLayout() );
 			//this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
+			this.jPanelInputMsgLog.setBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5) );
 			
 			this.jPanelInputMsgLog.add( this.getScrollPaneLog(), BorderLayout.CENTER );
 
 			JPanel p = new JPanel( new BorderLayout() ); 
-
+			p.setBorder( BorderFactory.createEmptyBorder( 2, 5, 2, 2));
 			p.add( this.getCheckAutoScroll(), BorderLayout.EAST );
 			p.add( this.getJButtonClearLog(), BorderLayout.CENTER );
 
@@ -2196,6 +2196,7 @@ public class AppUI extends JFrame
 		return this.jPanelInputMsgLog;
 	}
 	
+	/*
 	private JPanel getAppStateLogPanel()
 	{
 		if( this.jPanelAppStateLog == null )
@@ -2217,6 +2218,7 @@ public class AppUI extends JFrame
 
 		return this.jPanelAppStateLog;
 	}
+	//*/
 
 	private JButton getJButtonClearLog()
 	{
@@ -2238,6 +2240,7 @@ public class AppUI extends JFrame
 		return jButtonClearLog;
 	}
 	
+	/*
 	private JButton getJButtonClearAppStateLog()
 	{
 		if( jButtonClearAppStateLog == null )
@@ -2257,7 +2260,8 @@ public class AppUI extends JFrame
 
 		return jButtonClearAppStateLog;
 	}
-
+	//*/
+	/*
 	private JScrollPane getScrollPaneAppStateLog() 
 	{
 		if ( this.scrollPaneAppStateLog == null) 
@@ -2267,6 +2271,7 @@ public class AppUI extends JFrame
 		}
 		return this.scrollPaneAppStateLog;
 	}
+	//*/
 
 	private JScrollPane getScrollPaneLog() 
 	{
@@ -2283,6 +2288,8 @@ public class AppUI extends JFrame
 		if ( this.logTextArea == null)
 		{
 			this.logTextArea = new JTextPane();
+			this.logTextArea.setBackground( Color.WHITE );
+			this.logTextArea.setForeground( Color.BLACK );
 			this.logTextArea.setEditable(false);
 			this.logTextArea.setBorder( BorderFactory.createEtchedBorder() );
 			this.addPopup( this.logTextArea, getPopupMenu_2() );
@@ -2290,6 +2297,7 @@ public class AppUI extends JFrame
 		return this.logTextArea;
 	}
 
+	/*
 	private JTextPane getAppStateLogTextArea() 
 	{
 		if ( this.appStateLogTextArea == null)
@@ -2301,6 +2309,7 @@ public class AppUI extends JFrame
 		}
 		return this.appStateLogTextArea;
 	}
+	//*/
 	
 	private void addPopup( Component component, final JPopupMenu popup ) 
 	{
@@ -2477,6 +2486,7 @@ public class AppUI extends JFrame
 		return this.checkAutoScroll;
 	}
 	
+	/*
 	private JCheckBox getCheckAutoScrollAppStateLog()
 	{
 		if( this.checkAutoScrollAppStateLog == null )
@@ -2487,4 +2497,5 @@ public class AppUI extends JFrame
 
 		return this.checkAutoScrollAppStateLog;
 	}
+	//*/
 }
