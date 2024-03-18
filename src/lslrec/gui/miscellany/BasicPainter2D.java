@@ -21,6 +21,7 @@ package lslrec.gui.miscellany;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
@@ -31,6 +32,7 @@ import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.font.GlyphVector;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
@@ -561,6 +563,44 @@ public class BasicPainter2D
 		return imagen;
 	}	
 	
+	public static Image paintText( String texto, FontMetrics fm, Color colorBorder, Color colorRelleno, Image img )
+	{
+		BufferedImage imagen = null;
+		Graphics2D g = null;
+		
+		if( img != null )
+		{
+			imagen = ((BufferedImage)img).getSubimage( 0, 0, img.getWidth( null ), img.getHeight( null ) );
+			g = (Graphics2D)imagen.getGraphics();						
+		}
+		else if( fm != null )
+		{ 		
+			int wd = fm.stringWidth( texto );
+			int hg = fm.getHeight();// fm.getAscent() - fm.getLeading() * 2;
+			imagen = new BufferedImage( wd, hg, BufferedImage.TYPE_INT_ARGB );			
+			g = (Graphics2D)imagen.getGraphics();
+		}
+		
+		if( imagen != null )
+		{
+			if( fm == null )
+			{
+				fm = resizeFontMetrics( g, new Dimension( imagen.getWidth(),  imagen.getHeight() ), texto );
+			}
+			
+			int w = imagen.getWidth();
+			int h = imagen.getHeight();
+			int strW = fm.stringWidth( texto );
+			int strH = fm.getAscent() - fm.getDescent() - fm.getLeading();			
+			int x = ( w - strW ) / 2;
+			int y = ( h - strH ) / 2;
+			
+			paintText( x, y, texto, fm, colorBorder, colorRelleno, imagen );
+		}
+		
+		return imagen;
+	}	
+	
 	public static Image paintOutlineText( int x, int y, String texto, FontMetrics fm, Color color, Image img )
 	{
 		BufferedImage imagen = null;
@@ -766,5 +806,107 @@ public class BasicPainter2D
 	    {
 	      g2.dispose();
 	    }
+	}
+	
+	private static FontMetrics resizeFontMetrics( Graphics g, Dimension size, String text )
+	{
+		FontMetrics fm = null;
+		
+		if( g != null )
+		{
+			fm = resizeHeightFontMetric( g, size.height );
+			
+			if( fm.stringWidth( text ) > size.width )
+			{
+				fm = resizeWidthFontMetric( g, size.width, text );
+			}
+		}
+		
+		return fm;
+	}
+	
+	private static FontMetrics resizeHeightFontMetric( Graphics g, int size )
+	{
+		FontMetrics fm = null;
+		
+		if( g != null )
+		{	
+			Font f = new Font( Font.DIALOG, Font.BOLD, 12 );
+
+			fm = g.getFontMetrics();
+			while( fm.getHeight() < size )
+			{
+				f = new Font( f.getName(), Font.BOLD, f.getSize() + 1 );
+				fm = g.getFontMetrics( f );
+			}
+
+			while( fm.getHeight() > size )
+			{
+				f = new Font( f.getName(), Font.BOLD, f.getSize() - 1 );
+				fm = g.getFontMetrics( f );
+			}
+		}
+		
+		return fm;
+	}
+	
+	public static BufferedImage rotate(BufferedImage img, double degree) 
+	{
+		BufferedImage rotated = null;
+		
+		if( img != null )
+		{
+	        double rads = Math.toRadians( degree );
+	        double sin = Math.abs(Math.sin( rads ) );
+	        double cos = Math.abs(Math.cos( rads ) );
+	        
+	        int w = img.getWidth();
+	        int h = img.getHeight();
+	        
+	        int newWidth = (int) Math.floor(w * cos + h * sin);
+	        int newHeight = (int) Math.floor(h * cos + w * sin);
+	
+	        rotated = (BufferedImage)createEmptyImage( newWidth, newHeight , null );
+	        
+	        Graphics2D g2d = rotated.createGraphics();
+	        AffineTransform at = new AffineTransform();
+	        at.translate((newWidth - w) / 2, (newHeight - h) / 2);
+	
+	        int x = w / 2;
+	        int y = h / 2;
+	
+	        at.rotate(rads, x, y);
+	        g2d.setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
+	        g2d.setTransform(at);
+	        g2d.drawImage( img, 0, 0, null );
+	        g2d.dispose();
+		}
+
+        return rotated;
+    }
+	
+	private static FontMetrics resizeWidthFontMetric( Graphics g, int size, String txt )
+	{
+		FontMetrics fm = null;
+		
+		if( g != null )
+		{	
+			Font f = new Font( Font.DIALOG, Font.BOLD, 12 );
+
+			fm = g.getFontMetrics();
+			while( fm.stringWidth( txt ) < size )
+			{
+				f = new Font( f.getName(), Font.BOLD, f.getSize() + 1 );
+				fm = g.getFontMetrics( f );
+			}
+
+			while( fm.stringWidth( txt ) > size )
+			{
+				f = new Font( f.getName(), Font.BOLD, f.getSize() - 1 );
+				fm = g.getFontMetrics( f );
+			}
+		}
+		
+		return fm;
 	}
 }

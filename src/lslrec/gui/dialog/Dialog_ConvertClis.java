@@ -18,6 +18,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,7 +55,6 @@ import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.config.ConfigApp;
-import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
@@ -77,7 +77,6 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.GeneralAppIcon;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -90,7 +89,6 @@ import javax.swing.JSplitPane;
  */
 public class Dialog_ConvertClis extends JDialog 
 {
-
 	/**
 	 * 
 	 */
@@ -131,7 +129,7 @@ public class Dialog_ConvertClis extends JDialog
 	
 	private OutputFileFormatParameters outFormat;
 	private String currentFolderPath;
-	private ClisData currentClisFile = null;
+	private static ClisData currentClisFile = null;
 	
 	
 	/**
@@ -188,11 +186,28 @@ public class Dialog_ConvertClis extends JDialog
 		dgclis = new Dialog_ConvertClis();
 		dgclis.setBounds( 200, 100, 400, 400 );
 		
-		dgclis.setVisible( true );
+		dgclis.addWindowListener( new WindowAdapter() 
+		{
+			@Override
+			public void windowClosing(WindowEvent e) 
+			{
+				if( currentClisFile != null )
+				{
+					try 
+					{
+						currentClisFile.close();
+					} 
+					catch (IOException ex)
+					{
+					}
+				}
+			}
+		});
 		
+		dgclis.setVisible( true );
 	}
 	
-	private void checkEncryptKey()
+ 	private void checkEncryptKey()
 	{
 		if( getChckboxEncrypt().isSelected() )
 		{	

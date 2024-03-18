@@ -238,6 +238,8 @@ public class DataPlotter extends InputDataStreamReceiverTemplate
 			{
 				this.plot.disposeUndockWindow();
 			}
+			
+			this.plot.setStreamState( false );
 		}
 	}
 
@@ -250,6 +252,17 @@ public class DataPlotter extends InputDataStreamReceiverTemplate
 	public String getStreamUID()
 	{
 		return super.streamSetting.uid();
+	}
+	
+	@Override
+	protected void startUp() throws Exception 
+	{
+		super.startUp();
+		
+		if( this.plot != null )
+		{
+			this.plot.setStreamState( true );
+		}
 	}
 	
 	@Override

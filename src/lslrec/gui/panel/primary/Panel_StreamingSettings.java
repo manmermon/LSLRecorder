@@ -34,7 +34,6 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -85,7 +84,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
@@ -117,7 +115,6 @@ import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
-import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.NoneSelectedButtonGroup;
@@ -128,7 +125,6 @@ import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
-import lslrec.config.SettingOptions.Type;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -140,7 +136,6 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 
 public class Panel_StreamingSettings extends JPanel
@@ -387,7 +382,9 @@ public class Panel_StreamingSettings extends JPanel
 	 * @return True if a selected streaming  is in the new list of streamings. Otherwise, False.
 	 */
 	public boolean refreshDataStreams()
-	{		
+	{	
+		this.getDisabledPanel().setEnabled( false );
+		
 		Tuple< JPanel, JTree > update = this.getUpdateStreamPanel();
 		
 		JSplitPane splitPanel = this.getContentPanelStreamInfo();
@@ -450,6 +447,8 @@ public class Panel_StreamingSettings extends JPanel
 		splitPanel.setVisible( true );
 		
 		GuiTextManager.updateSelectedStreamText();
+		
+		this.getDisabledPanel().setEnabled( true );
 		
 		return findDevice;
 	}
@@ -1626,6 +1625,7 @@ public class Panel_StreamingSettings extends JPanel
 					@Override
 					public void itemStateChanged(ItemEvent e) 
 					{
+						
 						JToggleButton jtb = (JToggleButton)e.getSource();
 						
 						if( e.getStateChange() == ItemEvent.SELECTED )
@@ -1638,6 +1638,15 @@ public class Panel_StreamingSettings extends JPanel
 						}
 					}
 				});
+				
+				try 
+				{
+					plot.setSelected( CoreControl.getInstance().isPlotingStream( dev ) );
+				}
+				catch (Exception e1) 
+				{
+				}
+				
 				//*/
 	
 

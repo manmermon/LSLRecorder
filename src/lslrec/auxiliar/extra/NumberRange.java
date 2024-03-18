@@ -51,7 +51,11 @@ public class NumberRange implements Comparable< NumberRange >
     {
     	double v = value.doubleValue();
     	
-        return this.min <= v &&  v <= max ;
+    	boolean in = Double.isNaN( this.min ) || Double.isNaN( this.max ); 
+    	
+    	in = ( !in ) ? this.min <= v &&  v <= max : in;
+    	
+        return in;
     }
     
     /**

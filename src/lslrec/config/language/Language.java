@@ -222,6 +222,8 @@ public class Language
 	public static final String VARIABLE_TEXT = "VARIABLE_TEXT";
 	public static final String VARIABLES_TEXT = "VARIABLE_TEXT";
 	public static final String STEP_TEXT = "STEP_TEXT";
+	public static final String ALL_TEXT = "ALL_TEXT";
+	public static final String NONE_TEXT = "NONE_TEXT";
 	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -233,6 +235,8 @@ public class Language
 		captions.put( VARIABLE_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variable" ) );
 		captions.put( VARIABLES_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variables" ) );
 		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );
+		captions.put( ALL_TEXT, new Caption( ALL_TEXT,  defaultLanguage, "All" ) );
+		captions.put( NONE_TEXT, new Caption( NONE_TEXT,  defaultLanguage, "None" ) );
 		
 		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
@@ -418,13 +422,17 @@ public class Language
 
 		captions.put(LSL_PLOT_FILTER_LEGEND,
 				new Caption(LSL_PLOT_FILTER_LEGEND, defaultLanguage,
-						"Display-range (DR) format: N1:(A1,B1);N2:(A2,B2);N3:(A3,B3);...\n" + "where\n"
+						"Display-range (DR) format: N1:(A1,B1)[C1,D1];N2:(A2,B2)[C2,D2];N3:(A3,B3)[C3,D3];...\n" + "where\n"
 								+ ">> Nx is plot number where DR is applied. Plot numbering starts from 1."
 								+ " The value 0 indicates that DR is applied to all plots.\n"
-								+ ">> Ax and Bx are interval limits. Java number format is supported.\n"
-								+ "   Espacial value: "
-								+ "-Inf or Inf means infinity.\n" 
-								+ "\nIncorrect DR format are ignored."));
+								+ ">> () indicates that only the values in the range will be passed, whereas"
+								+ "  [] indicates that the display is limited to the range. At least one must be present, and the order must be respected.\n"
+								+ ">> Ax, Bx, Cx and Dx are interval limits. Java number format is supported.\n"
+								+ "   Espacial value (case sensity):\n"
+								+ "    >> -Inf or Inf: -/+ infinity.\n"
+								+ "    >> NaN (not a number) is ignored.\n"
+								+ "\nIncorrect DR format are ignored.\n"
+								+ "\nExamples: 1:(1,5);2:[-2,10];3:(1,5)[-7,8]"));
 		captions.put(APPLY_TEXT, new Caption(APPLY_TEXT, defaultLanguage, "Apply"));
 		captions.put(INSERT_TEXT, new Caption(INSERT_TEXT, defaultLanguage, "Insert"));
 		captions.put(DELETE_TEXT, new Caption(DELETE_TEXT, defaultLanguage, "Delete"));

@@ -1640,7 +1640,7 @@ public class AppUI extends JFrame
 			FontMetrics fm = this.sessionTimeText.getFontMetrics( this.sessionTimeText.getFont() );
 			
 			Dimension d = this.sessionTimeText.getPreferredSize();
-			d.width = fm.stringWidth( String.format( "%02d:%02d:%02d.%03d", 23, 56, 56, 9999 ) + 2);
+			d.width = fm.stringWidth( String.format( "00%02d:%02d:%02d.%03d", 23, 56, 56, 9999 ) + 2);
 			
 			this.sessionTimeText.setPreferredSize( d );
 			this.sessionTimeText.setEditable( false );
@@ -1719,7 +1719,7 @@ public class AppUI extends JFrame
 			FontMetrics fm = this.timeState.getFontMetrics( this.timeState.getFont() );
 			
 			Dimension d = this.timeState.getPreferredSize();			
-			d.width = fm.stringWidth( "23:59:59" + 5);
+			d.width = fm.stringWidth( "0023:59:59" + 5);
 			
 			this.timeState.setPreferredSize( d );
 			this.timeState.setEditable( false );

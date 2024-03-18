@@ -26,10 +26,10 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -40,16 +40,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import javax.swing.BorderFactory;
@@ -57,14 +61,17 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
+import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import org.jfree.chart.ChartFactory;
@@ -78,6 +85,7 @@ import lslrec.config.language.Language;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.config.ConfigApp;
 
@@ -93,7 +101,7 @@ public class CanvasStreamDataPlot extends JPanel
 	private List<Double> minY = new ArrayList< Double >();
 	private List<Double> maxY = new ArrayList< Double >();
 
-	private List<Integer> ignoredCols = null;
+	private Set< String > hiddenPlots = null;
 
 	private Semaphore sem = new Semaphore(1, true);
 	
@@ -102,6 +110,9 @@ public class CanvasStreamDataPlot extends JPanel
 
 
 	private HashMap< String, NumberRange > filters = null;
+	private HashMap< String, NumberRange > visRange = null;
+
+	private boolean streamOn = true;
 	
 	//private boolean stopRun = false;
 
@@ -109,6 +120,7 @@ public class CanvasStreamDataPlot extends JPanel
 	private JPanel panelPlots = null;
 	private JPanel filterRangePanel = null;
 	private JPanel containerPanel = null;
+	private JPanel selChannelPlotPanel = null;
 
 	// TEXTFIELD
 	private JTextField filterRangeText = null;
@@ -126,6 +138,9 @@ public class CanvasStreamDataPlot extends JPanel
 	
 	//private List<List<Double>> XY;
 
+	// LABELS
+	private JLabel streamStateIco = null;
+	
 	/**
 	 * Create the dialog.
 	 */
@@ -135,7 +150,7 @@ public class CanvasStreamDataPlot extends JPanel
 
 		this.queueLength = dataLength;
 
-		this.ignoredCols = new ArrayList< Integer >();
+		this.hiddenPlots = new HashSet< String >();
 
 		super.setVisible(true);
 
@@ -178,9 +193,32 @@ public class CanvasStreamDataPlot extends JPanel
 			
 			this.containerPanel.add( this.getJPanelFilterRange(), BorderLayout.NORTH );
 			this.containerPanel.add( this.getJScrollPanelPlot(), BorderLayout.CENTER );
+			
+			JPanel selPlotPlanelAux = new JPanel( new BorderLayout() );
+			selPlotPlanelAux.add( this.getSelectionPlottedChannels(), BorderLayout.NORTH );
+			
+			JScrollPane selPlotChScr = new JScrollPane(  selPlotPlanelAux );
+			selPlotChScr.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED );
+			selPlotChScr.setHorizontalScrollBarPolicy( JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			selPlotChScr.getVerticalScrollBar().setUnitIncrement( 10 );
+			
+			selPlotChScr.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.SETTING_LSL_PLOT ) ) );
+			
+			this.containerPanel.add( selPlotChScr, BorderLayout.WEST );
 		}
 		
 		return this.containerPanel;
+	}
+	
+	private JPanel getSelectionPlottedChannels()
+	{
+		if( this.selChannelPlotPanel == null )
+		{
+			this.selChannelPlotPanel = new JPanel( new GridLayout(0, 2, 0, 0 ));
+			this.selChannelPlotPanel.setVisible( true );
+		}
+		
+		return this.selChannelPlotPanel;
 	}
 	
 	public void clearFilters()
@@ -188,10 +226,13 @@ public class CanvasStreamDataPlot extends JPanel
 		if( this.filters == null )
 		{
 			this.filters = new HashMap< String, NumberRange >();
+			this.visRange = new HashMap< String, NumberRange >();
 		}
 		else
 		{
 			this.filters.clear();
+			this.visRange.clear();
+			//this.ignoredCols.clear();
 		}
 	}
 	
@@ -215,24 +256,45 @@ public class CanvasStreamDataPlot extends JPanel
 			this.filterRangePanel = new JPanel();
 			this.filterRangePanel.setLayout( new BoxLayout( this.filterRangePanel, BoxLayout.X_AXIS ) );
 			
-			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
-			this.filterRangePanel.add( this.getJButtonInfoFilters() );
-			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
-			
 			JLabel lb = new JLabel(  Language.getLocalCaption( Language.LSL_PLOT_FILTERS ) );			
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LSL_PLOT_FILTERS, lb );
 			
+			this.filterRangePanel.add( Box.createRigidArea( new Dimension(5, 0) ) );			
+			this.filterRangePanel.add( this.getStreamStateIco() );			
+			this.filterRangePanel.add( Box.createRigidArea( new Dimension(5, 0) ) );
 			this.filterRangePanel.add( lb );
 			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
 			this.filterRangePanel.add( this.getFilterRangeText() );
 			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
 			this.filterRangePanel.add( this.getJButtonApplyFilters() );
 			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
+			this.filterRangePanel.add( this.getJButtonInfoFilters() );
+			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
 			this.filterRangePanel.add( this.getJButtonUndockPlot() );
+			this.filterRangePanel.add( Box.createRigidArea( new Dimension(2, 0) ) );
 		}
 		
 		return this.filterRangePanel;
+	}
+	
+	private JLabel getStreamStateIco()
+	{
+		if( this.streamStateIco == null )
+		{
+			this.streamStateIco = new JLabel();
+		}
+		
+		return this.streamStateIco;
+	}
+	
+	public void setStreamState( boolean on )
+	{
+		Color color = ( on ) ? Color.GREEN.darker() : Color.RED;
+		
+		this.getStreamStateIco().setIcon( new ImageIcon( BasicPainter2D.paintFillCircle( 0, 0, 10, color, null) ) );
+		
+		this.streamOn = on;
 	}
 	
 	private JTextField getFilterRangeText()
@@ -371,7 +433,7 @@ public class CanvasStreamDataPlot extends JPanel
 		
 		if( filterText != null && !filterText.isEmpty() )
 		{
-			filterText = filterText.replace( " ", "" );
+			filterText = filterText.trim().replace( " ", "" );
 			String[] FILTERS = filterText.split( ";" );
 			Arrays.sort( FILTERS );			
 			
@@ -382,48 +444,89 @@ public class CanvasStreamDataPlot extends JPanel
 					String[] filParts = filter.split( ":" );
 					if( filParts.length == 2 )
 					{
-						int plotNo = new Integer( filParts[ 0 ] );
+						int plotNo = new Integer( filParts[ 0 ] );						
 						
-						NumberRange range = null;
+						String datFilters = filParts[ 1 ];
 						
-						String interval = filParts[ 1 ];
-						if( interval.charAt( 0 ) == '(' && interval.charAt( interval.length() - 1 ) == ')' )
-						{
-							String[] values = interval.replace( "(", "" ).replace( ")", "").split( "," );
+						if( !datFilters.isEmpty() )
+						{	
+							String[] intervals = datFilters.split( "\\)\\[" );
 							
-							if( values.length == 2 )
-							{							
-								String a = values[ 0 ];
-								String b = values[ 1 ];
-								
-								double min = Double.NEGATIVE_INFINITY;
-								if( !a.toLowerCase().equals( "-inf" ) )
-								{
-									min = new Double( a );
-								}
-								
-								double max = Double.POSITIVE_INFINITY;
-								if( !b.toLowerCase().equals( "inf" ) )
-								{
-									max = new Double( b );
-								}								
-								
-								range = new NumberRange( min, max );
+							if( intervals.length == 2 )
+							{
+								this.setProcessingRange( plotNo, intervals[0]+")", '(', ')', this.filters );//, true );								
+								this.setProcessingRange( plotNo, "["+intervals[1], '[', ']', this.visRange );//, false );
 							}
-						}
-						
-						if( range != null )
-						{
-							filters.put( "" + plotNo, range );
+							else if( intervals.length == 1 )
+							{
+								String interval = intervals[ 0 ];
+								
+								this.setProcessingRange( plotNo, interval, '(', ')', this.filters);//, true );																
+								this.setProcessingRange( plotNo, interval, '[', ']', this.visRange);//, false );								
+							}
 						}
 					}
 				}
 				catch( Exception ex )
-				{
-					
+				{		
+					ex.printStackTrace();
 				}
 			}
 		}
+	}
+	
+	private void setProcessingRange( int plotNo, String interval, char delim1, char delim2,HashMap< String, NumberRange > process )//, boolean addIgnored )
+	{
+		if( process != null && interval != null )
+		{
+			NumberRange range = null;
+			
+			if( interval.charAt( 0 ) == delim1 && interval.charAt( interval.length() - 1 ) == delim2 )
+			{
+				String[] values = interval.replace( delim1+"", "" ).replace( delim2+"", "").split( "," );
+				
+				if( values.length == 2 )
+				{
+					range = this.getFilterRange( values[0], values[ 1 ] );
+					
+					/*
+					if( addIgnored )
+					{
+						this.ignoredCols.add( plotNo - 1 );
+					}
+					//*/
+				}									
+			}
+			
+			if( range != null )
+			{
+				process.put( "" + plotNo, range );
+			}
+		}
+	}
+		
+	private NumberRange getFilterRange( String a, String b )
+	{
+		NumberRange range = null;
+
+		double min = Double.NEGATIVE_INFINITY;
+		if( !a.toLowerCase().equals( "-inf" ) )
+		{
+			min = new Double( a );
+		}
+
+		double max = Double.POSITIVE_INFINITY;
+		if( !b.toLowerCase().equals( "inf" ) )
+		{
+			max = new Double( b );
+		}								
+
+		if( !Double.isNaN( max ) && !Double.isNaN( min ) )
+		{
+			range = new NumberRange( min, max );
+		}
+		
+		return range;
 	}
 	
 	private JButton getJButtonInfoFilters()
@@ -449,8 +552,19 @@ public class CanvasStreamDataPlot extends JPanel
 					//Dimension size = w.getSize();
 					Point pos = b.getLocationOnScreen();
 					
-					Point loc = new Point( pos.x + b.getWidth() //- size.width
+					Point loc = new Point( pos.x - w.getWidth() //- size.width
 											, pos.y + b.getHeight()); 
+					
+					if( loc.x < 0 )
+					{
+						loc.x = pos.x + b.getWidth();
+					}
+					
+					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+					if( loc.y + w.getHeight() > screenSize.height )
+					{
+						loc.y = pos.y - w.getHeight();
+					}
 					
 					w.setLocation( loc );
 					w.toFront();
@@ -471,33 +585,22 @@ public class CanvasStreamDataPlot extends JPanel
 	{
 		if( this.scrollpanel == null )
 		{
+			//JPanel auxPlotPanel = new JPanel( new BorderLayout() );
+			//auxPlotPanel.add( this.getJPanelPlots(), BorderLayout.NORTH );
+			
+			//this.scrollpanel = new JScrollPane( auxPlotPanel );
 			this.scrollpanel = new JScrollPane( this.getJPanelPlots() );
 			this.scrollpanel.setVisible( true );
 			this.scrollpanel.getVerticalScrollBar().setUnitIncrement( 16 );
-		}
-		
-		return this.scrollpanel;
-	}
-	
-	private JPanel getJPanelPlots()
-	{
-		if (this.panelPlots == null)
-		{
-			this.panelPlots = new JPanel();
-			//this.panelPlots.setPreferredSize( new Dimension(500,500));
-			this.panelPlots.setVisible(true);
-			this.panelPlots.setBorder(new LineBorder(new Color(0, 0, 0), 1, false));
-
-			//this.panelPlots.setLayout(new GridLayout(0, 1, 0, 0));
-			this.panelPlots.setLayout( new BoxLayout( this.panelPlots, BoxLayout.Y_AXIS ) );
-
-			this.panelPlots.addComponentListener(new ComponentAdapter()
+			
+			this.scrollpanel.addComponentListener(new ComponentAdapter()
 			{
 				Timer controlTimer = null;
 				int DELAY = 20;
 
 				public void componentResized(ComponentEvent e)
 				{
+					/*
 					JPanel p = (JPanel)e.getSource();
 					Container c = p.getParent();
 										
@@ -527,13 +630,93 @@ public class CanvasStreamDataPlot extends JPanel
 						
 						for( Component plot : PLOTs )
 						{
-							plot.setVisible( false );
-							plot.setPreferredSize( plotDim );
-							plot.setSize( plotDim );
-							plot.setVisible( true );
+							if( !hiddenPlots.contains( plot.getName() ) )
+							{
+								plot.setVisible( false );
+								plot.setPreferredSize( plotDim );
+								plot.setSize( plotDim );
+								plot.setVisible( true );
+							}
 						}
 					}
+					//*/
+					//setPlotPanelSize();
+					update();
+				}
+
+				private void update()
+				{
+					if (this.controlTimer == null)
+					{
+						this.controlTimer = new Timer(this.DELAY, 
+								new ActionListener()
+						{
+
+							public void actionPerformed(ActionEvent ac)
+							{
+								if (ac.getSource() == controlTimer)
+								{
+									controlTimer.stop();
+									controlTimer = null;
+									
+									//setPlotPanelSize();
+									//updatePlot();
+								}								                  
+							}
+						});
+						this.controlTimer.start();
+					}
+					else
+					{
+						this.controlTimer.restart();
+					}
+				}
+			});
+		}
+		
+		return this.scrollpanel;
+	}
+	
+	
+	private JPanel getJPanelPlots()
+	{
+		if (this.panelPlots == null)
+		{
+			this.panelPlots = new JPanel();
+			//this.panelPlots.setPreferredSize( new Dimension(500,500));
+			this.panelPlots.setVisible(true);
+			this.panelPlots.setBorder(new LineBorder(new Color(0, 0, 0), 1, false));
+			//this.panelPlots.setBackground( Color.RED );
+
+			//this.panelPlots.setLayout(new GridLayout(0, 1, 0, 0));
+			//this.panelPlots.setLayout( new BoxLayout( this.panelPlots, BoxLayout.Y_AXIS ) );
+			//this.panelPlots.add( this.getJScrollPanelPlot(), BorderLayout.CENTER );
+			this.panelPlots.setLayout( new VerticalFlowLayout( VerticalFlowLayout.TOP ) );
+			
+			
+			//*
+			this.panelPlots.addComponentListener(new ComponentAdapter()
+			{
+				public void componentResized(ComponentEvent e)
+				{
+					if( !streamOn )
+					{
+						setPlotPanelSize();
+						updatePlot();
+					}
+				}
+			});
+			//*/
+			/*
+			this.panelPlots.addComponentListener(new ComponentAdapter()
+			{
+				Timer controlTimer = null;
+				int DELAY = 20;
+
+				public void componentResized(ComponentEvent e)
+				{
 					
+					//setPlotPanelSize();
 					update();
 				}
 
@@ -552,7 +735,8 @@ public class CanvasStreamDataPlot extends JPanel
 									controlTimer.stop();
 									controlTimer = null;
 
-									updatePlot();
+									//updatePlot();
+									setPlotPanelSize();
 								}								                  
 							}
 						});
@@ -564,11 +748,12 @@ public class CanvasStreamDataPlot extends JPanel
 					}
 				}
 			});
+			//*/
 		}
 
 		return this.panelPlots;
 	}
-
+	
 	private Dimension getDimensionPlots( Dimension containerDim )
 	{
 		int plotWidth = 100;
@@ -588,6 +773,82 @@ public class CanvasStreamDataPlot extends JPanel
 		return new Dimension( plotWidth, plotHeigh );
 	}
 	
+	private void setPlotPanelSize()
+	{	
+		if( this.panelPlots.getComponentCount() > 0 )
+		{		
+			Dimension pSize = getJScrollPanelPlot().getSize();
+			pSize.width -= ( getJScrollPanelPlot().getVerticalScrollBar().getWidth() );
+			//pSize.height -= 1;
+			
+			Dimension plotDim = this.getDimensionPlots( new Dimension() );
+			int minH = plotDim.height;
+			
+			int numVisPlot = 0;
+			for( Component plot : this.panelPlots.getComponents() )
+			{
+				numVisPlot += ( plot.isVisible() ) ? 1 : 0;
+			}
+
+			if( numVisPlot > 0 )
+			{
+				if( plotDim.width < 1 )
+				{
+					plotDim.width = pSize.width;
+				}
+
+				int vDispSpace = pSize.height; 
+
+				if( plotDim.height < vDispSpace / numVisPlot )
+				{
+					plotDim.height = vDispSpace / numVisPlot ;// - ( (this.panelPlots.getComponentCount() + 1) / numVisPlot );
+					//plotDim.height -= 1;
+				}
+								
+				if( numVisPlot == 1 )
+				{
+					plotDim.height -= 5;
+				}
+				
+				//System.out.println("CanvasStreamDataPlot.setPlotPanelSize() " + pSize.height + " - " + plotDim.height*numVisPlot + " : " + hPad);
+				
+				//getJPanelPlots().setVisible( false );
+				
+				for( Component plot : this.panelPlots.getComponents() )
+				{									
+					if( !this.hiddenPlots.contains( plot.getName() ) )
+					{
+						//plot.setVisible( false );
+	
+						Dimension plSize = new Dimension( plotDim );
+						
+						Border b = ((PLOT)plot).getBorder();
+						if( b != null )
+						{
+							Insets ins = b.getBorderInsets( plot );
+							
+							plSize.height -= ( ins.top - ins.bottom);
+							//plSize.height += 5;
+							plSize.width -= (ins.left + ins.right );
+						}
+						
+						if( plSize.height < minH )
+						{
+							plSize.height = minH;
+						}
+						
+						plot.setPreferredSize( plSize );
+						plot.setSize( plSize );
+	
+						//plot.setVisible( true );
+					}
+				}
+				
+				//getJPanelPlots().setVisible( true );
+			}
+		}
+	}
+	
 	private void updatePlot()
 	{
 		try 
@@ -595,11 +856,12 @@ public class CanvasStreamDataPlot extends JPanel
 			this.sem.acquire( this.sem.availablePermits() );
 						
 			if( !this.xy.isEmpty() )
-			{
+			{				
+				//Dimension panelPlotSize = this.getJPanelPlots().getSize();
+				Dimension panelPlotSize = this.getJScrollPanelPlot().getSize();
+				//panelPlotSize.width -= this.getJScrollPanelPlot().getVerticalScrollBar().getWidth();
 				
-				Dimension plotDim = this.getDimensionPlots( this.getJPanelPlots().getSize() );
-				int plotWidth = plotDim.width;
-				int plotHeigh = plotDim.height;
+				//Dimension plotDim = this.getDimensionPlots( panelPlotSize );
 				
 				//List< Queue< Double > > this.xy = new ArrayList< Queue < Double > >( this.xy );
 				if( this.xy.size() != this.panelPlots.getComponentCount() )
@@ -617,7 +879,7 @@ public class CanvasStreamDataPlot extends JPanel
 					while( this.xy.size() >  i )
 					{			
 						PLOT plot = new PLOT( );
-						plot.setPreferredSize( new Dimension( plotWidth, plotHeigh ) );
+						//plot.setPreferredSize( plotDim );
 						
 						plot.setBackground( Color.WHITE );						
 						
@@ -631,8 +893,91 @@ public class CanvasStreamDataPlot extends JPanel
 
 						this.panelPlots.add( plot );
 					}
-
+					
+					
+					JPanel selPlotChPanel = this.getSelectionPlottedChannels();
+					
+					getContainerPanel().setVisible( false );
+					selPlotChPanel.setVisible( false );
+					selPlotChPanel.removeAll();
+					
+					List< JCheckBox > chboxes = new ArrayList<JCheckBox>();
+					for( int ich = 0; ich < this.panelPlots.getComponentCount(); ich++ )
+					{
+						JCheckBox ch = new JCheckBox( this.panelPlots.getComponent( ich ).getName() );
+						ch.setSelected( true );
+						
+						ch.addItemListener( new ItemListener() 
+						{	
+							@Override
+							public void itemStateChanged(ItemEvent e) 
+							{
+								JCheckBox chb = (JCheckBox)e.getSource();
+								
+								if( e.getStateChange() == ItemEvent.SELECTED )
+								{
+									hiddenPlots.remove( chb.getText() );
+								}
+								else
+								{
+									hiddenPlots.add( chb.getText() );
+								}
+								
+								if( !streamOn )
+								{
+									setPlotPanelSize();
+									updatePlot();
+								}
+							}
+						});
+						
+						chboxes.add( ch );						
+						selPlotChPanel.add( ch );
+					}
+					
+					JRadioButton allch = new JRadioButton( Language.getLocalCaption( Language.ALL_TEXT ) );
+					allch.setSelected( true );
+					allch.addActionListener( new ActionListener() 
+					{						
+						@Override
+						public void actionPerformed(ActionEvent e) 
+						{
+							JRadioButton all = (JRadioButton)e.getSource();
+							all.setSelected( true );
+							
+							for( JCheckBox ch : chboxes )
+							{
+								ch.setSelected( true );
+							}
+						}
+					});
+					
+					JRadioButton nonech = new JRadioButton( Language.getLocalCaption( Language.NONE_TEXT ) );
+					nonech.setSelected( true );
+					nonech.addActionListener( new ActionListener() 
+					{						
+						@Override
+						public void actionPerformed(ActionEvent e) 
+						{
+							JRadioButton all = (JRadioButton)e.getSource();
+							all.setSelected( true );
+							
+							for( JCheckBox ch : chboxes )
+							{
+								ch.setSelected( false );
+							}
+						}
+					});
+					
+					selPlotChPanel.add( nonech, 0 );
+					selPlotChPanel.add( allch, 0 );
+										
+					selPlotChPanel.setVisible( true );
+					getContainerPanel().setVisible( true );
+					
 					this.panelPlots.setVisible( true );
+					
+					//this.setPlotPanelSize();
 				}
 
 				if( this.newPlotName )
@@ -652,13 +997,34 @@ public class CanvasStreamDataPlot extends JPanel
 
 					this.newPlotName = false;
 				}
+			
+				/*
+				int numVisPlot = panelPlots.getComponentCount() - this.hiddenPlots.size();
+				int plotHeigh = panelPlotSize.height;
+				int plotWidth = panelPlotSize.width;
+				Dimension minPlotSize = getDimensionPlots( new Dimension() );
+				if( numVisPlot > 0 )
+				{
+					plotHeigh /= numVisPlot; 
+				}
+				
+				if( plotHeigh < minPlotSize.height )
+				{
+					plotHeigh = minPlotSize.height;
+				}
+				
+				Dimension plotSize = new Dimension( plotWidth, plotHeigh );
+				//*/ 
+				
+				this.setPlotPanelSize();
 				
 				for( int i = 0 ; i < this.xy.size(); i++ )
 				{
 					PLOT plot = (PLOT)this.panelPlots.getComponent( i );
-										
-					Queue< Double > data = this.xy.get( i );
 					
+					plot.setVisible( !this.hiddenPlots.contains( plot.getName() ) );
+					
+					Queue< Double > data = this.xy.get( i );
 					
 					double[][] d = new double[ 2 ][ data.size() ];
 
@@ -682,8 +1048,8 @@ public class CanvasStreamDataPlot extends JPanel
 					render.setDefaultShapesVisible( true );
 					render.setSeriesStroke( 0, new BasicStroke( 3F ) );
 					chart.getXYPlot().setRenderer( render );
-					chart.getXYPlot().getDomainAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 18 ) );
-					chart.getXYPlot().getRangeAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 18 ) );
+					chart.getXYPlot().getDomainAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 15 ) );
+					chart.getXYPlot().getRangeAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 15 ) );
 					ValueAxis yaxis = chart.getXYPlot().getRangeAxis();
 
 					try
@@ -709,18 +1075,32 @@ public class CanvasStreamDataPlot extends JPanel
 
 					chart.getXYPlot().setRangeAxis( yaxis );				
 					chart.clearSubtitles();
-					plot.setChart( chart );
 					
-					if( !plot.getSize().equals( plot.getPreferredSize() ) )
+					if( !this.hiddenPlots.contains( plot.getName() ) )
 					{
-						plot.setSize( plot.getPreferredSize() );	
+						plot.setChart( chart );
+						
+						/*
+						Dimension prefSize = plot.getPreferredSize();
+						Dimension size = plot.getSize();
+						
+						if( !prefSize.equals( plotSize ) )
+						{
+							//plot.setPreferredSize( plotSize );
+						}
+						
+						if( !size.equals( plot.getPreferredSize() ) )
+						{
+							plot.setSize( plot.getPreferredSize() );	
+						}
+						//*/
+						
+						if( !plot.getSize().equals( new Dimension() )  )
+						{
+							drawPlot( chart, plot );
+						}					
 					}
-					
-					if( !plot.getSize().equals( new Dimension() ) )
-					{
-						drawPlot( chart, plot );
-					}
-				}
+				}				
 			}
 			else
 			{
@@ -766,7 +1146,6 @@ public class CanvasStreamDataPlot extends JPanel
 		}
 	}
 
-
 	public boolean addXYData( final List<List<Double>> XY )
 	{
 		boolean adding = this.sem.tryAcquire(this.sem.availablePermits());
@@ -776,82 +1155,80 @@ public class CanvasStreamDataPlot extends JPanel
 			Iterator<List<Double>> it = XY.iterator();
 
 			this.plotNames.clear();
-			int inputDataIndex = 0;
+			//int inputDataIndex = 0;
 			int plotIndex = 0;
 			
 			// General Filter 
 			NumberRange genRng = this.filters.get( "" + ( plotIndex ) );
+			NumberRange genVisRng = this.visRange.get( "" + ( plotIndex ) );
 			
 			while( it.hasNext() )
 			{
 				List<Double> xyValues = it.next();
 
-				if (!this.ignoredCols.contains( inputDataIndex ) )
+
+				Queue<Double> queue = null;
+
+				if ( plotIndex >= this.xy.size() )
 				{
-					Queue<Double> queue = null;
+					queue = new LinkedList< Double >();
+					this.minY.add( Double.MAX_VALUE );
+					this.maxY.add( Double.MIN_VALUE );
 
-					if ( plotIndex >= this.xy.size() )
+					this.xy.add(queue);
+				}
+				else
+				{
+					queue = this.xy.get( plotIndex );
+				}
+
+				//this.plotNames.add( "" + inputDataIndex);
+				this.plotNames.add( "" + (plotIndex+1) );
+
+				queue.addAll( xyValues );
+				if (this.queueLength > 0)
+				{
+					while ( queue.size() > this.queueLength )
 					{
-						queue = new LinkedList< Double >();
-						this.minY.add( Double.MAX_VALUE );
-						this.maxY.add( Double.MIN_VALUE );
-
-						this.xy.add(queue);
+						queue.poll();
 					}
-					else
+				}
+
+				NumberRange rng = this.filters.get( "" + ( plotIndex + 1 ) );
+
+				RangeFilter filter = new RangeFilter();
+				filter.addRange( rng );
+				filter.addRange( genRng );
+
+				Iterator< Double > itDouble = queue.iterator();
+
+				while( itDouble.hasNext() )
+				{
+					double val = itDouble.next();
+
+					if( filter.removeValue( val ) )
 					{
-						queue = this.xy.get( plotIndex );
+						itDouble.remove();
 					}
+				}
 
-					this.plotNames.add( "" + inputDataIndex);
+				NumberRange visRange = this.visRange.get( "" + ( plotIndex + 1 )  );
 
-					queue.addAll( xyValues );
-					if (this.queueLength > 0)
-					{
-						while ( queue.size() > this.queueLength )
-						{
-							queue.poll();
-						}
-					}
-					
-					NumberRange rng = this.filters.get( "" + ( plotIndex + 1 ) );
-					
-					RangeFilter filter = new RangeFilter();
-					filter.addRange( rng );
-					filter.addRange( genRng );
-					
-					/*
-					if( rng != null )
-					{
-						Iterator< Double > itDouble = queue.iterator();
-						
-						while( itDouble.hasNext() )
-						{
-							double val = itDouble.next();
-							
-							if( !rng.within( val ) )
-							{
-								itDouble.remove();
-							}
-						}
-					}
-					*/
-					
-					Iterator< Double > itDouble = queue.iterator();
-					
-					while( itDouble.hasNext() )
-					{
-						double val = itDouble.next();
-						
-						if( filter.removeValue( val ) )
-						{
-							itDouble.remove();
-						}
-					}
+				double min = Double.MAX_VALUE;
+				double max = Double.MIN_VALUE;
 
-					double min = Double.MAX_VALUE;
-					double max = Double.MIN_VALUE;
-
+				if( visRange != null )
+				{
+					min = visRange.getMin();
+					max = visRange.getMax();
+				}
+				else if( genVisRng != null )
+				{
+					min = genVisRng.getMin();
+					max = genVisRng.getMax();	
+				}
+				else
+				{
 					for (Double v : queue)
 					{
 						if ( (v.doubleValue() != Double.NaN )
@@ -866,28 +1243,31 @@ public class CanvasStreamDataPlot extends JPanel
 							min = v.doubleValue();
 						}
 					}
-
-					if (plotIndex >= this.minY.size())
-					{
-						this.minY.add( min );
-						this.maxY.add( max );
-					}
-					else
-					{
-						this.minY.set(plotIndex, min );
-						this.maxY.set(plotIndex, max );
-					}
-
-					plotIndex++;
 				}
 
-				inputDataIndex++;
+				if (plotIndex >= this.minY.size())
+				{
+					this.minY.add( min );
+					this.maxY.add( max );
+				}
+				else
+				{
+					this.minY.set(plotIndex, min );
+					this.maxY.set(plotIndex, max );
+				}
+
+				plotIndex++;	
+				
+				//inputDataIndex++;
+				
 			}
 
+			/*
 			while (this.xy.size() > inputDataIndex - this.ignoredCols.size())
 			{
 				this.xy.remove(this.xy.size() - 1);
 			}
+			//*/
 
 
 			this.sem.release();
@@ -945,10 +1325,15 @@ public class CanvasStreamDataPlot extends JPanel
 				@Override
 				public void componentResized(ComponentEvent e) 
 				{
-					JLabel canvas = (JLabel)e.getSource();
-					JFreeChart jfChart = getChart();
-					
-					drawPlot( jfChart, canvas );
+					/*
+					JLabel canvas = (JLabel)e.getSource();	
+					if( canvas.isVisible() )
+					{
+						JFreeChart jfChart = getChart();
+						
+						drawPlot( jfChart, canvas );
+					}
+					//*/
 				}
 			});
 		}

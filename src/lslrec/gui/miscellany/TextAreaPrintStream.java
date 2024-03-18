@@ -35,6 +35,8 @@ package lslrec.gui.miscellany;
 
 import java.awt.Color;
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
@@ -74,6 +76,10 @@ public class TextAreaPrintStream extends PrintStream
      **/
     public void println(String string) 
     {
+    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+    	LocalDateTime now = LocalDateTime.now();  
+    	string = dtf.format(now ) + " " + string;   
+    	   
     	int len = this.textArea.getDocument().getLength();
     	
     	this.textArea.setCaretPosition( len );
