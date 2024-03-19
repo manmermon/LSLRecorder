@@ -46,6 +46,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.border.Border;
@@ -66,8 +67,6 @@ import java.awt.Container;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.ChartFactory;
@@ -507,6 +506,21 @@ public class Dialog_PlotClis extends JDialog
 			this.panelMovePlotCtr.add( this.getBtnPrevious() );
 			this.panelMovePlotCtr.add( this.getBtnNext() );
 			this.panelMovePlotCtr.add( this.getBtnEnd() );
+			
+			JSeparator sep = new JSeparator( JSeparator.VERTICAL );
+			sep.setPreferredSize( new Dimension( 5, this.getBtnEnd().getPreferredSize().height ));
+			this.panelMovePlotCtr.add( sep );
+			
+			JLabel lbXAxisTransform = new JLabel( );
+			//lbXAxisTransform.setText( "X-Axis transform: ");
+			lbXAxisTransform.setText( "x-axis = x*" +  this.getLbXAxisMult().getText() + " + " +  this.getLbXAxisoffset().getText() + ": ");
+			
+			this.panelMovePlotCtr.add( lbXAxisTransform );
+			
+			this.panelMovePlotCtr.add( this.getLbXAxisMult() );
+			this.panelMovePlotCtr.add( this.getXAxisMultValue() );
+			this.panelMovePlotCtr.add( this.getLbXAxisoffset() );
+			this.panelMovePlotCtr.add( this.getXAxisOffsetValue() );			
 		}
 		
 		return this.panelMovePlotCtr;
@@ -536,28 +550,23 @@ public class Dialog_PlotClis extends JDialog
 		return this.panelPlotCanva;
 	}
 	
-	private JPanel getPanelPlotCtr() {
-		if (panelPlotCtr == null) {
+	private JPanel getPanelPlotCtr() 
+	{
+		if (panelPlotCtr == null) 
+		{
 			panelPlotCtr = new JPanel( new BorderLayout() );
 			
 			JPanel varPane = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			varPane.add( this.getLblVariable());
 			varPane.add( this.getCbVariables());
 			
-			JPanel xAxisTransfPane = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-			xAxisTransfPane.add( this.getLbXAxisMult() );
-			xAxisTransfPane.add( this.getXAxisMultValue() );
-			xAxisTransfPane.add( this.getLbXAxisoffset() );
-			xAxisTransfPane.add( this.getXAxisOffsetValue() );
-			xAxisTransfPane.setBorder( BorderFactory.createTitledBorder( "X-Axis transform") );
-			
-			varPane.add( xAxisTransfPane );
 			//panelPlotCtr.add(getLblChannel());
 			//panelPlotCtr.add(getSpinnerChannel());
 			
-			this.panelPlotCtr.add( varPane, BorderLayout.NORTH );
+			this.panelPlotCtr.add( varPane, BorderLayout.WEST );
 			this.panelPlotCtr.add( this.getChannelsContainerPanel(), BorderLayout.CENTER );
 		}
+		
 		return panelPlotCtr;
 	}
 	private JLabel getLblVariable() {
@@ -598,7 +607,7 @@ public class Dialog_PlotClis extends JDialog
 	{
 		if( this.lbXAxisMult == null )
 		{
-			this.lbXAxisMult = new JLabel( "mult:" );
+			this.lbXAxisMult = new JLabel( "m" );
 		}
 		return this.lbXAxisMult;
 	}
@@ -664,7 +673,7 @@ public class Dialog_PlotClis extends JDialog
 	{
 		if( this.lbXAxisOffset == null )
 		{
-			this.lbXAxisOffset = new JLabel( "offset:" );
+			this.lbXAxisOffset = new JLabel( "c" );
 		}
 		return this.lbXAxisOffset;
 	}
