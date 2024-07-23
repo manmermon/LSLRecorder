@@ -63,6 +63,10 @@ public interface LSLDll extends Library
     int lsl_push_sample_it(Pointer obj, int[] data, double timestamp);
     int lsl_push_sample_itp(Pointer obj, int[] data, double timestamp, int pushthrough);
 
+    int lsl_push_sample_i(Pointer obj, long[] data);
+    int lsl_push_sample_it(Pointer obj, long[] data, double timestamp);
+    int lsl_push_sample_itp(Pointer obj, long[] data, double timestamp, int pushthrough);
+    
     int lsl_push_sample_s(Pointer obj, short[] data);
     int lsl_push_sample_st(Pointer obj, short[] data, double timestamp);
     int lsl_push_sample_stp(Pointer obj, short[] data, double timestamp, int pushthrough);

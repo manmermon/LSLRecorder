@@ -1119,7 +1119,7 @@ public class ConvertTo
 			return out;
 		}
 		
-		public static byte[] NumberArray2byteArra( Number[] values, StreamDataType dataType )
+		public static byte[] NumberArray2byteArray( Number[] values, StreamDataType dataType )
 		{
 			byte[] out = null;
 			

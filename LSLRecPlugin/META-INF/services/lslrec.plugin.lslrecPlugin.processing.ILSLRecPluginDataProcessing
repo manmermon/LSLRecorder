@@ -4,3 +4,4 @@ lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin
 lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin
 lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin
 lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin
+lslrec.plugin.impl.dataProcessing.resender.LSLStreamResenderPlugin

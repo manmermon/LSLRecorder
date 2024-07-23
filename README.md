@@ -72,7 +72,9 @@ There are several plugin examples in the folder [LSLRecPlugin/src/lslrec/plugin/
 
 The class LSLRecPluginTest allows testing a developed plugin using its function "startTest()".
 
+<!--
 <u><i><b>Note</b></i></u>: The current LSLRecorder version requires JRE/JDK 1.8 for the plugins to work. For Java 9 o greater, LSLRecorder works but without plugins. 
+-->
 
 # File Format
 

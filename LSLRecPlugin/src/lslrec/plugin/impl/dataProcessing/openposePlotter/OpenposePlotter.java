@@ -197,4 +197,10 @@ public class OpenposePlotter extends LSLRecPluginDataProcessing
 		}
 	}
 
+	@Override
+	public boolean isMultiselection() 
+	{
+		return true;
+	}
+
 }

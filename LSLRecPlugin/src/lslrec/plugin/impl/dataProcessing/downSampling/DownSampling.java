@@ -134,4 +134,10 @@ public class DownSampling extends LSLRecPluginDataProcessing
 	protected void finishProcess() 
 	{	
 	}
+
+	@Override
+	public boolean isMultiselection() 
+	{
+		return true;
+	}
 }

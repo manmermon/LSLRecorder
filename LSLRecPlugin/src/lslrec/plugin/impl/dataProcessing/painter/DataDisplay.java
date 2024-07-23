@@ -207,4 +207,10 @@ public class DataDisplay extends LSLRecPluginDataProcessing
 		}
 	}
 
+	@Override
+	public boolean isMultiselection() 
+	{
+		return true;
+	}
+
 }

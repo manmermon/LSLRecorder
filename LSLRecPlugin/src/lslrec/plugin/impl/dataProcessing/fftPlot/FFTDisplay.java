@@ -209,4 +209,10 @@ public class FFTDisplay extends LSLRecPluginDataProcessing
 		return arg0;
 	}
 
+
+	@Override
+	public boolean isMultiselection() 
+	{
+		return true;
+	}
 }

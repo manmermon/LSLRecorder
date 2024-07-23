@@ -537,7 +537,7 @@ public class LSLRecPluginTesting {
 		if (type == StreamDataType.string) {
 			bytes = ConvertTo.Transform.StringArray2byteArray(strValues);
 		} else {
-			bytes = ConvertTo.Transform.NumberArray2byteArra(values, type);
+			bytes = ConvertTo.Transform.NumberArray2byteArray(values, type);
 		}
 
 		final byte[] dataByte = bytes;

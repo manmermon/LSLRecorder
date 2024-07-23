@@ -159,7 +159,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 																	, this.process.getDataStreamSetting().getChunkSize() );
 						}
 						
-						byte[] DAT = ConvertTo.Transform.NumberArray2byteArra( processedData, this.process.getDataStreamSetting().data_type() );
+						byte[] DAT = ConvertTo.Transform.NumberArray2byteArray( processedData, this.process.getDataStreamSetting().data_type() );
 						
 						this.out.write( DAT );
 						this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );

@@ -59,6 +59,9 @@ import lslrec.config.ConfigApp;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
@@ -68,6 +71,7 @@ import lslrec.gui.dialog.Dialog_OptionList;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 
 import javax.swing.BorderFactory;
@@ -416,9 +420,15 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 					opts.add( str.name() + " (" + str.uid() + ")" );
 				}
 
+				LSLRecPluginDataProcessing plg = plugin.getProcessing( new SimpleStreamSetting( StreamLibrary.LSL, "test"
+																	, StreamDataType.float32, 1, 1, 0
+																	, 0, false, "", "" ), null );
+				boolean multiSelection = plg.isMultiselection();
 				
-				Dialog_OptionList dial = new Dialog_OptionList();
-
+				plg.finish();
+				
+				Dialog_OptionList dial = new Dialog_OptionList( multiSelection );
+				
 				dial.setIconImage( GeneralAppIcon.getIconoAplicacion( 32, 32 ).getImage() );
 				dial.setTitle( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) );
 				dial.setOptions( opts );
@@ -436,6 +446,18 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				int[] selIndexes = dial.getSelectedIndex();
 
 				Set< IStreamSetting > selStreams = new HashSet< IStreamSetting >();
+				
+				if( DataProcessingPluginRegistrar.getDataStreams( plugin ).size() > 1 && !multiSelection )
+				{
+					DataProcessingPluginRegistrar.removeDataProcessing( plugin );
+				}
+				
+				if( selIndexes.length < 2 && !multiSelection )
+				{
+					DataProcessingPluginRegistrar.removeDataProcessing( plugin );
+					p.removeAll();
+				}
+				
 				for( int index : selIndexes )
 				{
 					IStreamSetting str = streams.get( index );
