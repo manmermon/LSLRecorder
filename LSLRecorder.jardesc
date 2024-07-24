@@ -25,7 +25,6 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lsl"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader.java9"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.processing"/>
@@ -57,7 +56,6 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader.java8"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.compressor"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>

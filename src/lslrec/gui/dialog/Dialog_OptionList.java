@@ -65,10 +65,12 @@ public class Dialog_OptionList extends JDialog
 	private JButton cancelBt;
 	private JTable optionsTable;
 
+	private boolean multiselection = true;
+	
 	/**
 	 * Create the dialog.
 	 */
-	public Dialog_OptionList() 
+	public Dialog_OptionList( boolean multiselection ) 
 	{
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
@@ -78,6 +80,8 @@ public class Dialog_OptionList extends JDialog
 		
 		super.getContentPane().setLayout( new BorderLayout() );
 	
+		this.multiselection = multiselection;
+		
 		super.getContentPane().add( this.getOptionListPanel(), BorderLayout.CENTER);
 		super.getContentPane().add( this.getButtonPanel(), BorderLayout.SOUTH);
 	}
@@ -199,7 +203,14 @@ public class Dialog_OptionList extends JDialog
 			this.optionsTable = this.getCreateJTable();
 			this.optionsTable.setModel( this.createTablemodel( Language.OPTIONS_TEXT ) );
 			
-			this.optionsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			if( this.multiselection )
+			{
+				this.optionsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			}
+			else
+			{
+				this.optionsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION );
+			}
 		}
 		
 		return this.optionsTable;

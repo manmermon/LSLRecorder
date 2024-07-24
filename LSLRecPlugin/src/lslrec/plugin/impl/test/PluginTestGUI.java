@@ -17,7 +17,6 @@ import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
-import lslrec.plugin.impl.compressor.BZip2Data;
 import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
@@ -30,6 +29,7 @@ import lslrec.plugin.impl.encoder.matlab.MatlabEncoderPlugin;
 import lslrec.plugin.impl.gui.alarm.PluginAlarmTest;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
 import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
+import lslrec.plugin.impl.gui.trialStagesMarker.TrialStageMarkerPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin.PluginType;
 import lslrec.plugin.lslrecPlugin.test.LSLRecPluginTesting;
@@ -38,7 +38,6 @@ import javax.swing.border.EtchedBorder;
 import java.awt.Color;
 import javax.swing.JLabel;
 import javax.swing.border.CompoundBorder;
-import javax.swing.JSeparator;
 
 public class PluginTestGUI extends JFrame {
 
@@ -160,9 +159,7 @@ public class PluginTestGUI extends JFrame {
 	}
 	
 	private void setPlugins()
-	{
-		plugins.putElement( PluginType.COMPRESSOR, new BZip2Data() );
-		
+	{		
 		plugins.putElement( PluginType.DATA_PROCESSING, new DownSamplingPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new FFTPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new FIRFilterPlugin() );
@@ -177,5 +174,6 @@ public class PluginTestGUI extends JFrame {
 		plugins.putElement( PluginType.TRIAL, new PluginArithmeticTest() );
 		plugins.putElement( PluginType.TRIAL, new PluginAlarmTest() );
 		plugins.putElement( PluginType.TRIAL, new PluginMemoryTest() );
+		plugins.putElement( PluginType.TRIAL, new TrialStageMarkerPlugin() );
 	}
 }

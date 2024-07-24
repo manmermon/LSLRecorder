@@ -35,7 +35,9 @@ public class Parameter< T > implements IParameter< T >
 	private T value = null;
 	
 	private EventListenerList listenerList;
-
+	
+	private String descTx = null;
+	
 	/**
 	 * Create a parameter
 	 * 
@@ -138,16 +140,26 @@ public class Parameter< T > implements IParameter< T >
 	
 	public String getDescriptorText()
 	{
-		String t = Language.getLocalCaption( this.txtID );
+		String t = this.descTx;
 		
-		if( t == null || t.isEmpty() )
+		if( t == null )
 		{
-			t = this.ID;
+			t = Language.getLocalCaption( this.txtID );
+			
+			if( t == null || t.isEmpty() )
+			{
+				t = this.ID;
+			}
 		}
 			
 		return t;
 	}
-		
+	
+	public void setDescriptorText( String desc )
+	{
+		this.descTx = desc;
+	}
+	
 	public void addValueChangeListener( ChangeListener listener )
 	{
 		this.listenerList.add( ChangeListener.class, listener );

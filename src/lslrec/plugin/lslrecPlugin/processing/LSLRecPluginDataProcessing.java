@@ -310,4 +310,6 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 	protected abstract void finishProcess();
 	
 	protected abstract Number[] processData( Number[] inputs );
+	
+	public abstract boolean isMultiselection();
 }

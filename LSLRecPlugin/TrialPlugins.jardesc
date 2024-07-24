@@ -16,5 +16,6 @@
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.memory"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.alarm"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.gui.trialStagesMarker"/>
     </selectedElements>
 </jardesc>
