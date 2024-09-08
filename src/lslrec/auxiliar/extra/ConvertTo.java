@@ -729,6 +729,24 @@ public class ConvertTo
 			return out;		
 		}
 		
+		public static Number[] MatrixColumn2Array( Number[][] matrix, int selCol )
+		{
+			Number[] array = null;
+		
+			if( matrix != null && matrix.length > 0 
+					&& selCol >= 0 && selCol <matrix[0].length )
+			{
+				array = new Number[ matrix.length ];
+				
+				for(int i = 0; i< array.length; i++)
+				{
+				       array[ i ] = matrix[ i ][ selCol ];
+				}
+			}
+			
+			return array;
+		}
+		
 		public static Tuple< Number[][], Number[] > Array2Matrix( Number[] array, long numCols )
 		{
 			Tuple< Number[][], Number[] > res = new Tuple<Number[][], Number[]>( new Number[0][0], new Number[0] );

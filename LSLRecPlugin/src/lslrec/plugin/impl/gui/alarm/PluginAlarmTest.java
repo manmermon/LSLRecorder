@@ -281,4 +281,9 @@ public class PluginAlarmTest  implements ILSLRecPluginTrial
 		return false;
 	}
 
+	@Override
+	public String getExtraInfo2Stream() 
+	{
+		return "";
+	}
 }

@@ -32,4 +32,6 @@ public interface ILSLRecPluginTrial extends ILSLRecConfigurablePlugin
 	public boolean hasTrialLog();
 	
 	public String getLogDescription();
+	
+	public String getExtraInfo2Stream();
 }

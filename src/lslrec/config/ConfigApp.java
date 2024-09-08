@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2024, 7 - 1, 22 );
+	public static final Calendar buildDate = new GregorianCalendar( 2024, 9 - 1, 7 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -117,6 +117,8 @@ public class ConfigApp
 	 */
 	
 	public static final String SELECTED_SYNC_METHOD = "SYNC_METHOD";
+	
+	public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
 	
 	/***********
 	 * 
@@ -255,6 +257,8 @@ public class ConfigApp
 		list_Key_Type.put( SEGMENT_BLOCK_SIZE, Integer.class );
 		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
+		
+		list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -433,7 +437,16 @@ public class ConfigApp
 								{
 									for( Parameter< String > par : pars )
 									{
-										setting += par + ",";
+										String parValues = par.toString();
+										int indexSep = parValues.indexOf( "," );
+										if( indexSep > 0 )
+										{
+											String id = parValues.substring( 0, indexSep );
+											String val = parValues.substring( indexSep+1, parValues.length() - 1 ).trim();
+										
+											parValues = id + ",{" + val +"}>";
+										}
+										setting += parValues + ",";
 									}
 								}
 								
@@ -946,7 +959,7 @@ public class ConfigApp
 
 					value = value.replaceAll( ">\\s+;\\s+<", ">;<" );
 
-					String[] Plugins = value.split( ";" );
+					String[] Plugins = value.split( ">;<" );
 					if( Plugins.length > 0 )
 					{
 						Plugins[ 0 ] = Plugins[ 0 ].replace( "[", "" ).trim();
@@ -1059,16 +1072,36 @@ public class ConfigApp
 
 								if( !cfg.isEmpty() )
 								{
-									String[] par = cfg.split( "," );
-									// 
-									// par[] = 
-									//			idParameter
-									//			value
-	
+									String[] par = new String[0];
+									
+									int sepIndex = cfg.indexOf( "," );
+									
+									if( sepIndex > 0 )
+									{
+										// 
+										// par[] = 
+										//			idParameter
+										//			value
+										par = new String[ 2 ];
+										
+										par[ 0 ] = cfg.substring( 0, sepIndex );
+										par[ 1 ] = cfg.substring( sepIndex + 1 );
+									}
+										
 									if( par.length == 2 )
 									{
 										String parID = par[ 0 ].trim(); // idParameter
-										String val = par[ 1 ].trim(); // value
+										String val = par[ 1 ].trim().replaceFirst(",\\{", ""); // value
+										
+										if( val.charAt( 0 ) == '{' )
+										{
+											val = val.substring( 1 );
+										}
+										
+										if( val.charAt( val.length() - 1 ) == '}' )
+										{
+											val = val.substring( 0, val.length() - 1 );
+										}
 	
 										pars.addParameter( new Parameter<String>( parID, val ) );
 									}
@@ -1440,6 +1473,12 @@ public class ConfigApp
 				break;
 			}
 			*/
+			case DATA_CHART_SUMMARY:
+			{
+				loadDefaultDataChartSummary();
+				
+				break;
+			}
 		}
 	}
 
@@ -1478,6 +1517,8 @@ public class ConfigApp
 		loadDefaultOutputSegmentBlockSize();
 		
 		//loadDefaultStreamLibrary();
+		
+		loadDefaultDataChartSummary();
 	}
 
 	private static void loadDefaultLanguage()
@@ -1648,4 +1689,9 @@ public class ConfigApp
 		listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.LSL );
 	}
 	*/
+	
+	private static void loadDefaultDataChartSummary()
+	{
+		listConfig.put( DATA_CHART_SUMMARY, false );
+	}
 }

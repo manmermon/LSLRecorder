@@ -37,6 +37,7 @@ import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.sync.dataStream.InputSyncData;
 import lslrec.dataStream.writingSystemTester.WritingTest;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;

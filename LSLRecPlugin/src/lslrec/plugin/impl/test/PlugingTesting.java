@@ -31,6 +31,7 @@ import lslrec.plugin.impl.encoder.hdf5.HDF5EncoderPlugin;
 import lslrec.plugin.impl.gui.alarm.PluginAlarmTest;
 import lslrec.plugin.impl.gui.arithmetic.PluginArithmeticTest;
 import lslrec.plugin.impl.gui.memory.PluginMemoryTest;
+import lslrec.plugin.impl.gui.trialStagesMarker.TrialStageMarkerPlugin;
 import lslrec.plugin.lslrecPlugin.test.LSLRecPluginTesting;
 
 /**
@@ -49,7 +50,8 @@ public class PlugingTesting
 		//OpenposePlotterPlugin plg = new OpenposePlotterPlugin();
 		//ZTransformPlugin plg = new ZTransformPlugin();
 		//FFTPlugin plg = new FFTPlugin();
-		LSLStreamResenderPlugin plg = new LSLStreamResenderPlugin(); 
+		//LSLStreamResenderPlugin plg = new LSLStreamResenderPlugin(); 
+		TrialStageMarkerPlugin plg = new TrialStageMarkerPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		

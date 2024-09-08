@@ -175,6 +175,7 @@ public class Panel_StreamingSettings extends JPanel
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
+	private JCheckBox dataChartSummary;
 	//private JCheckBox delBinaryFiles;
 	//private JCheckBox parallelizeActive;
 	
@@ -509,6 +510,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
+			this.jPanelGeneralAddInfoOutFile.add( this.getDataChartSummaryCheckbox() );
 			//this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
@@ -653,6 +655,55 @@ public class Panel_StreamingSettings extends JPanel
 		}
 		
 		return this.encryptKeyActive;
+	}
+	
+	private JCheckBox getDataChartSummaryCheckbox()
+	{
+		if( this.dataChartSummary == null )
+		{
+			final String ID = ConfigApp.DATA_CHART_SUMMARY;
+			
+			this.dataChartSummary = new JCheckBox();
+			this.dataChartSummary.setText( Language.getLocalCaption( Language.DATA_CHART_SUMMARY_TEXT ) );
+			this.dataChartSummary.setHorizontalTextPosition( JCheckBox.LEFT );
+			
+			this.dataChartSummary.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JCheckBox ch = (JCheckBox)e.getSource();
+					
+					ConfigApp.setProperty( ID, ch.isSelected() );				
+				}
+			});
+			
+			this.dataChartSummary.addPropertyChangeListener( new PropertyChangeListener() 
+			{				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) 
+				{
+					if( evt.getPropertyName().equals( "enabled" ) )
+					{
+						JCheckBox chb = (JCheckBox)evt.getSource();
+						boolean ena = (Boolean)evt.getNewValue();
+						
+						ConfigApp.setProperty( ID, ena );
+						
+						if( ena )
+						{
+							ConfigApp.setProperty( ID, chb.isSelected() );
+						}
+					}
+				}
+			});
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DATA_CHART_SUMMARY_TEXT, this.dataChartSummary );
+			GuiManager.setGUIComponent( ID, ID, this.dataChartSummary );
+									
+		}
+		
+		return this.dataChartSummary;
 	}
 	
 	/*
@@ -933,6 +984,8 @@ public class Panel_StreamingSettings extends JPanel
 						getJTextFileName().setText( nameFile );			
 						
 						getEncryptKeyActive().setEnabled( encorder.isSupportedEncryption() );
+						
+						getDataChartSummaryCheckbox().setEnabled( encorder.getID().equals( DataFileFormat.CLIS ) );
 						
 						List< SettingOptions > opts = encorder.getSettiongOptions();
 						

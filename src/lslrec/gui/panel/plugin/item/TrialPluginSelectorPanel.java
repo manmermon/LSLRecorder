@@ -344,7 +344,7 @@ public class TrialPluginSelectorPanel extends JPanel
 																			, trial.getID() );
 									
 									
-									lsrecStream.getExtraInfo().put( StreamExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription() );
+									lsrecStream.getExtraInfo().put( StreamExtraLabels.ID_TRIAL_INFO_LABEL, trial.getLogDescription()  );
 									
 									LSLRecStream.addDataStream( lsrecStream );
 								}

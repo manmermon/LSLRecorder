@@ -26,7 +26,7 @@ package lslrec.dataStream.family.setting;
 public class StreamExtraLabels 
 {
 	public static final String ID_GENERAL_DESCRIPTION_LABEL = "general";	
-	public static final String ID_RECORD_GENERAL_DESCRIPTION = "recordGeneralDescriptop";
+	public static final String ID_RECORD_GENERAL_DESCRIPTION = "recordGeneralDescriptor";
 	public static final String ID_SOCKET_MARK_INFO_LABEL = "socketMarkInfo";
 	public static final String ID_STREAM_SETTING_LABEL = "streamSetting";
 	public static final String ID_CHUNKSIZE_LABEL = "chunkSize";

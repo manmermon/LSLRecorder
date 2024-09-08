@@ -37,7 +37,7 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
 public abstract class LSLRecPluginTrial extends AbstractStoppableThread
-													implements IMonitoredTask, ITaskIdentity
+										implements IMonitoredTask, ITaskIdentity
 {	
 	private LSLRecPluginSyncMethod syncMethod;
 
@@ -266,7 +266,6 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 			}
 		}
 	}
-	
 	
 	public abstract void setTrialLogStream( ITaskLog log );	
 	

@@ -186,6 +186,7 @@ public class Language
 	public static final String PARALLELIZE_TEXT = "PARALLELIZE_TEXT";
 	public static final String PASSWORD_TEXT = "PASSWORD_TEXT";
 	public static final String DECRYPT_KEY_TEXT = "DECRYPT_KEY_TEXT";
+	public static final String DATA_CHART_SUMMARY_TEXT = "DATA_CHART_SUMMARY_TEXT";
 		
 	public static final String SORT_TEXT = "SORT_TEXT";
 
@@ -232,6 +233,8 @@ public class Language
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
+		captions.put( DATA_CHART_SUMMARY_TEXT, new Caption( DATA_CHART_SUMMARY_TEXT, defaultLanguage, "Data chart summary" ) );
+
 		captions.put( VARIABLE_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variable" ) );
 		captions.put( VARIABLES_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variables" ) );
 		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );

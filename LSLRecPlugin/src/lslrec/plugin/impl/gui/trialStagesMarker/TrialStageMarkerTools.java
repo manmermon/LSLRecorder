@@ -14,7 +14,6 @@ import javax.swing.table.TableModel;
 
 public class TrialStageMarkerTools 
 {
-
 	private static JTable getCreateJTable()
 	{
 		JTable t =  new JTable()
@@ -77,11 +76,11 @@ public class TrialStageMarkerTools
 
 	private static TableModel createTrialStageTablemodel( )
 	{					
-		TableModel tm =  new DefaultTableModel( null, new String[] { "Stage", "Mark", "Time (s)", "Auto" } )
+		TableModel tm =  new DefaultTableModel( null, new String[] { "Stage", "Time (s)", "Auto", "Sub-stages ("+TrialStage.SUBSTAGE_SEPARATOR + ")" } )
 							{
 								private static final long serialVersionUID = 1L;
 								
-								Class[] columnTypes = new Class[]{ String.class, Integer.class, Integer.class, Boolean.class };								
+								Class[] columnTypes = new Class[]{ String.class, Integer.class, Boolean.class, String.class };								
 								boolean[] columnEditables = new boolean[] { true, true, true, true };
 								
 								public Class getColumnClass(int columnIndex) 

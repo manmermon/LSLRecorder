@@ -93,6 +93,14 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		}
 	}
 	
+	public void addExtraInfo2Stream( String label, String text )
+	{
+		if( label != null && !label.trim().isEmpty() && text != null )
+		{
+			super.streamSetting.getExtraInfo().put( label, text );
+		}
+	}
+	
 	protected void preStart() throws Exception
 	{
 		super.preStart();
@@ -232,7 +240,6 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 
 			super.notifTask.addEvent( event );
 					
-			
 			super.closeNotifierThread();
 		}
 	}

@@ -482,4 +482,10 @@ public class PluginArithmeticTest implements ILSLRecPluginTrial
 	{
 		return true;
 	}
+
+	@Override
+	public String getExtraInfo2Stream() 
+	{
+		return "";
+	}
 }

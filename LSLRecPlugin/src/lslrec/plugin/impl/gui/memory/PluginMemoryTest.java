@@ -449,4 +449,10 @@ public class PluginMemoryTest implements ILSLRecPluginTrial
 		
 		return descr;
 	}
+
+	@Override
+	public String getExtraInfo2Stream() 
+	{
+		return "";
+	}
 }

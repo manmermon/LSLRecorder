@@ -28,8 +28,12 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	public static final String POST_RUN_TIME = "Post-run time";
 	public static final String AUTO_FINISH = "Auto finish";
 	
+	public static final String STAGE_SEPARATOR = ":";
+	
 	public static final int PRERUN_MARK = 3;
 	public static final int POSTRUN_MARK = 4;
+	
+	public static final int MARK_BIAS = Math.max( POSTRUN_MARK, PRERUN_MARK );
 	
 	private int stageSyncMark = SyncMarker.NON_MARK;
 		
@@ -50,6 +54,8 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	private Object sync = new Object();
 	
+	private int subStageDelta = 0;
+	
 	public TrialStageMarker() 
 	{
 	}
@@ -67,23 +73,24 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	}
 
 	@Override
-	public void loadSettings(List<Parameter<String>> arg0) 
+	public void loadSettings(List<Parameter<String>> pars) 
 	{
-		if( arg0 != null )
+		if( pars != null )
 		{
 			this.stages.clear();
 			
 			boolean stagesOk = false;
 	
-			for( Parameter< String > par : arg0 )
+			for( Parameter< String > par : pars )
 			{				
 				String val = par.getValue();
 				switch( par.getID() )
 				{
 					case( TrialStageMarker.STAGES ):
 					{
-						String[] phases = val.split( ";" );
-												
+						String[] phases = val.split( STAGE_SEPARATOR );
+											
+						int numPrevSubStages = 0;
 						for( int iPhases = 0; iPhases < phases.length; iPhases++ )
 						{
 							String phase = phases[ iPhases ];
@@ -91,11 +98,23 @@ public class TrialStageMarker extends LSLRecPluginTrial
 							String[] values = phase.split( "," );
 							
 							String id = values[ 0 ];
-							int mark = Integer.parseInt( values[ 1 ] );
-							int time = Integer.parseInt( values[ 2 ] );
-							boolean auto = Boolean.parseBoolean( values[ 3 ] );
+							int time = Integer.parseInt( values[ 1 ] );
+							boolean auto = Boolean.parseBoolean( values[ 2 ] );
+							String substages = "";
 							
-							this.stages.add( new TrialStage( id, mark, time, auto ) );
+							if( values.length == 4 )
+							{
+								substages = values[ 3 ];
+							}
+							
+							int mark = this.MARK_BIAS + ( iPhases + 1 ) + numPrevSubStages;
+							
+							TrialStage tstage =  new TrialStage( id, mark, time, auto );
+							tstage.setSubstages( substages );
+							
+							numPrevSubStages += tstage.getSubstages().length;
+							
+							this.stages.add( tstage );
 						}
 						
 						stagesOk = true;
@@ -111,7 +130,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			
 			if( stagesOk )
 			{			
-				for( Parameter< String > par : arg0 )
+				for( Parameter< String > par : pars )
 				{				
 					String val = par.getValue();
 					switch( par.getID() )
@@ -155,9 +174,9 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	}
 
 	@Override
-	public void setStage( JPanel arg0 ) 
+	public void setStage( JPanel trialPanel ) 
 	{
-		if( arg0 != null )
+		if( trialPanel != null )
 		{
 			synchronized ( sync )
 			{
@@ -176,9 +195,9 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			
 			if( this.stageIndex < this.stages.size() )
 			{
-				arg0.setVisible( false );
-				arg0.setLayout( new BorderLayout() );
-				arg0.removeAll();
+				trialPanel.setVisible( false );
+				trialPanel.setLayout( new BorderLayout() );
+				trialPanel.removeAll();
 
 				TrialStage stage = this.stages.get( this.stageIndex );
 				
@@ -191,7 +210,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				this.wakeupTrialCallByTimer = false;
 				this.stageTimerStop = false;
 				
-				arg0.add( stagePanel, BorderLayout.CENTER );
+				trialPanel.add( stagePanel, BorderLayout.CENTER );
 				
 				final long phaseTime = stage.getTime() * 1000;
 	
@@ -227,7 +246,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				});
 				this.coundDownTimer.setRepeats( true );
 				
-				arg0.addComponentListener( new ComponentAdapter() 
+				trialPanel.addComponentListener( new ComponentAdapter() 
 				{
 					@Override
 					public void componentShown(ComponentEvent e) 
@@ -247,6 +266,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			else if( this.autofinish )
 			{
 				this.stageSyncMark = SyncMarker.STOP_MARK;
+				this.subStageDelta = 0;
 				
 				this.sendSyncMark();
 			}
@@ -260,17 +280,19 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				{
 					this.stageSyncMark = SyncMarker.STOP_MARK;
 				}
+
+				this.subStageDelta = 0;
 				
 				this.wakeupTrialCallByTimer = false;
 				
 				this.setTimeoutTimerMessage();
 			}
 			
-			arg0.setVisible( true );
+			trialPanel.setVisible( true );
 		}
 	}
 	
-	private void sendSyncMark()
+	private void sendSyncMark( )
 	{
 		LSLRecPluginSyncMethod sync = getSyncMethod();
 		
@@ -293,7 +315,8 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			
 			for( TrialStage stg : this.stages )
 			{
-				String idStage = stg.getId( ) + "(" + stg.getMark() +")  ";
+				int stageMark = stg.getMark();
+				String idStage = stg.getId( ) + "(" + stageMark +")  ";
 				
 				if( stage.getId().equals( stg.getId() ) )
 				{
@@ -301,11 +324,20 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				}
 				
 				allStagePanel.add( new JLabel( idStage ) );
+				
+				String[] subStages = stg.getSubstages();
+				if( subStages != null )
+				{
+					stageMark += subStages.length; 
+				}
 			}
 			
 			stagePanel.add( new JScrollPane( allStagePanel ), BorderLayout.NORTH );
 		
 			JPanel panel = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.CENTER ) );
+		
+			panel.add( new JLabel( "Tiempo restante:") );
+			panel.add( this.remainingTimeInfo );
 			
 			JButton bt = new JButton( "Siguiente fase");
 			bt.addActionListener( new ActionListener() 
@@ -317,6 +349,9 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					{
 						stageTimerStop = true;
 						
+						stageSyncMark -= subStageDelta;
+						subStageDelta = 0;
+						
 						if( !wakeupTrialCallByTimer )
 						{					
 							wakeUpTrial();
@@ -326,8 +361,40 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			});
 			
 			panel.add( bt );
-			panel.add( new JLabel( "Tiempo restante:") );
-			panel.add( this.remainingTimeInfo );	
+			
+			String[] substages = stage.getSubstages();
+			
+			if( substages != null )
+			{
+				for( int isub = 0; isub < substages.length; isub++ )
+				{
+					String substage = substages[ isub ];
+					
+					JButton substageBt = new JButton( substage );
+					final int delta = ( isub + 1 );
+					substageBt.addActionListener( new ActionListener() 
+					{	
+						@Override
+						public void actionPerformed(ActionEvent e) 
+						{
+							synchronized ( sync )
+							{
+								if( subStageDelta != delta )
+								{
+									stageSyncMark -= subStageDelta;
+									
+									stageSyncMark += delta;
+									subStageDelta = delta;
+								}
+													
+								sendSyncMark();
+							}			
+						}
+					});
+					
+					panel.add( substageBt );
+				}	
+			}	
 			
 			stagePanel.add( panel, BorderLayout.CENTER );
 		}
@@ -353,6 +420,9 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					{
 						if( !stageTimerStop )
 						{
+							stageSyncMark -= subStageDelta;
+							subStageDelta = 0;
+							
 							if( auto )
 							{
 								wakeupTrialCallByTimer = true;
@@ -360,7 +430,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 								wakeUpTrial();
 							}
 							else
-							{				
+							{	
 								sendSyncMark();
 								
 								setTimeoutTimerMessage();
@@ -397,6 +467,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 		super.startUp();
 		
 		this.stageSyncMark = SyncMarker.START_MARK;
+		this.subStageDelta = 0;
 		
 		synchronized ( this ) 
 		{

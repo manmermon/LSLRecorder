@@ -146,8 +146,10 @@ public class mainLSLRecorder {
 					if (args[0].equals("-c")) 
 					{
 						GuiManager.getInstance().getAppUI().getGlassPane().setVisible(true);
-
+					
 						ConfigApp.loadConfig(new File(args[1]));
+						
+						GuiManager.getInstance().refreshPlugins();
 
 						// appUI.getInstance().checkConfig();
 					}

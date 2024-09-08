@@ -53,6 +53,7 @@ import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
+import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
@@ -75,6 +76,7 @@ import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
+import lslrec.auxiliar.extra.ClisData2ChartImageTask;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
@@ -153,6 +155,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private Object lock = new Object();
 	
 	private BeepSound beep = new BeepSound();
+	
+	private String trialPlgExtraStreamInfo = "";
 	
 	/**
 	 * Create main control unit.
@@ -429,6 +433,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		try
 		{	
+			if( this.writingTestTimer != null )
+			{
+				this.writingTestTimer.stop();
+				this.writingTestTimer = null;
+			}
+			
 			System.gc(); // Clean memory
 
 			this.warnMsg = new WarningMessage(); // To check setting
@@ -489,7 +499,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			//
 			// Before than setOutputHandlerSetting(.)
 			//
-			this.setTrialPlugin();
+			this.trialPlgExtraStreamInfo = this.setTrialPlugin();
 			
 			//
 			//Output data file
@@ -654,9 +664,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( !folder.exists() )
 				{
 					File fpath = folder.getParentFile();
-					if( fpath == null || ( !fpath.exists() &&!fpath.mkdirs() ) )
+					if( fpath == null || ( !fpath.exists() && !fpath.mkdirs() ) )
 					{
-						throw new FileSystemException( "Folder " + folder + " not created." );
+						throw new FileSystemException( "Folder " + fpath.getCanonicalPath() + " not created." );
 					}
 				}
 
@@ -682,7 +692,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
 				this.encryptKey = "";
 				
-				
 				String nodeId = StreamExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
 				String nodeText = "";
 				
@@ -695,7 +704,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}		
 				
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, nodeText );
-									
+							
+				if( this.trial != null && this.trialPlgExtraStreamInfo != null && !this.trialPlgExtraStreamInfo.isEmpty() )
+				{
+						nodeId = StreamExtraLabels.ID_TRIAL_INFO_LABEL + "_" + this.trial.getID().replaceAll("\\s+", "" );
+						
+						((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue()) ).put( nodeId, this.trialPlgExtraStreamInfo );
+				}	
+				
 				nodeId = StreamExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
 				nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
@@ -756,9 +772,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	}
 	
 	
-	private void setTrialPlugin()
+	private String setTrialPlugin()
 	{
 		ILSLRecPluginTrial trialPl = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+		
+		String plExtraInfo = "";
 		
 		if( trialPl != null )
 		{
@@ -766,6 +784,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if( this.trial != null )
 			{
+				plExtraInfo = trialPl.getExtraInfo2Stream();
+				
 				if( trialPl.hasTrialLog() )
 				{
 					StringLogStream log = new StringLogStream();
@@ -802,6 +822,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.trial.taskMonitor( this.ctrlOutputFile );
 			}
 		}
+		
+		return plExtraInfo;
 	}
 	
 	/**
@@ -1086,6 +1108,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{
 			if( this.stopThread == null )
 			{
+				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
+				
 				this.stopThread = new StopWorkingThread();
 				this.stopThread.setName( this.stopThread.getClass().getCanonicalName() );
 				this.stopThread.startThread();
@@ -1995,7 +2019,32 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			LostWaitedThread.getInstance().wakeup();
 			
+			//
+			// DATA CHART SUMMARY
+			//-->
+			
+			if( (Boolean)ConfigApp.getProperty( ConfigApp.DATA_CHART_SUMMARY ) && writingTestTimer == null)
+			{
+				File f = new File( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME).toString() );
+				ClisData2ChartImageTask data2chart = new ClisData2ChartImageTask( f.getParentFile().getAbsolutePath() );
+				try 
+				{
+					data2chart.createChartImageFromClisFiles();
+				} 
+				catch (ReadInputDataException e) 
+				{
+					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+					ExceptionDialog.showMessageDialog( msg, true, true );
+				}
+			}
+			
+			//
+			// 
+			//<--
+			
 			managerGUI.enablePlayButton( true );
+			
+			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			
 			if( closeWhenDoingNothing && !isDoingSomething() )
 			{
@@ -2282,7 +2331,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( writingTestTimer != null )
 				{
 					writingTestTimer.stop();
-					writingTestTimer = null;
+					//writingTestTimer = null;
 				}
 
 				if ( ctrlOutputFile != null)
@@ -2341,13 +2390,15 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				SpecialMarker = null;
 
+				/*
 				System.gc();
-
+				
 				if( closeWhenDoingNothing 
 						&& !isDoingSomething() )
 				{
 					System.exit( 0 );
 				}
+				*/
 			}			
 						
 			//trialWindows = null;
@@ -2378,6 +2429,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		protected void cleanUp() throws Exception 
 		{
 			super.cleanUp();
+
+			System.gc();
+			
+			if( closeWhenDoingNothing 
+					&& !isDoingSomething() )
+			{
+				System.exit( 0 );
+			}
 			
 			stopWorkingThreadEnd();
 		}

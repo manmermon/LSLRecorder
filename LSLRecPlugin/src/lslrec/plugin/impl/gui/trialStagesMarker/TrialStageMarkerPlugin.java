@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -39,9 +38,11 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 {
 	private ParameterList pars = new ParameterList();
 
+	private JPanel settingPanel = null;
+	
 	public TrialStageMarkerPlugin() 
 	{
-		Parameter< String > par = new Parameter<String>( TrialStageMarker.STAGES, "stage1,60" );
+		Parameter< String > par = new Parameter<String>( TrialStageMarker.STAGES, "stage1,60,false, " );
 		this.pars.addParameter( par );
 		
 		par = new Parameter< String >( TrialStageMarker.PRE_RUN_TIME, "10" );
@@ -67,14 +68,14 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			{
 				case TrialStageMarker.STAGES:
 				{
-					String[] phases = val.split( ";" );
+					String[] phases = val.split( TrialStageMarker.STAGE_SEPARATOR );
 					for( String phase : phases )
 					{
 						String[] values = phase.split( "," );
 						
-						if( values.length != 4 )
+						if( values.length < 3 || values.length > 4 )
 						{
-							msg.addMessage( "Error in plugin " + this.getID() + ": stages malformed.", WarningMessage.ERROR_MESSAGE );
+							msg.addMessage( "Error in plugin " + this.getID() + ": stages malformed. (" + phase + ")", WarningMessage.ERROR_MESSAGE );
 						}
 						else if( values[ 0 ].isEmpty() )
 						{
@@ -98,12 +99,11 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 							
 							try
 							{
-								Integer.parseInt( values[ 2 ] );
-								Boolean.parseBoolean( values[ 3 ] );
+								Boolean.parseBoolean( values[ 2 ] );								
 							}
 							catch (Exception e) 
 							{
-								msg.addMessage( "Error in plugin " + this.getID() + ": mark or autoadvancement malformed.", WarningMessage.ERROR_MESSAGE );
+								msg.addMessage( "Error in plugin " + this.getID() + ": autoadvancement malformed.", WarningMessage.ERROR_MESSAGE );
 							}							
 						}
 					}
@@ -172,25 +172,42 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 	@Override
 	public JPanel getSettingPanel() 
 	{
-		JPanel contentPanel = new JPanel( new BorderLayout() );
+		if( this.settingPanel == null )
+		{
+			this.settingPanel = new JPanel( new BorderLayout() );
+
+			this.setSettingComponent();
+		}
 		
+		return this.settingPanel;
+	}
+	
+	private void setSettingComponent( )
+	{
+		if( this.settingPanel == null )
+		{
+			this.getSettingPanel();
+		}
+		
+		this.settingPanel.removeAll();
 		
 		//
 		// stages table
 		//
-		
+
 		JPanel stagePanel = new JPanel( new BorderLayout(5,5) ); 
-		
+
 		JTable table = TrialStageMarkerTools.createStageTrialTable();
-		
+		table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
 		JLabel markInfo = new JLabel( "Pre-Run sync mark = " + TrialStageMarker.PRERUN_MARK + "; Post-Run sync mark = " + TrialStageMarker.POSTRUN_MARK);
 		markInfo.setBackground( Color.WHITE );
 		markInfo.setForeground( Color.BLUE );
-		
+
 		stagePanel.add( table, BorderLayout.CENTER );
 		stagePanel.add( table.getTableHeader(), BorderLayout.NORTH );
 		stagePanel.add( markInfo, BorderLayout.SOUTH );		
-					
+
 		table.getModel().addTableModelListener( new TableModelListener()
 		{				
 			@Override
@@ -199,11 +216,11 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				DefaultTableModel tm = (DefaultTableModel)e.getSource();
 
 				Parameter< String > par = (Parameter< String >)pars.getParameter( TrialStageMarker.STAGES );
-				
+
 				if( e.getType() == TableModelEvent.UPDATE || e.getType() == TableModelEvent.DELETE )
 				{
 					String stages = "";
-					
+
 					for( int r = 0; r < tm.getRowCount(); r++ )
 					{
 						String stg = "";
@@ -212,84 +229,110 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 							Object o = tm.getValueAt( r, c );
 							stg += o.toString() + ",";
 						}
-						
+
 						stg = stg.substring( 0, stg.length() - 1 );
-						
-						stages += stg + ";";
+
+						stages += stg + TrialStageMarker.STAGE_SEPARATOR;
 					}
-					
+
 					stages = stages.substring( 0, stages.length() - 1 );
-					
+
 					par.setValue( stages );					
 				}
 				else if( e.getType() == TableModelEvent.INSERT )
 				{
 					int r = e.getLastRow();
-					
+
 					String newStage = "";
 					for( int c = 0; c < 4; c++ )
 					{
 						Object o = tm.getValueAt( r, c );
 						newStage += o.toString() + ",";
 					}
-					
+
 					newStage = newStage.substring( 0, newStage.length() - 1 );
-					
-					par.setValue( par.getValue() + ";" + newStage );
+
+					if( !par.getValue().contains( newStage ) )
+					{
+						par.setValue( par.getValue() + TrialStageMarker.STAGE_SEPARATOR + newStage );
+					}
 				}
 			}
 		});
+
+		Parameter< String > par = this.pars.getParameter( TrialStageMarker.STAGES );
+		if( par != null )
+		{
+			String stages = par.getValue();
+			
+			if( stages != null && !stages.isEmpty() )
+			{
+				String[] phases = stages.split( TrialStageMarker.STAGE_SEPARATOR );
+				
+				for( String phase : phases )
+				{	
+					String[] values = phase.split( "," );
+					
+					String substages = "";
+					
+					if( values.length >= 3 )
+					{	
+						if( values.length == 4 )
+						{
+							substages = values[ 3 ];
+						}
+						
+						this.addNewStage( table, values[ 0 ], Integer.parseInt( values[ 1 ])
+												, Boolean.parseBoolean( values[ 2 ] ), substages );
+					}
+				}
+				
+			}
+		}
 		
 		//
 		// add/remove stage
 		//
-		
+
 		JPanel controlStagesPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-		
+
 		JButton stageAddBt = new JButton();
-		
+
 		stageAddBt.setIcon( GeneralAppIcon.Add( 16, Color.BLACK ) );
 		if( stageAddBt.getIcon() == null )
 		{
 			stageAddBt.setText( "add" );
 		}
-		
+
 		stageAddBt.addActionListener( new ActionListener() 
 		{			
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				int mark = table.getRowCount() + 5;
-				String newStage = "stage" + (mark - 4);
+				int nStages = table.getRowCount();
+				String newStage = "stage" + (nStages+1);
 				int time = 60;
 				boolean auto = false;
 				
-				Object[] vals = new Object[ 4 ];							
-				vals[ 0 ] = newStage;
-				vals[ 1 ] = mark;
-				vals[ 2 ] = time;
-				vals[ 3 ] = auto;
-				 
-				DefaultTableModel m = (DefaultTableModel)table.getModel();
-				m.addRow( vals );
+				addNewStage( table, newStage, time, auto, "" );
 			}
 		});
-		
-		
+
+
 		JButton stageDelBt = new JButton();
 		stageDelBt.setIcon( GeneralAppIcon.Close( 16, Color.RED ) );
 		if( stageDelBt.getIcon() == null )
 		{
 			stageDelBt.setText( "del" );
 		}
-		
+
 		stageDelBt.addActionListener( new ActionListener() 
 		{			
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
 				int row = table.getSelectedRow();
-				
+
 				if( row >= 0 )
 				{
 					DefaultTableModel m = (DefaultTableModel)table.getModel();
@@ -297,17 +340,17 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				}
 			}
 		});
-		
+
 		controlStagesPanel.add( stageAddBt );
 		controlStagesPanel.add( stageDelBt );
-		
-		
+
+
 		//
-		// Pre/post-run and autofinish
+		// Pre/post-run, autofinish and data summary
 		//
-		
+
 		JPanel otherParametersPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) ); 
-		
+
 		JLabel prerunLb = new JLabel( TrialStageMarker.PRE_RUN_TIME + ": " );
 		JSpinner prerunSp = new JSpinner( new SpinnerNumberModel( new Integer( 10 ), new Integer( 0 ),  new Integer( Integer.MAX_VALUE ), new Integer( 1 )) );
 		prerunSp.addMouseWheelListener( new MouseWheelListener()
@@ -316,7 +359,7 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			public void mouseWheelMoved(MouseWheelEvent e) 
 			{
 				JSpinner sp = (JSpinner)e.getSource();
-				
+
 				int update = 0;
 				if( e.getWheelRotation() > 0 )
 				{
@@ -326,10 +369,10 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				{
 					update = 1;
 				}
-				
+
 
 				Integer v = (Integer)sp.getValue() + update;
-				
+
 				if( ((SpinnerNumberModel)sp.getModel()).getMaximum().compareTo( v ) >= 0 
 						&& ((SpinnerNumberModel)sp.getModel()).getMinimum().compareTo( v ) <= 0 )
 				{
@@ -337,7 +380,7 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				}
 			}
 		});
-		
+
 		prerunSp.addChangeListener( new ChangeListener() 
 		{	
 			@Override
@@ -345,11 +388,13 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			{
 				JSpinner sp = (JSpinner)e.getSource();
 				Integer v = (Integer)sp.getValue();
-				
+
 				pars.getParameter( TrialStageMarker.PRE_RUN_TIME ).setValue( v + "");
 			}
 		});
 		
+		prerunSp.setValue( Integer.parseInt( this.pars.getParameter( TrialStageMarker.PRE_RUN_TIME ).getValue().toString() ) );
+
 		JLabel postrunLb = new JLabel( TrialStageMarker.POST_RUN_TIME + ": " );
 		JSpinner postrunSp = new JSpinner( new SpinnerNumberModel( new Integer( 10 ), new Integer( 0 ), new Integer( Integer.MAX_VALUE ), new Integer( 1 )) );
 		postrunSp.addMouseWheelListener( new MouseWheelListener()
@@ -358,7 +403,7 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			public void mouseWheelMoved(MouseWheelEvent e) 
 			{
 				JSpinner sp = (JSpinner)e.getSource();
-				
+
 				int update = 0;
 				if( e.getWheelRotation() > 0 )
 				{
@@ -368,9 +413,9 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				{
 					update = 1;
 				}
-				
+
 				Integer v = (Integer)sp.getValue() + update;
-				
+
 				if( ((SpinnerNumberModel)sp.getModel()).getMaximum().compareTo( v ) >= 0 
 						&& ((SpinnerNumberModel)sp.getModel()).getMinimum().compareTo( v ) <= 0 )
 				{
@@ -378,7 +423,7 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 				}
 			}
 		});
-		
+
 		postrunSp.addChangeListener( new ChangeListener() 
 		{	
 			@Override
@@ -386,10 +431,12 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			{
 				JSpinner sp = (JSpinner)e.getSource();
 				Integer v = (Integer)sp.getValue();
-				
+
 				pars.getParameter( TrialStageMarker.POST_RUN_TIME ).setValue( v + "");
 			}
 		});
+		
+		postrunSp.setValue( Integer.parseInt( this.pars.getParameter( TrialStageMarker.POST_RUN_TIME ).getValue().toString() ) );
 
 		JCheckBox autofinishChb = new JCheckBox( TrialStageMarker.AUTO_FINISH );
 		autofinishChb.addItemListener( new ItemListener() 
@@ -398,27 +445,43 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 			public void itemStateChanged(ItemEvent e) 
 			{
 				JCheckBox ch = (JCheckBox)e.getSource();
-				
+
 				pars.getParameter( TrialStageMarker.AUTO_FINISH ).setValue( ch.isSelected() + "");
 			}
 		});
-		
+		autofinishChb.setSelected( Boolean.parseBoolean( this.pars.getParameter( TrialStageMarker.AUTO_FINISH ).getValue().toString() ) );
 		
 		otherParametersPanel.add( prerunLb );
 		otherParametersPanel.add( prerunSp );
 		otherParametersPanel.add( postrunLb );
 		otherParametersPanel.add( postrunSp );
 		otherParametersPanel.add( autofinishChb );
-		
+
 		//
 		//
 		//
+
+		JPanel auxPanel = new JPanel( new BorderLayout() );
+		auxPanel.add( controlStagesPanel, BorderLayout.NORTH );
+		auxPanel.add( new JScrollPane( stagePanel ), BorderLayout.CENTER );
+		auxPanel.add( new JScrollPane( otherParametersPanel ), BorderLayout.SOUTH );
 		
-		contentPanel.add( controlStagesPanel, BorderLayout.NORTH );
-		contentPanel.add( new JScrollPane( stagePanel ), BorderLayout.CENTER );
-		contentPanel.add( otherParametersPanel, BorderLayout.SOUTH );
-		
-		return contentPanel;
+		this.settingPanel.add( new JScrollPane( auxPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ), BorderLayout.CENTER );
+	}
+	
+	private void addNewStage( JTable table, String id, int time, boolean auto, String substages )
+	{
+		if( table != null && id != null )
+		{
+			Object[] vals = new Object[ 4 ];							
+			vals[ 0 ] = id;
+			vals[ 1 ] = time;
+			vals[ 2 ] = auto;
+			vals[ 3 ] = substages;
+	
+			DefaultTableModel m = (DefaultTableModel)table.getModel();
+			m.addRow( vals );
+		}
 	}
 
 	@Override
@@ -479,7 +542,7 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 					}
 				}
 			}
-		}
+		}		
 	}
 
 	@Override
@@ -521,4 +584,50 @@ public class TrialStageMarkerPlugin  implements ILSLRecPluginTrial
 		return false;
 	}
 
+
+	@Override
+	public String getExtraInfo2Stream() 
+	{
+		String extra = "sync-markers: " 
+							+TrialStageMarker.PRERUN_MARK  + "=" + TrialStageMarker.PRE_RUN_TIME + ";"
+							+ TrialStageMarker.POSTRUN_MARK + "=" + TrialStageMarker.POST_RUN_TIME + ";";
+		
+		Parameter< String > par = (Parameter< String >)pars.getParameter( TrialStageMarker.STAGES );
+	
+		String[] phases = par.getValue().split( TrialStageMarker.STAGE_SEPARATOR );
+		int numPrevSubstates = 0;		
+		
+		for( int iPhases = 0; iPhases < phases.length; iPhases++ )
+		{
+			String phase = phases[ iPhases ];
+										
+			String[] values = phase.split( "," );
+			
+			String id = values[ 0 ];
+			int mark = ( iPhases + 1 ) + TrialStageMarker.MARK_BIAS + numPrevSubstates;
+			extra +=  + mark + "=" + id + ";";
+			
+			if( values.length == 4 )
+			{
+				String substages = values[ 3 ];
+				
+				String[] substgs = substages.split( TrialStage.SUBSTAGE_SEPARATOR );
+				
+				int nSstg = 0;
+				for( String sstg : substgs )
+				{
+					if( !sstg.trim().isEmpty() )
+					{
+						nSstg++;
+						
+						extra += "" + (mark + nSstg ) + "=" + sstg + ";";
+					}
+				}
+				
+				numPrevSubstates += nSstg;
+			}
+		}
+		
+		return extra.substring( 0, extra.length() - 1 );
+	}
 }
