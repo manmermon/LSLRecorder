@@ -7,7 +7,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.FontMetrics;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -19,6 +18,13 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,17 +41,13 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-import javax.swing.text.BadLocationException;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
@@ -107,15 +109,16 @@ public class Dialog_ConvertClis extends JDialog
 	private JPanel loadFileBtnPanel;
 	
 	private JButton btnLoadFile;
+	private JButton btnLoadRecursiveFilesFromFolder;
 	private JButton btnOutFormatOptions;
 	private JButton btnOk;
 	private JButton btnCancel;
-	private JButton btnOutFolder;
+	//private JButton btnOutFolder;
 	private JButton btnShowFileInfo;
 	
 	private JCheckBox chbxEncrypt;
 	
-	private JTextField txtOutFileFolder;
+	//private JTextField txtOutFileFolder;
 	
 	private JLabel lblLoadFile;	
 	
@@ -695,6 +698,115 @@ public class Dialog_ConvertClis extends JDialog
 		return btnLoadFile;
 	}
 	
+	private JButton getBtnLoadRecursiveFiles() 
+	{
+		if (btnLoadRecursiveFilesFromFolder == null) {
+			
+			btnLoadRecursiveFilesFromFolder = new JButton(  );
+			
+			this.btnLoadRecursiveFilesFromFolder.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
+			this.btnLoadRecursiveFilesFromFolder.setForeground( Color.RED );
+			
+			ImageIcon ic = GeneralAppIcon.Folder( 24, 20, Color.BLACK, Color.RED );
+			
+			if( ic != null )
+			{
+				this.btnLoadRecursiveFilesFromFolder.setIcon( ic );
+			}
+			else
+			{
+				this.btnLoadRecursiveFilesFromFolder.setText( Language.getLocalCaption( Language.LOAD_TEXT ) );
+			}
+			
+			this.btnLoadRecursiveFilesFromFolder.addActionListener( new ActionListener( ) 
+			{
+				public void actionPerformed( ActionEvent e ) 
+				{	
+					String idEncoder = DataFileFormat.CLIS;
+					String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
+										
+					String[] DIRS = FileUtils.selectUserFile( "", true, false, JFileChooser.DIRECTORIES_ONLY, idEncoder, null, currentFolderPath );
+					if( DIRS != null  )
+					{						
+						JTable t = getTableFileData();
+						
+						int rc = t.getRowCount();
+						if( rc > 0)
+						{
+							for( int i = rc-1; i >= 0; i-- )
+							{
+								((DefaultTableModel)t.getModel()).removeRow( i );
+							}
+						}
+												
+						String errMsg = "";
+						for( String dir : DIRS )
+						{							
+							List<Path> allFiles = new ArrayList< Path >(); 
+							try 
+							{
+								listAllFiles( Paths.get( dir ), ext, allFiles );
+								
+								for( Path file : allFiles )
+								{	
+									String fileName = file.toFile().getAbsolutePath().toString();
+									insertBinaryFilesInTable( t, fileName );
+								}
+							}
+							catch (IOException e1) 
+							{
+								errMsg += e1.getMessage() + "\n";
+							}
+						}
+						
+						if( errMsg.length() == 0 )
+						{
+							if( DIRS.length == 1 )
+							{
+								currentFolderPath = (new File( DIRS[ 0 ] ) ).getAbsolutePath();
+							}
+						}
+						else
+						{
+							JOptionPane.showMessageDialog( btnLoadRecursiveFilesFromFolder, errMsg );
+						}
+					}
+				}
+			} );
+			
+		}
+		return btnLoadRecursiveFilesFromFolder;
+	}
+	
+	private void listAllFiles( Path currentPath, String fileExtension,  List<Path> allFiles) throws IOException  
+	{ 
+		try ( DirectoryStream<Path> stream = Files.newDirectoryStream( currentPath ) )  
+		{ 
+			for (Path entry : stream) 
+			{ 
+				if ( Files.isDirectory( entry ) ) 
+				{ 
+					listAllFiles(entry, fileExtension, allFiles); 
+				}
+				else 
+				{ 
+					if( fileExtension != null && !fileExtension.trim().isEmpty() )
+					{
+						PathMatcher matcher = FileSystems.getDefault().getPathMatcher( "glob:*" + fileExtension );
+						if( matcher.matches( entry.getFileName() ) )
+						{
+							allFiles.add( entry );
+						}
+					}
+					else
+					{
+						allFiles.add( entry ); 
+					}
+				} 
+			} 
+		} 
+	} 
+	
 	private JLabel getLblLoadFile() 
 	{
 		if (lblLoadFile == null) 
@@ -741,7 +853,7 @@ public class Dialog_ConvertClis extends JDialog
 			BoxLayout bl = new BoxLayout( this.centerOutputFormatPanel, BoxLayout.X_AXIS );
 			this.centerOutputFormatPanel.setLayout( bl );
 			
-			this.centerOutputFormatPanel.add( this.getTxtOutFileFolder() );
+			//this.centerOutputFormatPanel.add( this.getTxtOutFileFolder() );
 		}
 		
 		return this.centerOutputFormatPanel;
@@ -753,7 +865,7 @@ public class Dialog_ConvertClis extends JDialog
 		{
 			this.eastOutputFormatPanel = new JPanel( new FlowLayout( FlowLayout.LEFT, 0, 0 ) );
 			
-			this.eastOutputFormatPanel.add( this.getBtnOutFolder() );
+			//this.eastOutputFormatPanel.add( this.getBtnOutFolder() );
 		}
 		
 		return this.eastOutputFormatPanel;
@@ -933,6 +1045,7 @@ public class Dialog_ConvertClis extends JDialog
 		return chbxEncrypt;
 	}
 	
+	/*
 	private JTextField getTxtOutFileFolder( ) 
 	{
 		if ( txtOutFileFolder == null )
@@ -986,7 +1099,9 @@ public class Dialog_ConvertClis extends JDialog
 		
 		return txtOutFileFolder;
 	}
-
+	*/
+	
+	/*
 	private JButton getBtnOutFolder( ) 
 	{
 		if ( btnOutFolder == null )
@@ -1022,6 +1137,8 @@ public class Dialog_ConvertClis extends JDialog
 
 		return btnOutFolder;
 	}
+	*/
+	
 	private JPanel getInputFilePanel() 
 	{
 		if (inputFilePanel == null) 
@@ -1292,6 +1409,7 @@ public class Dialog_ConvertClis extends JDialog
 			
 			this.loadFileBtnPanel.add( this.getLblLoadFile() );
 			this.loadFileBtnPanel.add( this.getBtnLoadFile() );
+			this.loadFileBtnPanel.add( this.getBtnLoadRecursiveFiles() ) ;
 		}
 		return this.loadFileBtnPanel;
 	}

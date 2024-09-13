@@ -25,6 +25,7 @@ import java.security.spec.KeySpec;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.List;
+import java.util.Map;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -40,6 +41,7 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -167,6 +169,15 @@ public class ClisMetadata
 		if( xml == null )
 		{
 			xml = "";
+		}
+		
+		Map< String, String > addInfo = (Map< String, String >)pars.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
+		if( addInfo != null )
+		{
+			for( String id : addInfo.keySet() )
+			{
+				xml += "<" + id +">" + addInfo.get( id ) + "</" + id + ">    ";					
+			}
 		}
 		
 		int chs = this.streamSetting.channel_count();
