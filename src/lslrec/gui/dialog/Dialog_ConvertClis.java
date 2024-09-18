@@ -7,6 +7,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -78,6 +79,7 @@ import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 
 import javax.swing.JLabel;
@@ -655,39 +657,11 @@ public class Dialog_ConvertClis extends JDialog
 			this.btnLoadFile.addActionListener( new ActionListener( ) 
 			{
 				public void actionPerformed( ActionEvent e ) 
-				{	
-					String idEncoder = DataFileFormat.CLIS;
-					String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
-					
-					String[] selExt = null;
-					
-					if( ext != null )
-					{						
-						if( ext.charAt( 0 ) == '.' )
-						{
-							ext = ext.substring( 1 );
-						}
-						selExt = new String[] { ext };
-					}
-					
-					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
+				{											
+					String[] FILES = getClisFiles( false );
 					if( FILES != null )
 					{						
-						JTable t = getTableFileData();
-						
-						int rc = t.getRowCount();
-						if( rc > 0)
-						{
-							for( int i = rc-1; i >= 0; i-- )
-							{
-								((DefaultTableModel)t.getModel()).removeRow( i );
-							}
-						}
-						
-						for( String file : FILES )
-						{	
-							insertBinaryFilesInTable( t, file );
-						}
+						loadFile2Table( FILES );
 						
 						currentFolderPath = (new File( FILES[ 0 ] ) ).getAbsolutePath();
 					}
@@ -696,6 +670,77 @@ public class Dialog_ConvertClis extends JDialog
 			
 		}
 		return btnLoadFile;
+	}
+	
+	private String[] getClisFiles( boolean recursive )
+	{
+		String idEncoder = DataFileFormat.CLIS;
+		String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
+						
+		boolean multiSel = !recursive;
+		int selFilesOrDir = ( recursive ) ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY;
+		
+		String[] selExt = null;
+		
+		if( ext != null && !recursive )
+		{						
+			if( ext.charAt( 0 ) == '.' )
+			{
+				ext = ext.substring( 1 );
+			}
+			selExt = new String[] { ext };
+		}
+				
+		String[] FILES = FileUtils.selectUserFile( "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
+		
+		if( recursive )
+		{
+			List< String > files = new ArrayList<String>();
+			
+			List<Path> allFiles = new ArrayList< Path >();
+			for( String dir : FILES )
+			{											 
+				try 
+				{
+					listAllFiles( Paths.get( dir ), ext, allFiles );
+				}
+				catch (IOException e1) 
+				{
+				}
+			}
+			
+			for( Path file : allFiles )
+			{	
+				String fileName = file.toFile().getAbsolutePath().toString();
+				files.add( fileName );
+			}
+			
+			FILES = files.toArray( new String[0] );
+		}
+		
+		return FILES;
+	}
+	
+	private void loadFile2Table( String[] Files )
+	{
+		if( Files != null )
+		{
+			JTable t = getTableFileData();
+			
+			int rc = t.getRowCount();
+			if( rc > 0)
+			{
+				for( int i = rc-1; i >= 0; i-- )
+				{
+					((DefaultTableModel)t.getModel()).removeRow( i );
+				}
+			}
+			
+			for( String file : Files )
+			{	
+				insertBinaryFilesInTable( t, file );
+			}
+		}
 	}
 	
 	private JButton getBtnLoadRecursiveFiles() 
@@ -708,10 +753,18 @@ public class Dialog_ConvertClis extends JDialog
 			this.btnLoadRecursiveFilesFromFolder.setForeground( Color.RED );
 			
 			ImageIcon ic = GeneralAppIcon.Folder( 24, 20, Color.BLACK, Color.RED );
-			
+						
 			if( ic != null )
 			{
-				this.btnLoadRecursiveFilesFromFolder.setIcon( ic );
+				Image imgR = BasicPainter2D.paintText( "R", this.btnLoadRecursiveFilesFromFolder.getFontMetrics( new Font( Font.DIALOG, Font.PLAIN, 10 ) )
+														, null, Color.BLACK, null );
+				
+				Image folder = ic.getImage();
+				BasicPainter2D.compoundImages( folder, folder.getWidth( null ) - imgR.getWidth( null) - 1
+													, folder.getHeight( null ) - imgR.getHeight( null )+1
+													, imgR );
+				
+				this.btnLoadRecursiveFilesFromFolder.setIcon( new ImageIcon( folder ) );
 			}
 			else
 			{
@@ -722,54 +775,13 @@ public class Dialog_ConvertClis extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{	
-					String idEncoder = DataFileFormat.CLIS;
-					String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
-										
-					String[] DIRS = FileUtils.selectUserFile( "", true, false, JFileChooser.DIRECTORIES_ONLY, idEncoder, null, currentFolderPath );
-					if( DIRS != null  )
+					String[] FILES = getClisFiles( true );
+					
+					if( FILES != null  )
 					{						
-						JTable t = getTableFileData();
+						loadFile2Table( FILES );
 						
-						int rc = t.getRowCount();
-						if( rc > 0)
-						{
-							for( int i = rc-1; i >= 0; i-- )
-							{
-								((DefaultTableModel)t.getModel()).removeRow( i );
-							}
-						}
-												
-						String errMsg = "";
-						for( String dir : DIRS )
-						{							
-							List<Path> allFiles = new ArrayList< Path >(); 
-							try 
-							{
-								listAllFiles( Paths.get( dir ), ext, allFiles );
-								
-								for( Path file : allFiles )
-								{	
-									String fileName = file.toFile().getAbsolutePath().toString();
-									insertBinaryFilesInTable( t, fileName );
-								}
-							}
-							catch (IOException e1) 
-							{
-								errMsg += e1.getMessage() + "\n";
-							}
-						}
-						
-						if( errMsg.length() == 0 )
-						{
-							if( DIRS.length == 1 )
-							{
-								currentFolderPath = (new File( DIRS[ 0 ] ) ).getAbsolutePath();
-							}
-						}
-						else
-						{
-							JOptionPane.showMessageDialog( btnLoadRecursiveFilesFromFolder, errMsg );
-						}
+						currentFolderPath = (new File( FILES[ 0 ] ) ).getAbsolutePath();
 					}
 				}
 			} );
