@@ -60,6 +60,7 @@ public class JarLoader {
             // InvocationTargetException
             // MalformedURLException
             // (or a runtime error)
+        	t.printStackTrace();
             throw new AssertionError("internal error", t);
         }
     }

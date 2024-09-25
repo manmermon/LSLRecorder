@@ -20,7 +20,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -81,6 +80,8 @@ import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.stoppableThread.AbstractStoppableThread;
+import lslrec.stoppableThread.IStoppableThread;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -136,6 +137,8 @@ public class Dialog_ConvertClis extends JDialog
 	private String currentFolderPath;
 	private static ClisData currentClisFile = null;
 	
+	private AbstractStoppableThread convertThread = null;
+	private Object sync = new Object();
 	
 	/**
 	 * Launch the application.
@@ -261,6 +264,32 @@ public class Dialog_ConvertClis extends JDialog
 		sptb.width = ( super.getSize().width * 3 ) / 4; 
 		this.progressTaskBar.setSize( sptb );
 		
+		this.progressTaskBar.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
+		
+		this.progressTaskBar.addWindowListener( new WindowAdapter()
+		{			
+			@Override
+			public void windowClosing(WindowEvent e) 
+			{
+				synchronized ( sync ) 
+				{
+					if( convertThread != null )
+					{
+						int sel = JOptionPane.showConfirmDialog( getContentPane(), Language.getLocalCaption( Language.MSG_CANCEL_PROCESS ) );
+						
+						if( sel == JOptionPane.YES_OPTION )
+						{
+							convertThread.stopThread( IStoppableThread.FORCE_STOP );
+							convertThread = null;
+							
+							dispose();
+						}
+					}
+				}
+			}
+		} );
+		
+		
 		super.getContentPane().setLayout( new BorderLayout() );
 		
 		Container container = super.getContentPane();
@@ -322,271 +351,305 @@ public class Dialog_ConvertClis extends JDialog
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					Thread exc = new Thread()
+					synchronized( sync )
 					{
-						public void run() 
+						convertThread = new AbstractStoppableThread()
 						{
-							checkEncryptKey();
+							ClisData clis;
+							IOutputDataFileWriter wr;
+							File ff;
 							
-							JTable t = getTableFileData();
-								
-							Timer actTimer = null;
-							
-							Thread thrExc = this;
-							
-							dcc.setEnabled( false );
-							
-							String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
-							
-							try
-							{	
-								Tuple< Encoder, WarningMessage > tEnc = DataFileFormat.getDataFileEncoder( idEncoder );
-								
-								Encoder enc = tEnc.t1;
-								WarningMessage wm = tEnc.t2;
-								
-								if( enc != null )
-								{
-									if( wm.getWarningType() != WarningMessage.ERROR_MESSAGE )
-									{
-										int nFiles = t.getRowCount();
-																										
-										progressTaskBar.setMaximum( nFiles );
-										progressTaskBar.setTitle( dcc.getTitle() + " " +idEncoder );
-										progressTaskBar.setVisible( true );
-																				
-										if( wm.getWarningType() == WarningMessage.WARNING_MESSAGE )
-										{
-											ExceptionMessage msg = new ExceptionMessage( new SettingException( wm.getMessage() ) , Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
-											ExceptionDialog.showMessageDialog( msg, true, true );
-										}
-
-										String outExtFile = DataFileFormat.getSupportedFileExtension().get( idEncoder );
-										if( outExtFile == null )
-										{
-											outExtFile = "." + idEncoder;
-										}								
-																				
-										for( int i = 0; i < nFiles; i++ )
-										{
-											String file = t.getValueAt( i, 0).toString();
-											
-											File ff = new File( file );
-											
-											if( actTimer != null )
-											{
-												actTimer.stop();
-											}
-											
-											final int ii = i;
-											actTimer =  new Timer( 1100, new ActionListener() 
-											{									
-												int c = 0;
-												
-												@Override
-												public void actionPerformed(ActionEvent e) 
-												{
-													if( thrExc.getState().equals( Thread.State.RUNNABLE ) )
-													{
-														c++;														
-														
-														switch( c )
-														{
-															case 1:
-															{
-																updateProgress( "/ " + ff.getName(), ii );
-																
-																break;
-															}
-															case 2:
-															{
-																updateProgress( "- " + ff.getName(), ii );
-																
-																break;
-															}
-															case 3:
-															{
-																updateProgress( "\\ " + ff.getName(), ii );
-																
-																break;
-															}
-															default:
-															{
-																updateProgress( "| " + ff.getName(), ii );
-																
-																break;
-															}
-														}
-													}
-													
-													c = c % 4;
-												}
-											});
-											
-											actTimer.setRepeats( true );
-											actTimer.start();
-											
-											updateProgress(  "| " + ff.getName(), i );
-																						
-											String outFile = file + outExtFile;
-											if( file.endsWith( ".clis" ) )
-											{
-												int lastDot = file.lastIndexOf( "." );
-
-												outFile = file.substring( 0, lastDot ) + outExtFile;
-											}
-
-											Tuple< String, Boolean > check = FileUtils.checkOutputFileName( outFile, "", "");
-
-											if( !check.t2 )
-											{
-												outFile = check.t1;
-											}
-											
-											outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, outFile);
-											
-											ITaskMonitor itm = new ITaskMonitor() 
-											{											
-												@Override
-												public void taskDone(INotificationTask task) throws Exception 
-												{	
-													
-												}
-											};
-											
-
-											ClisData clis = new ClisData( file );
-											
-											List< MetadataVariableBlock > lmvb = clis.getVarInfo();
-											
-											List< String > varNames = new ArrayList< String >();
-											String v = "";
-											StreamDataType varType = StreamDataType.double64;
-											int nChs = 0;
-											for( MetadataVariableBlock vb : lmvb )
-											{
-												varNames.add( vb.getName() );
-												nChs += vb.getCols();
-												v += vb.getName();												
-											}
-
-											String header = clis.getHeader();
-											
-											SimpleStreamSetting sst = new SimpleStreamSetting( StreamLibrary.LSL
-																								, v
-																								, varType
-																								, nChs
-																								, 1
-																								, 0
-																								, 3
-																								, true
-																								, ""
-																								, ""
-																								, null );
-
-											MutableStreamSetting msst = new MutableStreamSetting( sst );
-											msst.setDescription( header );
-											outFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames.toString() );
-											
-											IOutputDataFileWriter wr = enc.getWriter( outFormat, msst, itm );
-																						
-											int iSeq = 0;
-											for( int iv = 0; iv < lmvb.size(); iv++ )
-											{												
-												MetadataVariableBlock vb = lmvb.get( iv );
-												
-												double memorySize = (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) * Math.pow( 2, 20 );
-												int dataByteSize = StreamUtils.getDataTypeBytes( vb.getDataType() );
-												
-												int chunkSize = (int)( memorySize / dataByteSize );
-												if( chunkSize < 1 )
-												{
-													chunkSize = 1;
-												}
-												
-												nChs = vb.getCols();
-												String var = vb.getName();
-												varType = vb.getDataType();
-													
-												boolean cont = true;
-												while( cont )
-												{
-													Number[][] vData = clis.importNextDataBlock( iv, chunkSize );
-													
-													cont = ( vData != null );
-													
-													if( cont )
-													{
-														DataBlock db = DataBlockFactory.getDataBlock( varType, iSeq, var, nChs, ConvertTo.Transform.Matrix2Array( vData ) );
-	
-														wr.saveData( db );
-	
-														iSeq++;
-													}
-												}
-											}
-											
-											wr.addMetadata( "", header );
-											while( !wr.isFinished() )
-											{
-												synchronized ( this )
-												{
-													super.wait( 100L );
-												}
-											}
-											
-											wr.close();
-											clis.close();
-											
-											updateProgress( ff.getName(), i + 1 );
-											
-											synchronized ( this )
-											{
-												super.wait( 1000L );
-											}
-										}
-									}
-									else
-									{
-										throw new SettingException( wm.getMessage() );
-									}
-								}
-							}
-							catch (Exception ex) 
+							public void runInLoop() 
 							{
-								LostWaitedThread.getInstance().wakeup();
+								checkEncryptKey();
 								
-								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
-								ExceptionDialog.showMessageDialog( msg, true, true );
-
-								ex.printStackTrace();
-							}
-							finally 
-							{
-								if( actTimer != null )
-								{
-									actTimer.stop();
-								}
+								JTable t = getTableFileData();
+									
+								Timer actTimer = null;
+								
+								Thread thrExc = this;
 								
 								dcc.setEnabled( false );
-							}
-							//JOptionPane.showMessageDialog( dcc, AppState.State.SAVED );
+								
+								String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
+								
+								try
+								{	
+									Tuple< Encoder, WarningMessage > tEnc = DataFileFormat.getDataFileEncoder( idEncoder );
+									
+									Encoder enc = tEnc.t1;
+									WarningMessage wm = tEnc.t2;
+									
+									if( enc != null )
+									{
+										if( wm.getWarningType() != WarningMessage.ERROR_MESSAGE )
+										{
+											int nFiles = t.getRowCount();
+																											
+											progressTaskBar.setMaximum( nFiles );
+											progressTaskBar.setTitle( dcc.getTitle() + " " +idEncoder );
+											progressTaskBar.setVisible( true );
+																					
+											if( wm.getWarningType() == WarningMessage.WARNING_MESSAGE )
+											{
+												ExceptionMessage msg = new ExceptionMessage( new SettingException( wm.getMessage() ) , Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
+												ExceptionDialog.showMessageDialog( msg, true, true );
+											}
+	
+											String outExtFile = DataFileFormat.getSupportedFileExtension().get( idEncoder );
+											if( outExtFile == null )
+											{
+												outExtFile = "." + idEncoder;
+											}								
+																					
+											for( int i = 0; i < nFiles; i++ )
+											{
+												String file = t.getValueAt( i, 0).toString();
+												
+												ff = new File( file );
+												
+												if( actTimer != null )
+												{
+													actTimer.stop();
+												}
+												
+												final int ii = i;
+												actTimer =  new Timer( 1100, new ActionListener() 
+												{									
+													int c = 0;
+													
+													@Override
+													public void actionPerformed(ActionEvent e) 
+													{
+														if( thrExc.getState().equals( Thread.State.RUNNABLE ) )
+														{
+															c++;														
+															
+															switch( c )
+															{
+																case 1:
+																{
+																	updateProgress( "/ " + ff.getName(), ii );
+																	
+																	break;
+																}
+																case 2:
+																{
+																	updateProgress( "- " + ff.getName(), ii );
+																	
+																	break;
+																}
+																case 3:
+																{
+																	updateProgress( "\\ " + ff.getName(), ii );
+																	
+																	break;
+																}
+																default:
+																{
+																	updateProgress( "| " + ff.getName(), ii );
+																	
+																	break;
+																}
+															}
+														}
 														
-							progressTaskBar.dispose();
+														c = c % 4;
+													}
+												});
+												
+												actTimer.setRepeats( true );
+												actTimer.start();
+												
+												updateProgress(  "| " + ff.getName(), i );
+																							
+												String outFile = file + outExtFile;
+												if( file.endsWith( ".clis" ) )
+												{
+													int lastDot = file.lastIndexOf( "." );
+	
+													outFile = file.substring( 0, lastDot ) + outExtFile;
+												}
+	
+												Tuple< String, Boolean > check = FileUtils.checkOutputFileName( outFile, "", "");
+	
+												if( !check.t2 )
+												{
+													outFile = check.t1;
+												}
+												
+												outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, outFile);
+												
+												ITaskMonitor itm = new ITaskMonitor() 
+												{											
+													@Override
+													public void taskDone(INotificationTask task) throws Exception 
+													{	
+														
+													}
+												};
+												
+	
+												clis = new ClisData( file );
+												
+												List< MetadataVariableBlock > lmvb = clis.getVarInfo();
+												
+												List< String > varNames = new ArrayList< String >();
+												String v = "";
+												StreamDataType varType = StreamDataType.double64;
+												int nChs = 0;
+												for( MetadataVariableBlock vb : lmvb )
+												{
+													varNames.add( vb.getName() );
+													nChs += vb.getCols();
+													v += vb.getName();												
+												}
+	
+												String header = clis.getHeader();
+												
+												SimpleStreamSetting sst = new SimpleStreamSetting( StreamLibrary.LSL
+																									, v
+																									, varType
+																									, nChs
+																									, 1
+																									, 0
+																									, 3
+																									, true
+																									, ""
+																									, ""
+																									, null );
+	
+												MutableStreamSetting msst = new MutableStreamSetting( sst );
+												msst.setDescription( header );
+												outFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames.toString() );
+												
+												wr = enc.getWriter( outFormat, msst, itm );
+																							
+												int iSeq = 0;
+												for( int iv = 0; iv < lmvb.size(); iv++ )
+												{												
+													MetadataVariableBlock vb = lmvb.get( iv );
+													
+													double memorySize = (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) * Math.pow( 2, 20 );
+													int dataByteSize = StreamUtils.getDataTypeBytes( vb.getDataType() );
+													
+													int chunkSize = (int)( memorySize / dataByteSize );
+													if( chunkSize < 1 )
+													{
+														chunkSize = 1;
+													}
+													
+													nChs = vb.getCols();
+													String var = vb.getName();
+													varType = vb.getDataType();
+														
+													boolean cont = true;
+													while( cont )
+													{
+														Number[][] vData = clis.importNextDataBlock( iv, chunkSize );
+														
+														cont = ( vData != null );
+														
+														if( cont )
+														{
+															DataBlock db = DataBlockFactory.getDataBlock( varType, iSeq, var, nChs, ConvertTo.Transform.Matrix2Array( vData ) );
+		
+															wr.saveData( db );
+		
+															iSeq++;
+														}
+													}
+												}
+												
+												wr.addMetadata( "", header );
+												while( !wr.isFinished() )
+												{
+													synchronized ( this )
+													{
+														super.wait( 100L );
+													}
+												}
+												
+												updateProgress( ff.getName(), i + 1 );
+												
+												wr.close();
+											}
+										}
+										else
+										{											
+											throw new SettingException( wm.getMessage() );
+										}
+									}
+								}
+								catch (Exception ex) 
+								{
+									LostWaitedThread.getInstance().wakeup();
+									
+									ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+									ExceptionDialog.showMessageDialog( msg, true, true );
+	
+									ex.printStackTrace();
+								}
+								finally 
+								{
+									if( actTimer != null )
+									{
+										actTimer.stop();
+									}
+									
+									dcc.setEnabled( false );
+									
+									super.stopThread = true;
+								}
+								//JOptionPane.showMessageDialog( dcc, AppState.State.SAVED );
+								
+								synchronized( sync )
+								{
+									convertThread = null;
+								}
+								
+								progressTaskBar.dispose();
+								
+								JOptionPane.showConfirmDialog( dcc
+																, AppState.State.SAVED
+																, dcc.getTitle() + " " + idEncoder
+																, JOptionPane.DEFAULT_OPTION
+																, JOptionPane.INFORMATION_MESSAGE, null );
+								
+								dcc.dispose();
+							}
+
+							@Override
+							protected void preStopThread(int friendliness) throws Exception 
+							{}
+
+							@Override
+							protected void postStopThread(int friendliness) throws Exception 
+							{}
 							
-							JOptionPane.showConfirmDialog( dcc
-															, AppState.State.SAVED
-															, dcc.getTitle() + " " + idEncoder
-															, JOptionPane.DEFAULT_OPTION
-															, JOptionPane.INFORMATION_MESSAGE, null );
-							
-							dcc.dispose();
+							protected void cleanUp() throws Exception 
+							{
+								wr.close();
+								clis.close();
+								
+								synchronized ( this )
+								{
+									super.wait( 1000L );
+								}
+							};
 						};
-					};
-					
-					exc.setName( "exc-" + super.getClass().getCanonicalName() );
-					
-					exc.start();
+						
+						convertThread.setName( "exc-convertClis");
+						
+						try 
+						{
+							convertThread.startThread();
+						} 
+						catch (Exception e1) 
+						{
+							e1.printStackTrace();
+						}
+					}
 					
 				}
 			});
@@ -777,7 +840,7 @@ public class Dialog_ConvertClis extends JDialog
 				{	
 					String[] FILES = getClisFiles( true );
 					
-					if( FILES != null  )
+					if( FILES != null && FILES.length > 0 )
 					{						
 						loadFile2Table( FILES );
 						

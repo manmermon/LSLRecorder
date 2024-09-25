@@ -147,7 +147,8 @@ public class Language
 	public static final String MSG_WARNING_DATA_PROCESSING = "MSG_WARNING_DATA_PROCESSING";
 	public static final String MSG_ILLEGAL_VALUE = "MSG_ILLEGAL_VALUE";
 	public static final String MSG_ENCODER_PLUGIN_NO_FOUND = "MSG_ENCODER_PLUGIN_NO_FOUND";
-
+	public static final String MSG_CANCEL_PROCESS = "MSG_CANCEL_PROCESS";
+	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
 
@@ -240,7 +241,8 @@ public class Language
 		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );
 		captions.put( ALL_TEXT, new Caption( ALL_TEXT,  defaultLanguage, "All" ) );
 		captions.put( NONE_TEXT, new Caption( NONE_TEXT,  defaultLanguage, "None" ) );
-		
+
+		captions.put( MSG_CANCEL_PROCESS, new Caption( MSG_CANCEL_PROCESS,  defaultLanguage, "Cancel process." ) );
 		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
 		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checking timer (sec or v / Fsampling)" ) );
