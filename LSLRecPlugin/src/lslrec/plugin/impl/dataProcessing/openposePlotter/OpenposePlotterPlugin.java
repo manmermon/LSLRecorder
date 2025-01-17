@@ -196,4 +196,10 @@ public class OpenposePlotterPlugin extends LSLRecConfigurablePluginAbstract impl
 	protected void postLoadSettings() 
 	{	
 	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

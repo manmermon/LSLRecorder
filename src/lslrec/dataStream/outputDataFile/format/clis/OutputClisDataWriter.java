@@ -23,7 +23,6 @@ package lslrec.dataStream.outputDataFile.format.clis;
 
 import java.io.IOException;
 
-import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.language.Language;
@@ -153,7 +152,6 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 	@Override
 	public boolean saveData( DataBlock dataBlock ) throws Exception 
 	{	
-
 		if( dataBlock instanceof ByteBlock)
 		{
 			ByteBlock d = (ByteBlock)dataBlock;

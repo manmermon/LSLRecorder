@@ -406,7 +406,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			synchronized ( this.isStreamClosed ) 
 			{
 				this.isStreamClosed.set( true );
-				this.inLet.close_stream();				
+				this.inLet.close_stream(); 				
 			}
 						
 			//this.inLet.close();
@@ -964,7 +964,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	protected void cleanUp() throws Exception
 	{
 		super.cleanUp();
-
 		
 		if (this.timer != null)
 		{
@@ -1006,8 +1005,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				this.timer.stop();
 			}
 			
-			//this.streamSetting.destroy();
-			
 			if( !this.postCleanDone.get() )
 			{
 				this.postCleanDone.set( true );
@@ -1022,7 +1019,23 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	protected void closeNotifierThread()
 	{
 		if( this.notifTask != null )
-		{
+		{			
+			synchronized ( this.notifTask )
+			{
+				this.notifTask.notify();
+			}
+			
+			synchronized ( this )
+			{
+				try
+				{
+					super.wait( 100L );
+				} 
+				catch (InterruptedException e) 
+				{
+				}
+			}
+			
 			this.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 			synchronized ( this.notifTask )
 			{

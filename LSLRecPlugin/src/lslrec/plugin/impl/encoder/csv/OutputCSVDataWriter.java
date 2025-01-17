@@ -166,6 +166,8 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 			this.transferRemainingRows();
 		}
 		
+		
+		
 		this.FWriterMain.seek( 0 );
 		this.header = ( this.header.isEmpty() ? this.header :  this.header.substring(0, this.header.length()-1 ) );
 		this.header += "\n\n";

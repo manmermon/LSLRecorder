@@ -225,4 +225,10 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 	protected void postLoadSettings() 
 	{	
 	}
+	
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

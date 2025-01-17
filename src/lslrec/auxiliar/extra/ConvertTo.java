@@ -1244,6 +1244,23 @@ public class ConvertTo
 		{
 			return (new String( bytes )).toCharArray();
 		}
+		
+		public static byte[] charArray2byteArray( char[] chars)	
+		{
+			byte[] out = null;
+			
+			if( chars != null )
+			{
+				out = new byte[ chars.length ];
+				
+				for( int i = 0; i < chars.length; i++ )
+				{
+					out[ i ] = (byte)chars[ i ];
+				}
+			}
+			
+			return out;
+		}
 
 		public static Number[] Interleaved( Number[] array, int chunkSize )
 		{

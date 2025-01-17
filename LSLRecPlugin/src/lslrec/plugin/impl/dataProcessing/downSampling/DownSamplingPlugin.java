@@ -24,6 +24,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
@@ -111,6 +113,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 		
 		return eq;
 	}
+	
 
 	@Override
 	protected void setSettingPanel( JPanel arg0 ) 
@@ -121,7 +124,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 			arg0.setLayout( new BorderLayout( ) );
 			
 			List< SettingOptions > opts = new  ArrayList< SettingOptions >();			
-			ParameterList pars = new ParameterList();
+			ParameterList parList = new ParameterList();
 			
 			for( Parameter< String > par : super.getSettings() )
 			{
@@ -134,10 +137,26 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 					{
 						int dec = Integer.parseInt( val );
 
+						if( pars.get( id ) == null )
+						{
+							pars.put( id, new Parameter<String>( id, val ) );
+						}
+						
 						Parameter< Integer > p = new Parameter< Integer >( id, dec );
 						p.setLangID( id );
-						pars.addParameter( p );
-												
+						parList.addParameter( p );
+						
+						p.addValueChangeListener( new ChangeListener() 
+						{	
+							@Override
+							public void stateChanged(ChangeEvent e) 
+							{
+								Parameter< Integer > p = (Parameter<Integer>)e.getSource();
+								
+								pars.get( p.getID() ).setValue( p.getValue() + "" );
+							}
+						});
+						
 						SettingOptions opt = new SettingOptions( id, SettingOptions.Type.NUMBER, false, null, id );
 						opt.addValue( dec + "" );
 						opts.add( opt );
@@ -151,7 +170,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 				}
 			}
 			
-			JPanel p = CreatorDefaultSettingPanel.getSettingPanel( opts, pars );			
+			JPanel p = CreatorDefaultSettingPanel.getSettingPanel( opts, parList );			
 			//arg0.add( CreatorDefaultSettingPanel.getSettingPanel( opts, pars ), BorderLayout.NORTH );
 			arg0.add( p, BorderLayout.NORTH );
 			arg0.setVisible( true );
@@ -170,5 +189,11 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 	@Override
 	protected void postLoadSettings() 
 	{	
+	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.BOTH;
 	}
 }

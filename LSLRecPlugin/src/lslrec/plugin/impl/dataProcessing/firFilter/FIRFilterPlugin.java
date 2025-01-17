@@ -775,4 +775,10 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 		
 		return fir;
 	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.BOTH;
+	}
 }

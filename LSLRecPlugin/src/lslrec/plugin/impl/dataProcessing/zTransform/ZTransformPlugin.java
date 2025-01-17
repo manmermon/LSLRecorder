@@ -68,5 +68,10 @@ public class ZTransformPlugin implements ILSLRecPluginDataProcessing
 	{
 		return new Filter( arg0, arg1 );
 	}
-	
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

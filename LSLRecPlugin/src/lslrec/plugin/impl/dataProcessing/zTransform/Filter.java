@@ -297,10 +297,4 @@ public class Filter extends LSLRecPluginDataProcessing
 			}
 		}				
 	}
-
-	@Override
-	public boolean isMultiselection() 
-	{
-		return true;
-	}
 }

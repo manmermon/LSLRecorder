@@ -913,7 +913,8 @@ public class GuiManager
 		{
 			if( !streams.contains( dss ) )
 			{
-				DataProcessingPluginRegistrar.removeDataStreamInAllProcess( dss );
+				//DataProcessingPluginRegistrar.removeDataStreamInAllProcess( dss );
+				DataProcessingPluginRegistrar.removeDataStream( dss );
 		
 				del = true;
 			}

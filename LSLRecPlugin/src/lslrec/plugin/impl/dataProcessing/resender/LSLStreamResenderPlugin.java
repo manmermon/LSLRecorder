@@ -195,4 +195,10 @@ public class LSLStreamResenderPlugin extends LSLRecConfigurablePluginAbstract im
 	protected void postLoadSettings() 
 	{	
 	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

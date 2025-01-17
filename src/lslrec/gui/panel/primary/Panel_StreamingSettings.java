@@ -510,7 +510,7 @@ public class Panel_StreamingSettings extends JPanel
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
 			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-			this.jPanelGeneralAddInfoOutFile.add( this.getDataChartSummaryCheckbox() );
+			//this.jPanelGeneralAddInfoOutFile.add( this.getDataChartSummaryCheckbox() );
 			//this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
@@ -657,6 +657,7 @@ public class Panel_StreamingSettings extends JPanel
 		return this.encryptKeyActive;
 	}
 	
+	/*
 	private JCheckBox getDataChartSummaryCheckbox()
 	{
 		if( this.dataChartSummary == null )
@@ -705,6 +706,7 @@ public class Panel_StreamingSettings extends JPanel
 		
 		return this.dataChartSummary;
 	}
+	//*/
 	
 	/*
 	private JCheckBox getParallelizeActive()
@@ -985,7 +987,7 @@ public class Panel_StreamingSettings extends JPanel
 						
 						getEncryptKeyActive().setEnabled( encorder.isSupportedEncryption() );
 						
-						getDataChartSummaryCheckbox().setEnabled( encorder.getID().equals( DataFileFormat.CLIS ) );
+						//getDataChartSummaryCheckbox().setEnabled( encorder.getID().equals( DataFileFormat.CLIS ) );
 						
 						List< SettingOptions > opts = encorder.getSettiongOptions();
 						

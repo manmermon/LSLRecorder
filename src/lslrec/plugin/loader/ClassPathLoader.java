@@ -27,10 +27,8 @@ package lslrec.plugin.loader;
 
 import java.io.File;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.Stack;
 
 public class ClassPathLoader 
 {

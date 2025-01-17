@@ -29,7 +29,7 @@ import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 
 public abstract class LSLRecPluginDataProcessing implements ITaskIdentity												
-{		
+{	
 	protected final IStreamSetting streamSetting;
 
 	// Data buffers 
@@ -295,7 +295,7 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 	{
 		if( this.prevProcess != null )
 		{
-			this.prevProcess.finishProcess();
+			this.prevProcess.finish();
 		}
 		
 		this.finishProcess();
@@ -310,6 +310,4 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 	protected abstract void finishProcess();
 	
 	protected abstract Number[] processData( Number[] inputs );
-	
-	public abstract boolean isMultiselection();
 }

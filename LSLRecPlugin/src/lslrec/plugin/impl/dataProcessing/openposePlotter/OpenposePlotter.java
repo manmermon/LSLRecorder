@@ -196,11 +196,4 @@ public class OpenposePlotter extends LSLRecPluginDataProcessing
 			w.dispose();
 		}
 	}
-
-	@Override
-	public boolean isMultiselection() 
-	{
-		return true;
-	}
-
 }

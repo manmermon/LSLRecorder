@@ -31,6 +31,15 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
+import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.CharBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.DoubleBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.FloatBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.IntegerBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.LongBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
+import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
@@ -135,7 +144,7 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 					}
 				}
 				
-				if( this.data.size() >= this.dataBlockSize )
+				while( this.data.size() >= this.dataBlockSize )
 				{
 					Number[] d;
 					synchronized ( this.data )
@@ -182,16 +191,92 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 	{
 		if( this.process != null && inputs != null )
 		{
-			this.inputs.add( ConvertTo.Casting.byteArray2ByteArray( inputs ) );
-			this.inputTimes.add( ConvertTo.Casting.byteArray2ByteArray( times ) );
-						
-			synchronized ( this ) 
+			synchronized( this.inputs )
 			{
-				super.notify();
+				this.inputs.add( ConvertTo.Casting.byteArray2ByteArray( inputs ) );
+				this.inputTimes.add( ConvertTo.Casting.byteArray2ByteArray( times ) );
+							
+				synchronized ( this ) 
+				{
+					super.notify();
+				}
+			}
+		}
+	}
+	
+	public final void processData( DataBlock dataBlock, DataBlock timeBlock )
+	{
+		if( this.process != null && dataBlock != null )
+		{
+			synchronized( this.inputs )
+			{
+				this.inputs.add( ConvertTo.Casting.byteArray2ByteArray( convertDataBlock( dataBlock ) ) );
+				this.inputTimes.add( ConvertTo.Casting.byteArray2ByteArray( convertDataBlock( timeBlock ) ) );
+
+				synchronized ( this ) 
+				{
+					super.notify();
+				}
 			}
 		}
 	}
 
+	private byte[] convertDataBlock( DataBlock dataBlock )
+	{
+		byte[] dat = new byte[0];
+		
+		if( dataBlock != null )
+		{
+			if( dataBlock instanceof ByteBlock)
+			{
+				ByteBlock d = (ByteBlock)dataBlock;
+				dat = ConvertTo.Casting.ByterArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof ShortBlock)
+			{
+				ShortBlock d = (ShortBlock)dataBlock;
+				dat = ConvertTo.Transform.ShortArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof IntegerBlock )
+			{
+				IntegerBlock d = (IntegerBlock)dataBlock;
+				dat = ConvertTo.Transform.IntegerArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof LongBlock)
+			{
+				LongBlock d = (LongBlock)dataBlock;
+				dat = ConvertTo.Transform.LongArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof FloatBlock)
+			{
+				FloatBlock d = (FloatBlock)dataBlock;
+				dat = ConvertTo.Transform.FloatArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof DoubleBlock)
+			{
+				DoubleBlock d = (DoubleBlock)dataBlock;
+				dat = ConvertTo.Transform.DoubleArray2byteArray( d.getData() );
+			}
+			else if(dataBlock instanceof CharBlock)
+			{
+				CharBlock d = (CharBlock)dataBlock;
+				dat = ConvertTo.Transform.charArray2byteArray( ConvertTo.Casting.CharacterArray2charArray( d.getData() ) );
+			}
+			else if( dataBlock instanceof StringBlock )
+			{
+				StringBlock d = (StringBlock)dataBlock;
+				Character[] chars = d.getData();
+
+				dat = ConvertTo.Transform.charArray2byteArray( ConvertTo.Casting.CharacterArray2charArray( chars ) );
+			}
+			else
+			{
+			}
+		}
+		
+		return dat;
+	}
+	
 	@Override
 	protected void preStopThread(int friendliness) throws Exception 
 	{

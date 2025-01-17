@@ -28,5 +28,9 @@ import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
  */
 public interface ILSLRecPluginDataProcessing extends ILSLRecConfigurablePlugin 
 {
+	public enum ProcessingLocation { DURING, POST, BOTH };
+	
 	public LSLRecPluginDataProcessing getProcessing( IStreamSetting setting, LSLRecPluginDataProcessing prevDataProcessing );
+	
+	public ProcessingLocation getProcessingLocation();
 }

@@ -221,7 +221,7 @@ public class mainLSLRecorder {
 		}
 
 		// Load GUI
-		ExceptionDialog.createExceptionDialog(createAppGUI());
+		ExceptionDialog.createExceptionDialog( createAppGUI() );
 
 		if ( plgOK )
 		{

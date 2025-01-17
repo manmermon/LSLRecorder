@@ -34,6 +34,7 @@ import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.auxiliar.task.NotificationTask;
+import lslrec.dataStream.binary.input.writer.plugin.DataProcessingExecutor;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
@@ -48,6 +49,7 @@ import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
@@ -88,6 +90,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	private long maxSequenceNumber = 1;
 	
 	private double totalSampleByChannels = 0;
+	
+	private DataProcessingExecutor datPostProcessingExec = null;
+
 		
 	/**
 	 *  Save output data file
@@ -215,6 +220,20 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			IOutputDataFileWriter wr = enc.t1.getWriter( this.outputFormat, this.DATA.getDataStreamSetting(), this );
 					
 			this.writer = wr;
+			
+			if( this.DATA.getPostProcessing() != null )
+			{
+				this.datPostProcessingExec = new DataProcessingExecutor(  this.DATA.getPostProcessing(), null );
+			}
+		}
+	}
+	
+	@Override
+	protected void startUp() throws Exception 
+	{
+		if( this.datPostProcessingExec != null )
+		{
+			this.datPostProcessingExec.startThread();
 		}
 	}
 
@@ -494,8 +513,8 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 						}
 	
 						while( dataBuffer.size() >= this.maxNumElements )
-						{					
-							seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().data_type(), this.DATA.getDataStreamSetting().channel_count() + 1, name );
+						{	
+							seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().data_type(), this.DATA.getDataStreamSetting().channel_count() + 1, name, true );
 						}
 					}				
 	
@@ -506,7 +525,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 
 			while( dataBuffer.size() > 0 )
 			{				
-				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().data_type(), this.DATA.getDataStreamSetting().channel_count() + 1, name );
+				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().data_type(), this.DATA.getDataStreamSetting().channel_count() + 1, name, true );
 			}
 		}
 		catch (Exception e) 
@@ -619,7 +638,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	
 							while( dataBuffer.size() >= this.maxNumElements )
 							{					
-								seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().getStringLengthDataType(), this.DATA.getDataStreamSetting().channel_count() + 1, name );
+								seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().getStringLengthDataType(), this.DATA.getDataStreamSetting().channel_count() + 1, name, false );
 							}
 						}
 						else if( str != null )
@@ -644,7 +663,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 							
 							while( dataBuffer.size() >= this.maxNumElements )
 							{					
-								seqNum = this.SaveDataBuffer( seqNum, dataBuffer, StreamDataType.int8, 1, name );
+								seqNum = this.SaveDataBuffer( seqNum, dataBuffer, StreamDataType.int8, 1, name, false );
 							}
 						}						
 					}					
@@ -657,11 +676,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			{	
 				if( !saveString )
 				{
-					seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().getStringLengthDataType(), this.DATA.getDataStreamSetting().channel_count() + 1, name );
+					seqNum = this.SaveDataBuffer( seqNum, dataBuffer, this.DATA.getDataStreamSetting().getStringLengthDataType(), this.DATA.getDataStreamSetting().channel_count() + 1, name, false );
 				}
 				else
 				{
-					seqNum = this.SaveDataBuffer( seqNum, dataBuffer, StreamDataType.int8, 1, name );
+					seqNum = this.SaveDataBuffer( seqNum, dataBuffer, StreamDataType.int8, 1, name, false );
 				}
 			}
 		}
@@ -674,7 +693,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		return seqNum;
 	}
 	
-	private int SaveDataBuffer( int seqNum, List< Object > dataBuffer, StreamDataType dataType, int Nchannels, String name ) throws Exception
+	private int SaveDataBuffer( int seqNum, List< Object > dataBuffer, StreamDataType dataType, int Nchannels, String name, boolean postProcessing ) throws Exception
 	{
 		int from = 0;
 		int to = this.maxNumElements;
@@ -684,8 +703,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			to = dataBuffer.size();
 		}
 			
-		DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, Nchannels, dataBuffer.subList( from, to ).toArray() );
+		Object[] data = dataBuffer.subList( from, to ).toArray();
+		DataBlock dataBlock = DataBlockFactory.getDataBlock( dataType, seqNum, name, Nchannels, data );
 		
+		if( postProcessing && this.datPostProcessingExec != null )
+		{
+			this.datPostProcessingExec.processData( dataBlock, null );
+		}
 		//this.totalReadedBlock += ( to - from ) * LSLUtils.getDataTypeBytes( dataType );
 		
 		/*
@@ -923,7 +947,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 					while( dataBuffer.size() >= this.maxNumElements )
 					{
 						//this.totalSampleByChannels += this.maxNumElements;
-						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name );
+						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name, false );
 					}
 				}
 			}
@@ -933,7 +957,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			while( dataBuffer.size() > 0 )
 			{
-				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name);
+				seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name, false );
 			}
 		}
 		
@@ -1055,6 +1079,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	{
 		super.cleanUp();
 
+		if( this.datPostProcessingExec != null )
+		{
+			this.datPostProcessingExec.stopThread( IStoppableThread.FORCE_STOP );
+		}
+		
+		this.datPostProcessingExec = null;
+		
 		//this.writer.closeWriter();
 		while( this.antideadlockCounter.get() > 0 )
 		{

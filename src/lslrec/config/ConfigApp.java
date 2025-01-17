@@ -80,7 +80,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2024, 9 - 1, 24 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 1 - 1, 17 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -118,7 +118,7 @@ public class ConfigApp
 	
 	public static final String SELECTED_SYNC_METHOD = "SYNC_METHOD";
 	
-	public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
+	//public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
 	
 	/***********
 	 * 
@@ -258,7 +258,7 @@ public class ConfigApp
 		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
-		list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
+		//list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -377,6 +377,7 @@ public class ConfigApp
 				
 				if( pt == PluginType.DATA_PROCESSING )
 				{	
+					/*
 					for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
 					{
 						String extra = "";
@@ -409,6 +410,40 @@ public class ConfigApp
 						String plgHeader = getPluginPropertyFormatHeader( pt, process.getID(), extra );
 						
 						setPl += plgHeader + ";";
+					}
+					//*/
+					
+					for( IStreamSetting sst : DataProcessingPluginRegistrar.getAllDataStreams() )
+					{
+						String idStream = "(" + sst.name() + "@@@" + sst.source_id() + ",";
+						
+						int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
+						
+						for( int processLoc : processLocs )
+						{
+							int pluginOrder = 0;
+							for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcessing( sst, processLoc ) )
+							{
+								String setting = "";
+								
+								for( Parameter< String > par : process.getSettings() )
+								{
+									setting += par + ",";
+								}
+								
+								if( !setting.isEmpty() )
+								{
+									setting = setting.substring( 0, setting.length() - 1 );
+								}
+								
+								String extra = idStream + processLoc + "," + pluginOrder + ")" + ",{" + setting + "}" ;
+								
+								String plgHeader = getPluginPropertyFormatHeader( pt, process.getID(), extra );
+								
+								setPl += plgHeader + ";";
+								pluginOrder++;
+							}
+						}
 					}
 				}
 				else 
@@ -1116,6 +1151,8 @@ public class ConfigApp
 						}
 					}
 					
+					ArrayTreeMap< Integer, Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > > dataprocessingOrder = new ArrayTreeMap<Integer, Tuple<IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing >>>();
+					
 					for( Tuple< PluginType, String > plType : reg.keySet() )
 					{
 						PluginType pt = plType.t1;
@@ -1138,57 +1175,72 @@ public class ConfigApp
 								ILSLRecPluginDataProcessing newPr = (ILSLRecPluginDataProcessing)loader.createNewPluginInstance( pt, idPlg, false );									
 								newPr.loadSettings( parlist );
 
-								DataProcessingPluginRegistrar.addDataProcessing( newPr );
+								//DataProcessingPluginRegistrar.addDataProcessing( newPr );
 
 								HashSet< IStreamSetting > dss = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 								//
-								// extra = (streamName@@@sourceID;streamName@@@sourceID;...;streamName@@@sourceID)
+								// extra = (streamName@@@sourceID,processLoc,order)
 								//
-								String[] streams = extra.replaceAll( "\\((.*)\\)", "$1" ).split( "," );
+								String[] stream = extra.replaceAll( "\\((.*)\\)", "$1" ).split( "," );
 
 								//
 								// streams =
 								//			streamName@@@sourceID
-								//			streamName@@@sourceID
-								//			...
-								//			streamName@@@sourceID
-
-								for( String str : streams )
+								//			processLoc
+								//			order
+								
+								if( stream.length == 3 )
 								{
-									String[] stInfo = str.split( "@@@" );
-									//
-									// stInfo =
-									//			streamName
-									//			sourceID
-
-									String name = "";
-									String sId = "";
-									
-									if( ( 2 - stInfo.length ) >= 0 )
+									try
 									{
-										name = stInfo[ 0 ].trim();
+										int processLoc = Integer.parseInt( stream[ 1 ] );
+										int order = Integer.parseInt( stream[ 2 ] );
 										
-										if( stInfo.length == 2 )
-										{
-											sId = stInfo[ 1 ].trim();
-										}
+										String[] stInfo = stream[0].split( "@@@" );
+										//
+										// stInfo =
+										//			streamName
+										//			sourceID
 
-										for( IStreamSetting s : dss )
+										String name = "";
+										String sId = "";
+										
+										if( ( 2 - stInfo.length ) >= 0 )
 										{
-											if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+											name = stInfo[ 0 ].trim();
+											
+											if( stInfo.length == 2 )
 											{
-												DataProcessingPluginRegistrar.addDataStream( newPr, s );
-
-												break;
+												sId = stInfo[ 1 ].trim();
 											}
-										}													
+
+											for( IStreamSetting s : dss )
+											{
+												if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+												{
+													//DataProcessingPluginRegistrar.addDataStreamProcessing( newPr, s );
+
+													dataprocessingOrder.putElement( order, new Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > >( s, new Tuple< Integer, ILSLRecPluginDataProcessing>( processLoc, newPr ) ) );
+													
+													break;
+												}
+											}													
+										}
+										else
+										{
+											parErrorFormat = true;
+										}
 									}
-									else
+									catch (Exception e) 
 									{
 										parErrorFormat = true;
 									}
-								}									
+								}
+								else
+								{
+									parErrorFormat = true;
+								}
 							}
 							else if( pt == PluginType.TRIAL )
 							{
@@ -1237,7 +1289,27 @@ public class ConfigApp
 								}
 							}
 						}
-					}						
+					}	
+					
+					if( !dataprocessingOrder.isEmpty() )
+					{
+						List< Integer > order = new ArrayList<Integer>( dataprocessingOrder.keySet() );
+						Collections.sort( order );
+						
+						for( Integer n : order )
+						{
+							List< Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > > plgs = dataprocessingOrder.get( n );
+							
+							for( Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > p : plgs )
+							{
+								IStreamSetting sst = p.t1;
+								ILSLRecPluginDataProcessing proc = p.t2.t2;
+								int procLoc = p.t2.t1;
+								
+								DataProcessingPluginRegistrar.addDataStreamProcessing( proc, sst, procLoc );
+							}
+						}
+					}
 					
 					if( parErrorFormat )
 					{
@@ -1473,12 +1545,14 @@ public class ConfigApp
 				break;
 			}
 			*/
+			/*
 			case DATA_CHART_SUMMARY:
 			{
 				loadDefaultDataChartSummary();
 				
 				break;
 			}
+			*/
 		}
 	}
 
@@ -1518,7 +1592,7 @@ public class ConfigApp
 		
 		//loadDefaultStreamLibrary();
 		
-		loadDefaultDataChartSummary();
+		//loadDefaultDataChartSummary();
 	}
 
 	private static void loadDefaultLanguage()
@@ -1690,8 +1764,10 @@ public class ConfigApp
 	}
 	*/
 	
+	/*
 	private static void loadDefaultDataChartSummary()
 	{
 		listConfig.put( DATA_CHART_SUMMARY, false );
 	}
+	//*/
 }

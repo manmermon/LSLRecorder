@@ -126,6 +126,7 @@ public class Language
 	public static final String INSERT_TEXT = "INSERT_TEXT";
 	public static final String DELETE_TEXT = "DELETE_TEXT";
 	public static final String PROCESS_TEXT = "PROCESS_TEXT";
+	public static final String POST_PROCESS_TEXT = "POST_PROCESS_TEXT";
 	public static final String SAVE_DATA_PROCESSING_TEXT = "DATA_PROCESSING_TEXT";
 
 	public static final String DIALOG_SAVE = "DIALOG_SAVE";
@@ -173,6 +174,8 @@ public class Language
 	public static final String CANCEL_TEXT = "CANCEL_TEXT";
 	public static final String SELECT_TEXT = "SELECT_TEXT";
 	public static final String SELECTED_TEXT = "SELECTED_TEXT";
+	public static final String SELECTED_PROCESSING_TEXT = "SELECTED_PROCESSING_TEXT";
+	public static final String SELECTED_POST_PROCESSING_TEXT = "SELECTED_POST_PROCESSING_TEXT";
 	public static final String UP_TEXT = "UP_TEXT";
 	public static final String DOWN_TEXT = "DOWN_TEXT";
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
@@ -446,6 +449,8 @@ public class Language
 		captions.put(CANCEL_TEXT, new Caption(CANCEL_TEXT, defaultLanguage, "Cancel"));
 		captions.put(SELECT_TEXT, new Caption(SELECT_TEXT, defaultLanguage, "Select"));
 		captions.put(SELECTED_TEXT, new Caption(SELECTED_TEXT, defaultLanguage, "Selected"));
+		captions.put(SELECTED_PROCESSING_TEXT, new Caption(SELECTED_PROCESSING_TEXT, defaultLanguage, "Selected processing"));
+		captions.put(SELECTED_POST_PROCESSING_TEXT, new Caption(SELECTED_POST_PROCESSING_TEXT, defaultLanguage, "Selected post-processing"));
 		captions.put(UP_TEXT, new Caption(UP_TEXT, defaultLanguage, "Up"));
 		captions.put(DOWN_TEXT, new Caption(DOWN_TEXT, defaultLanguage, "Down"));
 		captions.put(CONTINUE_TEXT, new Caption(CONTINUE_TEXT, defaultLanguage, "Continue"));
@@ -455,6 +460,7 @@ public class Language
 		captions.put( OPTIONS_TEXT, new Caption( OPTIONS_TEXT, defaultLanguage, "Options" ) );
 		captions.put( PASSWORD_TEXT, new Caption( PASSWORD_TEXT, defaultLanguage, "Password" ) );
 		captions.put( PROCESS_TEXT,  new Caption( PROCESS_TEXT, defaultLanguage, "Process" ) );
+		captions.put( POST_PROCESS_TEXT,  new Caption( POST_PROCESS_TEXT, defaultLanguage, "Post process" ) );
 
 		captions.put(CHECK_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));

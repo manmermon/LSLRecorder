@@ -1,4 +1,4 @@
-package lslrec.auxiliar.extra;
+package lslrec.plugin.impl.dataProcessing.basicStatSummary;
 
 import java.awt.BasicStroke;
 import java.awt.Color;

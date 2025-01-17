@@ -199,4 +199,10 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	protected void postLoadSettings() 
 	{	
 	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

@@ -29,7 +29,7 @@ public interface ILSLRecPlugin extends ITaskIdentity, Comparable< ILSLRecPlugin 
 	
 	public static final double VERSION = 1.1;
 	
-	public enum PluginType { COMPRESSOR, ENCODER, DATA_PROCESSING, TRIAL, SYNC };
+	public enum PluginType { COMPRESSOR, ENCODER, DATA_PROCESSING, TRIAL, SYNC  };
 	
 	public PluginType getType();
 }
