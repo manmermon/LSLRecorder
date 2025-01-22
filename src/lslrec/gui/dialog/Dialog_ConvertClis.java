@@ -76,7 +76,6 @@ import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -392,7 +391,7 @@ public class Dialog_ConvertClis extends JDialog
 																					
 											if( wm.getWarningType() == WarningMessage.WARNING_MESSAGE )
 											{
-												ExceptionMessage msg = new ExceptionMessage( new SettingException( wm.getMessage() ) , Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
+												ExceptionMessage msg = new ExceptionMessage( new SettingException( wm.getMessage() ) , Language.getLocalCaption( Language.MSG_WARNING ), ExceptionMessage.WARNING_MESSAGE );
 												ExceptionDialog.showMessageDialog( msg, true, true );
 											}
 	
@@ -585,7 +584,7 @@ public class Dialog_ConvertClis extends JDialog
 								{
 									LostWaitedThread.getInstance().wakeup();
 									
-									ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+									ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 									ExceptionDialog.showMessageDialog( msg, true, true );
 	
 									ex.printStackTrace();

@@ -22,7 +22,6 @@
 package lslrec;
 
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
@@ -57,7 +56,8 @@ import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
-public class mainLSLRecorder {
+public class mainLSLRecorder 
+{
 	/*
 	 * @param args
 	 */
@@ -371,7 +371,7 @@ public class mainLSLRecorder {
 		}
 
 		ExceptionMessage msg = new ExceptionMessage(e, Language.getLocalCaption(Language.DIALOG_ERROR),
-														ExceptionDictionary.ERROR_MESSAGE);
+														ExceptionMessage.ERROR_MESSAGE);
 
 		ExceptionDialog.showMessageDialog(msg, true, true);
 	}

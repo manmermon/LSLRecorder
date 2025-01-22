@@ -56,7 +56,6 @@ import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
 import lslrec.gui.GuiTextManager;
@@ -1033,7 +1032,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				} 
 				catch (Exception e) 
 				{
-					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionMessage.ERROR_MESSAGE );
 					
 					ExceptionDialog.createExceptionDialog( SwingUtilities.getWindowAncestor( source ) );
 					ExceptionDialog.showMessageDialog( msg, true, true );
@@ -1077,7 +1076,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			}
 			catch( Exception ex )
 			{
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 			}					
 		}
@@ -1185,7 +1184,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
-														, ExceptionDictionary.ERROR_MESSAGE );
+														, ExceptionMessage.ERROR_MESSAGE );
 		
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}	

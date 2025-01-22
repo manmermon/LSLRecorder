@@ -29,10 +29,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import lslrec.config.language.Language;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
-
 
 public class FileUtils 
 {	
@@ -266,7 +264,7 @@ public class FileUtils
 				path = null;
 				
 				Exception e = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
-				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.WARNING_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg,	true, false );
 			}
 			else

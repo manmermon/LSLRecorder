@@ -47,7 +47,6 @@ import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
@@ -435,7 +434,7 @@ public class LSLRecPluginTesting {
 							b.setSelected(false);
 
 							ExceptionMessage msg = new ExceptionMessage(e, e.getMessage(),
-									ExceptionDictionary.ERROR_MESSAGE);
+																	ExceptionMessage.ERROR_MESSAGE);
 							ExceptionDialog.showMessageDialog(msg, true, true);
 						}
 					} else {

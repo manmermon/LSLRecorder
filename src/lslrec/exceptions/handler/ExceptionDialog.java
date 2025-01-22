@@ -131,7 +131,7 @@ public class ExceptionDialog
 			dialog.add( new JScrollPane( jta ), BorderLayout.CENTER );
 			dialog.add( clearBt, BorderLayout.SOUTH );
 			//dialog.toFront();
-			//dialog.setVisible( true );		
+			//dialog.setVisible( true );
 			
 			dialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
 														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
@@ -188,12 +188,12 @@ public class ExceptionDialog
 						ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
 						Color msgColor = Color.ORANGE;
 	
-						if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
+						if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
 						{
 							ic = GeneralAppIcon.Error( 64, Color.RED );
 							msgColor = Color.RED;
 						}
-						else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
+						else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
 						{
 							ic = GeneralAppIcon.Info( 64, Color.BLACK );
 							msgColor = Color.BLACK;
@@ -240,7 +240,10 @@ public class ExceptionDialog
 							}
 						}
 						
-						dialog.toFront();
+						if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+						{
+							dialog.toFront();
+						}
 					}
 						
 				}

@@ -110,7 +110,6 @@ import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
@@ -138,7 +137,7 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 
-public class Panel_StreamingSettings extends JPanel
+public class RightPanelSettings extends JPanel
 {
 	/**
 	 * 
@@ -216,7 +215,7 @@ public class Panel_StreamingSettings extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public Panel_StreamingSettings( JFrame owner )  throws Exception
+	public RightPanelSettings( JFrame owner )  throws Exception
 	{
 		this.winOwner = owner;
 
@@ -1438,7 +1437,7 @@ public class Panel_StreamingSettings extends JPanel
 								*/
 								
 								Exception ex = new Exception( Language.getLocalCaption( Language.MSG_SELECTED_LSL_SYNC_STREAM_ERROR ) );
-								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 								ExceptionDialog.showMessageDialog( msg, true, false );
 								
 								c.setSelected( false );
@@ -2088,9 +2087,7 @@ public class Panel_StreamingSettings extends JPanel
 			model.setRoot( tmodel );
 			model.reload( );
 		}
-		
-		
-		
+			
 		return new Tuple< JPanel, JTree >( panelLSLSettings, tree );
 	}
 
@@ -2156,6 +2153,12 @@ public class Panel_StreamingSettings extends JPanel
 			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
 			c = this.tabStreams.getComponentAt( 1 );
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_PLOT, c );
+			
+			/* TODO
+			this.tabStreams.addTab( Language.getLocalCaption( Language.LOG ), null );
+			c = this.tabStreams.getComponentAt( 2 );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );
+			//*/
 			
 			this.tabStreams.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
 		}

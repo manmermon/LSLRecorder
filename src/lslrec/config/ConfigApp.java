@@ -54,6 +54,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,7 +81,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 1 - 1, 17 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 1 - 1, 22 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -339,7 +340,7 @@ public class ConfigApp
 					if( setting.isSelected() || setting.isSynchronationStream() )
 					{
 						//toSave.add( setting );
-						p += setting.getShortToString() + ";";
+						p += setting.getStreamInfoToString() + ";";
 					}
 				}
 				
@@ -611,8 +612,45 @@ public class ConfigApp
 		
 		boolean defaultValue = false;
 
-		Iterator<Object> it = prop.keySet().iterator();
+		List< Object > idPars = new ArrayList<Object>( prop.keySet() );
+		Collections.sort( idPars, new Comparator<Object>() 
+		{
+			@Override
+			public int compare(Object o1, Object o2) 
+			{
+				return o1.toString().compareTo( o2.toString() );
+			}
+		});
+		
+		//Iterator<Object> it = prop.keySet().iterator();
+		Iterator<Object> it = idPars.iterator();
 
+		while( it.hasNext() )
+		{
+			Object id = it.next();
+			if( id.toString().equals( ID_STREAMS ) ) 
+			{
+				it.remove();
+				idPars.add( id );
+				
+				break;
+			}
+		}
+		
+		it = idPars.iterator();
+		while( it.hasNext() )
+		{
+			Object id = it.next();
+			if( id.toString().equals( PLUGINS ) ) 
+			{
+				it.remove();
+				idPars.add( id );
+				
+				break;
+			}
+		}
+		
+		it = idPars.iterator();
 		while (it.hasNext())
 		{
 			String key = (String)it.next();
@@ -826,13 +864,13 @@ public class ConfigApp
 								//dev = dev.replace( " ", "").replace( "<", "" ).replace( ">", "" );
 								dev = dev.replace( "<", "" ).replace( ">", "" );
 								String[] devInfo = dev.split( "," );
-								if( devInfo.length == 8 )
+								
+								if( devInfo.length == 9 )
 								{
 									String sourceID = devInfo[ 0 ].replace( " ", "" );
 									String name = devInfo[ 1 ].replace( " ", "" );
 									String type = devInfo[ 2 ].replace( " ", "" );
 									String info = devInfo[ 3 ].trim();
-															
 									
 									boolean select = false;									
 									try 
@@ -872,16 +910,31 @@ public class ConfigApp
 									{
 									}
 									
+									boolean enableRecordingCheckerTimer = false;									
+									try
+									{
+										enableRecordingCheckerTimer = new Boolean( devInfo[ 8 ].replace( " ", "" ) );
+									}
+									catch (Exception e) 
+									{
+									}
+									
 									boolean found = false;
 									
 									for( IMutableStreamSetting lslCfg : lslDevs )
 									{
+										/*
 										found = lslCfg.source_id().equals( sourceID );
 										
 										if( !found )
 										{	
 											found = lslCfg.content_type().equals( type ) && lslCfg.name().equals( name );
 										}
+										//*/
+										
+										found = lslCfg.source_id().equals( sourceID )
+												&&  lslCfg.content_type().equals( type ) 
+												&& lslCfg.name().equals( name );
 										
 										if( found )
 										{
@@ -890,6 +943,7 @@ public class ConfigApp
 											lslCfg.setChunckSize( chunckSize );
 											lslCfg.setInterleaveadData( interleaved );
 											lslCfg.setSynchronizationStream( isSync );
+											lslCfg.enableRecordingCheckerTimer( enableRecordingCheckerTimer );
 											
 											break;
 										}

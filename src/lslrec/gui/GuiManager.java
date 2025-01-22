@@ -87,14 +87,13 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_BinaryConverter;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
-import lslrec.gui.panel.primary.Panel_StreamingSettings;
+import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
@@ -207,7 +206,7 @@ public class GuiManager
 				JOptionPane.showMessageDialog( appUI.getInstance(), e.getMessage(), Language.getLocalCaption( Language.DIALOG_ERROR )
 												, JOptionPane.ERROR_MESSAGE );
 				*/
-				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg,	true, false );
 			}
 		}
@@ -230,7 +229,7 @@ public class GuiManager
 		{
 			//JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.FILE_NOT_FOUND), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.WARNING_MESSAGE );
 			Exception e1 = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
-			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
 	}
@@ -271,7 +270,7 @@ public class GuiManager
 		catch (Exception e1) 
 		{
 			//JOptionPane.showMessageDialog( this.getAppUI(),  e1.getMessage(), Language.getLocalCaption( Language.PROBLEM_TEXT ), JOptionPane.ERROR_MESSAGE );
-			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionDictionary.ERROR_MESSAGE );
+			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.PROBLEM_TEXT ), ExceptionMessage.ERROR_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, true );
 			
 			binFiles = new ArrayList< Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >  >();
@@ -440,7 +439,7 @@ public class GuiManager
 		catch (Exception e)
 		{
 			//JOptionPane.showMessageDialog( appUI.getInstance(), e.getMessage(), Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.WARNING_MESSAGE );			
-			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.MSG_WARNING ), ExceptionDictionary.WARNING_MESSAGE );
+			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.MSG_WARNING ), ExceptionMessage.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
 	}
@@ -548,8 +547,8 @@ public class GuiManager
 			{
 				SelectedButtonGroup gr = (SelectedButtonGroup)c;
 
-				if( guiID.equals( Panel_StreamingSettings.STREAM_NAME ) 
-						|| guiID.equals( Panel_StreamingSettings.STREAM_SYNC ) )
+				if( guiID.equals( RightPanelSettings.STREAM_NAME ) 
+						|| guiID.equals( RightPanelSettings.STREAM_SYNC ) )
 				{
 					HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
 					if( devs != null )
@@ -604,11 +603,11 @@ public class GuiManager
 			c.setVisible( true );
 		}
 	
-		AppUI.getInstance().getSocketSetting().loadRegisteredSyncInputMessages();		
+		AppUI.getInstance().getLeftPanelSetting().loadRegisteredSyncInputMessages();		
 		
 		try 
 		{
-			AppUI.getInstance().getStreamSetting().refreshDataStreams();
+			AppUI.getInstance().getRightPanelSetting().refreshDataStreams();
 		}
 		catch (Exception e) 
 		{
@@ -654,14 +653,14 @@ public class GuiManager
 				
 		try 
 		{
-			ui.getStreamSetting().enableSettings( enable );
+			ui.getRightPanelSetting().enableSettings( enable );
 		}
 		catch (Exception e) 
 		{
 			e.printStackTrace();
 		}
 		
-		ui.getSocketSetting().enableSettings( enable );
+		ui.getLeftPanelSetting().enableSettings( enable );
 	}
 		
 	public void restoreGUI()
@@ -728,7 +727,7 @@ public class GuiManager
 				{					
 					stopTest();
 					
-					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg,	true, true );
 				}
 				finally 
@@ -777,7 +776,7 @@ public class GuiManager
 					Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
 			*/
 			
-			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg, true, true );
 			
 		}
@@ -897,7 +896,7 @@ public class GuiManager
 					
 			String title = Language.getLocalCaption( Language.SETTING_PLUGIN );
 			
-			getAppUI().getStreamSetting().addSetting2TabbedPanel( title, pps );
+			getAppUI().getRightPanelSetting().addSetting2TabbedPanel( title, pps );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_PLUGIN, pps );
 		}
@@ -922,7 +921,7 @@ public class GuiManager
 		
 		try 
 		{
-			AppUI.getInstance().getStreamSetting().refreshPlugins();
+			AppUI.getInstance().getRightPanelSetting().refreshPlugins();
 		}
 		catch (Exception e) 
 		{

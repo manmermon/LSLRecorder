@@ -29,7 +29,6 @@ import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
@@ -42,8 +41,8 @@ import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.miscellany.VerticalFlowLayout;
-import lslrec.gui.panel.primary.Panel_SocketSetting;
-import lslrec.gui.panel.primary.Panel_StreamingSettings;
+import lslrec.gui.panel.primary.LeftPanelSetting;
+import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -210,8 +209,8 @@ public class AppUI extends JFrame
 	private JTextField sessionTimeText = null;
 
 	// Settings
-	private Panel_SocketSetting SocketSettingPanel;
-	private Panel_StreamingSettings streamSettingPanel;
+	private LeftPanelSetting leftSettingPanel;
+	private RightPanelSettings rightSettingPanel;
 
 	// JCombox
 	//private JComboBox< String > jComboxSyncMethod;	
@@ -589,7 +588,7 @@ public class AppUI extends JFrame
 									{
 										try 
 										{
-											getStreamSetting().unselectSyncDevices();
+											getRightPanelSetting().unselectSyncDevices();
 										}
 										catch (Exception e1) 
 										{
@@ -836,7 +835,7 @@ public class AppUI extends JFrame
 								{	
 									CoreControl.getInstance().disposeDataPlots();
 									
-									getStreamSetting().refreshDataStreams();
+									getRightPanelSetting().refreshDataStreams();
 									
 									if( GuiManager.getInstance().refreshPlugins() )
 									{
@@ -909,7 +908,7 @@ public class AppUI extends JFrame
 			try 
 			{
 				this.jPanelOper.setLeftComponent( this.getJPanelInputMsg() );
-				this.jPanelOper.setRightComponent( this.getStreamSetting() );
+				this.jPanelOper.setRightComponent( this.getRightPanelSetting() );
 			} 
 			catch (Exception e) 
 			{
@@ -918,7 +917,7 @@ public class AppUI extends JFrame
 				//JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );
 				ExceptionMessage msg = new  ExceptionMessage( e
 																, "Stream Exception" 
-																, ExceptionDictionary.ERROR_MESSAGE );
+																, ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog(msg, true, true );
 			}
 		}
@@ -939,7 +938,7 @@ public class AppUI extends JFrame
 			this.jPanelInputMsg.setFocusable(false);
 			this.jPanelInputMsg.setFocusCycleRoot(false);
 
-			this.jPanelInputMsg.setLeftComponent( this.getSocketSetting() );
+			this.jPanelInputMsg.setLeftComponent( this.getLeftPanelSetting() );
 			//this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
 			this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
 		}
@@ -947,24 +946,24 @@ public class AppUI extends JFrame
 		return this.jPanelInputMsg;
 	}
 
-	protected Panel_SocketSetting getSocketSetting()
+	protected LeftPanelSetting getLeftPanelSetting()
 	{
-		if( this.SocketSettingPanel == null )
+		if( this.leftSettingPanel == null )
 		{
-			this.SocketSettingPanel = new Panel_SocketSetting( this );
+			this.leftSettingPanel = new LeftPanelSetting( this );
 		}
 
-		return this.SocketSettingPanel;
+		return this.leftSettingPanel;
 	}
 
-	protected Panel_StreamingSettings getStreamSetting() throws Exception
+	protected RightPanelSettings getRightPanelSetting() throws Exception
 	{
-		if( this.streamSettingPanel == null )
+		if( this.rightSettingPanel == null )
 		{
-			this.streamSettingPanel = new Panel_StreamingSettings( this );
+			this.rightSettingPanel = new RightPanelSettings( this );
 		}
 
-		return this.streamSettingPanel;
+		return this.rightSettingPanel;
 	}
 
 	/**
@@ -1900,7 +1899,7 @@ public class AppUI extends JFrame
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
 					Exception ex = new Exception( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
-					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, false );
 
 					//GuiManager.getInstance().startTest( true );

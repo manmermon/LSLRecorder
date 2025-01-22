@@ -56,7 +56,6 @@ import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
@@ -385,7 +384,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				Exception ex = new Exception( Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ) );
 												
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 		}
@@ -393,14 +392,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{
 			localException.printStackTrace();
 			
-			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 		catch (Error localError) 
 		{
 			localError.printStackTrace();
 			
-			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 	}
@@ -573,7 +572,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						
 			try 
 			{
-				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( ex, true, true );
 				
 				e.printStackTrace();
@@ -1257,7 +1256,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
 					
 					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionMessage.WARNING_MESSAGE );
 					ExceptionDialog.showMessageDialog( exmsg, true, false );
 					
 					/*
@@ -1294,7 +1293,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 
 					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionMessage.WARNING_MESSAGE );
 					ExceptionDialog.showMessageDialog( exmsg, true, false );
 									
 					/*
@@ -1793,7 +1792,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 											JOptionPane.ERROR_MESSAGE);
 				*/
 				
-				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 			}
 		}
@@ -1955,7 +1954,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 					catch (Exception e) 
 					{
-						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionDictionary.ERROR_MESSAGE );
+						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionMessage.ERROR_MESSAGE );
 						ExceptionDialog.showMessageDialog( msg , true, true );						
 					}
 
@@ -1966,7 +1965,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						ex = (Exception)eventObject;
 					}
 					
-					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionMessage.ERROR_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, true );
 					
 					GuiManager.getInstance().refreshDataStreams();					
@@ -1988,7 +1987,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 								
 								ExceptionMessage msg = new ExceptionMessage( ex
 																			, Language.getLocalCaption( Language.MSG_WARNING )
-																			, ExceptionDictionary.WARNING_MESSAGE );
+																			, ExceptionMessage.WARNING_MESSAGE );
 								
 								ExceptionDialog.showMessageDialog( msg, true, false );								
 							}
@@ -2131,7 +2130,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 								
 				ExceptionMessage msg = new ExceptionMessage( e
 															, "Exception in " + getClass().getSimpleName()
-															, ExceptionDictionary.ERROR_MESSAGE );
+															, ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 				
 				/*
@@ -2250,13 +2249,13 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) 
 															+ " " + timeUnits[ timeUnitIndex ] + "" +" (Freq = " + df.format( freq )+ " " + freqUnits[ freqUnitIndex ] + ")" );
 				
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 			else
 			{
 				Exception ex = new Exception( this.ID + " -> non data available." );
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );				
 			}
 			
@@ -2407,7 +2406,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				e.printStackTrace();
 				
-				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 				
 			}

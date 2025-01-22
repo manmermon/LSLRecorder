@@ -11,11 +11,11 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.fftPlot"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.painter"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.firFilter"/>
         <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.downSampling"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.fftPlot"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.firFilter"/>
+        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.painter"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.zTransform"/>
     </selectedElements>
 </jardesc>

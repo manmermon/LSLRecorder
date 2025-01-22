@@ -42,7 +42,6 @@ import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 
 public class OutputClisDataWriter implements IOutputDataFileWriter //extends OutputFileWriterTemplate
@@ -144,7 +143,7 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 		{
 			ExceptionMessage msg = new ExceptionMessage( new IOException( "Metadata truncate in " + this.clisWriter.getFileName() )
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
-														, ExceptionDictionary.WARNING_MESSAGE );
+														, ExceptionMessage.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, true );
 		}
 	}

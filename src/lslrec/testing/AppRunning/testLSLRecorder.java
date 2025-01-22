@@ -65,7 +65,6 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
@@ -1089,7 +1088,7 @@ public class testLSLRecorder
 			ExceptionDialog.AppExitWhenWindowClosing();
 		}
 		
-		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionDictionary.ERROR_MESSAGE );
+		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionMessage.ERROR_MESSAGE );
 		
 		ExceptionDialog.showMessageDialog( msg, true, true );		
 	}	
