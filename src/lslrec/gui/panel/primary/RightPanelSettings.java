@@ -41,6 +41,7 @@ import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
@@ -72,6 +73,7 @@ import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -85,7 +87,6 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Semaphore;
 
-import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -118,6 +119,7 @@ import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.NoneSelectedButtonGroup;
 import lslrec.gui.miscellany.SelectedButtonGroup;
+import lslrec.gui.miscellany.TextAreaPrintStream;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.config.ConfigApp;
@@ -139,9 +141,11 @@ import lslrec.auxiliar.extra.Tuple;
 
 public class RightPanelSettings extends JPanel
 {
-	/**
-	 * 
-	 */
+	public static final int TAB_STREAM = 0;
+	public static final int TAB_PLOT = 1;
+	public static final int TAB_LOG = 2;
+	public static final int TAB_PLUGIN = 3;
+	
 	private static final long serialVersionUID = 1L;
 
 	public static final String STREAM_NAME = "LSL_STREAM_NAME";
@@ -154,7 +158,6 @@ public class RightPanelSettings extends JPanel
 	//JPANEL
 	private JPanel contentPanel;
 	private JPanel jPanelStreamInfo;	
-	private JPanel jPanelGeneralAddInfoOutFile;
 	private JPanel jOutFileFormat;
 	private JPanel paneStreamInfo;
 	private JPanel panelOutFileOption;
@@ -169,12 +172,16 @@ public class RightPanelSettings extends JPanel
 
 	//JTEXTFIELD
 	//private JTextField filePath;
+	private JTextField fileFolder;
+	private JTextField subjectID;
+	private JTextField testID;
 	private JTextField fileName;
+	private JTextField completeFileName;
 	private JTextField generalDescrOutFile;
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
-	private JCheckBox dataChartSummary;
+	//private JCheckBox dataChartSummary;
 	//private JCheckBox delBinaryFiles;
 	//private JCheckBox parallelizeActive;
 	
@@ -495,29 +502,6 @@ public class RightPanelSettings extends JPanel
 		return this.jOutFile;
 	}
 	
-	private JPanel getPanelGeneralAddInfoOutFile() 
-	{
-		if( this.jPanelGeneralAddInfoOutFile == null )
-		{
-			this.jPanelGeneralAddInfoOutFile = new JPanel();
-			this.jPanelGeneralAddInfoOutFile.setLayout( new BoxLayout( this.jPanelGeneralAddInfoOutFile, BoxLayout.X_AXIS ) );
-			
-			JLabel lb = new JLabel( );
-			lb.setText( Language.getLocalCaption( Language.DESCRIPTION_TEXT ) );
-			
-			this.jPanelGeneralAddInfoOutFile.add( lb );
-			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-			this.jPanelGeneralAddInfoOutFile.add( this.getGeneralDescrOutFile() );
-			this.jPanelGeneralAddInfoOutFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
-			//this.jPanelGeneralAddInfoOutFile.add( this.getDataChartSummaryCheckbox() );
-			//this.jPanelGeneralAddInfoOutFile.add( this.getDeleteBinaryFiles() );
-			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DESCRIPTION_TEXT, lb );			
-		}
-		
-		return this.jPanelGeneralAddInfoOutFile;
-	}
-	
 	private JTextField getGeneralDescrOutFile() 
 	{
 		if( this.generalDescrOutFile == null )
@@ -526,11 +510,13 @@ public class RightPanelSettings extends JPanel
 			
 			this.generalDescrOutFile = new JTextField();
 			
+			/*
 			Dimension d = this.generalDescrOutFile.getSize();
-			FontMetrics fm = this.fileName.getFontMetrics( this.fileName.getFont() );
+			FontMetrics fm = this.getJTextCompleteFileName().getFontMetrics( this.getJTextCompleteFileName().getFont() );
 			d.width = fm.stringWidth( "W" ) * 30;			
 			d.height = fm.getHeight() + 8;
 			this.generalDescrOutFile.setPreferredSize( d );
+			//*/
 			
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				
@@ -748,9 +734,9 @@ public class RightPanelSettings extends JPanel
 			
 			//this.jOutFileFormat.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) ) );
 			
-			this.jOutFileFormat.add( this.getPanelOutFileOption(), BorderLayout.EAST );
-			this.jOutFileFormat.add( this.getPanelOutFileName(), BorderLayout.CENTER );			
-			this.jOutFileFormat.add( this.getPanelGeneralAddInfoOutFile(), BorderLayout.SOUTH );
+			this.jOutFileFormat.add( this.getPanelOutFileOption(), BorderLayout.SOUTH );
+			this.jOutFileFormat.add( this.getPanelOutFileName(), BorderLayout.NORTH );			
+			//this.jOutFileFormat.add( this.getPanelGeneralAddInfoOutFile(), BorderLayout.SOUTH );
 			
 			//GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.OUTPUT_TEXT, this.jOutFileFormat.getBorder() );
 		}
@@ -764,9 +750,41 @@ public class RightPanelSettings extends JPanel
 		{
 			this.panelOutFileName = new  JPanel( new BorderLayout() );
 
-			this.panelOutFileName.add( this.getJButtonLogFilePath(), BorderLayout.WEST );
+			JLabel lbFolder = new JLabel( Language.getLocalCaption( Language.FOLDER_TEXT ) );
+			JLabel lbSubjId = new JLabel( Language.getLocalCaption( Language.SUBJECT_ID_TEXT ) );
+			JLabel lbTestId = new JLabel( Language.getLocalCaption( Language.TEST_ID_TEXT ) );
+			JLabel lbFileName = new JLabel( Language.getLocalCaption( Language.FILENAME_TEXT ) );
+			JLabel lbOutFilePaht = new JLabel( Language.getLocalCaption( Language.OUTPUT_TEXT ) );
 			
-			this.panelOutFileName.add( this.getJTextFileName(), BorderLayout.CENTER );
+			JPanel aux = new JPanel( );
+			aux.setLayout( new BorderLayout( 5, 5 ) );
+			aux.add( lbFolder, BorderLayout.WEST );
+			aux.add( this.getJButtonLogFilePath(), BorderLayout.EAST );			
+			aux.add( this.getJTextFolderFile(), BorderLayout.CENTER );
+			
+			JPanel aux2 = new JPanel( new FlowLayout() );
+			aux2.add( lbSubjId );
+			aux2.add( this.getJTextSubjectID() );
+			aux2.add( lbTestId );
+			aux2.add( this.getJTextTestID() );
+			aux2.add( lbFileName );
+			aux2.add( this.getJTextFileName() );
+			
+			this.panelOutFileName.add( aux, BorderLayout.CENTER );
+			this.panelOutFileName.add( aux2, BorderLayout.EAST );
+			
+			JPanel aux3 = new JPanel( new BorderLayout(5,5));
+			aux3.add( this.getJTextCompleteFileName(), BorderLayout.CENTER );
+			aux3.add( lbOutFilePaht, BorderLayout.WEST );
+			
+			this.panelOutFileName.add( aux3, BorderLayout.SOUTH );
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.FOLDER_TEXT, lbFolder );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SUBJECT_ID_TEXT, lbSubjId );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.TEST_ID_TEXT, lbTestId );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.FILENAME_TEXT, lbFileName );
+			
+			setCompleteOutputFileName();
 		}
 
 		return this.panelOutFileName;
@@ -787,20 +805,22 @@ public class RightPanelSettings extends JPanel
 				{
 					String format = (String)getJComboxFileFormat().getSelectedItem();
 					String[] filters = null; 
-					
+
+					/*
 					try
 					{
 						filters = new String[] { "clis" };//DataFileFormat.getSupportedFileExtension( format ) };
 					}
 					catch( Exception ex )
 					{}
+					//*/
 					
 					String path[] = FileUtils.selectUserFile( (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME )
-															, false, false, JFileChooser.FILES_ONLY, format
+															, false, false, JFileChooser.DIRECTORIES_ONLY, format
 															, filters, System.getProperty("user.dir") );
 					if( path != null )
 					{
-						getJTextFileName().setText( path[ 0 ] );
+						getJTextFolderFile().setText( path[ 0 ] );
 					}
 				}
 			});
@@ -809,23 +829,412 @@ public class RightPanelSettings extends JPanel
 		return this.jButtonSelectOutFile;
 	}
 	
+	private JTextField getJTextFolderFile()
+	{
+		if( this.fileFolder == null )
+		{
+			final String ID = ConfigApp.OUTPUT_FILE_FOLDER;
+			
+			this.fileFolder = new JTextField();
+
+			String folderfilename = ConfigApp.getProperty( ID ).toString();
+			File f = new File( folderfilename );
+			
+			if( !f.isDirectory() )
+			{
+				folderfilename = f.getParent();
+				
+				if( folderfilename == null )
+				{
+					folderfilename = System.getProperty( "user.dir" );
+				}
+			}
+			
+			if( !folderfilename.endsWith( File.separator ) )
+			{
+				folderfilename += File.separator;
+			}
+			
+			this.fileFolder.setText( folderfilename );
+			
+			Dimension d = this.fileFolder.getPreferredSize();
+			FontMetrics fm = this.fileFolder.getFontMetrics( this.fileFolder.getFont() );
+			d.width = fm.stringWidth( "Z" ) * 20;
+			
+			this.fileFolder.setPreferredSize( d );
+
+			this.fileFolder.getDocument().addDocumentListener( new DocumentListener() 
+			{				
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				private void updateDoc( DocumentEvent e )
+				{
+					try 
+					{
+						String folder = e.getDocument().getText( 0, e.getDocument().getLength() );
+						
+						fileFolder.setToolTipText( folder );
+						
+						ConfigApp.setProperty( ID, folder );
+						
+						setCompleteOutputFileName();
+					}
+					catch (BadLocationException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+
+			this.fileFolder.addFocusListener( new FocusAdapter() 
+			{	
+				private String text = "";
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					text = ((JTextField)e.getSource()).getText();
+				}
+
+				@Override		
+				public void focusLost(FocusEvent e) 
+				{
+					JTextField jtxt = (JTextField)e.getSource();
+
+					String txt = jtxt.getText();
+					
+					try
+					{	
+						File f = new File( txt );
+						f.getCanonicalPath();						
+						txt = f.getPath();
+						
+						String fileName = f.getName();
+						if( txt.matches( "[^\\.]+(\\.[\\\\/]).*")
+								||fileName.startsWith( "." ) 
+								|| fileName.endsWith( "." ))
+						{
+							txt = text;
+						}	
+						
+						if( txt.isEmpty() )
+						{
+							txt = ".";
+						}
+						
+						if( !txt.endsWith( File.separator ) )
+						{
+							txt += File.separator;
+						}
+					}
+					catch ( IOException ex) 
+					{
+						txt = text;
+					}
+					finally 
+					{
+						jtxt.setText( txt );
+					}
+				}
+			});
+
+			this.fileFolder.setToolTipText( this.fileFolder.getText() );
+			
+			GuiManager.setGUIComponent( ID, ID, this.fileFolder );
+		}
+
+		return this.fileFolder;
+	}
+	
+	private JTextField getJTextSubjectID()
+	{
+		if( this.subjectID == null )
+		{
+			final String ID = ConfigApp.OUTPUT_SUBJ_ID;
+			
+			this.subjectID = new JTextField();
+			this.subjectID.setText( ConfigApp.getProperty( ID ).toString() );;
+			
+			this.subjectID.getDocument().addDocumentListener( new DocumentListener() 
+			{				
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				private void updateDoc( DocumentEvent e )
+				{
+					try 
+					{
+						String subjIDtext = e.getDocument().getText( 0, e.getDocument().getLength() );
+						
+						subjectID.setToolTipText( subjIDtext );
+						
+						ConfigApp.setProperty( ID, subjIDtext );
+						
+						setCompleteOutputFileName();
+					}
+					catch (BadLocationException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+
+			this.subjectID.addFocusListener( new FocusAdapter() 
+			{	
+				private String text = "";
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					text = ((JTextField)e.getSource()).getText();
+				}
+
+				@Override		
+				public void focusLost(FocusEvent e) 
+				{
+					JTextField jtxt = (JTextField)e.getSource();
+
+					String txt = jtxt.getText();
+					
+					if( !txt.isEmpty() && !txt.matches("^[a-zA-Z0-9-_]+$"))
+					{
+						txt = text;
+						jtxt.setText( txt );
+					}
+				}
+			});
+			
+			this.subjectID.setToolTipText( this.subjectID.getText() );
+			
+			GuiManager.setGUIComponent( ID, ID, this.subjectID );
+		}
+		
+		return this.subjectID;
+	}
+	
+	private JTextField getJTextTestID()
+	{
+		if( this.testID == null )
+		{
+			final String ID = ConfigApp.OUTPUT_TEST_ID;
+			
+			this.testID = new JTextField();
+			this.testID.setText( ConfigApp.getProperty( ID ).toString() );
+			
+			this.testID.getDocument().addDocumentListener( new DocumentListener() 
+			{				
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				private void updateDoc( DocumentEvent e )
+				{
+					try 
+					{
+						String testIDtext = e.getDocument().getText( 0, e.getDocument().getLength() );
+						
+						testID.setToolTipText( testIDtext );
+						
+						ConfigApp.setProperty( ID, testIDtext );
+						
+						setCompleteOutputFileName();
+					}
+					catch (BadLocationException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			});		
+			
+			this.testID.addFocusListener( new FocusAdapter() 
+			{	
+				private String text = "";
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					text = ((JTextField)e.getSource()).getText();
+				}
+
+				@Override		
+				public void focusLost(FocusEvent e) 
+				{
+					JTextField jtxt = (JTextField)e.getSource();
+
+					String txt = jtxt.getText();
+					
+					if( !txt.isEmpty() && !txt.matches("^[a-zA-Z0-9-_]+$"))
+					{
+						txt = text;
+						jtxt.setText( txt );
+					}
+				}
+			});
+			
+			this.testID.setToolTipText( this.testID.getText() );
+			
+			GuiManager.setGUIComponent( ID, ID, this.testID );
+		}
+		
+		return this.testID;
+	}
+	
 	private JTextField getJTextFileName()
 	{
 		if( this.fileName == null )
 		{
-			this.fileName = new JTextField();
+			final String ID = ConfigApp.OUTPUT_FILE_NAME;
+			
+			String outFileName = ConfigApp.getProperty( ID ).toString();
+			
+			File f = new File( outFileName );
+			String name = f.getName();			
+			
+			int dotIndex = name.lastIndexOf('.');
+			name = (dotIndex == -1) ? name : name.substring(0, dotIndex);
+			   
+			this.fileName = new JTextField( name );
+			
+			this.fileName.getDocument().addDocumentListener( new DocumentListener() 
+			{				
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
 
-			this.fileName.setText( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString() );
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
 
-			Dimension d = this.fileName.getPreferredSize();
-			FontMetrics fm = this.fileName.getFontMetrics( this.fileName.getFont() );
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				private void updateDoc( DocumentEvent e )
+				{
+					try 
+					{
+						String fileNametext = e.getDocument().getText( 0, e.getDocument().getLength() );
+						
+						fileName.setToolTipText( fileNametext );
+						
+						ConfigApp.setProperty( ID, fileNametext );
+						
+						setCompleteOutputFileName();
+					}
+					catch (BadLocationException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+			
+			this.fileName.addFocusListener( new FocusAdapter() 
+			{	
+				private String text = "";
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					text = ((JTextField)e.getSource()).getText();
+				}
+
+				@Override		
+				public void focusLost(FocusEvent e) 
+				{
+					JTextField jtxt = (JTextField)e.getSource();
+
+					String txt = jtxt.getText();
+					
+					if( !txt.matches("^[a-zA-Z0-9-_]+$"))
+					{
+						txt = text;
+						jtxt.setText( txt );
+					}
+				}
+			});
+			
+			this.fileName.setToolTipText( this.fileName.getText() );
+			
+			GuiManager.setGUIComponent( ID, ID, this.fileName );
+		}
+		
+		return this.fileName;
+	}
+	
+	private void setCompleteOutputFileName()
+	{
+		String outFile = FileUtils.getOutputCompletedFileNameFromConfig();
+		
+		this.getJTextCompleteFileName().setText( outFile );
+	}
+	
+	private JTextField getJTextCompleteFileName()
+	{
+		if( this.completeFileName == null )
+		{
+			this.completeFileName = new JTextField();
+			this.completeFileName.setEditable( false );
+			//this.completeFileName.setFocusable( false );
+
+			//this.completeFileName.setText( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString() );
+
+			Dimension d = this.completeFileName.getPreferredSize();
+			FontMetrics fm = this.completeFileName.getFontMetrics( this.completeFileName.getFont() );
 			d.width = fm.stringWidth( "Z" ) * 20;
 			
-			this.fileName.setPreferredSize( d );
+			this.completeFileName.setPreferredSize( d );
 			
+			/*
 			final String ID = ConfigApp.OUTPUT_FILE_NAME;
 
-			this.fileName.getDocument().addDocumentListener( new DocumentListener() 
+			this.completeFileName.getDocument().addDocumentListener( new DocumentListener() 
 			{				
 				@Override
 				public void removeUpdate(DocumentEvent e) 
@@ -852,7 +1261,9 @@ public class RightPanelSettings extends JPanel
 						String name = e.getDocument().getText( 0, e.getDocument().getLength() );
 						ConfigApp.setProperty( ID, name );
 						
-						fileName.setToolTipText( name );
+						completeFileName.setToolTipText( name );
+						
+						
 					}
 					catch (BadLocationException e1) 
 					{
@@ -861,7 +1272,7 @@ public class RightPanelSettings extends JPanel
 				}
 			});
 
-			this.fileName.addFocusListener( new FocusAdapter() 
+			this.completeFileName.addFocusListener( new FocusAdapter() 
 			{	
 				private String text = "";
 				@Override
@@ -878,8 +1289,7 @@ public class RightPanelSettings extends JPanel
 					String txt = jtxt.getText();
 					
 					try
-					{
-						
+					{						
 						File f = new File( txt );
 						f.getCanonicalPath();						
 						txt = f.getPath();
@@ -903,10 +1313,11 @@ public class RightPanelSettings extends JPanel
 				}
 			});
 
-			GuiManager.setGUIComponent( ID, ID, this.fileName );
+			GuiManager.setGUIComponent( ID, ID, this.completeFileName );
+			//*/
 		}
 
-		return this.fileName;
+		return this.completeFileName;
 	}
 
 	private JPanel getPanelOutFileOption()
@@ -914,23 +1325,36 @@ public class RightPanelSettings extends JPanel
 		if( this.panelOutFileOption == null )
 		{
 			this.panelOutFileOption = new JPanel();
-			this.panelOutFileOption.setLayout( new FlowLayout( FlowLayout.LEFT ) );
+			this.panelOutFileOption.setLayout( new BorderLayout( 5,5 ) );
 
-			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+			JPanel aux = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			
-			this.panelOutFileOption.add( lb );
-			this.panelOutFileOption.add( this.getJComboxFileFormat() );
+			JLabel lbOutFormat = new JLabel( Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
+			
+			aux.add( lbOutFormat );
+			aux.add( this.getJComboxFileFormat() );
 
+			/*
 			JSeparator separator = new JSeparator();
 			separator.setBorder( BorderFactory.createBevelBorder(BevelBorder.RAISED ) );
 			Dimension d = this.getJComboxFileFormat().getPreferredSize();			
 			separator.setPreferredSize( new Dimension( 1, d.height ) );
+			*/
 			
-			this.panelOutFileOption.add( this.getOutputFormatOptsButton() );
-			this.panelOutFileOption.add( this.getEncryptKeyActive() );			
+			aux.add( this.getOutputFormatOptsButton() );
+			aux.add( this.getEncryptKeyActive() );			
+			
+			JLabel lbDescr = new JLabel( );
+			lbDescr.setText( Language.getLocalCaption( Language.DESCRIPTION_TEXT ) );
+			aux.add( lbDescr );
+			
+			this.panelOutFileOption.add( aux, BorderLayout.WEST );
+			this.panelOutFileOption.add( this.getGeneralDescrOutFile(), BorderLayout.CENTER );
+			
 			//this.panelOutFileOption.add( this.getParallelizeActive() );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lb );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_OUTPUT_FORMAT, lbOutFormat );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DESCRIPTION_TEXT, lbDescr );
 		}
 
 		return this.panelOutFileOption;
@@ -967,46 +1391,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID , format );
 						
-						Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
-						Encoder encorder = tencoder.t1;
-								
-						String ext = encorder.getOutputFileExtension();
-						
-						String nameFile = getJTextFileName().getText();
-						
-						int pos = nameFile.lastIndexOf( "." );
-						if( pos >= 0 )
-						{
-							nameFile = nameFile.substring( 0 , pos );
-						}
-						
-						nameFile += ext;
-						
-						getJTextFileName().setText( nameFile );			
-						
-						getEncryptKeyActive().setEnabled( encorder.isSupportedEncryption() );
-						
-						//getDataChartSummaryCheckbox().setEnabled( encorder.getID().equals( DataFileFormat.CLIS ) );
-						
-						List< SettingOptions > opts = encorder.getSettiongOptions();
-						
-						getOutputFormatOptsButton().setEnabled( ( opts != null  && !opts.isEmpty() ) );
-						
-						/*
-						JScrollPane encoderSetting = CreatorEncoderSettingPanel.getSettingPanel( encorder.getSettiongOptions() );
-						
-						JTabbedPane panel = getJPanelOutFile();
-						
-						if( panel.getTabCount() > 1 )
-						{
-							panel.removeTabAt( 1 );
-						}
-						
-						if( encoderSetting != null  )
-						{					
-							panel.addTab( encorder.getID(), encoderSetting );
-						}
-						*/
+						setCompleteOutputFileName();
 					}
 				}
 			});
@@ -1016,6 +1401,40 @@ public class RightPanelSettings extends JPanel
 
 		return this.fileFormat;
 	}
+	
+	/*
+	private void setOutputExtensionFile( String format )
+	{
+		if( format != null && !format.isEmpty() )
+		{
+			Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+			Encoder encorder = tencoder.t1;
+					
+			String ext = encorder.getOutputFileExtension();
+			
+			String nameFile = getJTextCompleteFileName().getText();
+			
+			int pos = nameFile.lastIndexOf( "." );
+			if( pos > 0 )
+			{
+				nameFile = nameFile.substring( 0 , pos );
+			}
+			
+			nameFile += ext;
+			
+			getJTextCompleteFileName().setText( nameFile );			
+			
+			getEncryptKeyActive().setEnabled( encorder.isSupportedEncryption() );
+			
+			//getDataChartSummaryCheckbox().setEnabled( encorder.getID().equals( DataFileFormat.CLIS ) );
+			
+			List< SettingOptions > opts = encorder.getSettiongOptions();
+			
+			getOutputFormatOptsButton().setEnabled( ( opts != null  && !opts.isEmpty() ) );
+			
+		}
+	}
+	//*/
 	
 	private JPanel getJPaneDeviceInfo( )
 	{		
@@ -1638,11 +2057,8 @@ public class RightPanelSettings extends JPanel
 											catch (Exception e) 
 											{
 											}
-
-											tabStreams.setSelectedIndex( 1 );
-											tabStreams.getSelectedComponent().setVisible( false );
-											tabStreams.getSelectedComponent().setVisible( true );
 											
+											showStreamTab( TAB_PLOT ); 
 											Enumeration< AbstractButton > abts = plotGroup.getElements();
 											while( abts.hasMoreElements() )
 											{
@@ -2087,7 +2503,9 @@ public class RightPanelSettings extends JPanel
 			model.setRoot( tmodel );
 			model.reload( );
 		}
-			
+		
+		
+		
 		return new Tuple< JPanel, JTree >( panelLSLSettings, tree );
 	}
 
@@ -2149,15 +2567,35 @@ public class RightPanelSettings extends JPanel
 			Component c = this.tabStreams.getComponentAt( 0 );
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_DEVICES, c );
 			
-			//this.tabDevice.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getLSLPlot() );
 			this.tabStreams.addTab( Language.getLocalCaption( Language.SETTING_LSL_PLOT ), this.getPanelPlot() );
 			c = this.tabStreams.getComponentAt( 1 );
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_PLOT, c );
 			
-			/* TODO
-			this.tabStreams.addTab( Language.getLocalCaption( Language.LOG ), null );
+			//*
+			JTextPane jta = new JTextPane();
+			jta.setAutoscrolls( true );
+			jta.setEditable( false );
+			TextAreaPrintStream log = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
+			
+			JButton clearBt = new JButton( "Clear" );
+			clearBt.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					ExceptionDialog.clearMessages();
+				}
+			});
+			
+			JPanel logPanel = new JPanel( new BorderLayout() );
+			logPanel.add( new JScrollPane( jta ), BorderLayout.CENTER );	
+			logPanel.add( clearBt, BorderLayout.NORTH );
+			
+			ExceptionDialog.setMainTextLog( log );
+			
+			this.tabStreams.addTab( Language.getLocalCaption( Language.LOG ), logPanel );
 			c = this.tabStreams.getComponentAt( 2 );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );			
 			//*/
 			
 			this.tabStreams.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
@@ -2252,31 +2690,6 @@ public class RightPanelSettings extends JPanel
 
 		return tree;
 	}
-
-	/*
-	private boolean hasDescLabelNode( XMLElement desc, String lab )
-	{
-		boolean has = false;
-		
-		XMLElement child = desc.first_child();
-		if( child != null )
-		{
-			String name = child.name().toLowerCase();
-			
-			if( !name.isEmpty() )
-			{
-				has = name.equals( lab.toLowerCase() );
-				
-				if( !has )
-				{
-					has = hasDescLabelNode( child.next_sibling(), lab );
-				}
-			}
-		}
-		
-		return has;
-	}
-	*/
 	
 	private DefaultMutableTreeNode builtTreeNode( Node root )
 	{		 
@@ -2298,12 +2711,6 @@ public class RightPanelSettings extends JPanel
 					dmtNode.add( new DefaultMutableTreeNode( this.getXMLAttributes( tempNode ) ) );					 
 				}
 			}
-			/*
-			else if( tempNode.getNodeType() == Node.TEXT_NODE )
-			{
-				dmtNode.add( new DefaultMutableTreeNode( this.getXMLAttributes( tempNode ) ) );
-			}
-			*/
 		}
 
 		return dmtNode;
@@ -2356,7 +2763,6 @@ public class RightPanelSettings extends JPanel
 			this.btnOutFormatOptions.setIcon( new ImageIcon( GeneralAppIcon.Config2( Color.BLACK )
 																		.getScaledInstance( s, s, Image.SCALE_SMOOTH ) ) ); // GeneralAppIcon.Pencil( s, Color.BLACK ) );
 			
-			//this.btnOutFormatOptions.setBorder( BorderFactory.createEtchedBorder() );
 			this.btnOutFormatOptions.setFocusPainted( false );
 			
 			this.btnOutFormatOptions.addActionListener( new ActionListener()
@@ -2445,6 +2851,16 @@ public class RightPanelSettings extends JPanel
 			{
 				((Panel_PluginSettings) c ).refreshSelectedPlugins(); 
 			}
+		}
+	}
+	
+	public void showStreamTab( int tab )
+	{
+		if( tabStreams != null && tab >= 0 && tab < tabStreams.getTabCount() )
+		{
+			tabStreams.setSelectedIndex( tab );
+			tabStreams.getSelectedComponent().setVisible( false );
+			tabStreams.getSelectedComponent().setVisible( true );
 		}
 	}
 }

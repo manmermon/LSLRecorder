@@ -191,6 +191,10 @@ public class Language
 	public static final String PASSWORD_TEXT = "PASSWORD_TEXT";
 	public static final String DECRYPT_KEY_TEXT = "DECRYPT_KEY_TEXT";
 	public static final String DATA_CHART_SUMMARY_TEXT = "DATA_CHART_SUMMARY_TEXT";
+	public static final String FOLDER_TEXT = "FOLDER_TEXT";
+	public static final String SUBJECT_ID_TEXT = "SUBJECT_ID_TEXT";
+	public static final String TEST_ID_TEXT = "TEST_ID_TEXT";
+	public static final String FILENAME_TEXT = "FILENAME_TEXT";
 		
 	public static final String SORT_TEXT = "SORT_TEXT";
 
@@ -236,6 +240,11 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put( FOLDER_TEXT, new Caption( FOLDER_TEXT, defaultLanguage, "Folder" ) );
+		captions.put( SUBJECT_ID_TEXT, new Caption( SUBJECT_ID_TEXT, defaultLanguage, "Subject id" ) );
+		captions.put( TEST_ID_TEXT, new Caption( TEST_ID_TEXT, defaultLanguage, "Test id" ) );
+		captions.put( FILENAME_TEXT, new Caption( FILENAME_TEXT, defaultLanguage, "File name" ) );
 		
 		captions.put( DATA_CHART_SUMMARY_TEXT, new Caption( DATA_CHART_SUMMARY_TEXT, defaultLanguage, "Data chart summary" ) );
 

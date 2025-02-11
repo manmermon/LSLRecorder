@@ -69,6 +69,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ArrayTreeMap;
+import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
@@ -81,7 +82,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 1 - 1, 22 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 2 - 1, 10 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -99,7 +100,7 @@ public class ConfigApp
 	
 	public static String defaultNameFileConfig = "config." + defaultNameFileConfigExtension;
 	
-	public static final String defaultNameOutputDataFile = "data.clis";
+	public static final String defaultNameOutputDataFile = "data"; //"data.clis";
 	
 	public static final String HEADER_SEPARATOR = ";" ;
 
@@ -152,6 +153,9 @@ public class ConfigApp
 	 */
 	
 	public static final String OUTPUT_FILE_NAME = "OUTPUT_FILE_NAME";
+	public static final String OUTPUT_FILE_FOLDER = "OUTPUT_FILE_FOLDER";
+	public static final String OUTPUT_SUBJ_ID = "OUTPUT_SUBJ_ID";
+	public static final String OUTPUT_TEST_ID = "OUTPUT_TEST_ID";
 	
 	public static final String OUTPUT_FILE_FORMAT = "OUTPUT_FILE_FORMAT";
 	
@@ -236,6 +240,9 @@ public class ConfigApp
 
 		list_Key_Type.put( OUTPUT_FILE_FORMAT, String.class);
 		list_Key_Type.put( OUTPUT_FILE_NAME, String.class);
+		list_Key_Type.put( OUTPUT_FILE_FOLDER, String.class);
+		list_Key_Type.put( OUTPUT_SUBJ_ID, String.class);
+		list_Key_Type.put( OUTPUT_TEST_ID, String.class);
 		list_Key_Type.put( OUTPUT_FILE_DESCR, String.class );
 		
 		list_Key_Type.put( OUTPUT_ENCRYPT_DATA, Boolean.class );
@@ -636,7 +643,7 @@ public class ConfigApp
 				break;
 			}
 		}
-		
+
 		it = idPars.iterator();
 		while( it.hasNext() )
 		{
@@ -651,7 +658,7 @@ public class ConfigApp
 		}
 		
 		it = idPars.iterator();
-		while (it.hasNext())
+		while( it.hasNext() )
 		{
 			String key = (String)it.next();
 			Class clase = list_Key_Type.get(key);
@@ -806,15 +813,40 @@ public class ConfigApp
 				{
 					if (value == null)
 					{
-						loadDefaultValue(key);
+						loadDefaultValue( key );
 						defaultValue = true;
 						
 						defaultMsg += key + "; ";
 					}
 					else
 					{
-						listConfig.put(key, value);
-
+						switch ( key ) 
+						{
+							case OUTPUT_SUBJ_ID:
+							case OUTPUT_TEST_ID:
+							case OUTPUT_FILE_NAME:
+							case OUTPUT_FILE_FOLDER:
+							{	
+								listConfig.put( key, value );
+								
+								if( !FileUtils.checkOutputOutputFilePath() )
+								{
+									loadDefaultValue( key );
+									
+									defaultValue = true;
+									
+									defaultMsg += key + "; ";
+								}
+								
+								break;
+							}
+							default:
+							{
+								listConfig.put( key, value );
+								break;
+							}
+						}
+						
 					}
 				}
 				else if ( clase.getCanonicalName().equals(Tuple.class.getCanonicalName() ) )
@@ -923,19 +955,10 @@ public class ConfigApp
 									
 									for( IMutableStreamSetting lslCfg : lslDevs )
 									{
-										/*
-										found = lslCfg.source_id().equals( sourceID );
-										
-										if( !found )
-										{	
-											found = lslCfg.content_type().equals( type ) && lslCfg.name().equals( name );
-										}
-										//*/
-										
 										found = lslCfg.source_id().equals( sourceID )
-												&&  lslCfg.content_type().equals( type ) 
+												&& lslCfg.content_type().equals( type ) 
 												&& lslCfg.name().equals( name );
-										
+																			
 										if( found )
 										{
 											lslCfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, info );
@@ -1533,6 +1556,21 @@ public class ConfigApp
 				loadDefaultLSLOutputFileName();
 				break;
 			}
+			case OUTPUT_FILE_FOLDER:
+			{
+				loadDefaultLSLOutputFileFolder();
+				break;
+			}
+			case OUTPUT_SUBJ_ID:
+			{
+				loadDefaultLSLOutputSubjectID();
+				break;
+			}
+			case OUTPUT_TEST_ID:
+			{
+				loadDefaultLSLOutputTestID();;
+				break;
+			}
 			case OUTPUT_ENCRYPT_DATA:
 			{
 				loadDefaultLSLEncryptData();
@@ -1622,7 +1660,10 @@ public class ConfigApp
 		
 		loadDefaultLSLDeviceInfo();
 		loadDefaultLSLOutputFileName();
-
+		loadDefaultLSLOutputFileFolder();
+		loadDefaultLSLOutputSubjectID();
+		loadDefaultLSLOutputTestID();
+		
 		loadDefaultLSLOutputFileFormat();
 		loadDefaultLSLOutputFileDescr();		
 		
@@ -1737,7 +1778,22 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileName()
 	{
-		listConfig.put( OUTPUT_FILE_NAME, defaultPathFile + defaultNameOutputDataFile );
+		listConfig.put( OUTPUT_FILE_NAME, defaultNameOutputDataFile );
+	}
+	
+	private static void loadDefaultLSLOutputFileFolder()
+	{
+		listConfig.put( OUTPUT_FILE_FOLDER, defaultPathFile );
+	}
+	
+	private static void loadDefaultLSLOutputSubjectID()
+	{
+		listConfig.put( OUTPUT_SUBJ_ID, "" );
+	}
+	
+	private static void loadDefaultLSLOutputTestID()
+	{
+		listConfig.put( OUTPUT_TEST_ID, "" );
 	}
 
 	private static void loadDefaultLSLOutputFileFormat()

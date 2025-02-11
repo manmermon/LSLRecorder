@@ -75,6 +75,7 @@ import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
+import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
@@ -616,7 +617,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if ( this.ctrlOutputFile != null )
 		{						
-			String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+			if( !FileUtils.checkOutputOutputFilePath() )
+			{
+				throw new IllegalArgumentException( "Output file path error" );
+			}
+			
+			String file = FileUtils.getOutputCompletedFileNameFromConfig();
 
 			HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 

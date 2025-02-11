@@ -949,4 +949,15 @@ public class GuiManager
 		}
 	}
 	
+	public void showLogTab()
+	{
+		try 
+		{
+			AppUI.getInstance().getRightPanelSetting().showStreamTab( RightPanelSettings.TAB_LOG );
+		}
+		catch (Exception e) 
+		{
+		}
+	}
+	
 }

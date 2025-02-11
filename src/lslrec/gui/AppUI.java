@@ -41,7 +41,7 @@ import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.miscellany.VerticalFlowLayout;
-import lslrec.gui.panel.primary.LeftPanelSetting;
+import lslrec.gui.panel.primary.SyncSocketPanelSetting;
 import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
@@ -209,7 +209,7 @@ public class AppUI extends JFrame
 	private JTextField sessionTimeText = null;
 
 	// Settings
-	private LeftPanelSetting leftSettingPanel;
+	private SyncSocketPanelSetting leftSettingPanel;
 	private RightPanelSettings rightSettingPanel;
 
 	// JCombox
@@ -939,18 +939,18 @@ public class AppUI extends JFrame
 			this.jPanelInputMsg.setFocusCycleRoot(false);
 
 			this.jPanelInputMsg.setLeftComponent( this.getLeftPanelSetting() );
-			//this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
-			this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
+			this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
+			//this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
 		}
 		
 		return this.jPanelInputMsg;
 	}
 
-	protected LeftPanelSetting getLeftPanelSetting()
+	protected SyncSocketPanelSetting getLeftPanelSetting()
 	{
 		if( this.leftSettingPanel == null )
 		{
-			this.leftSettingPanel = new LeftPanelSetting( this );
+			this.leftSettingPanel = new SyncSocketPanelSetting( this );
 		}
 
 		return this.leftSettingPanel;
@@ -2177,8 +2177,8 @@ public class AppUI extends JFrame
 		if( this.jPanelInputMsgLog == null )
 		{
 			this.jPanelInputMsgLog = new JPanel( new BorderLayout() );
-			//this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
-			this.jPanelInputMsgLog.setBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5) );
+			this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
+			//this.jPanelInputMsgLog.setBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5) );
 			
 			this.jPanelInputMsgLog.add( this.getScrollPaneLog(), BorderLayout.CENTER );
 
@@ -2189,7 +2189,7 @@ public class AppUI extends JFrame
 
 			this.jPanelInputMsgLog.add( p, BorderLayout.NORTH );
 			
-			//GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
+			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
 		}
 
 		return this.jPanelInputMsgLog;

@@ -20,6 +20,11 @@
 package lslrec.auxiliar.extra;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -27,7 +32,11 @@ import javax.annotation.processing.FilerException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import lslrec.auxiliar.WarningMessage;
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
@@ -181,7 +190,6 @@ public class FileUtils
 
 		return res;
 	}
-	
 
 	public static File[] selectFile(String defaulName, String titleDialog
 							, int typeDialog, boolean multiSelection
@@ -280,4 +288,86 @@ public class FileUtils
 
 		return path;
 	}
+
+	public static String getOutputCompletedFileNameFromConfig()
+	{
+		String outFile = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
+		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
+		String filename = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		
+		outFile = outFile.isEmpty() ? "." : outFile;
+		
+		if( !outFile.endsWith( File.separator ) )
+		{
+			outFile += File.separator;
+		}
+		
+		if( subj != null && !subj.isEmpty() )
+		{
+			outFile += subj + File.separator;
+		}
+		
+		if( test != null && !test.isEmpty() )
+		{
+			outFile += test + File.separator;
+		}
+		
+		if( filename == null || filename.isEmpty() )
+		{
+			outFile += "data";
+		}
+		else
+		{
+			outFile += filename;
+		}
+		
+		String format = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
+		
+		Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+		Encoder encorder = tencoder.t1;
+				
+		String ext = encorder.getOutputFileExtension();
+		
+		int pos = outFile.lastIndexOf( "." );
+		if( pos > 0 )
+		{
+			outFile = outFile.substring( 0 , pos );
+		}
+		
+		outFile += ext;
+		
+		return outFile;
+	}
+
+	public static boolean checkOutputOutputFilePath(  )
+	{
+		String folder = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
+		String name = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
+		
+		//File f = new File( folder );	
+		//String folderTxt = f.getPath();
+		
+		boolean ok = true;
+		
+		try 
+		{
+			Paths.get( folder );
+		} 
+		catch (InvalidPathException | NullPointerException ex) 
+		{
+		  ok = false;
+		}
+		
+		ok = ok && !folder.isEmpty();// && !folderTxt.matches( "[^\\.]+(\\.[\\\\/]).*" );
+		
+		ok = ok && name.matches("^[a-zA-Z0-9-_]+$")
+						&& ( subj.isEmpty() || subj.matches("^[a-zA-Z0-9-_]+$" ) )
+						&& ( test.isEmpty() || test.matches("^[a-zA-Z0-9-_]+$" ) );
+		
+		return ok;
+	}
+	
 }

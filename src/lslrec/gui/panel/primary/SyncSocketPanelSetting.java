@@ -75,7 +75,7 @@ import lslrec.gui.miscellany.SpinnerNumberCellEditor;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.config.ConfigApp;
 
-public class LeftPanelSetting extends JPanel
+public class SyncSocketPanelSetting extends JPanel
 {	
 	private static final long serialVersionUID = 2157401336834064879L;
 		
@@ -120,7 +120,7 @@ public class LeftPanelSetting extends JPanel
 	// Auxiliar
 	private Object[][] previousRowValues = null;
 	
-	public LeftPanelSetting( JFrame owner )
+	public SyncSocketPanelSetting( JFrame owner )
 	{
 		this.winOwner = owner;
 		
