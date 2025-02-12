@@ -319,7 +319,7 @@ public class mainLSLRecorder
 		Dimension dm = t.getScreenSize();
 
 		AppUI ui = AppUI.getInstance();
-
+		
 		Insets pad = t.getScreenInsets(ui.getGraphicsConfiguration());
 
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
@@ -357,7 +357,8 @@ public class mainLSLRecorder
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gd.getDefaultConfiguration());
 		ui.setLocation(insets.left + 1, insets.top + 1);
-
+		ui.pack();
+		
 		ui.setVisible(true);
 
 		return ui;

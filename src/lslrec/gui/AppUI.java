@@ -396,14 +396,15 @@ public class AppUI extends JFrame
 
 			this.jPanelSelectSyncMethod.add( this.getJButtonRefreshDataStreams() );
 
-			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
+			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );			
 			
 			this.jPanelSelectSyncMethod.add( lb );
 			//this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getBtnSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getJCheckActiveSpecialInputMsg() );
 			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );			
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
 		}
 
 		return this.jPanelSelectSyncMethod;
@@ -1450,8 +1451,7 @@ public class AppUI extends JFrame
 				}
 			});
 
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );
-			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );			
 		}
 
 		return this.menuAdvanceOpt;
@@ -2158,6 +2158,7 @@ public class AppUI extends JFrame
 			
 			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.INPUT_MSGS ), this.getInputLogPanel() );
 			Component c = this.jTabPanelInMsg.getComponentAt( 0 );
+			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
 
 			/*

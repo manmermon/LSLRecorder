@@ -93,10 +93,13 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private List< InputSyncData > syncInputData;
 	private SyncMarkerCollectorWriter syncCollector = null;
 		
+	//private boolean syncCollectorReady = false;
 	private boolean inputSyncLauched = false;
 	private boolean isRecorderThreadOn = false;
 	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
-		
+	
+	private AtomicBoolean syncMarkerThreadsReady = new AtomicBoolean( false );
+	
 	//private List<LSL.StreamInfo> streamInfos = null;
 
 	private Map<String, OutputBinaryFileSegmentation> outWriterHandlers = null;
@@ -202,6 +205,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.syncCollector.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 		}
 		
+		this.syncMarkerThreadsReady.set( false );
 		this.inputSyncLauched = false;
 		this.isRecorderThreadOn = false;
 		//this.isSyncThreadActive = false;
@@ -228,7 +232,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		
 		return set;
 	}
-	
+		
 	/*
 	 * (non-Javadoc)
 	 * @see Controls.HandlerMinionTemplate#startWork(java.lang.Object)
@@ -246,10 +250,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								
 				if( act.equals( ACTION_START_SYNC ) )
 				{					
+					//System.out.println("OutputDataFileHandler.startWork() ACTION_START_SYNC");
 					this.startSyncThread( );
 				}
 				else if ( act.toString().equals( ACTION_START_RECORD ) )
 				{	
+					//System.out.println("OutputDataFileHandler.startWork() ACTION_START_RECORD");
 					this.startSyncThread( );
 					
 					if( !this.isRecorderThreadOn )
@@ -278,6 +284,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 	}
 	
+	public boolean areReadySyncMarkThreads()
+	{
+		return this.saveSyncMarker.get() && this.syncMarkerThreadsReady.get();
+	}
+	
 	private void startSyncThread( ) throws Exception
 	{
 		if( this.syncCollector.getState().equals( Thread.State.NEW ) )
@@ -291,13 +302,15 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		}
 		
 		if( this.syncInputData != null  && !this.inputSyncLauched )
-		{
+		{			
 			this.inputSyncLauched = true;
 			
 			final OutputDataFileHandler auxOutDataFileCtrl = this;
 			
 			synchronized ( this.syncInputData )
 			{
+				final AtomicInteger syncThreadCounter = new AtomicInteger( this.syncInputData.size() );
+				
 				for( InputSyncData sync : this.syncInputData )
 				{	
 					sync.taskMonitor( this );
@@ -309,6 +322,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 							try
 							{
 								sync.startThread();
+							
+								syncMarkerThreadsReady.set(syncThreadCounter.decrementAndGet() < 1 );
 							}
 							catch (Exception e)
 							{
@@ -461,7 +476,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				for ( int indexInlets = 0; indexInlets < streamSettings.size(); indexInlets++)
 				{
 					IStreamSetting stream2rec = streamSettings.get( indexInlets );
-				
+									
 					if( stream2rec.isSynchronationStream() )
 					{
 						InputSyncData sync = new InputSyncData( stream2rec );

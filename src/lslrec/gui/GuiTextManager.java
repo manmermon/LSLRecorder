@@ -53,141 +53,173 @@ public class GuiTextManager
 	
 	private static List< Tuple< Object, String > > streamTexts = new ArrayList< Tuple< Object, String > >();
 	
+	private static Object sync = new Object();
+	
 	public static void addComponent( String cateogry, String idTranslateToken, Object c )
 	{
-		ArrayTreeMap< String, Object > cs = components.get( cateogry );
-		
-		if( cs == null )
+		synchronized( sync )
 		{
-			cs = new ArrayTreeMap< String, Object >();
-			components.put( cateogry, cs );			
+			ArrayTreeMap< String, Object > cs = components.get( cateogry );
+			
+			if( cs == null )
+			{
+				cs = new ArrayTreeMap< String, Object >();
+				components.put( cateogry, cs );			
+			}
+			
+			cs.putElement(idTranslateToken, c );		
 		}
-		
-		cs.putElement(idTranslateToken, c );		
 	}
 		
 	public static void clear()
 	{
-		components.clear();
+		synchronized( sync )
+		{
+			components.clear();
+		}
 	}
 	
-	public static synchronized String getTranslateToken( Object c )
+	public static String getTranslateToken( Object c )
 	{
-		String token = null;
-		
-		synchronized ( components)
+		synchronized( sync )
 		{
-			outerloop:
+			String token = null;
+			
+			synchronized ( components)
 			{
-				for( ArrayTreeMap< String, Object > Comps : components.values() )
+				outerloop:
 				{
-					for( String tk : Comps.keySet() )
+					for( ArrayTreeMap< String, Object > Comps : components.values() )
 					{
-						if( Comps.get( tk ).contains( c ) )
+						for( String tk : Comps.keySet() )
 						{
-							token = tk;
-														
-							break outerloop;
+							if( Comps.get( tk ).contains( c ) )
+							{
+								token = tk;
+															
+								break outerloop;
+							}
 						}
 					}
 				}
 			}
+			
+			return token;
 		}
-		
-		return token;
 	}
 	
 	public static void removeComponent( Object c )
 	{
-		for( ArrayTreeMap< String , Object > Comps : components.values() )
+		synchronized( sync )
 		{
-			for( List< Object > cs : Comps.values() )
+			for( ArrayTreeMap< String , Object > Comps : components.values() )
 			{
-				cs.remove( c );
+				for( List< Object > cs : Comps.values() )
+				{
+					cs.remove( c );
+				}
 			}
 		}
 	}
 	
 	public static void removeComponent( String idTranslateToken, Object c )
 	{
-		for( ArrayTreeMap< String , Object > Comps : components.values() )
-		{			
-			List< Object > cs = Comps.get( idTranslateToken);
-			if( cs != null )
-			{
-				cs.remove( c );
+		synchronized( sync )
+		{
+			for( ArrayTreeMap< String , Object > Comps : components.values() )
+			{			
+				List< Object > cs = Comps.get( idTranslateToken);
+				if( cs != null )
+				{
+					cs.remove( c );
+				}
 			}
 		}
 	}
 	
 	public static void removeComponent( String category, String idTranslateToken, Object c )
 	{
-		ArrayTreeMap< String , Object > Comps = components.get( category );
-		if( Comps != null )
-		{			
-			List< Object > cs = Comps.get( idTranslateToken);
-			if( cs != null )
-			{
-				cs.remove( c );
+		synchronized( sync )
+		{
+			ArrayTreeMap< String , Object > Comps = components.get( category );
+			if( Comps != null )
+			{			
+				List< Object > cs = Comps.get( idTranslateToken);
+				if( cs != null )
+				{
+					cs.remove( c );
+				}
 			}
 		}
 	}
 	
 	public static void clearCategory( String category )
 	{
-		components.remove( category );
+		synchronized( sync )
+		{
+			components.remove( category );
+		}
 	}
 	
 	public static void removeTranslateToken( String idTransToken ) 
 	{
-		for( ArrayTreeMap< String , Object > Comps : components.values() )
+		synchronized( sync )
 		{
-			Comps.remove( idTransToken );
+			for( ArrayTreeMap< String , Object > Comps : components.values() )
+			{
+				Comps.remove( idTransToken );
+			}
 		}
 	}
 	
 	public static void removeTranslateToken( String category, String idTransToken ) 
 	{
-		ArrayTreeMap< String, Object > cs = components.get( category );
-		
-		if( cs != null )
+		synchronized( sync )
 		{
-			if( idTransToken != null )
+			ArrayTreeMap< String, Object > cs = components.get( category );
+			
+			if( cs != null )
 			{
-				cs.remove( idTransToken );
+				if( idTransToken != null )
+				{
+					cs.remove( idTransToken );
+				}
 			}
 		}
 	}
 	
 	public static void changeLanguage( String lang )
 	{
-		Language.changeLanguage( lang );
-		
-		for( String category : components.keySet() )
+		synchronized( sync )
 		{
-			ArrayTreeMap< String , Object > Comps = components.get( category );
-						
-			for( String langToken : Comps.keySet() )
+			Language.changeLanguage( lang );
+			
+			for( String category : components.keySet() )
 			{
-				String txt = Language.getLocalCaption( langToken );
-
-				for( Object c : Comps.get( langToken ) )
+				ArrayTreeMap< String , Object > Comps = components.get( category );
+							
+				for( String langToken : Comps.keySet() )
 				{
-					if( category.equalsIgnoreCase( TEXT ) )
+					String txt = Language.getLocalCaption( langToken );
+	
+					for( Object c : Comps.get( langToken ) )
 					{
-						changeText( c, txt );
-					}
-					else if( category.equalsIgnoreCase( TOOLTIP ) )
-					{
-						changeToolTip( c, txt );
-					}
-					else if( category.equalsIgnoreCase( BORDER ) )
-					{
-						changeBorder( c, txt );
+						if( category.equalsIgnoreCase( TEXT ) )
+						{
+							changeText( c, txt );
+						}
+						else if( category.equalsIgnoreCase( TOOLTIP ) )
+						{
+							changeToolTip( c, txt );
+						}
+						else if( category.equalsIgnoreCase( BORDER ) )
+						{
+							changeBorder( c, txt );
+						}
 					}
 				}
-			}
-		}		
+			}		
+		}
 	}
 	
 	private static void changeText( Object cs, String txt )
@@ -223,8 +255,8 @@ public class GuiTextManager
 					{
 						if( SwingUtilities.isDescendingFrom( (Component)cs , tabbedPane.getComponentAt( i ) ) ) 
 						{
-					        tabbedPane.setTitleAt( i, txt);
-					        break;
+							tabbedPane.setTitleAt( i, txt);
+							break;
 						}
 					}
 				}
@@ -252,26 +284,32 @@ public class GuiTextManager
 	
 	public static void addSelectedStreamComponent( Object c, String idTranslateToken )
 	{
-		if( c != null )
+		synchronized( sync )
 		{
-			streamTexts.add( new Tuple< Object, String >( c, idTranslateToken ) );
+			if( c != null )
+			{
+				streamTexts.add( new Tuple< Object, String >( c, idTranslateToken ) );
+			}
 		}
 	}
 	
 	public static void removeSelectedStreamComponent( Object c )
 	{
-		if( c != null )
+		synchronized( sync )
 		{
-			Iterator< Tuple< Object, String > > it = streamTexts.iterator();
-			
-			while( it.hasNext() )
+			if( c != null )
 			{
-				Tuple< Object, String > tp = it.next();
+				Iterator< Tuple< Object, String > > it = streamTexts.iterator();
 				
-				Object tc = tp.t1;
-				if( tc != null && tc.equals( c ) )
+				while( it.hasNext() )
 				{
-					it.remove();
+					Tuple< Object, String > tp = it.next();
+					
+					Object tc = tp.t1;
+					if( tc != null && tc.equals( c ) )
+					{
+						it.remove();
+					}
 				}
 			}
 		}
@@ -279,31 +317,37 @@ public class GuiTextManager
 	
 	public static void clearSelectedStreamComponent( )
 	{
-		streamTexts.clear();
+		synchronized( sync )
+		{
+			streamTexts.clear();
+		}
 	}
 	
 	public static void updateSelectedStreamText()
 	{
-		HashSet< IMutableStreamSetting > sst = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
-		
-		int total = sst.size();
-		
-		int nSel = 0;
-		
-		for( IMutableStreamSetting s : sst )
+		synchronized( sync )
 		{
-			if( s.isSelected() )
+			HashSet< IMutableStreamSetting > sst = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+			
+			int total = sst.size();
+			
+			int nSel = 0;
+			
+			for( IMutableStreamSetting s : sst )
 			{
-				nSel++;
+				if( s.isSelected() )
+				{
+					nSel++;
+				}
 			}
-		}
-		
-		String selStreamTx = " (" + nSel + "/" + total + ")";
-		
-		for( Tuple< Object, String > t : streamTexts )
-		{
-			String tx = Language.getLocalCaption( t.t2 ) + selStreamTx;
-			changeText( t.t1, tx );
+			
+			String selStreamTx = " (" + nSel + "/" + total + ")";
+			
+			for( Tuple< Object, String > t : streamTexts )
+			{
+				String tx = Language.getLocalCaption( t.t2 ) + selStreamTx;
+				changeText( t.t1, tx );
+			}
 		}
 	}
 }

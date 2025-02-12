@@ -40,6 +40,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -176,8 +177,9 @@ public class RightPanelSettings extends JPanel
 	private JTextField subjectID;
 	private JTextField testID;
 	private JTextField fileName;
-	private JTextField completeFileName;
-	private JTextField generalDescrOutFile;
+	private JTextField completedFileName;
+	//private JTextField generalDescrOutFile;
+	private JTextArea generalDescrOutFile;
 
 	// JCHECKBOX
 	private JCheckBox encryptKeyActive;
@@ -502,6 +504,7 @@ public class RightPanelSettings extends JPanel
 		return this.jOutFile;
 	}
 	
+	/*
 	private JTextField getGeneralDescrOutFile() 
 	{
 		if( this.generalDescrOutFile == null )
@@ -510,14 +513,67 @@ public class RightPanelSettings extends JPanel
 			
 			this.generalDescrOutFile = new JTextField();
 			
-			/*
-			Dimension d = this.generalDescrOutFile.getSize();
-			FontMetrics fm = this.getJTextCompleteFileName().getFontMetrics( this.getJTextCompleteFileName().getFont() );
-			d.width = fm.stringWidth( "W" ) * 30;			
-			d.height = fm.getHeight() + 8;
-			this.generalDescrOutFile.setPreferredSize( d );
-			//*/
+			/ *
+			//Dimension d = this.generalDescrOutFile.getSize();
+			//FontMetrics fm = this.getJTextCompleteFileName().getFontMetrics( this.getJTextCompleteFileName().getFont() );
+			//d.width = fm.stringWidth( "W" ) * 30;			
+			//d.height = fm.getHeight() + 8;
+			//this.generalDescrOutFile.setPreferredSize( d );
+			//* /
 			
+			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
+			{				
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					updateDoc( e );
+				}
+
+				private void updateDoc( DocumentEvent e )
+				{
+					try 
+					{
+						String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
+						ConfigApp.setProperty( ID, desc );
+						
+						generalDescrOutFile.setToolTipText( desc );
+					}
+					catch (BadLocationException e1) 
+					{
+						e1.printStackTrace();
+					}
+				}
+			});
+
+			GuiManager.setGUIComponent( ID, ID, this.generalDescrOutFile );
+		}
+		
+		return this.generalDescrOutFile;
+	}
+	//*/
+	
+	private JTextArea getGeneralDescrOutFile() 
+	{
+		if( this.generalDescrOutFile == null )
+		{
+			final String ID = ConfigApp.OUTPUT_FILE_DESCR;
+			
+			this.generalDescrOutFile = new JTextArea();
+			
+			this.generalDescrOutFile.setLineWrap( true );
+									
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				
 				@Override
@@ -784,7 +840,7 @@ public class RightPanelSettings extends JPanel
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.TEST_ID_TEXT, lbTestId );
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.FILENAME_TEXT, lbFileName );
 			
-			setCompleteOutputFileName();
+			setCompledteOutputFileName();
 		}
 
 		return this.panelOutFileName;
@@ -893,7 +949,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID, folder );
 						
-						setCompleteOutputFileName();
+						setCompledteOutputFileName();
 					}
 					catch (BadLocationException e1) 
 					{
@@ -1000,7 +1056,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID, subjIDtext );
 						
-						setCompleteOutputFileName();
+						setCompledteOutputFileName();
 					}
 					catch (BadLocationException e1) 
 					{
@@ -1080,7 +1136,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID, testIDtext );
 						
-						setCompleteOutputFileName();
+						setCompledteOutputFileName();
 					}
 					catch (BadLocationException e1) 
 					{
@@ -1167,7 +1223,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID, fileNametext );
 						
-						setCompleteOutputFileName();
+						setCompledteOutputFileName();
 					}
 					catch (BadLocationException e1) 
 					{
@@ -1208,28 +1264,41 @@ public class RightPanelSettings extends JPanel
 		return this.fileName;
 	}
 	
-	private void setCompleteOutputFileName()
+	private void setCompledteOutputFileName()
 	{
 		String outFile = FileUtils.getOutputCompletedFileNameFromConfig();
+		
+		String stream = "_[" + Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) + "]";
+		
+		int lastdot = outFile.lastIndexOf( "." );
+		
+		String ext = "";
+		if( lastdot >= 0 )
+		{
+			ext = outFile.substring( lastdot );
+			outFile = outFile.substring( 0, lastdot );
+		}
+		
+		outFile = outFile + stream + ext;
 		
 		this.getJTextCompleteFileName().setText( outFile );
 	}
 	
 	private JTextField getJTextCompleteFileName()
 	{
-		if( this.completeFileName == null )
+		if( this.completedFileName == null )
 		{
-			this.completeFileName = new JTextField();
-			this.completeFileName.setEditable( false );
+			this.completedFileName = new JTextField();
+			this.completedFileName.setEditable( false );
 			//this.completeFileName.setFocusable( false );
 
 			//this.completeFileName.setText( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString() );
 
-			Dimension d = this.completeFileName.getPreferredSize();
-			FontMetrics fm = this.completeFileName.getFontMetrics( this.completeFileName.getFont() );
+			Dimension d = this.completedFileName.getPreferredSize();
+			FontMetrics fm = this.completedFileName.getFontMetrics( this.completedFileName.getFont() );
 			d.width = fm.stringWidth( "Z" ) * 20;
 			
-			this.completeFileName.setPreferredSize( d );
+			this.completedFileName.setPreferredSize( d );
 			
 			/*
 			final String ID = ConfigApp.OUTPUT_FILE_NAME;
@@ -1317,7 +1386,7 @@ public class RightPanelSettings extends JPanel
 			//*/
 		}
 
-		return this.completeFileName;
+		return this.completedFileName;
 	}
 
 	private JPanel getPanelOutFileOption()
@@ -1349,7 +1418,10 @@ public class RightPanelSettings extends JPanel
 			aux.add( lbDescr );
 			
 			this.panelOutFileOption.add( aux, BorderLayout.WEST );
-			this.panelOutFileOption.add( this.getGeneralDescrOutFile(), BorderLayout.CENTER );
+			this.panelOutFileOption.add( new JScrollPane(this.getGeneralDescrOutFile()
+														, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+														, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED )
+										, BorderLayout.CENTER );
 			
 			//this.panelOutFileOption.add( this.getParallelizeActive() );
 			
@@ -1391,7 +1463,7 @@ public class RightPanelSettings extends JPanel
 						
 						ConfigApp.setProperty( ID , format );
 						
-						setCompleteOutputFileName();
+						setCompledteOutputFileName();
 					}
 				}
 			});
@@ -2585,11 +2657,12 @@ public class RightPanelSettings extends JPanel
 				{
 					ExceptionDialog.clearMessages();
 				}
-			});
+			});			
 			
-			JPanel logPanel = new JPanel( new BorderLayout() );
+			JPanel logPanel = new JPanel( new BorderLayout( 5, 5 ) );
 			logPanel.add( new JScrollPane( jta ), BorderLayout.CENTER );	
 			logPanel.add( clearBt, BorderLayout.NORTH );
+			logPanel.setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 			
 			ExceptionDialog.setMainTextLog( log );
 			

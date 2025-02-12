@@ -89,7 +89,7 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 			super.wait();
 		}
 		
-		SyncMarker marker = this.getSyncMarker();
+		SyncMarker marker = this.getSyncMarker();		
 		
 		if( this.notifier != null && marker != null )
 		{

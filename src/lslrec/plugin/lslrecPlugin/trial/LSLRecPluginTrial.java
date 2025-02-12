@@ -101,6 +101,14 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 		if( this.syncMethod != null )
 		{
 			this.syncMethod.startThread();
+			
+			synchronized( this )
+			{
+				while( !this.syncMethod.getState().equals( Thread.State.WAITING ) )
+				{
+					super.wait( 30L );
+				}
+			}
 		}
 	}
 	
@@ -206,7 +214,6 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 											protected void postStopThread(int friendliness) throws Exception 
 											{	
 											}
-						
 
 											@Override
 											public void loadSyncSettings(List<Parameter<String>> pars) 

@@ -236,7 +236,7 @@ public class GuiManager
 	
 	public void refreshDataStreams()
 	{
-		AppUI.getInstance().getJButtonRefreshDataStreams().doClick();
+		AppUI.getInstance().getJButtonRefreshDataStreams().doClick();		
 	}
 	
 	protected void convertBin2CLIS()
@@ -457,7 +457,7 @@ public class GuiManager
 		List< StringTuple > IDs = new ArrayList< StringTuple >( guiParameters.keySet() );
 		Collections.sort( IDs );
 		Collections.reverse( IDs );
-
+		
 		for( StringTuple id : IDs )
 		{
 			String guiID = id.t1;
@@ -668,8 +668,7 @@ public class GuiManager
 		JToggleButton btnStart = AppUI.getInstance().getJButtonPlay();
 		
 		btnStart.setSelected( false );
-		
-		
+				
 		this.StopSessionTimer();
 		
 		this.enableGUI( true );

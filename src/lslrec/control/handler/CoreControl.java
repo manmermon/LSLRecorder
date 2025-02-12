@@ -74,6 +74,7 @@ import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
+import lslrec.stoppableThread.ThreadStopException;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
@@ -458,7 +459,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			if (this.warnMsg.getWarningType() == WarningMessage.WARNING_MESSAGE 
 					&& !testWriting 
-					&& !ConfigApp.isTesting() )
+					&& !ConfigApp.isTesting() 
+					)
 			{
 				String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 						UIManager.getString( "OptionPane.noButtonText" ) };
@@ -481,10 +483,15 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				{
 					this.isRecording = false;
 					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
+					
+					/*
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshDataStreams();
 
 					return;
+					//*/
+					
+					throw new CoreControlUserCancelStartException();
 				}
 			}			
 		
@@ -570,18 +577,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.managerGUI.refreshDataStreams();
 			this.isWaitingForStartCommand = false;
 			this.showWarningEvent = true;
-						
-			try 
-			{
-				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
-				ExceptionDialog.showMessageDialog( ex, true, true );
 				
-				e.printStackTrace();
-			}
-			catch (Exception e1) 
+			if( !(e instanceof CoreControlUserCancelStartException ) )
 			{
-				e1.printStackTrace();
-			}			
+				try 
+				{
+					ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
+					ExceptionDialog.showMessageDialog( ex, true, true );
+					
+					e.printStackTrace();
+				}
+				catch (Exception e1) 
+				{
+					e1.printStackTrace();
+				}		
+			}
 		}
 	}
 	
@@ -1098,11 +1108,20 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.startRecord();
 		}
 		
-		if( this.trial != null )
-		{				
-			this.trial.showTrialWindow();
-			this.trial.startThread();
+
+		/*
+		if( this.isWaitingForStartCommand )
+		{
+			while( !this.ctrlOutputFile.areReadySyncMarkThreads() )
+			{
+				System.out.println("CoreControl.waitStartCommand() NO areReadySyncMarkThreads");
+				synchronized ( this )
+				{
+					super.wait( 100L );
+				}
+			}
 		}
+		//*/
 		
 		if( !this.syncPluginMet.isEmpty() )
 		{
@@ -1110,6 +1129,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				plgSyncMet.startThread();
 			}
+		}
+		
+		if( this.trial != null )
+		{	
+			this.trial.showTrialWindow();
+			this.trial.startThread();
 		}
 	}
 
@@ -2444,4 +2469,19 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 	}
 
+	private class CoreControlUserCancelStartException extends Exception 
+	{
+		private static final long serialVersionUID = 1L;
+
+		public CoreControlUserCancelStartException()
+		{
+			super();
+		}
+		
+		public CoreControlUserCancelStartException( String message ) 
+	    { 
+	    	super(message); 
+	    }
+	}
+	
 }

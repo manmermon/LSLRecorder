@@ -19,7 +19,6 @@ import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
@@ -45,7 +44,8 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 	protected void finishProcess() 
 	{
 		// TODO Auto-generated method stub
-		String par = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		//String par = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		String par = FileUtils.getOutputCompletedFileNameFromConfig();
 		
 		String imgOutputFolder = "./";
 		if( par != null )
@@ -220,12 +220,12 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 			if( par == null )
 			{
 				String path = (new File( "./" ) ).getCanonicalPath();
-				ExceptionDialog.showMessageDialog( new ExceptionMessage( new Throwable("Output folder: " + path ), "Default path", ExceptionDictionary.WARNING_MESSAGE ), true, true );
+				ExceptionDialog.showMessageDialog( new ExceptionMessage( new Throwable("Output folder: " + path ), "Default path", ExceptionMessage.WARNING_MESSAGE ), true, true );
 			}
 		}
 		catch (Exception e) 
 		{
-			ExceptionDialog.showMessageDialog( new ExceptionMessage( e, "Image error", ExceptionDictionary.ERROR_MESSAGE ), true, true );
+			ExceptionDialog.showMessageDialog( new ExceptionMessage( e, "Image error", ExceptionMessage.ERROR_MESSAGE ), true, true );
 		}
 	}
 
