@@ -82,7 +82,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 2 - 1, 12 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 2 - 1, 20 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -113,11 +113,12 @@ public class ConfigApp
 	public static final String SYSTEM_LIB_MACOS_PATH = "systemLib/macox/";
 	//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
 	
-
+	
 	/**********************
 	 * 
 	 */
-	
+	public static final String CHECKLIST_MSGS = "CHECKLIST_MSGS";
+			
 	public static final String SELECTED_SYNC_METHOD = "SYNC_METHOD";
 	
 	//public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
@@ -201,6 +202,7 @@ public class ConfigApp
 	public static void setTesting( boolean t )
 	{
 		test = t;
+		loadDefaultChecklist();
 	}
 	
 	
@@ -263,6 +265,8 @@ public class ConfigApp
 		list_Key_Type.put( RECORDING_CHECKER_TIMER, Integer.class );
 		
 		list_Key_Type.put( SEGMENT_BLOCK_SIZE, Integer.class );
+		
+		list_Key_Type.put( CHECKLIST_MSGS, List.class );
 		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
@@ -790,24 +794,73 @@ public class ConfigApp
 				else if( clase.getCanonicalName().equals( List.class.getCanonicalName() ) )
 				{
 					List<String> values = new ArrayList<String>();
-
+					
 					value = value.replaceAll( "\\[", "");
 					value = value.replaceAll( "\\]", "");
 					value = value.replaceAll( "\\<", "");
 					value = value.replaceAll( "\\>", "");
-
-					String[] paths = value.split( "," );
-
-					for (int i = 0; i < paths.length; i++)
+					
+					String[] parts = value.split( "," );
+					
+					switch (key) 
 					{
-						String path = paths[i];
-						if (!path.isEmpty())
+						case CHECKLIST_MSGS:
 						{
-							values.add(path.trim());
+							boolean ok = ( parts.length % 2 == 0 );
+							if( ok )
+							{
+								List< Tuple< Boolean, String > > checkList = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS);
+								
+								for( int i = 1; i < parts.length; i += 2 )
+								{
+									try
+									{
+										String msg = parts[ i ].trim();
+										if( i < 2 && !checkList.isEmpty() )
+										{
+											msg = checkList.get( 0 ).t2;
+											checkList.remove( 0 );
+										}
+										Boolean sel = Boolean.parseBoolean( parts[ i-1 ].trim() );
+
+										Tuple< Boolean, String > tmsg = new Tuple<Boolean, String>( sel, msg );
+										checkList.add( tmsg );										
+									}
+									catch( Exception e )
+									{
+										ok = false;
+										break;
+									}
+								}
+							}
+							
+							if( !ok )
+							{
+								defaultValue = true;
+								
+								defaultMsg += key + "; ";
+								
+								loadDefaultChecklist();
+							}
+							
+							break;
+						}
+						default:
+						{
+							for (int i = 0; i < parts.length; i++)
+							{
+								String path = parts[i];
+								if (!path.isEmpty())
+								{
+									values.add(path.trim());
+								}
+							}			
+							
+							listConfig.put(key, values);
+							
+							break;
 						}
 					}
-
-					listConfig.put(key, values);
 				}
 				else if (clase.isInstance(new String()))
 				{
@@ -829,7 +882,8 @@ public class ConfigApp
 							{	
 								listConfig.put( key, value );
 								
-								if( !FileUtils.checkOutputOutputFilePath() )
+								//if( !FileUtils.checkOutputOutputFilePath() )
+								if( FileUtils.getOutputCompletedFileNameFromConfig() == null )
 								{
 									loadDefaultValue( key );
 									
@@ -1629,6 +1683,12 @@ public class ConfigApp
 				
 				break;
 			}
+			case CHECKLIST_MSGS:
+			{
+				loadDefaultChecklist();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1684,6 +1744,8 @@ public class ConfigApp
 		
 		loadDefaultRecorderTimer();
 		loadDefaultOutputSegmentBlockSize();
+		
+		loadDefaultChecklist();
 		
 		//loadDefaultStreamLibrary();
 		
@@ -1865,6 +1927,15 @@ public class ConfigApp
 	private static void loadDefaultOutputSegmentBlockSize()
 	{
 		listConfig.put( SEGMENT_BLOCK_SIZE, 10 );
+	}
+	
+	private static void loadDefaultChecklist()
+	{
+		List< Tuple< Boolean, String > > chlist = new ArrayList< Tuple< Boolean, String> >();
+		
+		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), ConfigApp.fullNameApp ) );
+		
+		listConfig.put( CHECKLIST_MSGS, chlist );
 	}
 	
 	/*

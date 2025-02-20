@@ -32,6 +32,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_Checklist;
 import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
@@ -105,7 +106,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -145,7 +145,7 @@ public class AppUI extends JFrame
 	private JPanel jPanelInputMsgLog;
 	private JPanel jPanelSelectSyncMethod;
 	//private JPanel jPanelMenus;		
-	private JTabbedPane jTabPanelInMsg;
+	//private JTabbedPane jTabPanelInMsg;
 	//private JPanel jPanelAppStateLog;
 	
 	// Button
@@ -153,6 +153,7 @@ public class AppUI extends JFrame
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
 	private JButton jBtnSyncMet;
+	private JButton jBtnChecklist;
 	//private JButton jButtonClearAppStateLog;
 		
 	private JToggleButton jButtomPlayStop = null;
@@ -402,7 +403,8 @@ public class AppUI extends JFrame
 			//this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getBtnSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getJCheckActiveSpecialInputMsg() );
-			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );			
+			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );		
+			this.jPanelSelectSyncMethod.add( this.getJBtChecklist() );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
 		}
@@ -758,7 +760,8 @@ public class AppUI extends JFrame
 			this.jBtnInfo.setIcon( new ImageIcon( BasicPainter2D.paintText( 0, 0, "?", fm, null, Color.BLACK, null ) ) );
 			
 			this.jBtnInfo.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
-			this.jBtnInfo.setBackground( Color.YELLOW.darker() );
+			//this.jBtnInfo.setBackground( Color.YELLOW.darker() );
+			this.jBtnInfo.setBackground( new Color( 255, 255, 204 ) );
 			this.jBtnInfo.setForeground( Color.BLACK );
 
 			this.jBtnInfo.setPreferredSize( d );
@@ -1451,7 +1454,8 @@ public class AppUI extends JFrame
 				}
 			});
 
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.MENU_ADVANCED, this.menuAdvanceOpt );
+			
 		}
 
 		return this.menuAdvanceOpt;
@@ -2150,6 +2154,7 @@ public class AppUI extends JFrame
 		return this.jMenuAbout;
 	}
 
+	/*
 	private JTabbedPane getLogTabPane()
 	{
 		if( this.jTabPanelInMsg == null )
@@ -2159,19 +2164,15 @@ public class AppUI extends JFrame
 			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.INPUT_MSGS ), this.getInputLogPanel() );
 			Component c = this.jTabPanelInMsg.getComponentAt( 0 );
 			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
-
-			/*
-			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.LOG ), this.getAppStateLogPanel() );
-			c = this.jTabPanelInMsg.getComponentAt( 1 );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );
-			*/
 			
 			this.jTabPanelInMsg.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
 		}
 		
 		return this.jTabPanelInMsg;
 	}
+	//*/
 	
 	private JPanel getInputLogPanel()
 	{
@@ -2484,6 +2485,33 @@ public class AppUI extends JFrame
 		}
 
 		return this.checkAutoScroll;
+	}
+	
+	private JButton getJBtChecklist()
+	{
+		if( this.jBtnChecklist == null )
+		{
+			this.jBtnChecklist = new JButton( Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
+			
+			this.jBtnChecklist.addActionListener( new ActionListener()
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					Dialog_Checklist checklistDialog = new Dialog_Checklist( );
+					checklistDialog.setModal( true );
+					
+					checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
+					
+					checklistDialog.setLocationRelativeTo( AppUI.ui );
+					checklistDialog.setResizable( false );
+					checklistDialog.setVisible( true );											
+					checklistDialog.pack();
+				}
+			});
+		}
+		
+		return this.jBtnChecklist;
 	}
 	
 	/*

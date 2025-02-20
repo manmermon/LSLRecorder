@@ -40,13 +40,28 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 	private Thread antideadlockThread = null;	
 	private AtomicBoolean antideadLockIsWorking = new AtomicBoolean();
 	
+	private boolean deletable = true;
+	
 	/**
 	 * 
 	 * @param blockingNotification -> True if task notification must be blocked. 
+	 * @param deletable -> True: it can be removed after recording.
+	 */
+	public NotificationTask( boolean blockingNotification, boolean deletable )
+	{
+		this.blocking.set( blockingNotification );
+		
+		this.deletable = deletable;
+	}
+	
+	/**
+	 * 
+	 * @param blockingNotification -> True if task notification must be blocked. 
+	 * It can be removed after recording
 	 */
 	public NotificationTask( boolean blockingNotification )
 	{
-		this.blocking.set( blockingNotification );
+		this( blockingNotification, true );
 	}
 		
 	@Override
@@ -54,7 +69,12 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 	{	
 		this.monitor = m;
 	}
-
+	
+	public boolean isDeletable()
+	{
+		return this.deletable;
+	}
+	
 	@Override
 	public List<EventInfo> getResult( boolean clear ) 
 	{

@@ -184,6 +184,7 @@ public class Language
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
 	public static final String MSG_TEXT = "MSG_TEXT";
+	public static final String MSGS_TEXT = "MSGS_TEXT";
 	public static final String CONTINUE_TEXT = "CONTINUE_TEXT";
 	public static final String DESCRIPTION_TEXT = "DESCRIPTION_TEXT";
 	public static final String ENCRYPT_KEY_TEXT = "ENCRYPT_KEY";
@@ -199,6 +200,8 @@ public class Language
 	public static final String SORT_TEXT = "SORT_TEXT";
 
 	public static final String PROBLEM_TEXT = "PROBLEM_TEXT";
+	
+	public static final String CHECKLIST_TEXT = "CHECKLIST_TEXT";
 
 	public static final String COPY = "COPY";
 	public static final String COPY_ALL = "COPY_ALL";
@@ -241,6 +244,7 @@ public class Language
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
+		captions.put( CHECKLIST_TEXT, new Caption(CHECKLIST_TEXT, defaultLanguage, "Checklist" ) );
 		captions.put( FOLDER_TEXT, new Caption( FOLDER_TEXT, defaultLanguage, "Folder" ) );
 		captions.put( SUBJECT_ID_TEXT, new Caption( SUBJECT_ID_TEXT, defaultLanguage, "Subject id" ) );
 		captions.put( TEST_ID_TEXT, new Caption( TEST_ID_TEXT, defaultLanguage, "Test id" ) );
@@ -398,6 +402,7 @@ public class Language
 		captions.put(INPUT_TEXT, new Caption(INPUT_TEXT, defaultLanguage, "Input"));
 		captions.put(OUTPUT_TEXT, new Caption(OUTPUT_TEXT, defaultLanguage, "Output"));
 		captions.put(MSG_TEXT, new Caption(MSG_TEXT, defaultLanguage, "Message"));
+		captions.put(MSGS_TEXT, new Caption(MSGS_TEXT, defaultLanguage, "Messages"));
 		captions.put(DESCRIPTION_TEXT, new Caption(DESCRIPTION_TEXT, defaultLanguage, "Description"));
 		captions.put( SORT_TEXT, new Caption( SORT_TEXT, defaultLanguage, "Sort" ) );
 		captions.put( ENCRYPT_KEY_TEXT, new Caption( ENCRYPT_KEY_TEXT, defaultLanguage, "Encrypt" ) );

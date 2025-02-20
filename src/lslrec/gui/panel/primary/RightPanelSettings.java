@@ -61,6 +61,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -114,8 +115,10 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
+import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.NoneSelectedButtonGroup;
@@ -573,7 +576,12 @@ public class RightPanelSettings extends JPanel
 			this.generalDescrOutFile = new JTextArea();
 			
 			this.generalDescrOutFile.setLineWrap( true );
-									
+			this.generalDescrOutFile.setWrapStyleWord( true );
+			this.generalDescrOutFile.setRows( 2 );
+			this.generalDescrOutFile.setColumns( 10 );
+			
+			
+						
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				
 				@Override
@@ -822,6 +830,37 @@ public class RightPanelSettings extends JPanel
 			aux2.add( lbSubjId );
 			aux2.add( this.getJTextSubjectID() );
 			aux2.add( lbTestId );
+			
+			JButton testInfoBt = new JButton( "?" );
+			testInfoBt.setBackground( new Color( 255, 255, 204 ) );
+			testInfoBt.setBorder( BorderFactory.createEtchedBorder() );
+			testInfoBt.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JButton b = (JButton)e.getSource();
+
+					Dialog_Info w = new Dialog_Info( AppUI.getInstance()
+														, lbTestId.getText() + "-Special strings:\n"
+															+ "%date% - replaced by the current date.\n"
+															+ "%time% - replaced by the current time.\n"
+															+ "%n% - replaced by the total number of tests contained in the parent directory plus one.\n"
+															+ "%nd% - same as %n% but the value 'd' is a number indicating the minimum number of digits." );
+
+					w.setSize( 350, 150 );
+					Dimension size = w.getSize();
+					Point pos = b.getLocationOnScreen();
+
+					Point loc = new Point( pos.x - size.width, pos.y ); 
+
+					w.setLocation( loc );
+
+					w.setVisible( true );
+				}
+			});
+			aux2.add( testInfoBt );
+			
 			aux2.add( this.getJTextTestID() );
 			aux2.add( lbFileName );
 			aux2.add( this.getJTextFileName() );
@@ -1158,13 +1197,10 @@ public class RightPanelSettings extends JPanel
 				public void focusLost(FocusEvent e) 
 				{
 					JTextField jtxt = (JTextField)e.getSource();
-
-					String txt = jtxt.getText();
 					
-					if( !txt.isEmpty() && !txt.matches("^[a-zA-Z0-9-_]+$"))
+					if( !setCompledteOutputFileName() )
 					{
-						txt = text;
-						jtxt.setText( txt );
+						jtxt.setText( text );
 					}
 				}
 			});
@@ -1264,24 +1300,31 @@ public class RightPanelSettings extends JPanel
 		return this.fileName;
 	}
 	
-	private void setCompledteOutputFileName()
+	private boolean setCompledteOutputFileName()
 	{
 		String outFile = FileUtils.getOutputCompletedFileNameFromConfig();
 		
-		String stream = "_[" + Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) + "]";
+		boolean ok = outFile != null;
 		
-		int lastdot = outFile.lastIndexOf( "." );
-		
-		String ext = "";
-		if( lastdot >= 0 )
+		if( ok )
 		{
-			ext = outFile.substring( lastdot );
-			outFile = outFile.substring( 0, lastdot );
+			String stream = "_[" + Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) + "]";
+			
+			int lastdot = outFile.lastIndexOf( "." );
+			
+			String ext = "";
+			if( lastdot >= 0 )
+			{
+				ext = outFile.substring( lastdot );
+				outFile = outFile.substring( 0, lastdot );
+			}
+			
+			outFile = outFile + stream + ext;
+			
+			this.getJTextCompleteFileName().setText( outFile );
 		}
 		
-		outFile = outFile + stream + ext;
-		
-		this.getJTextCompleteFileName().setText( outFile );
+		return ok;
 	}
 	
 	private JTextField getJTextCompleteFileName()
@@ -1418,10 +1461,20 @@ public class RightPanelSettings extends JPanel
 			aux.add( lbDescr );
 			
 			this.panelOutFileOption.add( aux, BorderLayout.WEST );
+			
+			JScrollPane jc = new JScrollPane(this.getGeneralDescrOutFile()
+												, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+												, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			jc.setPreferredSize( this.getGeneralDescrOutFile().getPreferredSize() );
+								  
+			
+			this.panelOutFileOption.add( jc, BorderLayout.CENTER );
+			/*
 			this.panelOutFileOption.add( new JScrollPane(this.getGeneralDescrOutFile()
 														, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
 														, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED )
 										, BorderLayout.CENTER );
+			//*/
 			
 			//this.panelOutFileOption.add( this.getParallelizeActive() );
 			

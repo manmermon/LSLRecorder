@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -659,7 +660,11 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			this.tableSelectedPostProcessingPluginList.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 			
-			this.tableSelectedPostProcessingPluginList.setPreferredScrollableViewportSize( this.tableSelectedPostProcessingPluginList.getPreferredSize() );
+			Dimension size = this.tableSelectedPostProcessingPluginList.getPreferredSize();
+			FontMetrics fm = this.tableSelectedPostProcessingPluginList.getFontMetrics( this.tableSelectedPostProcessingPluginList.getFont() );
+			int w =(int)( fm.stringWidth( this.tableSelectedPostProcessingPluginList.getColumnName( 0 ) )*1.05 );
+			size.width = w;
+			this.tableSelectedPostProcessingPluginList.setPreferredScrollableViewportSize( size  );
 			this.tableSelectedPostProcessingPluginList.setFillsViewportHeight( true );			
 		}
 		
