@@ -82,7 +82,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 2 - 1, 20 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 2 - 1, 25 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -945,6 +945,27 @@ public class ConfigApp
 							int countDevOff = 0;
 							boolean allOk = true;
 							
+							
+							Map< String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> > foundLslStreams =  new HashMap<String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>>>();
+							for( IMutableStreamSetting lslstr : lslDevs )
+							{
+								String name = lslstr.name();
+								String type = lslstr.content_type();
+								String source = lslstr.source_id();
+								
+								ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> ts = new ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>>();
+								if( foundLslStreams.containsKey( name ) )
+								{
+									ts = foundLslStreams.get( name );
+								}
+								else
+								{	
+									foundLslStreams.put( name, ts );
+								}
+								
+								ts.putElement( type, new Tuple<String, IMutableStreamSetting>( source, lslstr) );
+							}
+							
 							for( String dev : devices )
 							{
 								//dev = dev.replace( " ", "").replace( "<", "" ).replace( ">", "" );
@@ -1005,10 +1026,11 @@ public class ConfigApp
 									{
 									}
 									
+									/*
 									boolean found = false;
 									
 									for( IMutableStreamSetting lslCfg : lslDevs )
-									{
+									{										
 										found = lslCfg.source_id().equals( sourceID )
 												&& lslCfg.content_type().equals( type ) 
 												&& lslCfg.name().equals( name );
@@ -1027,6 +1049,58 @@ public class ConfigApp
 									}
 									
 									if( !found )
+									{			
+										msgDevNonFound += "<" + sourceID + ", " + name + ", " + type + ">; ";
+										countDevOff++;
+										
+										if( countDevOff > 4 )
+										{
+											msgDevNonFound += "\n";
+											countDevOff = 0;
+										}
+										
+										defaultValue = true;
+										allOk = false;
+									}
+									//*/
+									
+									IMutableStreamSetting lslCfg = null;
+									
+								 	ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> typeSource = foundLslStreams.get( name );
+									if( typeSource != null )
+									{										
+										List< Tuple<String, IMutableStreamSetting>> sources = typeSource.get( type );
+										if( sources != null )
+										{
+											if( sources.size() == 1 )
+											{
+												lslCfg = sources.get( 0 ).t2;
+											}
+											else
+											{
+												for( Tuple<String, IMutableStreamSetting> source : sources )
+												{
+													if( source.t1.equals( sourceID ) )
+													{
+														lslCfg = source.t2;
+														
+														break;
+													}
+												}
+											}
+										}
+									}
+									
+									if( lslCfg != null )
+									{
+										lslCfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, info );
+										lslCfg.setSelected( select );
+										lslCfg.setChunckSize( chunckSize );
+										lslCfg.setInterleaveadData( interleaved );
+										lslCfg.setSynchronizationStream( isSync );
+										lslCfg.enableRecordingCheckerTimer( enableRecordingCheckerTimer );
+									}
+									else
 									{			
 										msgDevNonFound += "<" + sourceID + ", " + name + ", " + type + ">; ";
 										countDevOff++;

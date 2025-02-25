@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;

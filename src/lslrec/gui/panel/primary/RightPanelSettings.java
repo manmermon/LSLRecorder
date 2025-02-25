@@ -2452,7 +2452,7 @@ public class RightPanelSettings extends JPanel
 						jchb.setFocusable( false );
 						jchb.setFocusCycleRoot( false );
 						jchb.setFocusPainted( false );
-						jchb.setSelected( true );
+						//jchb.setSelected( true );
 						jchb.setBackground( Color.WHITE );
 						jchb.setAlignmentX( Component.CENTER_ALIGNMENT );
 						jchb.setMargin( new Insets( 0, 0, 0, 0 ) );
@@ -2465,6 +2465,9 @@ public class RightPanelSettings extends JPanel
 							{
 								if( e.getID() == ItemEvent.ITEM_STATE_CHANGED )
 								{
+									boolean sel = ( e.getStateChange() == ItemEvent.SELECTED ); 
+									
+									/*
 									if( e.getStateChange() == ItemEvent.DESELECTED )
 									{
 										JCheckBox jch = (JCheckBox)e.getSource();
@@ -2478,6 +2481,15 @@ public class RightPanelSettings extends JPanel
 										}
 																				
 										jch.setSelected( true );
+									}
+									//*/
+																		
+									for( Component comp : strList )
+									{
+										if( comp instanceof JToggleButton )
+										{												
+											((JToggleButton)comp).setSelected( sel );
+										}
 									}
 								}
 							}
