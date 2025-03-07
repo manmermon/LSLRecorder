@@ -79,7 +79,7 @@ public class GuiTextManager
 		}
 	}
 	
-	public static String getTranslateToken( Object c )
+	public static String getTranslateToken( Object c, String type )
 	{
 		synchronized( sync )
 		{
@@ -87,6 +87,7 @@ public class GuiTextManager
 			
 			synchronized ( components)
 			{
+				/*
 				outerloop:
 				{
 					for( ArrayTreeMap< String, Object > Comps : components.values() )
@@ -102,6 +103,28 @@ public class GuiTextManager
 						}
 					}
 				}
+				//*/
+				
+				if( type != null )
+				{
+					ArrayTreeMap< String, Object > Comps = components.get( type );
+					
+					if( Comps != null )
+					{
+						outerloop:
+						{
+							for( String tk : Comps.keySet() )
+							{
+								if( Comps.get( tk ).contains( c ) )
+								{
+									token = tk;
+																
+									break outerloop;
+								}
+							}
+						}
+					}
+				}				
 			}
 			
 			return token;

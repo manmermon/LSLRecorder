@@ -64,6 +64,8 @@ import java.awt.KeyboardFocusManager;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -1755,7 +1757,7 @@ public class RightPanelSettings extends JPanel
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_EXTRA );
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_STREAM_PLOT );
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_SYNC );
-			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_CHUNCK_TOOLTIP );
+			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_CHUNCK );
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_INTERLEAVED_TOOLTIP );
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_NAME );		
 			
@@ -2249,8 +2251,10 @@ public class RightPanelSettings extends JPanel
 				//
 				//
 				
-				chunckSize.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
+				//chunckSize.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
+				chunckSize.setToolTipText(Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				
+				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_CHUNCK, chunckSize );
 				GuiTextManager.addComponent( GuiTextManager.TOOLTIP, Language.SETTING_LSL_CHUNCK_TOOLTIP, chunckSize );
 				
 				FontMetrics fm = chunckSize.getFontMetrics( chunckSize.getFont() );
@@ -2260,7 +2264,7 @@ public class RightPanelSettings extends JPanel
 				chunckSize.setPreferredSize( dm );
 				chunckSize.setSize( dm );
 	
-				chunckSize.setName( Language.getLocalCaption( Language.SETTING_LSL_CHUNCK ) );
+				chunckSize.setName( Language.getLocalCaption( Language.SETTING_LSL_CHUNCK ) );				
 	
 				chunckSize.setModel(new SpinnerNumberModel( new Integer( 1 ), new Integer( 1 ), null , new Integer( 1 ) ) );
 				chunckSize.setValue( dev.getChunkSize() );
@@ -2421,8 +2425,7 @@ public class RightPanelSettings extends JPanel
 			gb.rowWeights = rW;
 									
 			JPanel topHeaderPanel = new JPanel( gb );
-									
-			
+						
 			panelLSLSettings.add( topHeaderPanel, BorderLayout.NORTH );
 			
 			List< Component > hideHeader = new ArrayList< Component >();			
@@ -2437,7 +2440,7 @@ public class RightPanelSettings extends JPanel
 					Component c = panel.getComponent( 0 );					
 					String name = c.getName();		
 															
-					String idTransLang = GuiTextManager.getTranslateToken( c );				
+					String idTransLang = GuiTextManager.getTranslateToken( c, GuiTextManager.TEXT );				
 					GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, idTransLang );
 					
 					if( i == devsPanel.size() - 2 )
@@ -2502,14 +2505,13 @@ public class RightPanelSettings extends JPanel
 					}
 					
 					if( name != null && !name.isEmpty() )
-					{
+					{	
 						JLabel lb = new JLabel( name );
 						lb.setBackground( Color.WHITE );
 						lb.setOpaque( true );
 						Font f = lb.getFont();
 						lb.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
 						lb.setBorder( BorderFactory.createEmptyBorder( 5, 0, 5, 0) );
-						
 						
 						JPanel headerPanel = new JPanel( new FlowLayout( FlowLayout.LEFT, 2, 2 ) );							
 						headerPanel.add( lb );
@@ -2545,7 +2547,21 @@ public class RightPanelSettings extends JPanel
 						topHeaderPanel.add( headerPanel, gbc );
 						
 						Dimension s = headerPanel.getPreferredSize();
-						hideHeader.add( Box.createRigidArea( new Dimension( s.width, 0 ) ) );
+						Component box = Box.createRigidArea( new Dimension( s.width, 0 ) );
+						hideHeader.add( box );
+						
+						lb.addComponentListener( new ComponentAdapter()
+						{
+							@Override
+							public void componentResized(ComponentEvent e) 
+							{
+								box.setVisible( false );
+								
+								box.setPreferredSize( new Dimension( headerPanel.getPreferredSize().width,  0) );
+								
+								box.setVisible( true );
+							}
+						});
 					}							
 				}				
 			}
