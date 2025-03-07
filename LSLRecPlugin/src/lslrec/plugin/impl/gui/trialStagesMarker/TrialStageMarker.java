@@ -1,6 +1,7 @@
 package lslrec.plugin.impl.gui.trialStagesMarker;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -334,13 +335,40 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			
 			stagePanel.add( new JScrollPane( allStagePanel ), BorderLayout.NORTH );
 		
-			JPanel panel = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.CENTER ) );
+			JPanel panel = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.CENTER, 5,5 ) );
 		
 			panel.add( new JLabel( "Tiempo restante:") );
 			panel.add( this.remainingTimeInfo );
 			
+			JPanel panelSig = new JPanel( new FlowLayout( FlowLayout.LEFT, 2,2) );
+			
 			JButton bt = new JButton( "Siguiente fase");
+			bt.setForeground( Color.BLUE );
+			
+			JButton btSi = new JButton( "Sí" );
+			btSi.setEnabled( false );
+			btSi.setForeground( Color.BLUE );
+			
+			JButton btNo = new JButton( "No" );
+			btNo.setEnabled( false );
+			btNo.setForeground( Color.RED );
+			
+			panelSig.add( bt );
+			panelSig.add( btSi );
+			panelSig.add( btNo );
+						
 			bt.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					bt.setEnabled( false );
+					btSi.setEnabled( true );
+					btNo.setEnabled( true );
+				}
+			});
+			
+			btSi.addActionListener( new ActionListener() 
 			{	
 				@Override
 				public void actionPerformed(ActionEvent e) 
@@ -360,8 +388,20 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				}
 			});
 			
-			panel.add( bt );
+			btNo.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					bt.setEnabled( true );
+					btSi.setEnabled( false );
+					btNo.setEnabled( false );
+				}
+			});
 			
+			
+			panel.add( panelSig );
+						
 			String[] substages = stage.getSubstages();
 			
 			if( substages != null )
