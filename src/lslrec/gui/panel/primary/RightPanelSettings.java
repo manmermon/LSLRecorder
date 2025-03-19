@@ -1065,7 +1065,12 @@ public class RightPanelSettings extends JPanel
 			final String ID = ConfigApp.OUTPUT_SUBJ_ID;
 			
 			this.subjectID = new JTextField();
-			this.subjectID.setText( ConfigApp.getProperty( ID ).toString() );;
+			this.subjectID.setText( ConfigApp.getProperty( ID ).toString() );
+			
+			Dimension d = this.subjectID.getPreferredSize();
+			FontMetrics fm = this.subjectID.getFontMetrics( this.subjectID.getFont() );
+			d.width = fm.stringWidth( "Z" ) * 7;			
+			this.subjectID.setPreferredSize( d );			
 			
 			this.subjectID.getDocument().addDocumentListener( new DocumentListener() 
 			{				
@@ -1146,6 +1151,11 @@ public class RightPanelSettings extends JPanel
 			
 			this.testID = new JTextField();
 			this.testID.setText( ConfigApp.getProperty( ID ).toString() );
+			
+			Dimension d = this.testID.getPreferredSize();
+			FontMetrics fm = this.testID.getFontMetrics( this.testID.getFont() );
+			d.width = fm.stringWidth( "Z" ) * 7;			
+			this.testID.setPreferredSize( d );
 			
 			this.testID.getDocument().addDocumentListener( new DocumentListener() 
 			{				
@@ -1230,6 +1240,11 @@ public class RightPanelSettings extends JPanel
 			name = (dotIndex == -1) ? name : name.substring(0, dotIndex);
 			   
 			this.fileName = new JTextField( name );
+			
+			Dimension d = this.fileName.getPreferredSize();
+			FontMetrics fm = this.fileName.getFontMetrics( this.fileName.getFont() );
+			d.width = fm.stringWidth( "Z" ) * 7;			
+			this.fileName.setPreferredSize( d );
 			
 			this.fileName.getDocument().addDocumentListener( new DocumentListener() 
 			{				
