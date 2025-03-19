@@ -189,7 +189,7 @@ public class HR2HRVPlugin  extends LSLRecConfigurablePluginAbstract implements I
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
 	{
 		HR2HRVProcessing hrvprocess = new HR2HRVProcessing( arg0, arg1 );
 		hrvprocess.loadProcessingSettings( this.getSettings() );

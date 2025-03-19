@@ -178,7 +178,7 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
 	{
 		DownSampling ds = new DownSampling( arg0 , arg1 );			
 		ds.loadProcessingSettings( new ArrayList<Parameter<String>>( super.pars.values() ) );

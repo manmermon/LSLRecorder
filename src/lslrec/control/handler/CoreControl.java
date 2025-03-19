@@ -87,6 +87,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.FileSystemException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -706,6 +708,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 						
+			ParameterList processingPars = new ParameterList();
+			
+			File filePath = new File( file );			
+			processingPars.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath() ) );
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
@@ -717,7 +723,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					{
-						process = pr.getProcessing( dev, process );
+						process = pr.getProcessing( dev, processingPars, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					
@@ -740,7 +746,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 																						, dev.uid()
 																						, dev.getExtraInfo()
 																						, dev.getChunkSize() );
-						process = pr.getProcessing( posDev, process );
+						process = pr.getProcessing( posDev, processingPars, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					

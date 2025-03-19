@@ -38,6 +38,7 @@ import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -580,7 +581,10 @@ public class LSLRecPluginTesting {
 		stopTestThread();
 
 		ILSLRecPluginDataProcessing plg = (ILSLRecPluginDataProcessing) this.plugin;
-		LSLRecPluginDataProcessing proc = plg.getProcessing(getSimpleStreamSetting(plg.getID(), type, chs), null);
+
+		ParameterList parlist = new ParameterList();
+		parlist.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, "./"));
+		LSLRecPluginDataProcessing proc = plg.getProcessing(getSimpleStreamSetting(plg.getID(), type, chs), parlist, null);
 		proc.loadProcessingSettings(plg.getSettings());
 
 		this.dataBuffer = new LinkedList<Number>();

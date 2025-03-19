@@ -183,7 +183,7 @@ public class LSLStreamResenderPlugin extends LSLRecConfigurablePluginAbstract im
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
 	{
 		LSLStreamResender resender = new LSLStreamResender( arg0 , arg1 );			
 		resender.loadProcessingSettings( new ArrayList< Parameter< String > >( super.pars.values() ) );

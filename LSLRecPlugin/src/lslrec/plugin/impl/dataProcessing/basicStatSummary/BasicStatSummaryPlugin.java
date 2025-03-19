@@ -1,8 +1,13 @@
 package lslrec.plugin.impl.dataProcessing.basicStatSummary;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JPanel;
 
 import lslrec.auxiliar.WarningMessage;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
@@ -45,9 +50,25 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
 	{
-		return new BasicStatSummaryProcessing( arg0, arg1 );
+		LSLRecPluginDataProcessing process = new BasicStatSummaryProcessing( arg0, arg1 );
+		
+		if( pars != null )
+		{
+			List< Parameter<String> > list = new ArrayList< Parameter<String> >();
+			
+			for( String id : pars.getParameterIDs() )
+			{
+				list.add( pars.getParameter( id ) );
+			}
+			
+			super.getSettings().addAll( list );
+			
+			process.loadProcessingSettings( list );
+		}
+		
+		return process; 
 	}
 
 	@Override

@@ -2,17 +2,23 @@ package lslrec.plugin.impl.gui.trialStagesMarker;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.Timer;
 
 import lslrec.auxiliar.task.ITaskLog;
@@ -59,6 +65,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	public TrialStageMarker() 
 	{
+		remainingTimeInfo.setFont( this.getFont() );
 	}
 	
 	@Override
@@ -312,7 +319,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 		
 		if( stage != null )
 		{			
-			JPanel allStagePanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			JPanel allStagePanel = new JPanel( new FlowLayout( FlowLayout.LEFT, 2, 2 ) );
 			
 			for( TrialStage stg : this.stages )
 			{
@@ -324,32 +331,43 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					idStage = "<html><p style='color:orange'>" + idStage + "</p></html>";
 				}
 				
-				allStagePanel.add( new JLabel( idStage ) );
-				
+				JLabel lb = new JLabel( idStage );
+				lb.setFont( this.getFont() );
+				allStagePanel.add( lb );
+								
 				String[] subStages = stg.getSubstages();
 				if( subStages != null )
 				{
 					stageMark += subStages.length; 
 				}
 			}
+			allStagePanel.setBorder(BorderFactory.createEmptyBorder( 0, 0, 15, 0 ));
 			
 			stagePanel.add( new JScrollPane( allStagePanel ), BorderLayout.NORTH );
 		
 			JPanel panel = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.CENTER, 5,5 ) );
 		
-			panel.add( new JLabel( "Tiempo restante:") );
-			panel.add( this.remainingTimeInfo );
+			JLabel retime = new JLabel( "Tiempo restante:");
+			retime.setFont( this.getFont() );
 			
+			JPanel ptime = new JPanel( new FlowLayout( FlowLayout.LEFT, 5, 5 ));					
+			ptime.add( retime );
+			ptime.add( this.remainingTimeInfo );
+			
+			panel.add( ptime );
 			JPanel panelSig = new JPanel( new FlowLayout( FlowLayout.LEFT, 2,2) );
 			
 			JButton bt = new JButton( "Siguiente fase");
+			bt.setFont( this.getFont() );
 			bt.setForeground( Color.BLUE );
 			
 			JButton btSi = new JButton( "Sí" );
+			btSi.setFont( this.getFont() );
 			btSi.setEnabled( false );
 			btSi.setForeground( Color.BLUE );
 			
 			JButton btNo = new JButton( "No" );
+			btNo.setFont( this.getFont() );
 			btNo.setEnabled( false );
 			btNo.setForeground( Color.RED );
 			
@@ -401,6 +419,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			
 			
 			panel.add( panelSig );
+			panel.add( Box.createRigidArea( new Dimension( 5, 10 )) );
 						
 			String[] substages = stage.getSubstages();
 			
@@ -411,6 +430,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					String substage = substages[ isub ];
 					
 					JButton substageBt = new JButton( substage );
+					substageBt.setFont( this.getFont() );
 					final int delta = ( isub + 1 );
 					substageBt.addActionListener( new ActionListener() 
 					{	
@@ -489,8 +509,13 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	private void setTimeoutTimerMessage( )
 	{
 		remainingTimeInfo.setVisible( false );
-		remainingTimeInfo.setText( "<html><h3 style='color:orange'>" + timeoutMsg + "</h3></html>" );
+		remainingTimeInfo.setText( "<html><p style='color:orange'>" + timeoutMsg + "</p></html>" );
 		remainingTimeInfo.setVisible( true );
+	}
+	
+	private Font getFont()
+	{
+		return new Font( Font.DIALOG, Font.BOLD, 18 );
 	}
 	
 	private void wakeUpTrial()

@@ -18,12 +18,12 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{IOutZip.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{IOutputDataFileWriter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{IParameter.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{OutputFileFormatParameters.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{Parameter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{ParameterList.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{SettingOptions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync{SyncMarker.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{ZipDataTemplate.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{OutputFileFormatParameters.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>

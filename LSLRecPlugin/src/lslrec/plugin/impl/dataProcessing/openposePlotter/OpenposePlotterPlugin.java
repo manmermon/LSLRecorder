@@ -172,7 +172,7 @@ public class OpenposePlotterPlugin extends LSLRecConfigurablePluginAbstract impl
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
 	{
 		OpenposePlotter disp = new OpenposePlotter( arg0, arg1 );
 		

@@ -19,7 +19,7 @@ public class testBasicStatSummaryPlugin {
 		
 		BasicStatSummaryPlugin plg = new BasicStatSummaryPlugin();
 		
-		LSLRecPluginDataProcessing prc = plg.getProcessing( str, null );
+		LSLRecPluginDataProcessing prc = plg.getProcessing( str, null, null );
 		
 		Number[] dat = new Number[ 100 ];
 		for( int i = 0; i < dat.length; i += 2 )

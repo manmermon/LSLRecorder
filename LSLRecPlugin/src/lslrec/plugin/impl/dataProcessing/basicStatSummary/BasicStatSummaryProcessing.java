@@ -19,12 +19,15 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
 public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 {	
 	private List< Number[] > data = null;
 	private int dataSize = 0;
+	
+	private String imgOutputFolder = "./";
 	
 	public BasicStatSummaryProcessing( IStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
 	{
@@ -41,24 +44,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 
 	@Override
 	protected void finishProcess() 
-	{
-		// TODO Auto-generated method stub
-		//String par = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
-		String par = FileUtils.getOutputCompletedFileNameFromConfig();
-		
-		String imgOutputFolder = "./";
-		if( par != null )
-		{
-			File outFile = new File( par );
-			try 
-			{
-				imgOutputFolder = outFile.getCanonicalPath();
-			} 
-			catch (IOException e)
-			{
-			}
-		}
-		
+	{				
 		String varId = super.streamSetting.name();		
 		
 		Number[] DATA = new Number[ dataSize ];
@@ -101,7 +87,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 		{
 			if( img != null )
 			{
-				Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( imgOutputFolder + varId + "-completeChannels.png", "", "" );		
+				Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( this.imgOutputFolder + varId + "-completeChannels.png", "", "" );		
 				
 				ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 ) );
 			}
@@ -117,7 +103,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 					
 					if( img != null )
 					{
-						Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( imgOutputFolder + varId + "-completeChannel_" + c +".png", "", "" );
+						Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( this.imgOutputFolder + varId + "-completeChannel_" + c +".png", "", "" );
 						
 						ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 ) );
 					}
@@ -208,7 +194,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 						 {
 							 img = Data2ChartImage.drawCategoryiesBoxplot( channelSegments, segmentMarkCategories, new Dimension( 1280, 720 ), varId + " - mark segments of channel " + ch, "Marks" , "Amplitude");
 
-							Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( imgOutputFolder + varId + "-markSegmentChannel_" + ch +".png", "", "" );
+							Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( this.imgOutputFolder + varId + "-markSegmentChannel_" + ch +".png", "", "" );
 
 							 ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 )  );
 						 }
@@ -216,10 +202,9 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 				}
 			}	
 			
-			if( par == null )
+			if( this.imgOutputFolder.equals( "./" ) )
 			{
-				String path = (new File( "./" ) ).getCanonicalPath();
-				ExceptionDialog.showMessageDialog( new ExceptionMessage( new Throwable("Output folder: " + path ), "Default path", ExceptionMessage.WARNING_MESSAGE ), true, true );
+				ExceptionDialog.showMessageDialog( new ExceptionMessage( new Throwable("Output folder: " + this.imgOutputFolder ), "Default path", ExceptionMessage.WARNING_MESSAGE ), true, true );
 			}
 		}
 		catch (Exception e) 
@@ -243,6 +228,44 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 	@Override
 	public void loadProcessingSettings(List< Parameter< String > > arg0) 
 	{
+		for( Parameter< String > par : arg0 )
+		{
+			switch ( par.getID())
+			{
+				case ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER:
+				{	
+					this.imgOutputFolder = par.getValue();
+					
+					if( this.imgOutputFolder != null )
+					{	
+						try 
+						{
+							File outFile = new File( this.imgOutputFolder );
+							this.imgOutputFolder  = outFile.getCanonicalPath();
+							
+							if( !this.imgOutputFolder.endsWith( File.separator ) )
+							{
+								this.imgOutputFolder += File.separator;
+							}
+						} 
+						catch (IOException e)
+						{
+						}
+					}
+					else
+					{
+						this.imgOutputFolder = "./";
+					}
+					
+					
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
