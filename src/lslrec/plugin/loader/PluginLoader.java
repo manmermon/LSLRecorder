@@ -185,7 +185,7 @@ public class PluginLoader implements IPluginLoader
 		        for ( Iterator it = sl.iterator(); it.hasNext(); ) 
 		        {   
 		        	try
-		        	{
+		        	{		        		
 			        	ILSLRecPlugin pl = (ILSLRecPlugin) it.next();
 			        	_Plugins.putElement( plgType, pl );
 		        	}

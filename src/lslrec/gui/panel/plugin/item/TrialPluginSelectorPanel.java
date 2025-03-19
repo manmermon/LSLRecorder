@@ -54,7 +54,6 @@ import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
@@ -406,7 +405,7 @@ public class TrialPluginSelectorPanel extends JPanel
 			Exception e1 = new Exception( "Setting panel for plugin is not available.", e );
 			ExceptionMessage msg = new ExceptionMessage(  e1
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
-														, ExceptionDictionary.ERROR_MESSAGE );
+														, ExceptionMessage.ERROR_MESSAGE );
 		
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}	
@@ -500,7 +499,7 @@ public class TrialPluginSelectorPanel extends JPanel
 					} 
 					catch ( Exception e1)
 					{
-						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 						
 						ExceptionDialog.showMessageDialog( m, true, true );
 					}
@@ -567,7 +566,7 @@ public class TrialPluginSelectorPanel extends JPanel
 					} 
 					catch ( Exception e1)
 					{
-						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+						ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 						
 						ExceptionDialog.showMessageDialog( m, true, true );
 					}

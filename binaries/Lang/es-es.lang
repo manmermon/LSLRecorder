@@ -101,3 +101,7 @@ MSG_SELECTED_LSL_SYNC_STREAM_ERROR=Opción Sincr. no disponible para los flujos.
 DESCRIPTION_TEXT=Descripción
 INFO_SESSION_TIME_LABEL=Tiempo de grabación
 MENU_WRITE_TEST=Test de escritura
+FOLDER_TEXT = Directorio
+SUBJECT_ID_TEXT = Id sujeto
+TEST_ID_TEXT = Id test
+FILENAME_TEXT = Nombre archivo

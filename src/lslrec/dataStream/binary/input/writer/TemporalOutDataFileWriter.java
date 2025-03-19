@@ -55,6 +55,8 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	private DataProcessingExecutor datProcessingExec = null;
 	private final String outDatProcessInfix = "_processedData";
 	
+	private LSLRecPluginDataProcessing postProcessing = null;
+	
 	public TemporalOutDataFileWriter( IStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
 		super( lslCfg );
@@ -93,6 +95,19 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		}
 	}
 	
+	public void setDataPostProcessing( LSLRecPluginDataProcessing postprocess ) throws Exception
+	{
+		if( super.getState().equals( State.NEW ) )
+		{
+			this.postProcessing = postprocess;
+		}
+	}
+	
+	public LSLRecPluginDataProcessing getPostProcessing()
+	{
+		return this.postProcessing;
+	}
+	
 	public void addExtraInfo2Stream( String label, String text )
 	{
 		if( label != null && !label.trim().isEmpty() && text != null )
@@ -128,7 +143,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	}
 	
 	protected void managerData( byte[] data, byte[] time ) throws Exception
-	{	
+	{			
 		int len = 0;
 		
 		len = ( data != null ? len + data.length : len );
@@ -237,9 +252,9 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 			super.notifTask.addEvent( processingEvent );
 			
 			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat ) );
-
+							
 			super.notifTask.addEvent( event );
-					
+			
 			super.closeNotifierThread();
 		}
 	}
@@ -254,6 +269,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		BinaryFileStreamSetting bin = new BinaryFileStreamSetting( setting, file );
 		
 		TemporalBinData data = new TemporalBinData( bin, formatPars );
+		data.setPostprocessing( this.postProcessing );
 		
 		return data;
 	}

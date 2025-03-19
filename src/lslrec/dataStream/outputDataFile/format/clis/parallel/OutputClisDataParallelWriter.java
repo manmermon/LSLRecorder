@@ -41,7 +41,6 @@ import lslrec.dataStream.outputDataFile.format.clis.ClisMetadata;
 import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableFileWriterTemplate;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.stoppableThread.IStoppableThread;
 
@@ -278,7 +277,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 		{
 			ExceptionMessage msg = new ExceptionMessage( new IOException( "Metadata truncate in " + this.clisWriter.getFileName() )
 														, Language.getLocalCaption( Language.DIALOG_ERROR )
-														, ExceptionDictionary.WARNING_MESSAGE );
+														, ExceptionMessage.WARNING_MESSAGE );
 			
 			ExceptionDialog.showMessageDialog( msg,	true, true );
 		}

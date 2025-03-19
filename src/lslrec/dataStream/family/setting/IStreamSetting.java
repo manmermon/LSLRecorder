@@ -294,7 +294,7 @@ public interface IStreamSetting
     	return t.hashCode();
     }
     
-    public default String getShortToString()
+    public default String getStreamInfoToString()
     {
     	String extra = "";
     	Map< String, String > extraInfo = this.getExtraInfo();
@@ -317,6 +317,7 @@ public interface IStreamSetting
 					+ 	", " 	+ this.getChunkSize() 		// 6
 					+ 	", " 	+ this.isInterleavedData()	// 7
 					+ 	", " 	+ this.isSynchronationStream()	// 8
+					+ 	", " 	+ this.isEnableRecordingCheckerTimer()	// 9
 					+ 	">";
     }    
     

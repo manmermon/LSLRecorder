@@ -43,6 +43,7 @@ import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.family.stream.lslrec.streamgiver.StringLogStream;
@@ -53,14 +54,13 @@ import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
-import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
 import lslrec.gui.dataPlot.CanvasStreamDataPlot;
 import lslrec.gui.dialog.Dialog_Password;
+import lslrec.gui.dialog.Dialog_WarningMessages;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
@@ -76,7 +76,7 @@ import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
-import lslrec.auxiliar.extra.ClisData2ChartImageTask;
+import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
@@ -87,6 +87,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.FileSystemException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -125,7 +127,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 	private GuiManager managerGUI;
 
-	private WarningMessage warnMsg = null;
+	//private List< WarningMessage > warnMsg = null;
 
 	private boolean showWarningEvent = true;
 	
@@ -386,7 +388,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				Exception ex = new Exception( Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ) );
 												
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 		}
@@ -394,14 +396,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{
 			localException.printStackTrace();
 			
-			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 		catch (Error localError) 
 		{
 			localError.printStackTrace();
 			
-			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
+			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
 			ExceptionDialog.showMessageDialog( msg, true, true );
 		}
 	}
@@ -441,7 +443,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			System.gc(); // Clean memory
 
-			this.warnMsg = new WarningMessage(); // To check setting
+			//this.warnMsg = new ArrayList<WarningMessage>(); // new WarningMessage(); // To check setting
 			
 			// Delete plots.
 			this.disposeDataPlots();
@@ -451,15 +453,49 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
 			// Check settings
-			this.checkSettings();
+			List< WarningMessage > warnMsg = this.checkSettings();
+			/*
 			if (this.warnMsg.getWarningType() == WarningMessage.ERROR_MESSAGE )
 			{	
 				throw new SettingException( this.warnMsg.getMessage() );
 			}
+			//*/
+			
+			List< String > errorMsgs = new ArrayList<String>();
+			List< String > warningMsgs = new ArrayList<String>();
+			for( WarningMessage wmsg : warnMsg )
+			{
+				if( wmsg.getWarningType() == WarningMessage.ERROR_MESSAGE )
+				{
+					errorMsgs.add( wmsg.getMessage() );
+				}
+				else if( wmsg.getWarningType() == WarningMessage.WARNING_MESSAGE )
+				{
+					warningMsgs.add( wmsg.getMessage() );
+				}
+			}
 
+			if( !errorMsgs.isEmpty() )
+			{
+				String error = "";
+				for( String err : errorMsgs )
+				{
+					error = ( err.endsWith( "\n" ) ) ?  error + err : error + err + "\n";
+				}
+				
+				if( !error.isEmpty() )
+				{
+					error = error.substring( 0, error.length()-1 );
+				}
+				
+				throw new SettingException( error );
+			}
+			
+			/*
 			if (this.warnMsg.getWarningType() == WarningMessage.WARNING_MESSAGE 
 					&& !testWriting 
-					&& !ConfigApp.isTesting() )
+					&& !ConfigApp.isTesting() 
+					)
 			{
 				String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
 						UIManager.getString( "OptionPane.noButtonText" ) };
@@ -479,15 +515,48 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if ( actionDialog == JOptionPane.CANCEL_OPTION 
 						|| actionDialog == JOptionPane.NO_OPTION 
 						|| actionDialog == JOptionPane.CLOSED_OPTION )
-				{
-					this.isRecording = false;
+				{					
 					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
+					
+					
+					//this.isRecording = false;
+					//this.managerGUI.restoreGUI();
+					//this.managerGUI.refreshDataStreams();
+
+					//return;
+					
+					throw new CoreControlUserCancelStartException();
+				}
+			}	
+			//*/
+			
+			if( !warningMsgs.isEmpty() 
+					&& !testWriting 
+					//&& !ConfigApp.isTesting() 
+					)
+			{
+				Dialog_WarningMessages dialog = new Dialog_WarningMessages( this.managerGUI.getAppUI(), warningMsgs );
+
+				dialog.setLocationRelativeTo( this.managerGUI.getAppUI() );
+				dialog.setVisible( true );
+				
+				int actionDialog = dialog.getSelectedOption();
+				if ( actionDialog == Dialog_WarningMessages.OPTION_CANCEL 
+						|| actionDialog == Dialog_WarningMessages.OPTION_NO_SELECTED )
+				{					
+					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
+					
+					/*
+					this.isRecording = false;
 					this.managerGUI.restoreGUI();
 					this.managerGUI.refreshDataStreams();
 
 					return;
+					//*/
+					
+					throw new CoreControlUserCancelStartException();
 				}
-			}			
+			}
 		
 			//
 			// Create In-Out sockets
@@ -571,18 +640,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.managerGUI.refreshDataStreams();
 			this.isWaitingForStartCommand = false;
 			this.showWarningEvent = true;
-						
-			try 
-			{
-				ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
-				ExceptionDialog.showMessageDialog( ex, true, true );
 				
-				e.printStackTrace();
-			}
-			catch (Exception e1) 
+			if( !(e instanceof CoreControlUserCancelStartException ) )
 			{
-				e1.printStackTrace();
-			}			
+				try 
+				{
+					ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
+					ExceptionDialog.showMessageDialog( ex, true, true );
+					
+					e.printStackTrace();
+				}
+				catch (Exception e1) 
+				{
+					e1.printStackTrace();
+				}		
+			}
 		}
 	}
 	
@@ -617,19 +689,29 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		boolean isSyncLSL = false;
 		
 		if ( this.ctrlOutputFile != null )
-		{						
-			String file = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
-
+		{	
+			String file = FileUtils.getOutputCompletedFileNameFromConfig();
+			if( file == null)
+			{
+				throw new IllegalArgumentException( "Output file path error" );
+			}
+			
 			HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 			HashSet< IStreamSetting > DEV_ID = new HashSet< IStreamSetting >();
 			Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
-						
+			Map< IMutableStreamSetting, LSLRecPluginDataProcessing > DataPostProcesses = new HashMap<IMutableStreamSetting, LSLRecPluginDataProcessing >();
+
+			
 			int recordingCheckerTimer = (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER );
 			
 			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 						
+			ParameterList processingPars = new ParameterList();
+			
+			File filePath = new File( file );			
+			processingPars.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath() ) );
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
@@ -638,13 +720,37 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					DEV_ID.add( dev );
 					
 					LSLRecPluginDataProcessing process = null;
-					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev ) )
+					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
+					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					{
-						process = pr.getProcessing( dev, process );
+						process = pr.getProcessing( dev, processingPars, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					
-					DataProcesses.put( dev, process );					
+					DataProcesses.put( dev, process );
+					
+					process = null;
+					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
+					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
+					{
+						IMutableStreamSetting posDev = new SimpleMutableStreamSetting( dev.getLibraryID()
+																						, dev.name()
+																						, dev.data_type()
+																						, dev.getTimestampDataType()
+																						, dev.getStringLengthDataType()
+																						, dev.channel_count() + 1
+																						, dev.sampling_rate()
+																						, dev.getRecordingCheckerTimer()
+																						, dev.isEnableRecordingCheckerTimer()
+																						, dev.source_id()
+																						, dev.uid()
+																						, dev.getExtraInfo()
+																						, dev.getChunkSize() );
+						process = pr.getProcessing( posDev, processingPars, process );
+						process.loadProcessingSettings( pr.getSettings() );
+					}
+					
+					DataPostProcesses.put( dev, process );
 				}
 				else
 				{
@@ -677,6 +783,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				Parameter datProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_PROCESSING, DataProcesses );
 				StreamPars.addParameter( datProcesses );
+				Parameter datPostProcesses = new Parameter( this.ctrlOutputFile.PARAMETER_DATA_POSTPROCESSING, DataPostProcesses );
+				StreamPars.addParameter( datPostProcesses );
 				
 				Parameter savePprocessedDat = new Parameter( this.ctrlOutputFile.PARAMETER_SAVE_DATA_PROCESSING, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_SAVE_DATA_PROCESSING ) );
 				StreamPars.addParameter( savePprocessedDat );
@@ -831,12 +939,17 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * Check Settings.
 	 *   
 	 */
-	private void checkSettings() 
+	private List< WarningMessage > checkSettings() 
 	{
-		this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
+		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
+		
+		//this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
 		
 		WarningMessage outFileMsg = this.ctrlOutputFile.checkParameters();
 		WarningMessage socketMsg = this.ctrSocket.checkParameters();
+		
+		warnMsgsList.add( outFileMsg );
+		warnMsgsList.add( socketMsg );
 		
 		ILSLRecPluginTrial trial = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
 		
@@ -844,38 +957,35 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{
 			WarningMessage trW = trial.checkSettings();
 			
-			this.warnMsg.addMessage( trW.getMessage(), trW.getWarningType() );
+			warnMsgsList.add( new WarningMessage( trW.getMessage(), trW.getWarningType() ) );
 		}
 		
 		String idFormat = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
 		Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( idFormat );
-		if( enc == null && enc.t1 == null)
+		if( enc == null || enc.t1 == null)
 		{
-			this.warnMsg.addMessage( "Encoder null", WarningMessage.ERROR_MESSAGE );
+			warnMsgsList.add( new WarningMessage( "Encoder null", WarningMessage.ERROR_MESSAGE ) );
 		}
 		else if( !( enc.t1 instanceof ClisEncoder ) )
 		{
 			WarningMessage wm = enc.t2;
 			if( wm != null )
 			{
-				this.warnMsg.addMessage( wm.getMessage(), wm.getWarningType() );
+				warnMsgsList.add( new WarningMessage( wm.getMessage(), wm.getWarningType() ) );
 			}
 		}
-		
-		this.warnMsg.addMessage( outFileMsg.getMessage(), outFileMsg.getWarningType() );
-		this.warnMsg.addMessage( socketMsg.getMessage(), socketMsg.getWarningType() );
 
 		boolean specialInMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
 		if( !specialInMsg )
 		{
-			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 		}
 		
 		Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 		
 		if( syncMeths.contains( SyncMethod.SYNC_NONE ) )
 		{
-			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 		}
 		
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
@@ -893,8 +1003,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if( pass.getState() != Dialog_Password.PASSWORD_OK )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
-										, WarningMessage.ERROR_MESSAGE );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
+													, WarningMessage.ERROR_MESSAGE ) );
 			}
 			
 			this.encryptKey = pass.getPassword();
@@ -950,11 +1060,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			if( !selected )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
 			}
-			
-			this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
-			
 			
 			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )
 			{
@@ -967,11 +1074,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						warmType = WarningMessage.ERROR_MESSAGE;
 					}
 					
-					this.warnMsg.addMessage( msg, warmType );
+					warnMsgsList.add( new WarningMessage( msg, warmType ) );
 			}			
 			else if( existSelectedSyncLSL && !syncMeths.contains( SyncMethod.SYNC_STREAM ) )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 			}
 			
 			boolean change = false;
@@ -998,11 +1105,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			if( change )
 			{
-				this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
 			}
 		}
 		
 		// Checking plugin setting
+		/*
 		for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
 		{
 			if( !DataProcessingPluginRegistrar.getDataStreams( process ).isEmpty() )
@@ -1013,12 +1121,60 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.warnMsg.addMessage( msg, w.getWarningType() );
 			}
 		}
+		//*/
+		for( IStreamSetting str : DataProcessingPluginRegistrar.getAllDataStreams() )
+		{
+			int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
+			
+			for( int processLoc : processLocs )
+			{
+				for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcessing( str, processLoc ) ) 
+				{
+					WarningMessage w = process.checkSettings();			
+					String msg = w.getMessage();
+
+					warnMsgsList.add( new WarningMessage( msg, w.getWarningType() ) );
+				}
+			}
+		}
 		
 		if( this.ctrlOutputFile.isSavingData() )
 		{
 			LostWaitedThread.getInstance().wakeup();
-			this.warnMsg.addMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE );
+			warnMsgsList.add( new WarningMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE ) );
 		}
+		
+		//this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
+		List< Tuple< Boolean, String > > checklist = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
+		for( int i = 0; i < checklist.size(); i++ )
+		{
+			Tuple< Boolean, String > msg = checklist.get( i );
+			if( msg.t1 )
+			{
+				if( i == 0 )
+				{
+					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+				}
+				else
+				{
+					warnMsgsList.add( new WarningMessage( msg.t2, WarningMessage.WARNING_MESSAGE ) );
+				}
+			}
+			else if( i == 0 )
+			{
+				Iterator< WarningMessage > itWM = warnMsgsList.iterator();
+				while( itWM.hasNext() )
+				{
+					WarningMessage w = itWM.next();
+					if( w.getWarningType() == WarningMessage.WARNING_MESSAGE ) 
+					{
+						itWM.remove();
+					}
+				}
+			}
+		}
+		
+		return warnMsgsList;
 	}
 	
 	/**
@@ -1049,11 +1205,20 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.startRecord();
 		}
 		
-		if( this.trial != null )
-		{				
-			this.trial.showTrialWindow();
-			this.trial.startThread();
+
+		/*
+		if( this.isWaitingForStartCommand )
+		{
+			while( !this.ctrlOutputFile.areReadySyncMarkThreads() )
+			{
+				System.out.println("CoreControl.waitStartCommand() NO areReadySyncMarkThreads");
+				synchronized ( this )
+				{
+					super.wait( 100L );
+				}
+			}
 		}
+		//*/
 		
 		if( !this.syncPluginMet.isEmpty() )
 		{
@@ -1061,6 +1226,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				plgSyncMet.startThread();
 			}
+		}
+		
+		if( this.trial != null )
+		{	
+			this.trial.showTrialWindow();
+			this.trial.startThread();
 		}
 	}
 
@@ -1213,7 +1384,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
 					
 					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionMessage.WARNING_MESSAGE );
 					ExceptionDialog.showMessageDialog( exmsg, true, false );
 					
 					/*
@@ -1250,7 +1421,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 
 					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionDictionary.WARNING_MESSAGE );
+					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionMessage.WARNING_MESSAGE );
 					ExceptionDialog.showMessageDialog( exmsg, true, false );
 									
 					/*
@@ -1749,7 +1920,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 											JOptionPane.ERROR_MESSAGE);
 				*/
 				
-				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 			}
 		}
@@ -1905,63 +2076,27 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}				
 				else if (event_type.equals( EventType.PROBLEM ) )
 				{
-					/*
-					Thread t = new Thread()
-					{
-						@Override
-						public synchronized void run() 
-						{
-							try 
-							{
-								stopWorking( );
-							}
-							catch (Exception e) 
-							{
-								
-							}
-						}
-					};
-					
-					t.setName( this.getClass().getSimpleName() + "-stopWorking" );
-					
-					t.start();
-					*/
-					
 					try 
 					{
-						stopWorking( );
+						stopWorking( );						
 					}
 					catch (Exception e) 
 					{
-						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionDictionary.ERROR_MESSAGE );
-						ExceptionDialog.showMessageDialog( msg , true, true );
+						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionMessage.ERROR_MESSAGE );
+						ExceptionDialog.showMessageDialog( msg , true, true );						
 					}
 
-					/*
-					if( !ConfigApp.isTesting() )
-					{
-						JOptionPane.showMessageDialog(  coreControl.this.managerGUI.getAppUI(), 
-														eventObject.toString(), 
-														event_type, 
-														JOptionPane.ERROR_MESSAGE);
-					}
-					else
-					{
-						managerGUI.addInputMessageLog( event_type + ": " + eventObject.toString());
-					}
-					*/
-					
 					Exception ex = new Exception( eventObject.toString() );
-					//ex.printStackTrace();
 										
 					if( eventObject instanceof Exception )
 					{
 						ex = (Exception)eventObject;
 					}
 					
-					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionDictionary.ERROR_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionMessage.ERROR_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, true );
 					
+					GuiManager.getInstance().refreshDataStreams();					
 				}
 				else if (event_type.equals( EventType.WARNING ) )
 				{
@@ -1980,23 +2115,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 								
 								ExceptionMessage msg = new ExceptionMessage( ex
 																			, Language.getLocalCaption( Language.MSG_WARNING )
-																			, ExceptionDictionary.WARNING_MESSAGE );
+																			, ExceptionMessage.WARNING_MESSAGE );
 								
-								ExceptionDialog.showMessageDialog( msg, true, false );
-								
-								/*
-								if( !ConfigApp.isTesting() )
-								{
-									JOptionPane.showMessageDialog(   managerGUI.getAppUI(), 
-											eventObject.toString(), 
-											Language.getLocalCaption( Language.MSG_WARNING ), 
-											JOptionPane.WARNING_MESSAGE);
-								}
-								else
-								{
-									managerGUI.addInputMessageLog( Language.getLocalCaption( Language.MSG_WARNING ) + ": " + eventObject.toString());
-								}
-								*/
+								ExceptionDialog.showMessageDialog( msg, true, false );								
 							}
 						}.start();
 					}
@@ -2022,7 +2143,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			//
 			// DATA CHART SUMMARY
 			//-->
-			
+			/*
 			if( (Boolean)ConfigApp.getProperty( ConfigApp.DATA_CHART_SUMMARY ) && writingTestTimer == null)
 			{
 				File f = new File( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME).toString() );
@@ -2037,7 +2158,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					ExceptionDialog.showMessageDialog( msg, true, true );
 				}
 			}
-			
+			//*/
 			//
 			// 
 			//<--
@@ -2137,7 +2258,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 								
 				ExceptionMessage msg = new ExceptionMessage( e
 															, "Exception in " + getClass().getSimpleName()
-															, ExceptionDictionary.ERROR_MESSAGE );
+															, ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 				
 				/*
@@ -2256,13 +2377,13 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) 
 															+ " " + timeUnits[ timeUnitIndex ] + "" +" (Freq = " + df.format( freq )+ " " + freqUnits[ freqUnitIndex ] + ")" );
 				
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );
 			}
 			else
 			{
 				Exception ex = new Exception( this.ID + " -> non data available." );
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, false );				
 			}
 			
@@ -2385,7 +2506,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						managerGUI.setAppState( AppState.State.NONE, 0, false );
 					}
 					catch (Error localError) 
-					{}
+					{
+						localError.printStackTrace();
+					}
 				}
 
 				SpecialMarker = null;
@@ -2411,7 +2534,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				e.printStackTrace();
 				
-				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
 				
 			}
@@ -2443,4 +2566,19 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 	}
 
+	private class CoreControlUserCancelStartException extends Exception 
+	{
+		private static final long serialVersionUID = 1L;
+
+		public CoreControlUserCancelStartException()
+		{
+			super();
+		}
+		
+		public CoreControlUserCancelStartException( String message ) 
+	    { 
+	    	super(message); 
+	    }
+	}
+	
 }

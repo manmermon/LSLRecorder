@@ -20,19 +20,25 @@
 package lslrec.auxiliar.extra;
 
 import java.io.File;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.annotation.processing.FilerException;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import lslrec.auxiliar.WarningMessage;
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
+import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
-
 
 public class FileUtils 
 {	
@@ -183,7 +189,6 @@ public class FileUtils
 
 		return res;
 	}
-	
 
 	public static File[] selectFile(String defaulName, String titleDialog
 							, int typeDialog, boolean multiSelection
@@ -266,7 +271,7 @@ public class FileUtils
 				path = null;
 				
 				Exception e = new Exception( Language.getLocalCaption( Language.FILE_NOT_FOUND ) );
-				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.WARNING_MESSAGE );
+				ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.WARNING_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg,	true, false );
 			}
 			else
@@ -282,4 +287,179 @@ public class FileUtils
 
 		return path;
 	}
+
+	public static String getOutputCompletedFileNameFromConfig()
+	{
+		String outFile = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
+		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
+		String filename = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+			
+		boolean ok = true;
+		
+		try 
+		{
+			Paths.get( outFile );
+			
+			outFile = outFile.isEmpty() ? "." : outFile;
+			
+			if( !outFile.endsWith( File.separator ) )
+			{
+				outFile += File.separator;
+			}
+			
+			if( ok && subj != null && ( subj.isEmpty() || subj.matches("^[a-zA-Z0-9-_]+$" ) ) )
+			{
+				outFile += subj + ( subj.isEmpty() ? "" : File.separator );
+			}
+			else
+			{
+				ok = false;
+			}
+			
+			if( ok && test != null && ( test.isEmpty() || test.matches("^[a-zA-Z0-9-_%]+$" ) ) )
+			{			
+				Calendar c = Calendar.getInstance();
+				c.add( Calendar.SECOND, 1 );
+				String suffix = new SimpleDateFormat("yyyy-MM-dd").format( c.getTime() );
+				test = test.replaceAll( "%date%", suffix );
+				
+				suffix = new SimpleDateFormat("HHmmss").format( c.getTime() );
+				test = test.replaceAll( "%time%", suffix );
+				
+				Pattern p = Pattern.compile( "%n[0-9]*%" );
+				Matcher m = p.matcher( test );
+				
+				if( m.find() )
+				{
+					int count = 1;
+					File auxFile = new File( outFile );
+					if( auxFile.exists() )
+					{
+						for( File subf : auxFile.listFiles() )
+						{
+							count = ( subf.isDirectory() ) ? count + 1 : count;
+						}
+					}
+					
+					String pad = "";
+					
+					int initPat = m.start();
+					int endPat = m.end();
+					String digs = test.substring( initPat + 2, endPat - 1 );
+					
+					if( !digs.isEmpty() )
+					{
+						pad = "0" + Integer.parseInt( digs);
+						
+						pad = ( Integer.parseInt( pad ) == 0 ) ? "" : pad;
+					}
+					
+										
+					boolean rep = true;					
+					String val = "";
+					while( rep )
+					{
+						val = String.format( "%" + pad + "d", count );
+						
+						String copyTest = test.replaceAll( "%n[0-9]*%", val );
+						
+						rep = auxFile.exists();
+						if( rep )
+						{
+							boolean found = false;
+							checkExist: 
+								for( File subf : auxFile.listFiles() )
+								{
+									found = subf.isDirectory() && subf.getName().equals( copyTest );
+									if( found )
+									{
+										count++;
+										break checkExist; 
+									}
+								}				
+							
+							rep = found;
+						}
+					}
+					
+					test = test.replaceAll( "%n[0-9]*%", val );
+				}
+				
+				ok = !test.contains( "%" );
+				if( ok )
+				{
+					outFile += test + (test.isEmpty() ? "" : File.separator );
+				}
+			}
+			else
+			{
+				ok = false;
+			}
+			
+			if( filename == null || filename.isEmpty() )
+			{
+				outFile += "data";
+			}
+			else
+			{
+				outFile += filename;
+			}
+			
+			String format = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
+			
+			Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+			Encoder encorder = tencoder.t1;
+					
+			String ext = encorder.getOutputFileExtension();
+			
+			int pos = outFile.lastIndexOf( "." );
+			if( pos > 0 )
+			{
+				outFile = outFile.substring( 0 , pos );
+			}
+			
+			outFile += ext;
+		} 
+		catch (InvalidPathException | NullPointerException ex) 
+		{
+			ok = false;
+		}
+		
+		outFile = ( !ok ) ? null : outFile;
+		
+		return outFile;
+	}
+
+	/*
+	public static boolean checkOutputOutputFilePath(  )
+	{
+		String folder = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
+		String name = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
+		
+		//File f = new File( folder );	
+		//String folderTxt = f.getPath();
+		
+		boolean ok = true;
+		
+		try 
+		{
+			Paths.get( folder );
+		} 
+		catch (InvalidPathException | NullPointerException ex) 
+		{
+		  ok = false;
+		}
+		
+		ok = ok && !folder.isEmpty();// && !folderTxt.matches( "[^\\.]+(\\.[\\\\/]).*" );
+		
+		ok = ok && name.matches("^[a-zA-Z0-9-_]+$")
+						&& ( subj.isEmpty() || subj.matches("^[a-zA-Z0-9-_]+$" ) )
+						&& ( test.isEmpty() || test.matches("^[a-zA-Z0-9-_]+$" ) );
+		
+		return ok;
+	}	
+	//*/
 }

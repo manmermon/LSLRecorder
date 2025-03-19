@@ -28,7 +28,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
@@ -110,7 +109,7 @@ public class DeadlockDetector extends AbstractStoppableThread
 						ThreadStopException ex = new ThreadStopException( th.getName() + ": deadlock detected." );
 						ex.setStackTrace( thrs.get( th ) );
 						
-						ExceptionMessage msg = new ExceptionMessage( ex, "Deadlock", ExceptionDictionary.ERROR_MESSAGE );
+						ExceptionMessage msg = new ExceptionMessage( ex, "Deadlock", ExceptionMessage.ERROR_MESSAGE );
 						
 						ExceptionDialog.showMessageDialog( msg, true, true );
 					}

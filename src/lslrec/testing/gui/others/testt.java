@@ -1,7 +1,7 @@
 /**
  * 
  */
-package lslrec.testing;
+package lslrec.testing.gui.others;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -11,6 +11,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import java.awt.GridBagLayout;
+import java.io.File;
 
 /**
  * @author Manuel Merino Monge
@@ -24,7 +25,7 @@ public class testt extends JDialog {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		try {
+		try {			
 			testt dialog = new testt();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);

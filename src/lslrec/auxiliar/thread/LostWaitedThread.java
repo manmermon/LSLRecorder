@@ -89,7 +89,7 @@ public class LostWaitedThread extends AbstractStoppableThread
 				}
 				else if( th instanceof NotificationTask )
 				{
-					if( th.getState().equals( Thread.State.WAITING ) )
+					if( th.getState().equals( Thread.State.WAITING ) && ((NotificationTask)th).isDeletable() )
 					{
 						synchronized ( th )
 						{

@@ -46,6 +46,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 	
 	private boolean separateVariables = false;
 	private boolean newVar = false;
+	private boolean copiedLine = false;
 	private long endPadPointer = 0;	
 		
 	private File mainFile =  null;
@@ -165,6 +166,8 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 			this.transferRemainingRows();
 		}
 		
+		
+		
 		this.FWriterMain.seek( 0 );
 		this.header = ( this.header.isEmpty() ? this.header :  this.header.substring(0, this.header.length()-1 ) );
 		this.header += "\n\n";
@@ -202,7 +205,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 		{
 			String varName = dataBlock.getName();
 			long nChn = dataBlock.getNumCols();
-									
+												
 			if( this.currentVar == null )
 			{
 				this.currentVar = varName;
@@ -212,14 +215,17 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 								
 				this.FWriterMain.write( var.getBytes() );
 				this.FWriterMain.write( this.EOL );
+
+				this.copiedLine = true;
 			}
 			else if( !this.currentVar.equals( varName ))
 			{								
 				this.currentVar = varName;
 				this.newVar = true;
 				
-				/*
+				this.copiedLine = false;
 				
+				/*
 				String var = this.getNewVarHeader( varName, nChn );
 				
 				if( !this.separateVariables )
@@ -275,9 +281,36 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 													);
 			}
 			
-			String out = "";
+			//String out = "";
 			for( Object val : dataBlock.getData() )
 			{
+				if( this.newVar && !this.separateVariables && !this.copiedLine )
+				{
+					String emptyCols = this.getEmptyCols( this.currentCols - nChn );
+					
+					String cline = this.FWriterToCopy.readLine() + emptyCols + this.SeparatorChar;
+					this.FWriterMain.write( cline.getBytes() );
+					this.copiedLine = true;
+				}
+				
+				String strVal = val.toString();
+				
+				if( this.addCounter > 0 )
+				{
+					strVal = this.SeparatorChar + strVal;
+				}
+				
+				this.addCounter++;
+				if( this.addCounter >= nChn )
+				{
+					strVal += this.EOL;
+					this.addCounter = 0;
+					this.copiedLine = false;
+				}
+				
+				this.FWriterMain.write( strVal.getBytes() );
+				
+				/*
 				out += val.toString();
 				
 				this.addCounter++;
@@ -302,9 +335,10 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 					
 					this.addCounter = 0;
 				}
+				//*/
 			}
 			
-			//*
+			/*
 			while( this.addCounter > 0 && this.addCounter < nChn )
 			{
 				out += this.SeparatorChar + " ";
@@ -317,7 +351,21 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 				}
 			}
 			//*/
+			
+			while( this.addCounter > 0 && this.addCounter < nChn )
+			{
+				String  missingVal = this.SeparatorChar + " ";
+				
+				this.addCounter++;
+				if( this.addCounter >= nChn )
+				{
+					missingVal += this.EOL;
+				}
+				
+				this.FWriterMain.write( missingVal.getBytes() );
+			}
 			 
+			/*
 			if( out.length() > 0 )
 			{
 				if( this.separateVariables || !this.newVar )
@@ -332,6 +380,7 @@ public class OutputCSVDataWriter implements IOutputDataFileWriter
 					this.FWriterMain.write( cline.getBytes() );
 				}
 			}
+			//*/
 		}
 		
 		this.savedDataBlock.set( true );

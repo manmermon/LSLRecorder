@@ -202,7 +202,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
 	{
 		DataDisplay disp = new DataDisplay( arg0, arg1 );
 		
@@ -224,5 +224,11 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 	@Override
 	protected void postLoadSettings() 
 	{	
+	}
+	
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
 	}
 }

@@ -22,7 +22,6 @@
 package lslrec;
 
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
@@ -57,7 +56,8 @@ import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
-public class mainLSLRecorder {
+public class mainLSLRecorder 
+{
 	/*
 	 * @param args
 	 */
@@ -221,7 +221,7 @@ public class mainLSLRecorder {
 		}
 
 		// Load GUI
-		ExceptionDialog.createExceptionDialog(createAppGUI());
+		ExceptionDialog.createExceptionDialog( createAppGUI() );
 
 		if ( plgOK )
 		{
@@ -319,7 +319,7 @@ public class mainLSLRecorder {
 		Dimension dm = t.getScreenSize();
 
 		AppUI ui = AppUI.getInstance();
-
+		
 		Insets pad = t.getScreenInsets(ui.getGraphicsConfiguration());
 
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
@@ -357,7 +357,8 @@ public class mainLSLRecorder {
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gd.getDefaultConfiguration());
 		ui.setLocation(insets.left + 1, insets.top + 1);
-
+		ui.pack();
+		
 		ui.setVisible(true);
 
 		return ui;
@@ -371,7 +372,7 @@ public class mainLSLRecorder {
 		}
 
 		ExceptionMessage msg = new ExceptionMessage(e, Language.getLocalCaption(Language.DIALOG_ERROR),
-														ExceptionDictionary.ERROR_MESSAGE);
+														ExceptionMessage.ERROR_MESSAGE);
 
 		ExceptionDialog.showMessageDialog(msg, true, true);
 	}

@@ -38,6 +38,7 @@ import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
@@ -47,7 +48,6 @@ import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
@@ -435,7 +435,7 @@ public class LSLRecPluginTesting {
 							b.setSelected(false);
 
 							ExceptionMessage msg = new ExceptionMessage(e, e.getMessage(),
-									ExceptionDictionary.ERROR_MESSAGE);
+																	ExceptionMessage.ERROR_MESSAGE);
 							ExceptionDialog.showMessageDialog(msg, true, true);
 						}
 					} else {
@@ -581,7 +581,10 @@ public class LSLRecPluginTesting {
 		stopTestThread();
 
 		ILSLRecPluginDataProcessing plg = (ILSLRecPluginDataProcessing) this.plugin;
-		LSLRecPluginDataProcessing proc = plg.getProcessing(getSimpleStreamSetting(plg.getID(), type, chs), null);
+
+		ParameterList parlist = new ParameterList();
+		parlist.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, "./"));
+		LSLRecPluginDataProcessing proc = plg.getProcessing(getSimpleStreamSetting(plg.getID(), type, chs), parlist, null);
 		proc.loadProcessingSettings(plg.getSettings());
 
 		this.dataBuffer = new LinkedList<Number>();

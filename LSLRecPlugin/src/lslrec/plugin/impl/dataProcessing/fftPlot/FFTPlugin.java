@@ -184,7 +184,7 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
 	{
 		List< Parameter< String > > pars = this.getSettings();
 		
@@ -198,5 +198,11 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	@Override
 	protected void postLoadSettings() 
 	{	
+	}
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
 	}
 }

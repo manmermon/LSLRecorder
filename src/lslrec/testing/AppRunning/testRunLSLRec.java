@@ -18,7 +18,6 @@ import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
@@ -313,7 +312,7 @@ public class testRunLSLRec
 			ExceptionDialog.AppExitWhenWindowClosing();
 		}
 		
-		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionDictionary.ERROR_MESSAGE );
+		ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR), ExceptionMessage.ERROR_MESSAGE );
 		
 		ExceptionDialog.showMessageDialog( msg, true, true );
 	}

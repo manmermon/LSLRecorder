@@ -56,7 +56,6 @@ import lslrec.config.language.Language;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 
 public class CreatorDefaultSettingPanel 
@@ -194,7 +193,7 @@ public class CreatorDefaultSettingPanel
 									} 
 									catch ( Exception e1)
 									{
-										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 										
 										ExceptionDialog.showMessageDialog( m, true, true );										
 									}
@@ -254,7 +253,7 @@ public class CreatorDefaultSettingPanel
 									}
 									catch (Exception e1) 
 									{
-										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 										
 										ExceptionDialog.showMessageDialog( m, true, true );
 									}
@@ -301,7 +300,7 @@ public class CreatorDefaultSettingPanel
 									} 
 									catch ( Exception e1) 
 									{
-										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+										ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 		
 										ExceptionDialog.showMessageDialog( m, true, true );
 									}
@@ -350,7 +349,7 @@ public class CreatorDefaultSettingPanel
 							} 
 							catch (Exception e1) 
 							{
-								ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE );
+								ExceptionMessage m = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 
 								ExceptionDialog.showMessageDialog( m, true, true );
 							}

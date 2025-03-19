@@ -5,3 +5,5 @@ lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin
 lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin
 lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin
 lslrec.plugin.impl.dataProcessing.resender.LSLStreamResenderPlugin
+lslrec.plugin.impl.dataProcessing.hr2hrv.HR2HRVPlugin
+lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin

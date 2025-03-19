@@ -29,10 +29,10 @@ import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
+import lslrec.gui.dialog.Dialog_Checklist;
 import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
@@ -42,8 +42,8 @@ import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.miscellany.VerticalFlowLayout;
-import lslrec.gui.panel.primary.Panel_SocketSetting;
-import lslrec.gui.panel.primary.Panel_StreamingSettings;
+import lslrec.gui.panel.primary.SyncSocketPanelSetting;
+import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -106,7 +106,6 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
-import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
@@ -146,7 +145,7 @@ public class AppUI extends JFrame
 	private JPanel jPanelInputMsgLog;
 	private JPanel jPanelSelectSyncMethod;
 	//private JPanel jPanelMenus;		
-	private JTabbedPane jTabPanelInMsg;
+	//private JTabbedPane jTabPanelInMsg;
 	//private JPanel jPanelAppStateLog;
 	
 	// Button
@@ -154,6 +153,7 @@ public class AppUI extends JFrame
 	private JButton btnRefreshDevices;
 	private JButton jBtnInfo;
 	private JButton jBtnSyncMet;
+	private JButton jBtnChecklist;
 	//private JButton jButtonClearAppStateLog;
 		
 	private JToggleButton jButtomPlayStop = null;
@@ -210,8 +210,8 @@ public class AppUI extends JFrame
 	private JTextField sessionTimeText = null;
 
 	// Settings
-	private Panel_SocketSetting SocketSettingPanel;
-	private Panel_StreamingSettings streamSettingPanel;
+	private SyncSocketPanelSetting leftSettingPanel;
+	private RightPanelSettings rightSettingPanel;
 
 	// JCombox
 	//private JComboBox< String > jComboxSyncMethod;	
@@ -397,14 +397,16 @@ public class AppUI extends JFrame
 
 			this.jPanelSelectSyncMethod.add( this.getJButtonRefreshDataStreams() );
 
-			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
+			JLabel lb = new JLabel( Language.getLocalCaption( Language.SETTING_SYNC_METHOD ) );			
 			
 			this.jPanelSelectSyncMethod.add( lb );
 			//this.jPanelSelectSyncMethod.add( this.getJComboxSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getBtnSyncMethod() );
 			this.jPanelSelectSyncMethod.add( this.getJCheckActiveSpecialInputMsg() );
-			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );			
+			this.jPanelSelectSyncMethod.add( this.getJButtonInfo() );		
+			this.jPanelSelectSyncMethod.add( this.getJBtChecklist() );
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SYNC_METHOD, lb );
 		}
 
 		return this.jPanelSelectSyncMethod;
@@ -589,7 +591,7 @@ public class AppUI extends JFrame
 									{
 										try 
 										{
-											getStreamSetting().unselectSyncDevices();
+											getRightPanelSetting().unselectSyncDevices();
 										}
 										catch (Exception e1) 
 										{
@@ -758,7 +760,8 @@ public class AppUI extends JFrame
 			this.jBtnInfo.setIcon( new ImageIcon( BasicPainter2D.paintText( 0, 0, "?", fm, null, Color.BLACK, null ) ) );
 			
 			this.jBtnInfo.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
-			this.jBtnInfo.setBackground( Color.YELLOW.darker() );
+			//this.jBtnInfo.setBackground( Color.YELLOW.darker() );
+			this.jBtnInfo.setBackground( new Color( 255, 255, 204 ) );
 			this.jBtnInfo.setForeground( Color.BLACK );
 
 			this.jBtnInfo.setPreferredSize( d );
@@ -836,7 +839,7 @@ public class AppUI extends JFrame
 								{	
 									CoreControl.getInstance().disposeDataPlots();
 									
-									getStreamSetting().refreshDataStreams();
+									getRightPanelSetting().refreshDataStreams();
 									
 									if( GuiManager.getInstance().refreshPlugins() )
 									{
@@ -909,7 +912,7 @@ public class AppUI extends JFrame
 			try 
 			{
 				this.jPanelOper.setLeftComponent( this.getJPanelInputMsg() );
-				this.jPanelOper.setRightComponent( this.getStreamSetting() );
+				this.jPanelOper.setRightComponent( this.getRightPanelSetting() );
 			} 
 			catch (Exception e) 
 			{
@@ -918,7 +921,7 @@ public class AppUI extends JFrame
 				//JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );
 				ExceptionMessage msg = new  ExceptionMessage( e
 																, "Stream Exception" 
-																, ExceptionDictionary.ERROR_MESSAGE );
+																, ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog(msg, true, true );
 			}
 		}
@@ -939,32 +942,32 @@ public class AppUI extends JFrame
 			this.jPanelInputMsg.setFocusable(false);
 			this.jPanelInputMsg.setFocusCycleRoot(false);
 
-			this.jPanelInputMsg.setLeftComponent( this.getSocketSetting() );
-			//this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
-			this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
+			this.jPanelInputMsg.setLeftComponent( this.getLeftPanelSetting() );
+			this.jPanelInputMsg.setRightComponent( this.getInputLogPanel() ); 
+			//this.jPanelInputMsg.setRightComponent( this.getLogTabPane() );
 		}
 		
 		return this.jPanelInputMsg;
 	}
 
-	protected Panel_SocketSetting getSocketSetting()
+	protected SyncSocketPanelSetting getLeftPanelSetting()
 	{
-		if( this.SocketSettingPanel == null )
+		if( this.leftSettingPanel == null )
 		{
-			this.SocketSettingPanel = new Panel_SocketSetting( this );
+			this.leftSettingPanel = new SyncSocketPanelSetting( this );
 		}
 
-		return this.SocketSettingPanel;
+		return this.leftSettingPanel;
 	}
 
-	protected Panel_StreamingSettings getStreamSetting() throws Exception
+	protected RightPanelSettings getRightPanelSetting() throws Exception
 	{
-		if( this.streamSettingPanel == null )
+		if( this.rightSettingPanel == null )
 		{
-			this.streamSettingPanel = new Panel_StreamingSettings( this );
+			this.rightSettingPanel = new RightPanelSettings( this );
 		}
 
-		return this.streamSettingPanel;
+		return this.rightSettingPanel;
 	}
 
 	/**
@@ -1900,7 +1903,7 @@ public class AppUI extends JFrame
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
 					Exception ex = new Exception( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
-					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionDictionary.INFO_MESSAGE );
+					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, false );
 
 					//GuiManager.getInstance().startTest( true );
@@ -2151,6 +2154,7 @@ public class AppUI extends JFrame
 		return this.jMenuAbout;
 	}
 
+	/*
 	private JTabbedPane getLogTabPane()
 	{
 		if( this.jTabPanelInMsg == null )
@@ -2159,27 +2163,24 @@ public class AppUI extends JFrame
 			
 			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.INPUT_MSGS ), this.getInputLogPanel() );
 			Component c = this.jTabPanelInMsg.getComponentAt( 0 );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
-
-			/*
-			this.jTabPanelInMsg.addTab( Language.getLocalCaption( Language.LOG ), this.getAppStateLogPanel() );
-			c = this.jTabPanelInMsg.getComponentAt( 1 );
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.LOG, c );
-			*/
+			
 			
 			this.jTabPanelInMsg.setTabLayoutPolicy( JTabbedPane.SCROLL_TAB_LAYOUT );
+			
+			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.INPUT_MSGS, c );
 		}
 		
 		return this.jTabPanelInMsg;
 	}
+	//*/
 	
 	private JPanel getInputLogPanel()
 	{
 		if( this.jPanelInputMsgLog == null )
 		{
 			this.jPanelInputMsgLog = new JPanel( new BorderLayout() );
-			//this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
-			this.jPanelInputMsgLog.setBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5) );
+			this.jPanelInputMsgLog.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INPUT_MSGS ) ) );
+			//this.jPanelInputMsgLog.setBorder( BorderFactory.createEmptyBorder( 0, 5, 0, 5) );
 			
 			this.jPanelInputMsgLog.add( this.getScrollPaneLog(), BorderLayout.CENTER );
 
@@ -2190,7 +2191,7 @@ public class AppUI extends JFrame
 
 			this.jPanelInputMsgLog.add( p, BorderLayout.NORTH );
 			
-			//GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
+			GuiTextManager.addComponent( GuiTextManager.BORDER, Language.INPUT_MSGS, this.jPanelInputMsgLog.getBorder() );
 		}
 
 		return this.jPanelInputMsgLog;
@@ -2484,6 +2485,33 @@ public class AppUI extends JFrame
 		}
 
 		return this.checkAutoScroll;
+	}
+	
+	private JButton getJBtChecklist()
+	{
+		if( this.jBtnChecklist == null )
+		{
+			this.jBtnChecklist = new JButton( Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
+			
+			this.jBtnChecklist.addActionListener( new ActionListener()
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					Dialog_Checklist checklistDialog = new Dialog_Checklist( );
+					checklistDialog.setModal( true );
+					
+					checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
+					
+					checklistDialog.setLocationRelativeTo( AppUI.ui );
+					checklistDialog.setResizable( false );
+					checklistDialog.setVisible( true );											
+					checklistDialog.pack();
+				}
+			});
+		}
+		
+		return this.jBtnChecklist;
 	}
 	
 	/*

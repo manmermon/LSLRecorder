@@ -3,10 +3,12 @@ package lslrec.plugin.impl.test;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +23,7 @@ import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.plugin.impl.encoder.csv.CSVEncoder;
 import lslrec.plugin.impl.encoder.csv.OutputCSVDataWriter;
@@ -32,8 +35,9 @@ public class testEncoder
 {
 	public static void main(String[] args) 
 	{
+		checkCSV_3();
 		//checkCSV_2();
-		checkCSV();
+		//checkCSV();
 	}
 	
 	private static void checkMatlab()
@@ -71,7 +75,7 @@ public class testEncoder
 	{
 		try 
 		{
-			ClisData clis = new ClisData( "data_Simulation.clis" );
+			ClisData clis = new ClisData( "D:\\Nextcloud\\WorkSpace\\GitHub\\LSLRecorder\\records\\data_OpenBCI_EEG.clis" );
 			
 			File f = new File( "prueba.test" );
 			
@@ -93,7 +97,7 @@ public class testEncoder
 
 
 			pars.setParameter( CSVEncoder.SEPARATE_VARIABLE, false);
-			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL, "test", StreamDataType.double64, 1, 10, 10, 3, "testing", "1234" );
+			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL, "test", StreamDataType.double64, 1, 10, 10, 3,false, "testing", "1234" );
 
 			if( !f.exists() )
 			{
@@ -150,7 +154,13 @@ public class testEncoder
 				}
 				
 			}
-					
+			
+			while( !wr.isFinished() )
+			{
+				Thread.sleep( 100L );
+			}
+			
+			wr.close();	
 					
 		} 
 		catch (Exception e) 
@@ -158,6 +168,124 @@ public class testEncoder
 			e.printStackTrace();
 		}
 	}
+	
+	private static void checkCSV_3()
+	{
+		try 
+		{
+			ClisData clis = new ClisData( "D:\\Desktop\\PA_DATA_OpenBCI\\ALBERTO\\Sesion14-16-Feb-2022\\data_OpenBCI_EEG.clis" );
+			
+			File f = new File( "prueba.csv" );
+			
+			OutputFileFormatParameters pars = new OutputFileFormatParameters();
+
+			pars.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT,  "CSV" );
+
+			Parameter< String > p = pars.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT );
+			pars.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, "prueba.csv" );
+
+			pars.setParameter( OutputFileFormatParameters.ZIP_ID, CompressorDataFactory.GZIP );
+			pars.setParameter( OutputFileFormatParameters.CHAR_CODING,  Charset.forName( "UTF-8" )  );			
+			pars.setParameter( OutputFileFormatParameters.PARALLELIZE, true );
+			pars.setParameter( OutputFileFormatParameters.NUM_BLOCKS, 1L );
+			pars.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, (int)( Math.pow( 2, 20 ) * 10 ) );			
+			pars.setParameter( OutputFileFormatParameters.DATA_NAMES, "test" );			
+			pars.setParameter( OutputFileFormatParameters.RECORDING_INFO, new HashMap< String, String >() );			
+			pars.setParameter( OutputFileFormatParameters.DELETE_BIN, false );
+
+
+			pars.setParameter( CSVEncoder.SEPARATE_VARIABLE, false);
+			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL, "test", StreamDataType.double64, 1, 10, 10, 3,false, "testing", "1234" );
+
+			if( !f.exists() )
+			{
+				f.createNewFile();
+			}
+
+			List< MetadataVariableBlock > lmvb = clis.getVarInfo();
+			
+			List< String > varNames = new ArrayList< String >();
+			String v = "";
+			StreamDataType varType = StreamDataType.double64;
+			int nChs = 0;
+			for( MetadataVariableBlock vb : lmvb )
+			{
+				varNames.add( vb.getName() );
+				nChs += vb.getCols();
+				v += vb.getName();												
+			}
+
+			String header = clis.getHeader();
+			
+			SimpleStreamSetting sst = new SimpleStreamSetting( StreamLibrary.LSL
+																, v
+																, varType
+																, nChs
+																, 1
+																, 0
+																, 3
+																, true
+																, ""
+																, ""
+																, null );
+
+			MutableStreamSetting msst = new MutableStreamSetting( sst );
+			msst.setDescription( header );
+			pars.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames.toString() );
+			
+			OutputCSVDataWriter wr = new OutputCSVDataWriter( f.getAbsolutePath(), null,  pars, sss );
+														
+			int iSeq = 0;
+			for( int iv = 0; iv < lmvb.size(); iv++ )
+			{												
+				MetadataVariableBlock vb = lmvb.get( iv );
+				
+				double memorySize = (Integer)ConfigApp.getProperty( ConfigApp.SEGMENT_BLOCK_SIZE ) * Math.pow( 2, 20 );
+				int dataByteSize = StreamUtils.getDataTypeBytes( vb.getDataType() );
+				
+				int chunkSize = (int)( memorySize / dataByteSize );
+				if( chunkSize < 1 )
+				{
+					chunkSize = 1;
+				}
+				
+				nChs = vb.getCols();
+				String var = vb.getName();
+				varType = vb.getDataType();
+					
+				boolean cont = true;
+				while( cont )
+				{
+					Number[][] vData = clis.importNextDataBlock( iv, chunkSize );
+					
+					cont = ( vData != null );
+					
+					if( cont )
+					{
+						DataBlock db = DataBlockFactory.getDataBlock( varType, iSeq, var, nChs, ConvertTo.Transform.Matrix2Array( vData ) );
+
+						wr.saveData( db );
+
+						iSeq++;
+					}
+				}
+			}
+			
+			wr.addMetadata( "", header );
+			while( !wr.isFinished() )
+			{
+				Thread.sleep( 100L );
+			}
+			
+			wr.close();	
+					
+		} 
+		catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	
 	private static void checkCSV()
 	{
@@ -183,7 +311,7 @@ public class testEncoder
 			
 			
 			pars.setParameter( CSVEncoder.SEPARATE_VARIABLE, false);
-			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL, "test", StreamDataType.double64, 3, 10, 10, 3, "testing", "1234" );
+			SimpleStreamSetting sss = new SimpleStreamSetting( StreamLibrary.LSL, "test", StreamDataType.double64, 3, 10, 10, 3, false, "testing", "1234" );
 			
 			if( !f.exists() )
 			{

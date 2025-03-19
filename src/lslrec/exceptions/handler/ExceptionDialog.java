@@ -45,6 +45,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
+import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TextAreaPrintStream;
@@ -52,7 +53,9 @@ import lslrec.gui.miscellany.TextAreaPrintStream;
 public class ExceptionDialog 
 {
 	private static JDialog dialog;
-	private static TextAreaPrintStream log;
+	private static TextAreaPrintStream log2;
+	
+	private static TextAreaPrintStream log1;
 	
 	private static Object sync = new Object();
 	
@@ -74,7 +77,7 @@ public class ExceptionDialog
 			//jta.setLineWrap( true );
 			//jta.setTabSize( 0 );
 	
-			log = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
+			log2 = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
 	
 			dialog = new JDialog( owner );
 	
@@ -124,18 +127,34 @@ public class ExceptionDialog
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					log.flush();
+					synchronized( sync )
+					{
+						log2.flush();
+						
+						if( log1 != null )
+						{
+							log1.flush();
+						}
+					}					
 				}
 			});
 			
 			dialog.add( new JScrollPane( jta ), BorderLayout.CENTER );
 			dialog.add( clearBt, BorderLayout.SOUTH );
 			//dialog.toFront();
-			//dialog.setVisible( true );		
+			//dialog.setVisible( true );
 			
 			dialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
 														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
 														JComponent.WHEN_IN_FOCUSED_WINDOW );
+		}
+	}
+	
+	public static void setMainTextLog( TextAreaPrintStream mainLog )
+	{
+		synchronized ( sync )
+		{
+			log1 = mainLog;
 		}
 	}
 	
@@ -176,30 +195,58 @@ public class ExceptionDialog
 				
 				synchronized ( sync )
 				{
+					GuiManager.getInstance().showLogTab();
+					
+					Color msgColor = Color.ORANGE;
+					boolean errorFocus = false;
+					ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
+
+					if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+					{
+						ic = GeneralAppIcon.Error( 64, Color.RED );
+						msgColor = Color.RED;
+						errorFocus = true;
+					}
+					else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
+					{
+						ic = GeneralAppIcon.Info( 64, Color.BLACK );
+						msgColor = Color.BLACK;
+					}
+					
+					if( log1 != null )
+					{
+						if( !concatMsg )
+						{
+							log1.flush();
+						}
+	
+						log1.SetColorText( msgColor );
+							
+						Throwable ex = msg.getException();
+	
+						if( ex != null )
+						{
+							if( printExceptionTrace )
+							{
+								ex.printStackTrace( log1 );
+							}
+							else
+							{
+								log1.println( ex.getMessage() );
+							}
+						}
+					}
+					
 					if( dialog != null )
 					{
 						if( !concatMsg )
 						{
-							log.flush();
+							log2.flush();
 						}
 	
 						dialog.setTitle( msg.getTitleException() );
 	
-						ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
-						Color msgColor = Color.ORANGE;
-	
-						if( msg.getMessageType() == ExceptionDictionary.ERROR_MESSAGE )
-						{
-							ic = GeneralAppIcon.Error( 64, Color.RED );
-							msgColor = Color.RED;
-						}
-						else if( msg.getMessageType() == ExceptionDictionary.INFO_MESSAGE )
-						{
-							ic = GeneralAppIcon.Info( 64, Color.BLACK );
-							msgColor = Color.BLACK;
-						}
-	
-						log.SetColorText( msgColor );
+						log2.SetColorText( msgColor );
 	
 						if( ic != null )
 						{
@@ -212,35 +259,41 @@ public class ExceptionDialog
 						{
 							if( printExceptionTrace )
 							{
-								ex.printStackTrace( log );
+								ex.printStackTrace( log2 );
 							}
 							else
 							{
-								log.println( ex.getMessage() );
+								log2.println( ex.getMessage() );
 							}
 						}
 						
-						if( !dialog.isVisible() )
-						{							
-							dialog.setLocationRelativeTo( dialog.getOwner() );
-						}
-							
-						boolean show = false;
-						
-						while( !show )
+						if( errorFocus )
 						{
-							try
-							{
-								dialog.setVisible( true );
-								
-								show = true;
+							if( !dialog.isVisible() )
+							{							
+								dialog.setLocationRelativeTo( dialog.getOwner() );
 							}
-							catch (Exception e) 
-							{								
+								
+							boolean show = false;
+							
+							while( !show )
+							{
+								try
+								{
+									dialog.setVisible( true );
+									
+									show = true;
+								}
+								catch (Exception e) 
+								{								
+								}
+							}
+							
+							if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+							{
+								dialog.toFront();
 							}
 						}
-						
-						dialog.toFront();
 					}
 						
 				}
@@ -260,6 +313,22 @@ public class ExceptionDialog
 				}
 				dialog.setVisible( true );
 				dialog.toFront();
+			}
+		}
+	}
+
+	public static void clearMessages()
+	{
+		synchronized( sync )
+		{
+			if( log1 != null )
+			{
+				log1.flush();
+			}
+			
+			if( log2 != null )
+			{
+				log2.flush();
 			}
 		}
 	}

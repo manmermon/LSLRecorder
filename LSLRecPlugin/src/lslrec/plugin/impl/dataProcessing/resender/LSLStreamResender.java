@@ -2,7 +2,6 @@ package lslrec.plugin.impl.dataProcessing.resender;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,13 +18,8 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 {
 	public static final String STREAM_NAME = "Stream name"; 
 	public static final String SELECTED_CHANNELS = "Selected channels";
-	//public static final String STREAM_TYPE = "Stream type";
-	//public static final String STREAM_NUMBER_CHANNELS = "Number of channels";
-	//public static final String STREAM_SAMPLING_RATE = "Sampling rate";
-	//public static final String STREAM_DATA_TYPE = "Data type";
-	//public static final String STREAM_CHUNK_SIZE = "Chunk size";
 
-	private StreamOutlet stream;
+	private StreamOutlet outStream;
 	
 	private Object lock = new Object();
 	
@@ -51,11 +45,6 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 		this.setDefaultSelectedChannels();
 		
 		this.pars.addParameter( new Parameter< Boolean[] >( SELECTED_CHANNELS, selectedChannels ) );
-		//this.pars.addParameter( new Parameter<String>( STREAM_TYPE, "Value" ));
-		//this.pars.addParameter( new Parameter<Integer>( STREAM_NUMBER_CHANNELS, 1 ));
-		//this.pars.addParameter( new Parameter<Double>( STREAM_SAMPLING_RATE, IStreamSetting.IRREGULAR_RATE ));
-		//this.pars.addParameter( new Parameter< StreamDataType >( STREAM_DATA_TYPE, StreamUtils.StreamDataType.float32 ) );
-		//this.pars.addParameter( new Parameter< Integer >( STREAM_CHUNK_SIZE, 1 ));
 	}
 	
 	private void setDefaultSelectedChannels()
@@ -77,9 +66,10 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 	@Override
 	protected void finishProcess() 
 	{
-		if( this.stream != null )
+		if( this.outStream != null )
 		{
-			this.stream.close();
+			this.outStream.close();
+			this.outStream = null;
 		}
 	}
 
@@ -125,97 +115,6 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 						
 						break;
 					}
-					/*
-					case LSLStreamResender.STREAM_TYPE:
-					{
-						try
-						{
-							String type = "value";
-							synchronized ( this.lock )
-							{
-								type = val;
-							}
-							
-							this.pars.getParameter( id ).setValue( type );
-							
-						}
-						catch (Exception e) 
-						{
-						}
-						
-						break;
-					}
-					case LSLStreamResender.STREAM_CHUNK_SIZE:
-					{
-						try
-						{
-							int chunk = 1;
-							synchronized ( this.lock )
-							{
-								chunk = Integer.parseInt( val );
-							}
-							
-							this.pars.getParameter( id ).setValue( chunk );
-							
-						}
-						catch (Exception e) 
-						{
-						}
-						
-						break;
-					}
-					case LSLStreamResender.STREAM_NUMBER_CHANNELS:
-					{
-						try
-						{
-							int channels = 1;
-							synchronized ( this.lock )
-							{
-								channels = Integer.parseInt( val );
-							}
-							
-							this.pars.getParameter( id ).setValue( channels );
-							
-						}
-						catch (Exception e) 
-						{
-						}
-						
-						break;
-					}
-					case LSLStreamResender.STREAM_SAMPLING_RATE:
-					{
-						try
-						{
-							double frq = 1;
-							synchronized ( this.lock )
-							{
-								frq = Double.parseDouble( val );
-							}
-							
-							this.pars.getParameter( id ).setValue( frq );
-							
-						}
-						catch (Exception e) 
-						{
-						}
-						
-						break;
-					}
-					case LSLStreamResender.STREAM_DATA_TYPE:
-					{
-						try
-						{
-							this.dataType = StreamDataType.valueOf( val ) ;
-							this.pars.getParameter( id ).setValue( this.dataType );
-						}
-						catch (Exception e) 
-						{							
-						}
-						
-						break;
-					}
-					*/
 					case SELECTED_CHANNELS:
 					{
 						try
@@ -267,28 +166,10 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 			}
 			
 			this.numSelectedChannels = nchannels;
-			
-			//bufferLen = super.streamSetting.channel_count() * super.streamSetting.getChunkSize();
-			
-			LSLStreamInfo info = new LSLStreamInfo( this.streamName
-													, super.streamSetting.content_type()
-													, nchannels
-													, super.streamSetting.sampling_rate()
-													, super.streamSetting.data_type().ordinal()
-													, super.streamSetting.source_id() + "-" + this.getID() );
-			
-			info.setInterleaveadData( super.streamSetting.isInterleavedData() );
-			info.setDescription( super.streamSetting.description() );
-			info.setChunckSize( super.streamSetting.getChunkSize() );
-			
+						
 			try 
-			{
-				if( this.stream != null )
-				{
-					this.stream.close();
-				}
-				
-				this.stream = new StreamOutlet( info );
+			{				
+				this.createOutStream();
 			}
 			catch (IOException e) 
 			{
@@ -297,10 +178,31 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 		}
 	}
 
+	private void createOutStream() throws IOException
+	{
+		LSLStreamInfo info = new LSLStreamInfo( this.streamName
+												, super.streamSetting.content_type()
+												, this.numSelectedChannels
+												, super.streamSetting.sampling_rate()
+												, super.streamSetting.data_type().ordinal()
+												, super.streamSetting.source_id() + "-" + this.getID() );
+
+		info.setInterleaveadData( super.streamSetting.isInterleavedData() );
+		info.setDescription( super.streamSetting.description() );
+		info.setChunckSize( super.streamSetting.getChunkSize() );
+
+		if( this.outStream != null )
+		{
+			this.outStream.close();
+		}
+		
+		this.outStream = new StreamOutlet( info );
+	}
+	
 	@Override
 	protected Number[] processData( Number[] inData ) 
 	{
-		if( this.stream != null )
+		if( this.outStream != null )
 		{
 			if( this.selectedChannels[ channelIndex ] )
 			{
@@ -335,37 +237,37 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 				{
 					case int16:
 					{
-						this.stream.push_chunk( ConvertTo.Casting.NumberArray2ShortArray( dataArray ) );
+						this.outStream.push_chunk( ConvertTo.Casting.NumberArray2ShortArray( dataArray ) );
 						
 						break;
 					}	
 					case int32:
 					{
-						this.stream.push_chunk( ConvertTo.Casting.NumberArray2IntegerArray( dataArray ) );
+						this.outStream.push_chunk( ConvertTo.Casting.NumberArray2IntegerArray( dataArray ) );
 						
 						break;
 					}
 					case int64:
 					{
-						this.stream.push_chunk( ConvertTo.Casting.NumberArray2LongArray( dataArray ) );
+						this.outStream.push_chunk( ConvertTo.Casting.NumberArray2LongArray( dataArray ) );
 						
 						break;
 					}
 					case float32:
 					{
-						this.stream.push_chunk( ConvertTo.Casting.NumberArray2FloatArray( dataArray ) );
+						this.outStream.push_chunk( ConvertTo.Casting.NumberArray2FloatArray( dataArray ) );
 						
 						break;
 					}
 					case double64:
 					{
-						this.stream.push_chunk( ConvertTo.Casting.NumberArray2DoubleArray( dataArray ) );
+						this.outStream.push_chunk( ConvertTo.Casting.NumberArray2DoubleArray( dataArray ) );
 						
 						break;
 					}
 					default:
 					{
-						this.stream.push_chunk( ConvertTo.Transform.NumberArray2byteArray( dataArray, StreamDataType.int8 ) );
+						this.outStream.push_chunk( ConvertTo.Transform.NumberArray2byteArray( dataArray, StreamDataType.int8 ) );
 						
 						break;
 					}
@@ -383,11 +285,4 @@ public class LSLStreamResender extends LSLRecPluginDataProcessing
 		
 		return inData;
 	}
-
-	@Override
-	public boolean isMultiselection() 
-	{
-		return false;
-	}
-
 }

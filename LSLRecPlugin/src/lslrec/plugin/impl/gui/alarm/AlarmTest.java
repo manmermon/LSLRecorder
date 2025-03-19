@@ -237,7 +237,7 @@ public class AlarmTest extends LSLRecPluginTrial
 			{
 				this.stage = ALARM;		
 				
-				ic  = GeneralAppIcon.Sound( 128, 128, Color.BLACK, Color.WHITE );;
+				ic  = GeneralAppIcon.Sound( 128, 128, Color.BLACK, Color.WHITE );
 				t = "Alarm";
 				
 				break;

@@ -1145,7 +1145,8 @@ public class Dialog_PlotClis extends JDialog
 			{
 				A = rows - Math.abs( step );
 			}
-			else if( A < 0 )
+			
+			if( A < 0 )
 			{
 				A = 0;
 			}

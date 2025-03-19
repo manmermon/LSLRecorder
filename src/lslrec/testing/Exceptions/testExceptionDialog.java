@@ -1,7 +1,6 @@
 package lslrec.testing.Exceptions;
 
 import lslrec.exceptions.handler.ExceptionDialog;
-import lslrec.exceptions.handler.ExceptionDictionary;
 import lslrec.exceptions.handler.ExceptionMessage;
 
 public class testExceptionDialog {
@@ -12,7 +11,7 @@ public class testExceptionDialog {
 		{
 			public void run() 
 			{
-				ExceptionMessage msg = new ExceptionMessage( new Exception( "test" ), "prueba", ExceptionDictionary.WARNING_MESSAGE);
+				ExceptionMessage msg = new ExceptionMessage( new Exception( "test" ), "prueba", ExceptionMessage.WARNING_MESSAGE);
 			
 				ExceptionDialog.createExceptionDialog( null );
 				
@@ -21,7 +20,7 @@ public class testExceptionDialog {
 				ExceptionDialog.showMessageDialog( msg, true, true );
 				ExceptionDialog.showMessageDialog( msg, true, false );
 				
-				ExceptionMessage msg1 = new ExceptionMessage( new Exception("test3"), "prueba", ExceptionDictionary.ERROR_MESSAGE );
+				ExceptionMessage msg1 = new ExceptionMessage( new Exception("test3"), "prueba", ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg1, true, true );
 								
 				synchronized ( this )

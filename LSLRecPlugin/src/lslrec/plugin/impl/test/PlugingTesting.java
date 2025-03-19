@@ -19,8 +19,10 @@
  */
 package lslrec.plugin.impl.test;
 
+import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
+import lslrec.plugin.impl.dataProcessing.hr2hrv.HR2HRVPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotter;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
@@ -51,7 +53,8 @@ public class PlugingTesting
 		//ZTransformPlugin plg = new ZTransformPlugin();
 		//FFTPlugin plg = new FFTPlugin();
 		//LSLStreamResenderPlugin plg = new LSLStreamResenderPlugin(); 
-		TrialStageMarkerPlugin plg = new TrialStageMarkerPlugin();
+		//TrialStageMarkerPlugin plg = new TrialStageMarkerPlugin();
+		HR2HRVPlugin plg = new HR2HRVPlugin();
 		
 		LSLRecPluginTesting testing = new LSLRecPluginTesting( plg );
 		

@@ -19,7 +19,6 @@
  */
 package lslrec.dataStream.family.setting;
 
-import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;

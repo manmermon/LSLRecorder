@@ -174,13 +174,11 @@ public class DataDisplay extends LSLRecPluginDataProcessing
 				if( this.chunkBuffer.size() >= this.chunk_size * super.streamSetting.channel_count() )
 				{
 					this.window.setVisible( true );
-					
-					
+										
 					Number[] values = this.chunkBuffer.subList( 0, this.chunk_size * super.streamSetting.channel_count() ).toArray( new Number[0] );					
 					values = ConvertTo.Transform.Interleaved( values, this.chunk_size, super.streamSetting.channel_count() );
 										
 					Tuple< Number[][], Number[] > data = ConvertTo.Transform.Array2Matrix( values, (long)this.chunk_size );
-					
 					this.drawPanel.drawData( ConvertTo.Casting.NumberMatrix2doubleMatrix( data.t1 ) );
 					
 					this.chunkBuffer.subList( 0, this.chunk_size * super.streamSetting.channel_count() ).clear();
@@ -206,11 +204,4 @@ public class DataDisplay extends LSLRecPluginDataProcessing
 			w.dispose();
 		}
 	}
-
-	@Override
-	public boolean isMultiselection() 
-	{
-		return true;
-	}
-
 }

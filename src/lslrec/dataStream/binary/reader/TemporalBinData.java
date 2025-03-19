@@ -32,6 +32,7 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.ByteBlock;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
+import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
 public class TemporalBinData
 {	
@@ -46,6 +47,8 @@ public class TemporalBinData
 	
 	private IStreamSetting streamSetting;
 	private OutputFileFormatParameters outputFormat;
+	
+	private LSLRecPluginDataProcessing postprocessing = null;
 	
 	public TemporalBinData( BinaryFileStreamSetting strSetting
 							, OutputFileFormatParameters outFormat ) throws Exception
@@ -140,4 +143,14 @@ public class TemporalBinData
 		catch( Exception e )
 		{}		
 	}	
+	
+	public void setPostprocessing( LSLRecPluginDataProcessing postprocessing ) 
+	{
+		this.postprocessing = postprocessing;
+	}
+	
+	public LSLRecPluginDataProcessing getPostProcessing()
+	{
+		return this.postprocessing;
+	}
 }

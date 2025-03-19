@@ -11,67 +11,67 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.encoder"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.test"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.writer"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread.events"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.primary"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.sync"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lsl"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.processing"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.tools"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis.parallel"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.setting"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.writingSystemTester"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.plotter"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dataPlot"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.sockets.info"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.trial"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.writer.plugin"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions.handler"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec.streamgiver"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress.zip"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.compressor"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.register"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.reader"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.parallelize"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress.zip"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync.dataStream"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.miscellany"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.sockets"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.plotter"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.writer"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input.writer.plugin"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.reader"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress.zip"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lsl"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec.streamgiver"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress.zip"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis.parallel"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.parallelize"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync.dataStream"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.tools"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.writingSystemTester"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions.handler"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dataPlot"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.miscellany"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.primary"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.compressor"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.encoder"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.processing"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.sync"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.test"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin.trial"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.register"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.sockets"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.sockets.info"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread.events"/>
     </selectedElements>
 </jardesc>

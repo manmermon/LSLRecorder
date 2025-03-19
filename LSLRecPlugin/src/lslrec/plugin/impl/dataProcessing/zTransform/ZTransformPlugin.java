@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
@@ -64,9 +65,14 @@ public class ZTransformPlugin implements ILSLRecPluginDataProcessing
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, LSLRecPluginDataProcessing arg1 )
+	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0,  ParameterList pars, LSLRecPluginDataProcessing arg1 )
 	{
 		return new Filter( arg0, arg1 );
 	}
-	
+
+	@Override
+	public ProcessingLocation getProcessingLocation() 
+	{
+		return ProcessingLocation.DURING;
+	}
 }

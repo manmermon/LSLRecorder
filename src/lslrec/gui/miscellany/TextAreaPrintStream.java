@@ -129,4 +129,14 @@ public class TextAreaPrintStream extends PrintStream
 		
     	this.attSet = sc.addAttribute( attrs , StyleConstants.Foreground, color);
     }
+    
+    public void requestFocus()
+    {
+    	this.textArea.requestFocusInWindow();
+    }
+    
+    public void transferFocus()
+    {
+    	this.textArea.transferFocus();
+    }
 }

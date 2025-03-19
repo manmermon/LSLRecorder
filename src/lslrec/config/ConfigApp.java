@@ -54,6 +54,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -68,6 +69,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ArrayTreeMap;
+import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
@@ -80,7 +82,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2024, 9 - 1, 7 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 3 - 1, 19 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -98,7 +100,7 @@ public class ConfigApp
 	
 	public static String defaultNameFileConfig = "config." + defaultNameFileConfigExtension;
 	
-	public static final String defaultNameOutputDataFile = "data.clis";
+	public static final String defaultNameOutputDataFile = "data"; //"data.clis";
 	
 	public static final String HEADER_SEPARATOR = ";" ;
 
@@ -111,14 +113,15 @@ public class ConfigApp
 	public static final String SYSTEM_LIB_MACOS_PATH = "systemLib/macox/";
 	//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
 	
-
+	
 	/**********************
 	 * 
 	 */
-	
+	public static final String CHECKLIST_MSGS = "CHECKLIST_MSGS";
+			
 	public static final String SELECTED_SYNC_METHOD = "SYNC_METHOD";
 	
-	public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
+	//public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
 	
 	/***********
 	 * 
@@ -151,6 +154,9 @@ public class ConfigApp
 	 */
 	
 	public static final String OUTPUT_FILE_NAME = "OUTPUT_FILE_NAME";
+	public static final String OUTPUT_FILE_FOLDER = "OUTPUT_FILE_FOLDER";
+	public static final String OUTPUT_SUBJ_ID = "OUTPUT_SUBJ_ID";
+	public static final String OUTPUT_TEST_ID = "OUTPUT_TEST_ID";
 	
 	public static final String OUTPUT_FILE_FORMAT = "OUTPUT_FILE_FORMAT";
 	
@@ -196,6 +202,7 @@ public class ConfigApp
 	public static void setTesting( boolean t )
 	{
 		test = t;
+		loadDefaultChecklist();
 	}
 	
 	
@@ -235,6 +242,9 @@ public class ConfigApp
 
 		list_Key_Type.put( OUTPUT_FILE_FORMAT, String.class);
 		list_Key_Type.put( OUTPUT_FILE_NAME, String.class);
+		list_Key_Type.put( OUTPUT_FILE_FOLDER, String.class);
+		list_Key_Type.put( OUTPUT_SUBJ_ID, String.class);
+		list_Key_Type.put( OUTPUT_TEST_ID, String.class);
 		list_Key_Type.put( OUTPUT_FILE_DESCR, String.class );
 		
 		list_Key_Type.put( OUTPUT_ENCRYPT_DATA, Boolean.class );
@@ -256,9 +266,11 @@ public class ConfigApp
 		
 		list_Key_Type.put( SEGMENT_BLOCK_SIZE, Integer.class );
 		
+		list_Key_Type.put( CHECKLIST_MSGS, List.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
-		list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
+		//list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -339,7 +351,7 @@ public class ConfigApp
 					if( setting.isSelected() || setting.isSynchronationStream() )
 					{
 						//toSave.add( setting );
-						p += setting.getShortToString() + ";";
+						p += setting.getStreamInfoToString() + ";";
 					}
 				}
 				
@@ -377,6 +389,7 @@ public class ConfigApp
 				
 				if( pt == PluginType.DATA_PROCESSING )
 				{	
+					/*
 					for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
 					{
 						String extra = "";
@@ -409,6 +422,40 @@ public class ConfigApp
 						String plgHeader = getPluginPropertyFormatHeader( pt, process.getID(), extra );
 						
 						setPl += plgHeader + ";";
+					}
+					//*/
+					
+					for( IStreamSetting sst : DataProcessingPluginRegistrar.getAllDataStreams() )
+					{
+						String idStream = "(" + sst.name() + "@@@" + sst.source_id() + ",";
+						
+						int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
+						
+						for( int processLoc : processLocs )
+						{
+							int pluginOrder = 0;
+							for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcessing( sst, processLoc ) )
+							{
+								String setting = "";
+								
+								for( Parameter< String > par : process.getSettings() )
+								{
+									setting += par + ",";
+								}
+								
+								if( !setting.isEmpty() )
+								{
+									setting = setting.substring( 0, setting.length() - 1 );
+								}
+								
+								String extra = idStream + processLoc + "," + pluginOrder + ")" + ",{" + setting + "}" ;
+								
+								String plgHeader = getPluginPropertyFormatHeader( pt, process.getID(), extra );
+								
+								setPl += plgHeader + ";";
+								pluginOrder++;
+							}
+						}
 					}
 				}
 				else 
@@ -576,9 +623,46 @@ public class ConfigApp
 		
 		boolean defaultValue = false;
 
-		Iterator<Object> it = prop.keySet().iterator();
+		List< Object > idPars = new ArrayList<Object>( prop.keySet() );
+		Collections.sort( idPars, new Comparator<Object>() 
+		{
+			@Override
+			public int compare(Object o1, Object o2) 
+			{
+				return o1.toString().compareTo( o2.toString() );
+			}
+		});
+		
+		//Iterator<Object> it = prop.keySet().iterator();
+		Iterator<Object> it = idPars.iterator();
 
-		while (it.hasNext())
+		while( it.hasNext() )
+		{
+			Object id = it.next();
+			if( id.toString().equals( ID_STREAMS ) ) 
+			{
+				it.remove();
+				idPars.add( id );
+				
+				break;
+			}
+		}
+
+		it = idPars.iterator();
+		while( it.hasNext() )
+		{
+			Object id = it.next();
+			if( id.toString().equals( PLUGINS ) ) 
+			{
+				it.remove();
+				idPars.add( id );
+				
+				break;
+			}
+		}
+		
+		it = idPars.iterator();
+		while( it.hasNext() )
 		{
 			String key = (String)it.next();
 			Class clase = list_Key_Type.get(key);
@@ -710,38 +794,113 @@ public class ConfigApp
 				else if( clase.getCanonicalName().equals( List.class.getCanonicalName() ) )
 				{
 					List<String> values = new ArrayList<String>();
-
+					
 					value = value.replaceAll( "\\[", "");
 					value = value.replaceAll( "\\]", "");
 					value = value.replaceAll( "\\<", "");
 					value = value.replaceAll( "\\>", "");
-
-					String[] paths = value.split( "," );
-
-					for (int i = 0; i < paths.length; i++)
+					
+					String[] parts = value.split( "," );
+					
+					switch (key) 
 					{
-						String path = paths[i];
-						if (!path.isEmpty())
+						case CHECKLIST_MSGS:
 						{
-							values.add(path.trim());
+							boolean ok = ( parts.length % 2 == 0 );
+							if( ok )
+							{
+								List< Tuple< Boolean, String > > checkList = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS);
+								
+								for( int i = 1; i < parts.length; i += 2 )
+								{
+									try
+									{
+										String msg = parts[ i ].trim();
+										if( i < 2 && !checkList.isEmpty() )
+										{
+											msg = checkList.get( 0 ).t2;
+											checkList.remove( 0 );
+										}
+										Boolean sel = Boolean.parseBoolean( parts[ i-1 ].trim() );
+
+										Tuple< Boolean, String > tmsg = new Tuple<Boolean, String>( sel, msg );
+										checkList.add( tmsg );										
+									}
+									catch( Exception e )
+									{
+										ok = false;
+										break;
+									}
+								}
+							}
+							
+							if( !ok )
+							{
+								defaultValue = true;
+								
+								defaultMsg += key + "; ";
+								
+								loadDefaultChecklist();
+							}
+							
+							break;
+						}
+						default:
+						{
+							for (int i = 0; i < parts.length; i++)
+							{
+								String path = parts[i];
+								if (!path.isEmpty())
+								{
+									values.add(path.trim());
+								}
+							}			
+							
+							listConfig.put(key, values);
+							
+							break;
 						}
 					}
-
-					listConfig.put(key, values);
 				}
 				else if (clase.isInstance(new String()))
 				{
 					if (value == null)
 					{
-						loadDefaultValue(key);
+						loadDefaultValue( key );
 						defaultValue = true;
 						
 						defaultMsg += key + "; ";
 					}
 					else
 					{
-						listConfig.put(key, value);
-
+						switch ( key ) 
+						{
+							case OUTPUT_SUBJ_ID:
+							case OUTPUT_TEST_ID:
+							case OUTPUT_FILE_NAME:
+							case OUTPUT_FILE_FOLDER:
+							{	
+								listConfig.put( key, value );
+								
+								//if( !FileUtils.checkOutputOutputFilePath() )
+								if( FileUtils.getOutputCompletedFileNameFromConfig() == null )
+								{
+									loadDefaultValue( key );
+									
+									defaultValue = true;
+									
+									defaultMsg += key + "; ";
+								}
+								
+								break;
+							}
+							default:
+							{
+								listConfig.put( key, value );
+								break;
+							}
+						}
+						
 					}
 				}
 				else if ( clase.getCanonicalName().equals(Tuple.class.getCanonicalName() ) )
@@ -786,18 +945,39 @@ public class ConfigApp
 							int countDevOff = 0;
 							boolean allOk = true;
 							
+							
+							Map< String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> > foundLslStreams =  new HashMap<String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>>>();
+							for( IMutableStreamSetting lslstr : lslDevs )
+							{
+								String name = lslstr.name();
+								String type = lslstr.content_type();
+								String source = lslstr.source_id();
+								
+								ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> ts = new ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>>();
+								if( foundLslStreams.containsKey( name ) )
+								{
+									ts = foundLslStreams.get( name );
+								}
+								else
+								{	
+									foundLslStreams.put( name, ts );
+								}
+								
+								ts.putElement( type, new Tuple<String, IMutableStreamSetting>( source, lslstr) );
+							}
+							
 							for( String dev : devices )
 							{
 								//dev = dev.replace( " ", "").replace( "<", "" ).replace( ">", "" );
 								dev = dev.replace( "<", "" ).replace( ">", "" );
 								String[] devInfo = dev.split( "," );
-								if( devInfo.length == 8 )
+								
+								if( devInfo.length == 9 )
 								{
 									String sourceID = devInfo[ 0 ].replace( " ", "" );
 									String name = devInfo[ 1 ].replace( " ", "" );
 									String type = devInfo[ 2 ].replace( " ", "" );
 									String info = devInfo[ 3 ].trim();
-															
 									
 									boolean select = false;									
 									try 
@@ -837,17 +1017,24 @@ public class ConfigApp
 									{
 									}
 									
+									boolean enableRecordingCheckerTimer = false;									
+									try
+									{
+										enableRecordingCheckerTimer = new Boolean( devInfo[ 8 ].replace( " ", "" ) );
+									}
+									catch (Exception e) 
+									{
+									}
+									
+									/*
 									boolean found = false;
 									
 									for( IMutableStreamSetting lslCfg : lslDevs )
-									{
-										found = lslCfg.source_id().equals( sourceID );
-										
-										if( !found )
-										{	
-											found = lslCfg.content_type().equals( type ) && lslCfg.name().equals( name );
-										}
-										
+									{										
+										found = lslCfg.source_id().equals( sourceID )
+												&& lslCfg.content_type().equals( type ) 
+												&& lslCfg.name().equals( name );
+																			
 										if( found )
 										{
 											lslCfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, info );
@@ -855,12 +1042,65 @@ public class ConfigApp
 											lslCfg.setChunckSize( chunckSize );
 											lslCfg.setInterleaveadData( interleaved );
 											lslCfg.setSynchronizationStream( isSync );
+											lslCfg.enableRecordingCheckerTimer( enableRecordingCheckerTimer );
 											
 											break;
 										}
 									}
 									
 									if( !found )
+									{			
+										msgDevNonFound += "<" + sourceID + ", " + name + ", " + type + ">; ";
+										countDevOff++;
+										
+										if( countDevOff > 4 )
+										{
+											msgDevNonFound += "\n";
+											countDevOff = 0;
+										}
+										
+										defaultValue = true;
+										allOk = false;
+									}
+									//*/
+									
+									IMutableStreamSetting lslCfg = null;
+									
+								 	ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> typeSource = foundLslStreams.get( name );
+									if( typeSource != null )
+									{										
+										List< Tuple<String, IMutableStreamSetting>> sources = typeSource.get( type );
+										if( sources != null )
+										{
+											if( sources.size() == 1 )
+											{
+												lslCfg = sources.get( 0 ).t2;
+											}
+											else
+											{
+												for( Tuple<String, IMutableStreamSetting> source : sources )
+												{
+													if( source.t1.equals( sourceID ) )
+													{
+														lslCfg = source.t2;
+														
+														break;
+													}
+												}
+											}
+										}
+									}
+									
+									if( lslCfg != null )
+									{
+										lslCfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, info );
+										lslCfg.setSelected( select );
+										lslCfg.setChunckSize( chunckSize );
+										lslCfg.setInterleaveadData( interleaved );
+										lslCfg.setSynchronizationStream( isSync );
+										lslCfg.enableRecordingCheckerTimer( enableRecordingCheckerTimer );
+									}
+									else
 									{			
 										msgDevNonFound += "<" + sourceID + ", " + name + ", " + type + ">; ";
 										countDevOff++;
@@ -1116,6 +1356,8 @@ public class ConfigApp
 						}
 					}
 					
+					ArrayTreeMap< Integer, Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > > dataprocessingOrder = new ArrayTreeMap<Integer, Tuple<IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing >>>();
+					
 					for( Tuple< PluginType, String > plType : reg.keySet() )
 					{
 						PluginType pt = plType.t1;
@@ -1138,57 +1380,72 @@ public class ConfigApp
 								ILSLRecPluginDataProcessing newPr = (ILSLRecPluginDataProcessing)loader.createNewPluginInstance( pt, idPlg, false );									
 								newPr.loadSettings( parlist );
 
-								DataProcessingPluginRegistrar.addDataProcessing( newPr );
+								//DataProcessingPluginRegistrar.addDataProcessing( newPr );
 
 								HashSet< IStreamSetting > dss = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 								//
-								// extra = (streamName@@@sourceID;streamName@@@sourceID;...;streamName@@@sourceID)
+								// extra = (streamName@@@sourceID,processLoc,order)
 								//
-								String[] streams = extra.replaceAll( "\\((.*)\\)", "$1" ).split( "," );
+								String[] stream = extra.replaceAll( "\\((.*)\\)", "$1" ).split( "," );
 
 								//
 								// streams =
 								//			streamName@@@sourceID
-								//			streamName@@@sourceID
-								//			...
-								//			streamName@@@sourceID
-
-								for( String str : streams )
+								//			processLoc
+								//			order
+								
+								if( stream.length == 3 )
 								{
-									String[] stInfo = str.split( "@@@" );
-									//
-									// stInfo =
-									//			streamName
-									//			sourceID
-
-									String name = "";
-									String sId = "";
-									
-									if( ( 2 - stInfo.length ) >= 0 )
+									try
 									{
-										name = stInfo[ 0 ].trim();
+										int processLoc = Integer.parseInt( stream[ 1 ] );
+										int order = Integer.parseInt( stream[ 2 ] );
 										
-										if( stInfo.length == 2 )
-										{
-											sId = stInfo[ 1 ].trim();
-										}
+										String[] stInfo = stream[0].split( "@@@" );
+										//
+										// stInfo =
+										//			streamName
+										//			sourceID
 
-										for( IStreamSetting s : dss )
+										String name = "";
+										String sId = "";
+										
+										if( ( 2 - stInfo.length ) >= 0 )
 										{
-											if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+											name = stInfo[ 0 ].trim();
+											
+											if( stInfo.length == 2 )
 											{
-												DataProcessingPluginRegistrar.addDataStream( newPr, s );
-
-												break;
+												sId = stInfo[ 1 ].trim();
 											}
-										}													
+
+											for( IStreamSetting s : dss )
+											{
+												if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+												{
+													//DataProcessingPluginRegistrar.addDataStreamProcessing( newPr, s );
+
+													dataprocessingOrder.putElement( order, new Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > >( s, new Tuple< Integer, ILSLRecPluginDataProcessing>( processLoc, newPr ) ) );
+													
+													break;
+												}
+											}													
+										}
+										else
+										{
+											parErrorFormat = true;
+										}
 									}
-									else
+									catch (Exception e) 
 									{
 										parErrorFormat = true;
 									}
-								}									
+								}
+								else
+								{
+									parErrorFormat = true;
+								}
 							}
 							else if( pt == PluginType.TRIAL )
 							{
@@ -1237,7 +1494,27 @@ public class ConfigApp
 								}
 							}
 						}
-					}						
+					}	
+					
+					if( !dataprocessingOrder.isEmpty() )
+					{
+						List< Integer > order = new ArrayList<Integer>( dataprocessingOrder.keySet() );
+						Collections.sort( order );
+						
+						for( Integer n : order )
+						{
+							List< Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > > plgs = dataprocessingOrder.get( n );
+							
+							for( Tuple< IStreamSetting, Tuple< Integer, ILSLRecPluginDataProcessing > > p : plgs )
+							{
+								IStreamSetting sst = p.t1;
+								ILSLRecPluginDataProcessing proc = p.t2.t2;
+								int procLoc = p.t2.t1;
+								
+								DataProcessingPluginRegistrar.addDataStreamProcessing( proc, sst, procLoc );
+							}
+						}
+					}
 					
 					if( parErrorFormat )
 					{
@@ -1407,6 +1684,21 @@ public class ConfigApp
 				loadDefaultLSLOutputFileName();
 				break;
 			}
+			case OUTPUT_FILE_FOLDER:
+			{
+				loadDefaultLSLOutputFileFolder();
+				break;
+			}
+			case OUTPUT_SUBJ_ID:
+			{
+				loadDefaultLSLOutputSubjectID();
+				break;
+			}
+			case OUTPUT_TEST_ID:
+			{
+				loadDefaultLSLOutputTestID();;
+				break;
+			}
 			case OUTPUT_ENCRYPT_DATA:
 			{
 				loadDefaultLSLEncryptData();
@@ -1465,6 +1757,12 @@ public class ConfigApp
 				
 				break;
 			}
+			case CHECKLIST_MSGS:
+			{
+				loadDefaultChecklist();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1473,12 +1771,14 @@ public class ConfigApp
 				break;
 			}
 			*/
+			/*
 			case DATA_CHART_SUMMARY:
 			{
 				loadDefaultDataChartSummary();
 				
 				break;
 			}
+			*/
 		}
 	}
 
@@ -1494,7 +1794,10 @@ public class ConfigApp
 		
 		loadDefaultLSLDeviceInfo();
 		loadDefaultLSLOutputFileName();
-
+		loadDefaultLSLOutputFileFolder();
+		loadDefaultLSLOutputSubjectID();
+		loadDefaultLSLOutputTestID();
+		
 		loadDefaultLSLOutputFileFormat();
 		loadDefaultLSLOutputFileDescr();		
 		
@@ -1516,9 +1819,11 @@ public class ConfigApp
 		loadDefaultRecorderTimer();
 		loadDefaultOutputSegmentBlockSize();
 		
+		loadDefaultChecklist();
+		
 		//loadDefaultStreamLibrary();
 		
-		loadDefaultDataChartSummary();
+		//loadDefaultDataChartSummary();
 	}
 
 	private static void loadDefaultLanguage()
@@ -1609,7 +1914,22 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileName()
 	{
-		listConfig.put( OUTPUT_FILE_NAME, defaultPathFile + defaultNameOutputDataFile );
+		listConfig.put( OUTPUT_FILE_NAME, defaultNameOutputDataFile );
+	}
+	
+	private static void loadDefaultLSLOutputFileFolder()
+	{
+		listConfig.put( OUTPUT_FILE_FOLDER, defaultPathFile );
+	}
+	
+	private static void loadDefaultLSLOutputSubjectID()
+	{
+		listConfig.put( OUTPUT_SUBJ_ID, "" );
+	}
+	
+	private static void loadDefaultLSLOutputTestID()
+	{
+		listConfig.put( OUTPUT_TEST_ID, "" );
 	}
 
 	private static void loadDefaultLSLOutputFileFormat()
@@ -1683,6 +2003,15 @@ public class ConfigApp
 		listConfig.put( SEGMENT_BLOCK_SIZE, 10 );
 	}
 	
+	private static void loadDefaultChecklist()
+	{
+		List< Tuple< Boolean, String > > chlist = new ArrayList< Tuple< Boolean, String> >();
+		
+		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), ConfigApp.fullNameApp ) );
+		
+		listConfig.put( CHECKLIST_MSGS, chlist );
+	}
+	
 	/*
 	private static void loadDefaultStreamLibrary()
 	{
@@ -1690,8 +2019,10 @@ public class ConfigApp
 	}
 	*/
 	
+	/*
 	private static void loadDefaultDataChartSummary()
 	{
 		listConfig.put( DATA_CHART_SUMMARY, false );
 	}
+	//*/
 }

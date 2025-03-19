@@ -1,4 +1,4 @@
-package lslrec.testing;
+package lslrec.testing.gui.others;
 
 import java.awt.EventQueue;
 

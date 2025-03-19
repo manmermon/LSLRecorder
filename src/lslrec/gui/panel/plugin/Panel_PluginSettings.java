@@ -233,7 +233,7 @@ public class Panel_PluginSettings extends JPanel
 				Component c2 = ( (JScrollPane) c ).getViewport().getComponent( 0 );
 				if( c2 instanceof DataProcessingPluginSelectorPanel )
 				{
-					( (DataProcessingPluginSelectorPanel) c2 ).refreshSelectedProcessTable();
+					( (DataProcessingPluginSelectorPanel) c2 ).updateStream();// refreshSelectedProcessTable();
 				}
 				else if( c2 instanceof TrialPluginSelectorPanel )
 				{

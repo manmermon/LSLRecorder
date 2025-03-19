@@ -166,7 +166,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
     	{
 			this.preStopThread( friendliness );
 		}
-    	catch (Exception e) 
+    	catch (Exception | Error e) 
     	{
 			e.printStackTrace();
 		}
@@ -197,7 +197,7 @@ public abstract class AbstractStoppableThread extends Thread implements IStoppab
     	{
 			this.postStopThread( friendliness );
 		}
-    	catch (Exception e) 
+    	catch (Exception | Error e) 
     	{
 			e.printStackTrace();
 		}

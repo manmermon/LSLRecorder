@@ -37,8 +37,13 @@ public class WarningMessage
    */
   public WarningMessage()
   {
-    this.msg = "";
-    this.warningType = 0;
+	  this( "", OK_MESSAGE );
+  }
+  
+  public WarningMessage( String msg, int type )
+  {
+    this.msg = msg;
+    this.warningType = type;
   }
   
   /**
