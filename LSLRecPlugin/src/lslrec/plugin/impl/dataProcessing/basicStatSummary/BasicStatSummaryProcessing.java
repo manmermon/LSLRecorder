@@ -26,8 +26,7 @@ import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 {	
-	public static final String MARKER_WIN_LEN_SAMPLES = "window length in samples for irregular sampling rate";
-	public static final String MARKER_WIN_LEN_SECS = "window length in seconds for regular sampling rate";
+	public static final String MARKER_WIN_SEGMENT_LEN = "window length (samples for irregular stream or seconds for regular)";
 	public static final String MARKER_ID_SEGMENTS = "marker id for segmentation";
 	
 	private static final String outSubfolder = "images/";
@@ -37,8 +36,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 	
 	private String imgOutputFolder = "./";
 	
-	private int marker_win_segm_len_samples = 0;
-	private int marker_win_segm_len_secs = 0;
+	private int marker_win_segm_len = 0;
 	private List< Integer > marker_id_list_2_segment = new ArrayList< Integer >(); 
 	
 	private Object sync = new Object();
@@ -218,11 +216,11 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 					
 					Map< Integer, Integer > markCount = new HashMap<Integer, Integer>();
 					
-					int winLen = (int)Math.ceil( super.streamSetting.sampling_rate() * this.marker_win_segm_len_secs );
+					int winLen = (int)Math.ceil( super.streamSetting.sampling_rate() * this.marker_win_segm_len );
 					
 					if( super.streamSetting.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
 					{
-						winLen = this.marker_win_segm_len_samples;
+						winLen = this.marker_win_segm_len;
 					}
 										
 					if( winLen > 0 )
@@ -369,15 +367,15 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 					
 					break;
 				}
-				case MARKER_WIN_LEN_SAMPLES:
+				case MARKER_WIN_SEGMENT_LEN:
 				{
 					try
 					{
-						this.marker_win_segm_len_samples = Integer.parseInt( par.getValue() );
+						this.marker_win_segm_len = Integer.parseInt( par.getValue() );
 						
-						if( this.marker_win_segm_len_samples < 0 )
+						if( this.marker_win_segm_len < 0 )
 						{
-							this.marker_win_segm_len_samples = 0;
+							this.marker_win_segm_len = 0;
 						}
 					}
 					catch ( Exception e ) 
@@ -385,24 +383,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 					}
 					
 					break;
-				}
-				case MARKER_WIN_LEN_SECS:
-				{
-					try
-					{
-						this.marker_win_segm_len_secs = Integer.parseInt( par.getValue() );
-						
-						if( this.marker_win_segm_len_secs < 0 )
-						{
-							this.marker_win_segm_len_secs = 0;
-						}
-					}
-					catch ( Exception e ) 
-					{
-					}
-					
-					break;
-				}
+				}				
 				case MARKER_ID_SEGMENTS:
 				{
 					try

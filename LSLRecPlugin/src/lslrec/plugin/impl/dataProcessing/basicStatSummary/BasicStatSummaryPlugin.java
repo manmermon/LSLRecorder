@@ -24,8 +24,7 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 {
 	public BasicStatSummaryPlugin() 
 	{
-		super.pars.put( BasicStatSummaryProcessing.MARKER_WIN_LEN_SAMPLES, new Parameter<String>( BasicStatSummaryProcessing.MARKER_WIN_LEN_SAMPLES, "100" ) );
-		super.pars.put( BasicStatSummaryProcessing.MARKER_WIN_LEN_SECS, new Parameter<String>( BasicStatSummaryProcessing.MARKER_WIN_LEN_SECS, "10" ) );
+		super.pars.put( BasicStatSummaryProcessing.MARKER_WIN_SEGMENT_LEN, new Parameter<String>( BasicStatSummaryProcessing.MARKER_WIN_SEGMENT_LEN, "10" ) );
 		super.pars.put( BasicStatSummaryProcessing.MARKER_ID_SEGMENTS, new Parameter<String>( BasicStatSummaryProcessing.MARKER_ID_SEGMENTS, "" ) );
 	}
 	
@@ -41,8 +40,7 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 			
 			switch ( id ) 
 			{
-				case BasicStatSummaryProcessing.MARKER_WIN_LEN_SAMPLES:
-				case BasicStatSummaryProcessing.MARKER_WIN_LEN_SECS:
+				case BasicStatSummaryProcessing.MARKER_WIN_SEGMENT_LEN:
 				{
 					try
 					{
@@ -147,8 +145,7 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 								
 				switch ( id ) 
 				{
-					case BasicStatSummaryProcessing.MARKER_WIN_LEN_SAMPLES:
-					case BasicStatSummaryProcessing.MARKER_WIN_LEN_SECS:
+					case BasicStatSummaryProcessing.MARKER_WIN_SEGMENT_LEN:
 					{
 						int dec = Integer.parseInt( val );
 
