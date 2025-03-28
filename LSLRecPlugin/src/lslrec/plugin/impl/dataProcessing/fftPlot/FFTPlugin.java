@@ -20,6 +20,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -184,11 +185,12 @@ public class FFTPlugin extends LSLRecConfigurablePluginAbstract implements ILSLR
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
 		List< Parameter< String > > pars = this.getSettings();
 		
-		FFTDisplay disp = new FFTDisplay( arg0, arg1 );
+		FFTDisplay disp = new FFTDisplay( settings.getStreamSettings(), arg1 );
 				
 		disp.loadProcessingSettings( pars );
 		

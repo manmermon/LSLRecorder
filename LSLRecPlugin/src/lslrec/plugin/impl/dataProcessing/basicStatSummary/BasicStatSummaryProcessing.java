@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -19,15 +21,27 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 {	
+	public static final String MARKER_WIN_LEN_SAMPLES = "window length in samples for irregular sampling rate";
+	public static final String MARKER_WIN_LEN_SECS = "window length in seconds for regular sampling rate";
+	public static final String MARKER_ID_SEGMENTS = "marker id for segmentation";
+	
+	private static final String outSubfolder = "images/";
+	
 	private List< Number[] > data = null;
 	private int dataSize = 0;
 	
 	private String imgOutputFolder = "./";
+	
+	private int marker_win_segm_len_samples = 0;
+	private int marker_win_segm_len_secs = 0;
+	private List< Integer > marker_id_list_2_segment = new ArrayList< Integer >(); 
+	
+	private Object sync = new Object();
 	
 	public BasicStatSummaryProcessing( IStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
 	{
@@ -50,22 +64,24 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 		Number[] DATA = new Number[ dataSize ];
 		int posData = 0;
 		
-		for( Number[] d : this.data )
-		{	
-			System.arraycopy( d, 0, DATA, posData, d.length );
-			posData += d.length;
-		}
-		
-		// free memory
-		this.data = null;
-			
+		synchronized ( this.sync )
+		{
+			if( this.data != null )
+			{
+				for( Number[] d : this.data )
+				{	
+					System.arraycopy( d, 0, DATA, posData, d.length );
+					posData += d.length;
+				}				
+			}
+		}	
 		
 		double[] xValues = new double[ dataSize ];
 		String xlabel = "Samples";
 		double frq = ( super.streamSetting.sampling_rate() == IStreamSetting.IRREGULAR_RATE ) ? 1D : super.streamSetting.sampling_rate(); 
 		for( int i = 0; i < dataSize; i++ )
 		{
-			xValues[ i ] = i * frq;
+			xValues[ i ] = i / frq;
 		}
 		
 		if( super.streamSetting.sampling_rate() != IStreamSetting.IRREGULAR_RATE )
@@ -78,7 +94,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 		
 		Number[][] matrix = matrixRest.t1;
 		Number[] rest = matrixRest.t2;
-		
+			
 		double[][] yData = ConvertTo.Casting.NumberMatrix2doubleMatrix( matrix );
 	
 		Image img = Data2ChartImage.drawLineSerie( yData, xValues, new Dimension( 1280, 720 ), varId + " - All channels", xlabel, "Amplitude" );
@@ -144,7 +160,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 					{
 						markSegments.add( new ArrayList<double[]>( ) );
 					}
-					
+										
 					int init = 0;
 					int end = -1;
 					for( int mloc : markLocs )
@@ -199,8 +215,83 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 							 ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 )  );
 						 }
 					}
+					
+					Map< Integer, Integer > markCount = new HashMap<Integer, Integer>();
+					
+					int winLen = (int)Math.ceil( super.streamSetting.sampling_rate() * this.marker_win_segm_len_secs );
+					
+					if( super.streamSetting.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
+					{
+						winLen = this.marker_win_segm_len_samples;
+					}
+										
+					if( winLen > 0 )
+					{					
+						for( int mloc : markLocs )
+						{
+							int markValue = (int)yData[ mloc ][ markCol ];
+							
+							Integer mCount = markCount.get( markValue );
+							mCount = ( mCount == null ) ? 1 : mCount + 1;
+							
+							markCount.put( markValue, mCount );
+							
+							if( this.marker_id_list_2_segment.contains( markValue ) )
+							{				
+								init = mloc - winLen / 2;
+								end = mloc + winLen / 2;
+								
+								end = ( end > ( yData.length -1 ) ) ? yData.length -1 : end;
+								init = ( init < 0 ) ? 0 : init;
+								
+								if( end > init  )
+								{
+									double[][] datSegm1Channel = new double[ end - init + 1 ][1];								
+									double[][] datSegmAllChannels = new double[ datSegm1Channel.length ][markCol];
+	
+									xValues = new double[ datSegm1Channel.length ];
+									
+									for( int r = init; r <= end; r++ )
+									{
+										xValues[ r - init ] = r / frq;
+									}
+									
+									for( int c = 0; c < markCol; c++ )
+									{	
+										for( int r = init; r <= end; r++ )
+										{
+											datSegm1Channel[ r - init ][ 0 ] = yData[ r ][ c ];
+											datSegmAllChannels[ r - init ][ c ] = yData[ r ][ c ];
+										}
+										
+										img = Data2ChartImage.drawLineSerie( datSegm1Channel, xValues, new Dimension( 1280, 720), varId + "(channel " + c + ")-marker " + markValue, xlabel, "Amplitude" );
+										
+										if( img != null )
+										{
+											Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( this.imgOutputFolder + varId + "-channel" + c + "-mark" + markValue +"-segment"+ mCount+".png", "", "" );
+											
+											ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 ) );
+										}
+									}								
+									
+									img = Data2ChartImage.drawLineSerie( datSegmAllChannels, xValues, new Dimension( 1280, 720 ), varId + "(all channels)-marker " + markValue, xlabel, "Amplitude" );
+																	
+									if( img != null )
+									{
+										Tuple< String, Boolean> fileName = FileUtils.checkOutputFileName( this.imgOutputFolder + varId + "-allChannels-mark-" + markValue + "-segment"+mCount+".png", "", "" );
+										
+										ImageIO.write( (BufferedImage)img, "png", new File( fileName.t1 ) );
+									}
+								}
+							}
+						}
+					}
 				}
 			}	
+			
+			// free memory
+			this.data = null;
+			this.dataSize = 0;
 			
 			if( this.imgOutputFolder.equals( "./" ) )
 			{
@@ -232,7 +323,7 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 		{
 			switch ( par.getID())
 			{
-				case ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER:
+				case PluginDataProcessingSettings.PAR_OUTPUT_FOLDER:
 				{	
 					this.imgOutputFolder = par.getValue();
 					
@@ -257,6 +348,83 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 						this.imgOutputFolder = "./";
 					}
 					
+					File folder = new File( this.imgOutputFolder + this.outSubfolder );
+					try
+					{
+						if( !folder.exists() )
+						{
+							if( folder.mkdir() )
+							{
+								this.imgOutputFolder += this.outSubfolder;							
+							}
+						}
+						else
+						{
+							this.imgOutputFolder += this.outSubfolder;
+						}					
+					}
+					catch (Exception e) 
+					{
+					}
+					
+					break;
+				}
+				case MARKER_WIN_LEN_SAMPLES:
+				{
+					try
+					{
+						this.marker_win_segm_len_samples = Integer.parseInt( par.getValue() );
+						
+						if( this.marker_win_segm_len_samples < 0 )
+						{
+							this.marker_win_segm_len_samples = 0;
+						}
+					}
+					catch ( Exception e ) 
+					{
+					}
+					
+					break;
+				}
+				case MARKER_WIN_LEN_SECS:
+				{
+					try
+					{
+						this.marker_win_segm_len_secs = Integer.parseInt( par.getValue() );
+						
+						if( this.marker_win_segm_len_secs < 0 )
+						{
+							this.marker_win_segm_len_secs = 0;
+						}
+					}
+					catch ( Exception e ) 
+					{
+					}
+					
+					break;
+				}
+				case MARKER_ID_SEGMENTS:
+				{
+					try
+					{
+						String vals = par.getValue();
+						
+						String[] ids = vals.replaceAll( "\\s+", "").split( ",|;" );
+						
+						for( String id : ids )
+						{
+							int idVal = Integer.parseInt( id );
+							
+							if( !this.marker_id_list_2_segment.contains( idVal ) )
+							{
+								this.marker_id_list_2_segment.add( idVal );
+							}
+						}
+					}
+					catch ( Exception e ) 
+					{
+						this.marker_id_list_2_segment.clear();
+					}
 					
 					break;
 				}
@@ -271,13 +439,16 @@ public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 	@Override
 	protected Number[] processData(Number[] dat) 
 	{
-		if( dat != null )
+		synchronized ( this.sync )
 		{
-			this.dataSize += dat.length;
+			if( dat != null && this.data != null)
+			{
+				this.dataSize += dat.length;
+				
+				this.data.add( dat );
+			}
 			
-			this.data.add( dat );
-		}
-		
-		return dat;
+			return dat;
+		}		
 	}
 }

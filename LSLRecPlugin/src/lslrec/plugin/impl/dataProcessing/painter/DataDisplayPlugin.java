@@ -19,6 +19,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -202,9 +203,10 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
-		DataDisplay disp = new DataDisplay( arg0, arg1 );
+		DataDisplay disp = new DataDisplay( settings.getStreamSettings(), arg1 );
 		
 		List< Parameter< String > > pars = this.getSettings();
 		
@@ -213,7 +215,7 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 		{
 			prevProc = arg1.getID();
 		}
-		pars.add( new Parameter<String>( DataDisplay.WIN_TITLE, disp.getID() + ":" + prevProc + " - " + arg0.name() ) );
+		pars.add( new Parameter<String>( DataDisplay.WIN_TITLE, disp.getID() + ":" + prevProc + " - " + settings.getStreamSettings().name() ) );
 		
 		disp.loadProcessingSettings( pars );
 		

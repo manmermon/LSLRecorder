@@ -19,8 +19,6 @@
  */
 package lslrec.plugin.lslrecPlugin.processing;
 
-import lslrec.config.ParameterList;
-import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 
 /**
@@ -31,9 +29,8 @@ public interface ILSLRecPluginDataProcessing extends ILSLRecConfigurablePlugin
 {
 	public enum ProcessingLocation { DURING, POST, BOTH };
 	
-	public static final String PAR_OUTPUT_FOLDER = "PAR_OUTPUT_FOLDER"; 
-	
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting setting, ParameterList pars, LSLRecPluginDataProcessing prevDataProcessing );
+	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting setting, ParameterList pars, LSLRecPluginDataProcessing prevDataProcessing );
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing prevDataProcessing );
 	
 	public ProcessingLocation getProcessingLocation();
 }

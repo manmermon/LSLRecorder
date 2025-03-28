@@ -63,6 +63,7 @@ import lslrec.gui.dialog.Dialog_Password;
 import lslrec.gui.dialog.Dialog_WarningMessages;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.lslrecPlugin.trial.LSLRecPluginTrial;
@@ -708,10 +709,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 						
-			ParameterList processingPars = new ParameterList();
-			
+			/*
+			ParameterList processingPars = new ParameterList();			
 			File filePath = new File( file );			
 			processingPars.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath() ) );
+			//*/
+			
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
@@ -721,18 +724,39 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					
 					LSLRecPluginDataProcessing process = null;
 					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
+					
+					PluginDataProcessingSettings plgDatProcessingSettings = new PluginDataProcessingSettings( dev );
+					File filePath = new File( file );
+					plgDatProcessingSettings.setParameter( PluginDataProcessingSettings.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath());
 					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					{
-						process = pr.getProcessing( dev, processingPars, process );
+						//process = pr.getProcessing( dev, processingPars, process );
+						process = pr.getProcessing( plgDatProcessingSettings, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					
 					DataProcesses.put( dev, process );
 					
+					IMutableStreamSetting posDev = new SimpleMutableStreamSetting( dev.getLibraryID()
+																				, dev.name()
+																				, dev.data_type()
+																				, dev.getTimestampDataType()
+																				, dev.getStringLengthDataType()
+																				, dev.channel_count() + 1
+																				, dev.sampling_rate()
+																				, dev.getRecordingCheckerTimer()
+																				, dev.isEnableRecordingCheckerTimer()
+																				, dev.source_id()
+																				, dev.uid()
+																				, dev.getExtraInfo()
+																				, dev.getChunkSize() );
+					PluginDataProcessingSettings plgDatPostProcessingSettings = new PluginDataProcessingSettings( posDev );
+					plgDatPostProcessingSettings.setParameter( PluginDataProcessingSettings.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath());
 					process = null;
 					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
 					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
 					{
+						/*
 						IMutableStreamSetting posDev = new SimpleMutableStreamSetting( dev.getLibraryID()
 																						, dev.name()
 																						, dev.data_type()
@@ -746,7 +770,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 																						, dev.uid()
 																						, dev.getExtraInfo()
 																						, dev.getChunkSize() );
+						
 						process = pr.getProcessing( posDev, processingPars, process );
+						//*/
+						process = pr.getProcessing( plgDatPostProcessingSettings, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
 					

@@ -71,6 +71,7 @@ import lslrec.plugin.impl.gui.BasicPainter2D;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -768,9 +769,10 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1 ) 
+	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1 ) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1 )
 	{
-		FIRFilter fir = new FIRFilter( arg0, arg1 );
+		FIRFilter fir = new FIRFilter( settings.getStreamSettings(), arg1 );
 		fir.loadProcessingSettings( this.getSettings() );
 		
 		return fir;

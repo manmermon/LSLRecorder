@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
+import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin;
 import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
@@ -166,6 +167,7 @@ public class PluginTestGUI extends JFrame {
 		plugins.putElement( PluginType.DATA_PROCESSING, new OpenposePlotterPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new DataDisplayPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new ZTransformPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new BasicStatSummaryPlugin() );
 		
 		plugins.putElement( PluginType.ENCODER , new CSVEncoderPlugin() );
 		plugins.putElement( PluginType.ENCODER , new HDF5EncoderPlugin() );
