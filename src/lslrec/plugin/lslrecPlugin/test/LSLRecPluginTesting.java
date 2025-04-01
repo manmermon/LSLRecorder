@@ -57,6 +57,7 @@ import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 import lslrec.plugin.lslrecPlugin.sync.ILSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.sync.LSLRecPluginSyncMethod;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
@@ -582,9 +583,15 @@ public class LSLRecPluginTesting {
 
 		ILSLRecPluginDataProcessing plg = (ILSLRecPluginDataProcessing) this.plugin;
 
+		/*
 		ParameterList parlist = new ParameterList();
 		parlist.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, "./"));
 		LSLRecPluginDataProcessing proc = plg.getProcessing(getSimpleStreamSetting(plg.getID(), type, chs), parlist, null);
+		//*/
+		
+		PluginDataProcessingSettings settings = new PluginDataProcessingSettings( getSimpleStreamSetting(plg.getID(), type, chs) );
+		LSLRecPluginDataProcessing proc = plg.getProcessing( settings, null);
+		
 		proc.loadProcessingSettings(plg.getSettings());
 
 		this.dataBuffer = new LinkedList<Number>();

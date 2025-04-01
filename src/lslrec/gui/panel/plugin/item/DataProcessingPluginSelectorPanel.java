@@ -33,6 +33,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -97,6 +99,9 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	
 	private JLabel lbWarningMsg;
 	private JLabel lbDelayMessage;
+	
+	private JPanel processSelPanel;
+	private JPanel postProcessSelPanel;
 	
 	public DataProcessingPluginSelectorPanel( Collection< ILSLRecPluginDataProcessing > plugins )
 	{		
@@ -336,14 +341,15 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			aux2.setBorder( BorderFactory.createEmptyBorder( 5, 5, 5, 5 ) );
 						
 			// Adding			
-			JTable tab = this.getStreamListTable();
+			JTable strtab = this.getStreamListTable();
 			
-			aux1.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ) );
+			aux1.add( new JScrollPane( strtab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ) );
 			
 			// Processing
-			tab = this.getSelectedProcessingPluginTable();
+			JTable tab = this.getSelectedProcessingPluginTable();
 			
-			aux1.add( this.getSelectionControlPanel( this.getProcessingPluginListTable(), tab, DataProcessingPluginRegistrar.PROCESSING ) );
+			this.processSelPanel = this.getSelectionControlPanel( this.getProcessingPluginListTable(), tab, DataProcessingPluginRegistrar.PROCESSING );
+			aux1.add( this.processSelPanel );
 			
 			
 			//aux2.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ), BorderLayout.CENTER );
@@ -359,13 +365,27 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			
 			// Post processing
 			tab = this.getSelectedPostProcessingPluginTable();
-			aux1.add( this.getSelectionControlPanel( this.getPostProcessingPluginListTable(), tab, DataProcessingPluginRegistrar.POSTPROCESSING ) );
+			this.postProcessSelPanel =  this.getSelectionControlPanel( this.getPostProcessingPluginListTable(), tab, DataProcessingPluginRegistrar.POSTPROCESSING );
+			aux1.add( this.postProcessSelPanel );
 			
 			aux2.add( this.getSelectedPlugingCtrl( tab, DataProcessingPluginRegistrar.POSTPROCESSING ) );
 
 			this.setPluginTableSelectionEvents( tab );
 			
 			this.setPluginTableSelectionEvents( tab );
+			
+			strtab.getSelectionModel().addListSelectionListener( new ListSelectionListener()
+			{	
+				@Override
+				public void valueChanged(ListSelectionEvent arg0)
+				{	
+					int sel = strtab.getSelectedRow();
+					
+					boolean ena = ( sel >= 0 );
+					processSelPanel.setEnabled( ena );
+					postProcessSelPanel.setEnabled( ena );
+				}
+			});
 			
 			this.getPostProcessingPluginListTable().setEnabled( false );
 			
@@ -711,6 +731,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 	private JPanel getSelectionControlPanel( JTable sourceTable, JTable destTable, final int processLoc) 
 	{
 		JPanel selPanelCtr = new JPanel();
+		
 		if ( sourceTable != null && destTable != null ) 
 		{
 			selPanelCtr = new JPanel( new BorderLayout() );
@@ -731,11 +752,43 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			//this.panelMoveCtr.add( this.getButtonSelect( ) );
 			//this.panelMoveCtr.add( Box.createRigidArea( new Dimension( 5, 5 ) ));
 			
-			//this.panelMoveCtr.add( Box.createRigidArea( new Dimension( 5, 5 ) ));
-			
+			//this.panelMoveCtr.add( Box.createRigidArea( new Dimension( 5, 5 ) ));		
 		}
 		
+		selPanelCtr.addPropertyChangeListener( new PropertyChangeListener() 
+		{	
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) 
+			{
+				if( evt.getPropertyName().equals( "enabled" ) )
+				{	
+					JPanel p = (JPanel) evt.getSource();
+					boolean ena = p.isEnabled();
+					
+					enableComponentsInPanelRecursively( p, ena );
+				}
+			}
+		} );
+		selPanelCtr.setEnabled( false );
+		
 		return selPanelCtr;
+	}
+	
+	private void enableComponentsInPanelRecursively( JPanel panel, boolean ena )
+	{
+		if( panel != null )
+		{
+			Component[] comps = panel.getComponents();
+			for( Component comp : comps )
+			{
+				comp.setEnabled( ena );
+				
+				if( comp instanceof JPanel )
+				{
+					this.enableComponentsInPanelRecursively( (JPanel)comp, ena);
+				}
+			}
+		}
 	}
 	
 	private JButton getButtonSelect( final JTable sourceTable, final JTable destTable, final int processLoc ) 

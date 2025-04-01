@@ -19,6 +19,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -172,9 +173,10 @@ public class OpenposePlotterPlugin extends LSLRecConfigurablePluginAbstract impl
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList parlist, LSLRecPluginDataProcessing arg1)
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
-		OpenposePlotter disp = new OpenposePlotter( arg0, arg1 );
+		OpenposePlotter disp = new OpenposePlotter( settings.getStreamSettings(), arg1 );
 		
 		List< Parameter< String > > pars = this.getSettings();
 		

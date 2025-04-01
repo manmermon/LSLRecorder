@@ -26,6 +26,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class HR2HRVPlugin  extends LSLRecConfigurablePluginAbstract implements ILSLRecPluginDataProcessing
 {
@@ -189,9 +190,10 @@ public class HR2HRVPlugin  extends LSLRecConfigurablePluginAbstract implements I
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing(IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
-		HR2HRVProcessing hrvprocess = new HR2HRVProcessing( arg0, arg1 );
+		HR2HRVProcessing hrvprocess = new HR2HRVProcessing( settings.getStreamSettings(), arg1 );
 		hrvprocess.loadProcessingSettings( this.getSettings() );
 		
 		return hrvprocess;

@@ -31,12 +31,12 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
-import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -178,9 +178,10 @@ public class DownSamplingPlugin extends LSLRecConfigurablePluginAbstract impleme
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
-		DownSampling ds = new DownSampling( arg0 , arg1 );			
+		DownSampling ds = new DownSampling( settings.getStreamSettings() , arg1 );			
 		ds.loadProcessingSettings( new ArrayList<Parameter<String>>( super.pars.values() ) );
 		
 		return ds;

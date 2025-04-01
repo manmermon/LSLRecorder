@@ -6,6 +6,7 @@ import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class testBasicStatSummaryPlugin {
 
@@ -19,7 +20,8 @@ public class testBasicStatSummaryPlugin {
 		
 		BasicStatSummaryPlugin plg = new BasicStatSummaryPlugin();
 		
-		LSLRecPluginDataProcessing prc = plg.getProcessing( str, null, null );
+		PluginDataProcessingSettings setting = new PluginDataProcessingSettings( str );
+		LSLRecPluginDataProcessing prc = plg.getProcessing( setting, null );
 		
 		Number[] dat = new Number[ 100 ];
 		for( int i = 0; i < dat.length; i += 2 )

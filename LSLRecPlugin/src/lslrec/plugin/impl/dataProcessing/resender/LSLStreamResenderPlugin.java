@@ -18,6 +18,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class LSLStreamResenderPlugin extends LSLRecConfigurablePluginAbstract implements ILSLRecPluginDataProcessing
 {
@@ -183,9 +184,10 @@ public class LSLStreamResenderPlugin extends LSLRecConfigurablePluginAbstract im
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1) 
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1)
 	{
-		LSLStreamResender resender = new LSLStreamResender( arg0 , arg1 );			
+		LSLStreamResender resender = new LSLStreamResender( settings.getStreamSettings() , arg1 );			
 		resender.loadProcessingSettings( new ArrayList< Parameter< String > >( super.pars.values() ) );
 		
 		return resender;

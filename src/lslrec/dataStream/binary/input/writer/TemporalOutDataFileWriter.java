@@ -241,7 +241,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 				
 				processingEvent = new EventInfo( this.datProcessingExec.getID()
 													, GetFinalOutEvent()
-													, this.getTemporalFileData( processfile, dss, procFormat ) );
+													, this.getTemporalFileData( processfile, dss, procFormat, false ) );
 			}
 			
 			this.datProcessingExec = null;
@@ -251,7 +251,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		{
 			super.notifTask.addEvent( processingEvent );
 			
-			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat ) );
+			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat, true ) );
 							
 			super.notifTask.addEvent( event );
 			
@@ -264,12 +264,16 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		return EventType.SAVED_OUTPUT_TEMPORAL_FILE;
 	}
 				
-	private TemporalBinData getTemporalFileData( File file, IStreamSetting setting, OutputFileFormatParameters formatPars ) throws Exception
+	private TemporalBinData getTemporalFileData( File file, IStreamSetting setting, OutputFileFormatParameters formatPars, boolean addPostProcessing ) throws Exception
 	{		
 		BinaryFileStreamSetting bin = new BinaryFileStreamSetting( setting, file );
 		
 		TemporalBinData data = new TemporalBinData( bin, formatPars );
-		data.setPostprocessing( this.postProcessing );
+		
+		if( addPostProcessing )
+		{
+			data.setPostprocessing( this.postProcessing );
+		}
 		
 		return data;
 	}

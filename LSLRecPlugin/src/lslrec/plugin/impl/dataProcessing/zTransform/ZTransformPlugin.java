@@ -15,6 +15,7 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
+import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 /**
  * @author Manuel Merino Monge
@@ -65,9 +66,10 @@ public class ZTransformPlugin implements ILSLRecPluginDataProcessing
 	}
 
 	@Override
-	public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0,  ParameterList pars, LSLRecPluginDataProcessing arg1 )
+	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0,  ParameterList pars, LSLRecPluginDataProcessing arg1 )
+	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1 )
 	{
-		return new Filter( arg0, arg1 );
+		return new Filter( settings.getStreamSettings(), arg1 );
 	}
 
 	@Override

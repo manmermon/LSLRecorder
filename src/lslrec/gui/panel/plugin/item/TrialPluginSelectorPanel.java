@@ -28,7 +28,10 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -102,7 +105,18 @@ public class TrialPluginSelectorPanel extends JPanel
 		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
 		
-		for( ILSLRecPluginTrial pl : plugins )
+		
+		List< ILSLRecPluginTrial > plgList = new ArrayList<ILSLRecPluginTrial>( plugins );
+		Collections.sort( plgList, new Comparator< ILSLRecPluginTrial >()
+		{
+			@Override
+			public int compare(ILSLRecPluginTrial o1, ILSLRecPluginTrial o2) 
+			{
+				return o1.getID().compareToIgnoreCase( o2.getID() );
+			}
+		});
+			
+		for( ILSLRecPluginTrial pl : plgList )
 		{
 			tm.addRow( new ILSLRecPluginTrial[] { pl } );
 		}
