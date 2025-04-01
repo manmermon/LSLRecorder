@@ -122,6 +122,34 @@ public class mainLSLRecorder
 			}
 			catch (Exception e1) {			}
 		}
+		
+		//Set launch paramenters
+		File configFile = null;
+		int delay = -1;
+		
+		if (args.length > 1) 
+		{
+			for( int i = 1; i < args.length; i += 2 )
+			{
+				String par = args[ i ];
+				String type = args[ i-1 ];
+				
+				if ( type.equals("-c") ) 
+				{
+					configFile = new File( par );
+				}
+				else if( type.equals( "-d") )
+				{
+					try
+					{
+						delay = Integer.parseInt( par );
+					}
+					catch (Exception e) 
+					{
+					}
+				}
+			}
+		}
 
 		try 
 		{
@@ -136,23 +164,39 @@ public class mainLSLRecorder
 
 			// ExceptionDialog.createExceptionDialog( null );
 
-			createApplication();
+			createApplication( delay );
 
 			// load configuration
 			try
 			{
+				/*
 				if (args.length > 1) 
 				{
-					if (args[0].equals("-c")) 
+					for( int i = 1; i < args.length; i += 2 )
 					{
-						GuiManager.getInstance().getAppUI().getGlassPane().setVisible(true);
-					
-						ConfigApp.loadConfig(new File(args[1]));
+						String par = args[ i ];
+						String type = args[ i-1 ];
 						
-						GuiManager.getInstance().refreshPlugins();
-
-						// appUI.getInstance().checkConfig();
+						if ( type.equals("-c") ) 
+						{
+							GuiManager.getInstance().getAppUI().getGlassPane().setVisible(true);
+						
+							ConfigApp.loadConfig(new File( par ) );
+							
+							GuiManager.getInstance().refreshPlugins();
+	
+							// appUI.getInstance().checkConfig();
+						}
 					}
+				}
+				//*/
+				if( configFile != null )
+				{
+					GuiManager.getInstance().getAppUI().getGlassPane().setVisible(true);
+					
+					ConfigApp.loadConfig( configFile );
+					
+					GuiManager.getInstance().refreshPlugins();
 				}
 			} 
 			catch (Throwable e) 
@@ -197,10 +241,21 @@ public class mainLSLRecorder
 		usrPathsField.set(null, newPaths);
 	}
 
-	public static void createApplication() throws Throwable
+	public static void createApplication( int startDelay ) throws Throwable
 	{
 		// Opening dialog
 		Dialog_Opening open = showOpeningDialog();
+		
+		if( startDelay > 0 )
+		{
+			try
+			{
+				Thread.sleep( startDelay );
+			}
+			catch (Exception e) 
+			{
+			}
+		}
 
 		//
 		// Load plugins
