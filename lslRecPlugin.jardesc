@@ -11,7 +11,6 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item{CreatorDefaultSettingPanel.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format{Encoder.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message{EventInfo.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message{EventType.java"/>
@@ -24,6 +23,7 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{SettingOptions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.sync{SyncMarker.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress{ZipDataTemplate.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item{CreatorDefaultSettingPanel.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>

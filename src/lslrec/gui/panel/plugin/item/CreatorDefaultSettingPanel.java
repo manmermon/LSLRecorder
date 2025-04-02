@@ -95,7 +95,8 @@ public class CreatorDefaultSettingPanel
 						p.setLayout( bl );
 						//p.setAlignmentX( Component.CENTER_ALIGNMENT );
 
-						String title = par.getDescriptorText();
+						//String title = par.getDescriptorText();
+						String title = par.getID();
 
 						if( !( comp instanceof JToggleButton ) )
 						{
@@ -134,6 +135,7 @@ public class CreatorDefaultSettingPanel
 				if( !isList )
 				{
 					String val = options[ 0 ];
+					String tooltip = par.getDescriptorText();
 					
 					if( par != null && par.getValue() != null )
 					{
@@ -147,6 +149,7 @@ public class CreatorDefaultSettingPanel
 							Double v = Double.parseDouble( val );
 							
 							JSpinner sp = new JSpinner( new SpinnerNumberModel( v, null, null , 1D ) );
+							sp.setToolTipText( tooltip );
 							
 							if( nr != null )
 							{
@@ -235,8 +238,10 @@ public class CreatorDefaultSettingPanel
 						}
 						case BOOLEAN:
 						{
-							JCheckBox ch = new JCheckBox( par.getDescriptorText() );
+							//JCheckBox ch = new JCheckBox( par.getDescriptorText() );
+							JCheckBox ch = new JCheckBox( par.getID() );
 							ch.setSelected( Boolean.parseBoolean( val ) );
+							ch.setToolTipText( tooltip );
 							
 							ch.setHorizontalTextPosition( SwingConstants.LEFT );
 							
@@ -269,6 +274,7 @@ public class CreatorDefaultSettingPanel
 							JTextField txt = new JTextField( );
 		
 							txt.setText( val );
+							txt.setToolTipText( tooltip );
 		
 							txt.getDocument().addDocumentListener( new DocumentListener()
 							{									
@@ -314,7 +320,7 @@ public class CreatorDefaultSettingPanel
 				else
 				{
 					JComboBox< String > combox = new JComboBox<String>();
-					
+										
 					for( Object val : options )
 					{
 						combox.addItem( val.toString() );
@@ -327,9 +333,11 @@ public class CreatorDefaultSettingPanel
 						val = options[ sel ];
 					}
 					
-					if( par.getValue() != null )
+					if( par != null && par.getValue() != null )
 					{
 						val = par.getValue().toString();
+						
+						combox.setToolTipText( par.getDescriptorText() );
 					}
 
 					combox.addActionListener( new ActionListener()
@@ -356,10 +364,12 @@ public class CreatorDefaultSettingPanel
 						}
 					});
 					
+					/*
 					if( sel > 0 && sel < options.length )
 					{
 						
 					}
+					//*/
 					
 					combox.setSelectedItem( val );
 					
