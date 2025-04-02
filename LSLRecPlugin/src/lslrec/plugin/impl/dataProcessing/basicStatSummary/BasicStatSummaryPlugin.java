@@ -156,6 +156,7 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 						
 						Parameter< Integer > p = new Parameter< Integer >( id, dec );
 						p.setLangID( id );
+						p.setDescriptorText( "window length (samples for irregular stream or seconds for regular)" );
 						parList.addParameter( p );
 						
 						p.addValueChangeListener( new ChangeListener() 
@@ -184,6 +185,7 @@ public class BasicStatSummaryPlugin  extends LSLRecConfigurablePluginAbstract im
 						
 						Parameter< String > p = new Parameter< String >( id, val );
 						p.setLangID( id );
+						p.setDescriptorText( "id of the segmentation markers separated by commas or semicolons" );
 						parList.addParameter( p );
 						
 						p.addValueChangeListener( new ChangeListener() 
