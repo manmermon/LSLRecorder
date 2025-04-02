@@ -1077,10 +1077,31 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	protected void cleanUp() throws Exception
 	{
 		super.cleanUp();
-
+		
 		if( this.datPostProcessingExec != null )
 		{
 			this.datPostProcessingExec.stopThread( IStoppableThread.FORCE_STOP );
+			
+			try 
+			{
+				int nIter = 50;
+				
+				while( nIter > 0 )
+				{
+					if( this.datPostProcessingExec.isAlive() )
+					{
+						this.wait( 1000L );
+						nIter--;
+					}
+					else
+					{
+						break;
+					}
+				}
+				
+			} catch (Exception e) 
+			{
+			}
 		}
 		
 		this.datPostProcessingExec = null;
