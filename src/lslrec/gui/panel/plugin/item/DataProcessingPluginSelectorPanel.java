@@ -45,6 +45,7 @@ import java.util.List;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -344,16 +345,23 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			JTable strtab = this.getStreamListTable();
 			
 			aux1.add( new JScrollPane( strtab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ) );
-			
+		
 			// Processing
 			JTable tab = this.getSelectedProcessingPluginTable();
 			
 			this.processSelPanel = this.getSelectionControlPanel( this.getProcessingPluginListTable(), tab, DataProcessingPluginRegistrar.PROCESSING );
 			aux1.add( this.processSelPanel );
 			
+			//this.processSelPanel.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createMatteBorder( 0, 0, 1, 0, Color.GRAY )
+			//																		, BorderFactory.createEmptyBorder( 0, 0, 5, 0) ) );
+			
 			
 			//aux2.add( new JScrollPane( tab, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED ), BorderLayout.CENTER );
-			aux2.add( this.getSelectedPlugingCtrl( tab, DataProcessingPluginRegistrar.PROCESSING ) );
+
+			JPanel selProcessPanel = this.getSelectedPlugingCtrl( tab, DataProcessingPluginRegistrar.PROCESSING );
+			selProcessPanel.setBorder( BorderFactory.createCompoundBorder( BorderFactory.createMatteBorder( 0, 0, 1, 0, Color.GRAY )
+																			, BorderFactory.createEmptyBorder( 0, 0, 5, 0) ) );
+			aux2.add( selProcessPanel );
 			
 			aux.add( aux2, BorderLayout.EAST );
 
@@ -954,7 +962,6 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 			selectedPluginPanelControl.add( this.getButtonRemove( refTable, processLoc )) ;
 			selectedPluginPanelControl.add( Box.createRigidArea( new Dimension( 5, 5 ) ));
 			selectedPluginPanelControl.add( this.getBtnClear( refTable, processLoc ) );
-			
 		}
 		
 		return selPanelCtr;
