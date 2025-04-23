@@ -25,15 +25,23 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -1339,7 +1347,7 @@ public class Dialog_PlotClis extends JDialog
 				canva.setIcon( null );
 				if( xyValues.getSeriesCount() > 0 )
 				{
-					final JFreeChart chart = ChartFactory.createXYLineChart( null, null, null, xyValues  );
+					final JFreeChart chart = ChartFactory.createXYLineChart( null, null, null, xyValues  );					
 					chart.setAntiAlias( true );				
 					chart.setBackgroundPaint( Color.WHITE );
 					chart.getXYPlot().setBackgroundPaint( Color.WHITE );
@@ -1394,13 +1402,15 @@ public class Dialog_PlotClis extends JDialog
 		}		
 	}
 	
-	private JLabel getCanva() {
-		if (canva == null) {
-			canva = new JLabel( );
-			canva.setBackground( Color.WHITE);
-			canva.setOpaque( true );
+	private JLabel getCanva()
+	{
+		if ( this.canva == null ) 
+		{
+			this.canva = new JLabel( );
+			this.canva.setBackground( Color.WHITE);
+			this.canva.setOpaque( true );
 			
-			canva.addComponentListener( new ComponentAdapter() 
+			this.canva.addComponentListener( new ComponentAdapter() 
 			{		
 				AbstractStoppableThread  timer = null;
 				Object sync = new Object();
@@ -1451,7 +1461,150 @@ public class Dialog_PlotClis extends JDialog
 					}
 				}
 			});
+			
+			final AtomicInteger pX1 = new AtomicInteger( -1 );
+			BufferedImage plotImg[] =  new BufferedImage[ 1 ];
+			this.canva.addMouseListener( new MouseAdapter() 
+			{
+				List< Integer > prevSteps = new ArrayList<Integer>();
+				@Override
+				public void mouseReleased(MouseEvent e) 
+				{		
+					if( clisData != null )
+					{	
+						if( e.getButton() == MouseEvent.BUTTON1 )
+						{
+							int prevStep = (int)getSpinnerStep().getValue();
+							prevSteps.add( prevStep );
+							
+							JLabel cv = (JLabel)e.getSource();
+							int leftMargin = 46;
+							int rightMargin = 10;
+	
+							int pX2 = e.getX();
+	
+							int w = pX2 - pX1.get();
+							if( w > 10 )
+							{
+								int cvW = cv.getWidth() - leftMargin - rightMargin;
+		
+								double prop = w *1.0D / cvW;
+		
+								double sample = (pX1.get() - leftMargin * 1D) / cvW ;
+								
+								sampleIndex_A = (int)( sampleIndex_A +  prevStep * sample );
+		
+								sampleIndex_A = ( sampleIndex_A < 0 ) ? 0 : sampleIndex_A;
+		
+								int step = (int)( prevStep * prop );
+								step = ( step < 1 ) ? 1 : step;
+		
+								drawDataPlot( sampleIndex_A, sampleIndex_A + step );
+								
+								getSpinnerStep().setValue( step );
+							}
+							else
+							{
+								cv.setIcon( new ImageIcon( plotImg[ 0 ] ) );
+							}
+							
+							pX1.set( -1 );
+							plotImg[ 0 ] = null;
+						}	
+						else if( e.getButton() == MouseEvent.BUTTON3 )
+						{
+							if( !prevSteps.isEmpty() )
+							{
+								int prevStep = prevSteps.get( prevSteps.size() - 1 );
+								prevSteps.remove( prevSteps.size() - 1 );
+								
+								sampleIndex_A -= prevStep/2;
+								sampleIndex_A = ( sampleIndex_A < 0 ) ? 0 : sampleIndex_A;
+		
+								drawDataPlot( sampleIndex_A, sampleIndex_A + prevStep );
+								getSpinnerStep().setValue( prevStep );
+							}
+						}
+					}
+				}
+				
+				@Override
+				public void mousePressed(MouseEvent e) 
+				{
+					if( clisData != null )
+					{
+						if( e.getButton() == MouseEvent.BUTTON1 )
+						{
+							JLabel cv = (JLabel)e.getSource();
+							plotImg[ 0 ] = (BufferedImage)((ImageIcon)cv.getIcon()).getImage();
+														
+							pX1.set( e.getX() );
+							System.out.println("Dialog_PlotClis.getCanva() " + pX1.get());
+						}
+					}
+				}
+			});
+
+			this.canva.addMouseMotionListener( new MouseMotionAdapter() 
+			{
+				@Override
+				public void mouseDragged(MouseEvent e) 
+				{
+					if( pX1.get() >= 0 && plotImg[ 0 ] != null )
+					{
+						if( clisData != null )
+						{
+							int w = e.getX() - pX1.get();
+							
+							int x = ( w < 0 ) ? e.getX() : pX1.get();
+							
+							w = ( w < 0 ) ? -w : w;
+							w = ( w < 1) ? 1 : w;
+							
+							int h = plotImg[ 0 ].getHeight();
+							
+							Color c = new Color( 0.75F, 0.75F, 0.75F, 0.5F );
+							BufferedImage selArea = (BufferedImage) BasicPainter2D.paintRectangle( w, h, 1F, Color.BLACK, c );
+							
+							
+							BufferedImage plotImgArea = (BufferedImage)BasicPainter2D.copyImage( plotImg[ 0 ] );
+							BasicPainter2D.compoundImages( plotImgArea, x, 0, selArea );
+							
+							JLabel cv = (JLabel)e.getSource();
+							cv.setVisible( false );
+							cv.setIcon( new ImageIcon( plotImgArea ) );
+							cv.setVisible( true );
+						}
+					}
+				}
+			});
+			
+			this.canva.addMouseWheelListener( new MouseWheelListener() 
+			{				
+				@Override
+				public void mouseWheelMoved(MouseWheelEvent e) 
+				{
+					if( clisData != null )
+					{
+						Number[][] dat = clisData.get( currentVar.getName() ) ;
+						
+						if( dat != null )
+						{
+							int step = (int)getSpinnerStep().getValue();
+							int mov = ( e.getWheelRotation() < 0  ) ? step : -step;
+	
+							sampleIndex_A -= mov;
+							sampleIndex_A = ( sampleIndex_A < 0 ) ? 0 : sampleIndex_A;
+	
+							sampleIndex_A = ( sampleIndex_A + step > dat.length ) ? dat.length - step : sampleIndex_A;
+	
+							drawDataPlot( sampleIndex_A, sampleIndex_A + step );
+						}
+					}
+				}
+			});
 		}
-		return canva;
+		
+		return this.canva;
 	}
 }
