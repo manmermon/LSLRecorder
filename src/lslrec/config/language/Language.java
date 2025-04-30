@@ -20,6 +20,7 @@ f * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS
  *  
  */
 
+
 package lslrec.config.language;
 
 import java.io.File;
@@ -236,6 +237,8 @@ public class Language
 	public static final String STEP_TEXT = "STEP_TEXT";
 	public static final String ALL_TEXT = "ALL_TEXT";
 	public static final String NONE_TEXT = "NONE_TEXT";
+	public static final String XAXIS_TEXT = "XAXIS_TEXT";
+	public static final String RELATIVE_TEXT = "RELATIVE_TEXT";
 	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -252,6 +255,8 @@ public class Language
 		
 		captions.put( DATA_CHART_SUMMARY_TEXT, new Caption( DATA_CHART_SUMMARY_TEXT, defaultLanguage, "Data chart summary" ) );
 
+		captions.put( RELATIVE_TEXT, new Caption( RELATIVE_TEXT,  defaultLanguage, "Relative" ) );
+		captions.put( XAXIS_TEXT, new Caption( XAXIS_TEXT,  defaultLanguage, "X axis" ) );
 		captions.put( VARIABLE_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variable" ) );
 		captions.put( VARIABLES_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variables" ) );
 		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );

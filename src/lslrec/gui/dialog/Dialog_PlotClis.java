@@ -1,11 +1,13 @@
 /**
  * 
  */
+
 package lslrec.gui.dialog;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -14,7 +16,9 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -27,9 +31,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
-import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -57,6 +60,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.JToggleButton;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import lslrec.auxiliar.extra.FileUtils;
@@ -71,7 +75,11 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.Container;
+import java.awt.Cursor;
+
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -108,6 +116,7 @@ public class Dialog_PlotClis extends JDialog
 	private JPanel panelPlotCtr;
 	private JPanel panelChannelsContainer;
 	private JPanel panelChannelsChb;
+	private JPanel panelxAxis;
 	
 	private JScrollPane scrChannelPanel;
 	
@@ -117,6 +126,7 @@ public class Dialog_PlotClis extends JDialog
 	private JButton btnNext;
 	private JButton btnEnd;
 	private JButton btnBegin;
+	private JButton btnSaveImg;
 	
 	private JTextField clisFileText;
 	
@@ -128,7 +138,14 @@ public class Dialog_PlotClis extends JDialog
 	private JLabel lblStep;
 	private JLabel canva;
 	
+	private JLabel lblXAxis;
+	
 	private JComboBox<String> cbVariables;
+	private JComboBox<String> cbXAxisVariables;
+	private JComboBox< Integer > cbXAxisVarChannels;
+	private JCheckBox chXAxisRelative;
+	private JToggleButton jtbtDotPaint;
+	private JToggleButton jtbtLinePaint;
 	
 	//private JSpinner spinnerChannel;
 	private JSpinner spinnerStep;
@@ -141,6 +158,7 @@ public class Dialog_PlotClis extends JDialog
 	private Map< String, Number[][] > clisData = null;
 	private int sampleIndex_A = 0;
 	private MetadataVariableBlock currentVar = null; 
+	private MetadataVariableBlock currentXAxisVar = null;
 	
 	private Object sync = new Object();
 	private boolean[] selectedChannels = null;
@@ -492,7 +510,12 @@ public class Dialog_PlotClis extends JDialog
 			this.plotPanel.setBackground( Color.WHITE );
 			this.plotPanel.setLayout(new BorderLayout(0, 0));
 			
-			this.plotPanel.add( this.getPanelMovePlotCtr(), BorderLayout.SOUTH);
+			JPanel xAxisPanel = new JPanel();
+			xAxisPanel.setLayout( new BoxLayout( xAxisPanel, BoxLayout.Y_AXIS ) );			
+			xAxisPanel.add( this.getPanelXAxis() );
+			xAxisPanel.add( this.getPanelMovePlotCtr() );
+			
+			this.plotPanel.add( new JScrollPane( xAxisPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED  ) , BorderLayout.SOUTH);
 			this.plotPanel.add( this.getPanelPlotYAxis(), BorderLayout.WEST);
 			this.plotPanel.add( this.getPanelPlotCanva(), BorderLayout.CENTER);
 			this.plotPanel.add( this.getPanelPlotCtr(), BorderLayout.NORTH);
@@ -500,6 +523,185 @@ public class Dialog_PlotClis extends JDialog
 		}
 		
 		return this.plotPanel;
+	}
+	
+	private JPanel getPanelXAxis( )
+	{
+		if( this.panelxAxis == null )
+		{
+			this.panelxAxis = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			
+			this.panelxAxis.add( this.getlbXAxisVariable() );
+			this.panelxAxis.add( this.getCbXAxisVariables() );
+			this.panelxAxis.add( this.getCbXAxisVarChannels() );
+			this.panelxAxis.add( this.getChbXAxisRelative() );
+			this.panelxAxis.add( this.getJTBLinePaint() );
+			this.panelxAxis.add( this.getJTBDotPaint() );
+		}
+		
+		return this.panelxAxis;
+	}
+		
+	private JLabel getlbXAxisVariable()
+	{
+		if( this.lblXAxis == null )
+		{
+			this.lblXAxis = new JLabel();
+			String tx = Language.getLocalCaption( Language.XAXIS_TEXT ) + " - " + Language.getLocalCaption( Language.VARIABLE_TEXT ) + ":";
+			this.lblXAxis.setText( tx );			
+		}
+		
+		return this.lblXAxis;
+	}
+	
+	private JComboBox<String> getCbXAxisVariables() 
+	{
+		if ( this.cbXAxisVariables == null) 
+		{
+			cbXAxisVariables = new JComboBox<String>();
+			
+			Font f = cbXAxisVariables.getFont();
+			FontMetrics fm = cbXAxisVariables.getFontMetrics( f );
+			int w = fm.stringWidth( StringUtils.repeat( "W", 10 ) );
+			
+			Dimension d = new Dimension( w, fm.getHeight() + 5 );
+			cbXAxisVariables.setPreferredSize( d );
+			
+			cbXAxisVariables.addItemListener( new ItemListener() 
+			{				
+				@Override
+				public void itemStateChanged(ItemEvent e) 
+				{
+					if( e.getStateChange() == ItemEvent.SELECTED )
+					{
+						JComboBox<String> cbXaxis = (JComboBox<String>)e.getSource();
+						
+						if( cbXaxis.getSelectedIndex() < 1 )
+						{
+							getCbXAxisVarChannels().setSelectedIndex( -1 );
+							getCbXAxisVarChannels().removeAllItems();
+							
+							currentXAxisVar = null;
+							
+							drawData();
+						}
+						else
+						{
+							setXAxisData2Plot();
+						}
+					}
+				}
+			});
+		}
+		
+		return cbXAxisVariables;
+	}
+	
+	private JComboBox<Integer> getCbXAxisVarChannels() 
+	{
+		if ( this.cbXAxisVarChannels == null) 
+		{
+			cbXAxisVarChannels = new JComboBox< Integer >();
+			
+			Font f = cbXAxisVarChannels.getFont();
+			FontMetrics fm = cbXAxisVarChannels.getFontMetrics( f );
+			int w = fm.stringWidth( StringUtils.repeat( "W", 5 ) );
+			
+			Dimension d = new Dimension( w, fm.getHeight() + 5 );
+			cbXAxisVarChannels.setPreferredSize( d );
+			
+			cbXAxisVarChannels.addItemListener( new ItemListener() 
+			{				
+				@Override
+				public void itemStateChanged(ItemEvent e) 
+				{
+					if( e.getStateChange() == ItemEvent.SELECTED )
+					{
+						drawData();
+					}
+				}
+			});
+		}
+		
+		return cbXAxisVarChannels;
+	}
+	
+	private JCheckBox getChbXAxisRelative()
+	{
+		if( this.chXAxisRelative == null )
+		{
+			this.chXAxisRelative = new JCheckBox( Language.getLocalCaption( Language.RELATIVE_TEXT ) );
+			
+			this.chXAxisRelative.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					drawData();
+				}
+			});
+		}
+	
+		return this.chXAxisRelative;
+	}
+	
+	private JToggleButton getJTBDotPaint()
+	{
+		if( this.jtbtDotPaint == null )
+		{
+			this.jtbtDotPaint = new JToggleButton();
+			this.jtbtDotPaint.setIcon( new ImageIcon( BasicPainter2D.paintFillCircle(0, 0, 8, Color.BLACK, null )));
+			this.jtbtDotPaint.setPreferredSize( this.getJTBLinePaint().getPreferredSize() );
+			
+			this.jtbtDotPaint.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JToggleButton jtb = (JToggleButton)e.getSource();
+					if( !jtb.isSelected() && !getJTBLinePaint().isSelected() )
+					{
+						getJTBLinePaint().doClick();
+					}
+					else
+					{
+						drawData();
+					}
+				}
+			});
+		}
+		
+		return this.jtbtDotPaint;
+	}
+	
+	private JToggleButton getJTBLinePaint()
+	{
+		if( this.jtbtLinePaint == null )
+		{
+			this.jtbtLinePaint = new JToggleButton();
+			this.jtbtLinePaint.setPreferredSize( new Dimension( 32, 16 ) );
+			this.jtbtLinePaint.setSelected( true );
+			this.jtbtLinePaint.setIcon( new ImageIcon( BasicPainter2D.paintRectangle(16, 2, 1F, Color.BLACK, Color.BLACK ) ) );
+			
+			this.jtbtLinePaint.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JToggleButton jtb = (JToggleButton)e.getSource();
+					if( !jtb.isSelected() && !getJTBDotPaint().isSelected() )
+					{
+						getJTBDotPaint().doClick();
+					}
+					else
+					{
+						drawData();
+					}
+				}
+			});
+		}
+		
+		return this.jtbtLinePaint;
 	}
 	
 	private JPanel getPanelMovePlotCtr() 
@@ -568,21 +770,98 @@ public class Dialog_PlotClis extends JDialog
 			varPane.add( this.getLblVariable());
 			varPane.add( this.getCbVariables());
 			
+			JPanel varSavePane = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			varSavePane.add( this.getBtnSaveImg() );
+			
+			JPanel panel = new JPanel( new BorderLayout() );
+			panel.add( varPane, BorderLayout.NORTH );
+			panel.add( varSavePane, BorderLayout.SOUTH );
 			//panelPlotCtr.add(getLblChannel());
 			//panelPlotCtr.add(getSpinnerChannel());
 			
-			this.panelPlotCtr.add( varPane, BorderLayout.WEST );
+			this.panelPlotCtr.add( panel, BorderLayout.WEST );
 			this.panelPlotCtr.add( this.getChannelsContainerPanel(), BorderLayout.CENTER );
 		}
 		
 		return panelPlotCtr;
 	}
-	private JLabel getLblVariable() {
-		if (lblVariable == null) {
+	
+	private JButton getBtnSaveImg()
+	{
+		if( this.btnSaveImg == null )
+		{
+			this.btnSaveImg = new JButton();
+			ImageIcon ic = GeneralAppIcon.SaveFile2( 20, Color.BLACK, Color.GREEN.darker() );
+			if( ic == null )
+			{
+				this.btnSaveImg.setText( Language.getLocalCaption( Language.MENU_SAVE ) );
+			}
+			else
+			{
+				this.btnSaveImg.setIcon( ic );
+			}
+			
+			this.btnSaveImg.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed( ActionEvent e ) 
+				{
+					Image img = getDataImage( sampleIndex_A, sampleIndex_A + (int)getSpinnerStep().getValue(), 1024, 768 );
+						
+					if( img != null )
+					{
+						String ext = "png";
+
+						String Filename = currentVar.getName();
+						String suffix = "";
+						for( int i = 0; i < selectedChannels.length; i++ )
+						{
+							suffix += ( selectedChannels[ i ] ) ? ("_" + (i+1)) : "";
+						}
+						
+						Filename += suffix + "." + ext;
+						
+						String[] file = FileUtils.selectUserFile( Filename, false, false, JFileChooser.FILES_ONLY
+																	, ext, new String[] { ext }, currentFolderPath );
+						
+						if( file != null && file.length > 0 )
+						{
+							boolean ok = !(new File( file[ 0 ] ) ).exists();
+							if( !ok )
+							{
+								Component c = (Component)e.getSource();
+								int selOpt = JOptionPane.showConfirmDialog( c, Language.getLocalCaption( Language.DIALOG_REPLACE_FILE_MESSAGE ) );
+								
+								ok = ( selOpt == JOptionPane.YES_OPTION );
+							}
+
+							if( ok )
+							{
+								try {
+									ImageIO.write( (BufferedImage)img, ext, new File( file[ 0 ] ) );
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+							}
+						}
+					}
+				}
+			});
+		}
+		
+		return this.btnSaveImg;
+	}
+	
+	private JLabel getLblVariable() 
+	{
+		if (lblVariable == null) 
+		{
 			lblVariable = new JLabel( Language.getLocalCaption( Language.VARIABLES_TEXT ));			
 		}
 		return lblVariable;
 	}
+	
 	private JComboBox<String> getCbVariables() 
 	{
 		if (cbVariables == null) 
@@ -882,7 +1161,7 @@ public class Dialog_PlotClis extends JDialog
 						}
 					});
 					
-					channelPanel.add( ch );
+					channelPanel.add( ch );					
 				}
 			}
 		}
@@ -1171,14 +1450,18 @@ public class Dialog_PlotClis extends JDialog
 		{
 			List< MetadataVariableBlock > clisMeta = this.currentClisFile.getVarInfo();
 			
+			getCbXAxisVariables().addItem( Language.getLocalCaption( Language.NONE_TEXT ) );
+			
 			for( MetadataVariableBlock var : clisMeta )
 			{
 				getCbVariables().addItem( var.getName() );
+				getCbXAxisVariables().addItem( var.getName() );
 			}
 			
 			if( getCbVariables().getItemCount() > 0 )
 			{
 				getCbVariables().setSelectedIndex( 0 );
+				getCbXAxisVariables().setSelectedIndex( 0 );
 			}
 		}
 	}
@@ -1260,6 +1543,77 @@ public class Dialog_PlotClis extends JDialog
 		
 		this.getPanelPlotCanva().setVisible( true );
 	}	
+	
+	private void setXAxisData2Plot(  )
+	{
+		this.getPanelPlotCanva().setVisible( false );
+		
+		/*
+		SpinnerNumberModel spnm = (SpinnerNumberModel)getSpinnerChannel().getModel();
+		spnm.setMaximum( null );
+		spnm.setValue( 1 );
+		//*/
+		
+		JComboBox< String > cbXAxisVar = getCbXAxisVariables();		
+		Object varItem = cbXAxisVar.getSelectedItem();
+		
+		if( varItem != null )
+		{	 
+			String var = (String)varItem;
+			
+			if( this.currentXAxisVar == null || !this.currentXAxisVar.getName().equals( var ) )
+			{			
+				List< MetadataVariableBlock > clisMeta = this.currentClisFile.getVarInfo();
+				this.currentXAxisVar = null;				
+				
+				for( MetadataVariableBlock m : clisMeta )
+				{
+					if( m.getName().equals( var ) )
+					{
+						this.currentXAxisVar = m;
+						
+						break;
+					}
+				}
+				
+				if( this.currentXAxisVar != null )
+				{	
+					if( clisData == null )
+					{
+						try 
+						{
+							clisData = this.currentClisFile.importAllData();							
+						}
+						catch (Exception e) 
+						{
+							clearClisData();
+						}
+					}
+					
+					if( clisData != null )
+					{
+						getCbXAxisVarChannels().setVisible( false );
+						
+						getCbXAxisVarChannels().removeAllItems();
+						
+						int nch = this.currentXAxisVar.getCols();
+						for( int i = 0; i < nch; i++ )
+						{
+							getCbXAxisVarChannels().addItem( i + 1 );
+						}
+						
+						getCbXAxisVarChannels().setVisible( true );
+					}
+				}
+			}
+		}
+		
+		drawData();
+		
+		this.getPanelPlotCanva().setVisible( true );
+	}	
+	
+	
 	private void clearClisData()
 	{	
 		this.clisData = null;
@@ -1268,6 +1622,12 @@ public class Dialog_PlotClis extends JDialog
 		
 		getCbVariables().setSelectedIndex( -1 );
 		getCbVariables().removeAllItems();
+		
+		getCbXAxisVariables().setSelectedIndex( -1 );
+		getCbXAxisVariables().removeAllItems();
+		
+		getCbXAxisVarChannels().setSelectedIndex( -1 );
+		getCbXAxisVarChannels().removeAllItems();
 		
 		/*
 		SpinnerNumberModel spnm = (SpinnerNumberModel)getSpinnerChannel().getModel();
@@ -1286,8 +1646,10 @@ public class Dialog_PlotClis extends JDialog
 		this.getCanva().setIcon( null );
 	}
 	
-	private void drawDataPlot( int init, int end )
+	private Image getDataImage( int init, int end, int width, int height )
 	{
+		Image img = null;
+		
 		if( this.currentVar != null
 				&& init >= 0
 				&& ( end - init ) > 0 )
@@ -1305,6 +1667,11 @@ public class Dialog_PlotClis extends JDialog
 					end = rows;
 				}
 				
+				if( end - init < 1 )
+				{
+					init = end - 1;
+				}
+				
 				//if( channel < cols )
 				
 				DefaultXYDataset xyValues = new DefaultXYDataset();
@@ -1314,6 +1681,16 @@ public class Dialog_PlotClis extends JDialog
 				double mult = (Double)this.getXAxisMultValue().getValue();
 				double offset = (Double)this.getXAxisOffsetValue().getValue();
 				
+				Number[][] xAxisDat = ( this.currentXAxisVar == null ) ? null : this.clisData.get( this.currentXAxisVar.getName() );
+				
+				int indxSelCh = this.getCbXAxisVarChannels().getSelectedIndex();
+				double relativeXAxisValue = 0D;
+				
+				if( xAxisDat != null && this.getChbXAxisRelative().isSelected() )
+				{	
+					relativeXAxisValue = (indxSelCh >= 0 ) ? xAxisDat[0][ indxSelCh ].doubleValue() : relativeXAxisValue;
+				}
+				
 				for( int ich = 0; ich < cols && ich < this.selectedChannels.length; ich++ )
 				{
 					if( this.selectedChannels[ ich ] )
@@ -1321,7 +1698,8 @@ public class Dialog_PlotClis extends JDialog
 						double[][] interval = new double[2][ end - init ];
 						for( int i = init; i < end; i++ )
 						{
-							interval[0][ i - init ] = i * mult + offset;
+							double xval = ( xAxisDat != null && indxSelCh >= 0 ) ? xAxisDat[ i ][ indxSelCh ].doubleValue() - relativeXAxisValue : i ;
+							interval[0][ i - init ] = xval * mult + offset;
 							
 							double val = dat[ i ][ ich ].doubleValue();
 							interval[1][ i - init ] = val;
@@ -1342,9 +1720,6 @@ public class Dialog_PlotClis extends JDialog
 					}
 				}
 				
-				JLabel canva = this.getCanva();
-				canva.setVisible( false );
-				canva.setIcon( null );
 				if( xyValues.getSeriesCount() > 0 )
 				{
 					final JFreeChart chart = ChartFactory.createXYLineChart( null, null, null, xyValues  );					
@@ -1354,11 +1729,13 @@ public class Dialog_PlotClis extends JDialog
 					chart.getXYPlot().setRangeGridlinePaint( Color.BLACK );
 					chart.getXYPlot().setDomainGridlinePaint( Color.BLACK );
 					XYLineAndShapeRenderer render = new XYLineAndShapeRenderer();
-					render.setDefaultShapesVisible( false );
+					render.setDefaultShapesVisible( this.getJTBDotPaint().isSelected() );
 					for( int iserie = 0; iserie < xyValues.getSeriesCount(); iserie++ )
 					{
 						render.setSeriesStroke( iserie, new BasicStroke( 3F ) );
+						render.setSeriesLinesVisible(iserie, this.getJTBLinePaint().isSelected() );
 					}
+					
 					chart.getXYPlot().setRenderer( render );
 					chart.getXYPlot().getDomainAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 15 ) );
 					chart.getXYPlot().getRangeAxis().setTickLabelFont( new Font( Font.DIALOG, Font.BOLD, 15 ) );
@@ -1378,30 +1755,46 @@ public class Dialog_PlotClis extends JDialog
 					chart.getXYPlot().setRangeAxis( yaxis );				
 					//chart.clearSubtitles();
 										
-					Rectangle r = canva.getBounds();
-					Border border = canva.getBorder();
-					Insets pad = new Insets(0, 0, 0, 0);
-					if( border != null )
+					if ((width > 0) && (height > 0))
 					{
-						pad = border.getBorderInsets(canva);
-					}
-					int w = r.width - pad.left - pad.right;
-					int h = r.height - pad.top - pad.bottom;
-					if ((w > 0) && (h > 0))
-					{
-						Image img = BasicPainter2D.createEmptyImage( w, h, null );
+						img = BasicPainter2D.createEmptyImage( width, height, null );
 						
 						chart.draw( (Graphics2D)img.getGraphics(), 
 									new Rectangle2D.Double( 0, 0, img.getWidth( null ), img.getHeight( null ) ) );
-						
-						canva.setIcon(new ImageIcon(img));
 					}
 				}
-				canva.setVisible( true );
 			}
-		}		
-	}
+		}	
+		
+		return img;
+	}	
 	
+	private void drawDataPlot( int init, int end )
+	{	
+		JLabel canva = this.getCanva();
+		canva.setVisible( false );
+		canva.setIcon( null );				
+										
+		Rectangle r = canva.getBounds();
+		Border border = canva.getBorder();
+		Insets pad = new Insets(0, 0, 0, 0);
+		if( border != null )
+		{
+			pad = border.getBorderInsets(canva);
+		}
+		int w = r.width - pad.left - pad.right;
+		int h = r.height - pad.top - pad.bottom;
+		
+		Image img = getDataImage(init, end, w, h );
+		
+		if( img != null )
+		{
+			canva.setIcon(new ImageIcon(img));
+		}
+		
+		canva.setVisible( true );	
+	}
+		
 	private JLabel getCanva()
 	{
 		if ( this.canva == null ) 
@@ -1409,6 +1802,17 @@ public class Dialog_PlotClis extends JDialog
 			this.canva = new JLabel( );
 			this.canva.setBackground( Color.WHITE);
 			this.canva.setOpaque( true );
+			
+			/*
+			Image imgCursor =  GeneralAppIcon.MagnifiyingGlass( 512, Color.BLACK ).getImage();
+			Dimension bestDimensionCursor = Toolkit.getDefaultToolkit().getBestCursorSize( imgCursor.getWidth(null), imgCursor.getHeight(null) );
+			int xCenterCursor = bestDimensionCursor.width / 2;
+			int yCenterCursor = (int)(0.33 *  bestDimensionCursor.height );
+			Cursor cursor = Toolkit.getDefaultToolkit().createCustomCursor( imgCursor, new Point(xCenterCursor,yCenterCursor), "magnifying glass" );
+			//*/
+			
+			Cursor cursor = new Cursor( Cursor.CROSSHAIR_CURSOR ); 
+			this.canva.setCursor( cursor );
 			
 			this.canva.addComponentListener( new ComponentAdapter() 
 			{		
@@ -1484,7 +1888,21 @@ public class Dialog_PlotClis extends JDialog
 							int pX2 = e.getX();
 	
 							int w = pX2 - pX1.get();
-							if( w > 10 )
+							if( w < 0 )
+							{
+								w = -w;
+								pX1.set( pX2 );
+								pX2 = pX1.get() + w; 
+								
+							}
+							
+							boolean inOKLeft  = pX2 > leftMargin;
+							boolean inOKRight = pX1.get() < cv.getWidth() - rightMargin;
+							
+							w = ( pX1.get() < leftMargin) ? w - (leftMargin - pX1.get() ) : w;
+							w = ( pX2 > cv.getWidth() - rightMargin ) ? w - ( pX2 - ( cv.getWidth() - 10) ) : w;
+							
+							if( w > 10  && inOKLeft && inOKRight)
 							{
 								int cvW = cv.getWidth() - leftMargin - rightMargin;
 		
@@ -1539,7 +1957,6 @@ public class Dialog_PlotClis extends JDialog
 							plotImg[ 0 ] = (BufferedImage)((ImageIcon)cv.getIcon()).getImage();
 														
 							pX1.set( e.getX() );
-							System.out.println("Dialog_PlotClis.getCanva() " + pX1.get());
 						}
 					}
 				}

@@ -1968,4 +1968,46 @@ public class GeneralAppIcon
 		
 		return new ImageIcon( base );
 	}
+	
+	public static ImageIcon SaveFile2( int size, Color borderColor, Color bgColor )
+	{
+		Image base = BasicPainter2D.paintRoundRectangle( 512, 512, 64, 64, 5F, borderColor, bgColor );
+		
+		Image lb = BasicPainter2D.paintRoundRectangle( (512 * 7)/10, (512 * 6)/10, 32, 32, 5F, borderColor, Color.WHITE );
+		int w = lb.getWidth( null );
+		int h = lb.getHeight( null );
+		BasicPainter2D.paintLine( w/10, h / 4, (w * 9)/10, h/4, 5F, borderColor, lb );
+		BasicPainter2D.paintLine( w/10, h / 2, (w * 9)/10, h/2, 5F, borderColor, lb );
+		BasicPainter2D.paintLine( w/10, (h *3) / 4, (w * 9)/10, (h *3)/4, 5F, borderColor, lb );
+		
+		Image prot = BasicPainter2D.paintRoundRectangle( (512 * 6)/10, (512 * 3)/10, 32, 32, 5F, borderColor, Color.LIGHT_GRAY );
+		w = prot.getWidth( null );
+		h = prot.getHeight( null );
+		Image protLect = BasicPainter2D.paintRectangle( w/4, (h*5)/10, 5F, borderColor, bgColor );
+		BasicPainter2D.compoundImages( prot, w - protLect.getWidth( null ) - w/6 , (h - protLect.getHeight(null))/2 , protLect);
+		
+		BasicPainter2D.compoundImages(base,  (base.getWidth(null)-lb.getWidth(null))/2, 0, lb );
+		BasicPainter2D.compoundImages(base, (base.getWidth(null)-prot.getWidth(null))/2, (base.getHeight(null)-prot.getHeight(null)), prot);
+		
+		return new ImageIcon( base.getScaledInstance( size, size, Image.SCALE_SMOOTH ) );
+	}
+	
+	public static ImageIcon MagnifiyingGlass( int size, Color c )
+	{
+		Image glass = BasicPainter2D.paintOutlineCircle( 0, 0, 128, 7F, c, null );
+		Image stick = BasicPainter2D.paintRectangle( 32, 64, 7F, c, c );
+		
+		int w = glass.getWidth( null );
+		int h = glass.getHeight( null ) + stick.getHeight(null);
+		
+		Image center = BasicPainter2D.paintFillCircle( 0, 0, 32, c, null );
+		BasicPainter2D.compoundImages( glass, (w-center.getWidth(null))/2, ( glass.getHeight(null) - center.getHeight(null) )/2, center );
+		
+		Image img = BasicPainter2D.createEmptyImage( w, h, null );
+		
+		BasicPainter2D.compoundImages( img, 0, 0, glass );
+		BasicPainter2D.compoundImages( img, (w-stick.getWidth(null))/2, glass.getHeight(null), stick );
+		
+		return new ImageIcon( img.getScaledInstance( size, size, Image.SCALE_SMOOTH ) );
+	}
 }
