@@ -81,7 +81,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 4 - 1, 28 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 5 - 1, 28 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -1421,7 +1421,10 @@ public class ConfigApp
 
 											for( IStreamSetting s : dss )
 											{
-												if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+												//if( s.name().equalsIgnoreCase( name ) && s.source_id().equalsIgnoreCase( sId ) )
+												if( s.name().equalsIgnoreCase( name )
+														//&& s.source_id().equalsIgnoreCase( sId ) 
+														)
 												{
 													//DataProcessingPluginRegistrar.addDataStreamProcessing( newPr, s );
 
@@ -2007,6 +2010,8 @@ public class ConfigApp
 		List< Tuple< Boolean, String > > chlist = new ArrayList< Tuple< Boolean, String> >();
 		
 		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), ConfigApp.fullNameApp ) );
+		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG ) + "1" ) );
+		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SELECTED_SYNC_STREAMS_MSG ) + "1" ) );
 		
 		listConfig.put( CHECKLIST_MSGS, chlist );
 	}

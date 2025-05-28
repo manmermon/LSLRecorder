@@ -98,6 +98,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -1180,6 +1182,26 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				{
 					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 				}
+				else if( i == 1 || i == 2 )
+				{					
+					String val = msg.t2;
+					Pattern pattern = Pattern.compile("(\\d+\\.?\\d*)(?!.*\\d)");
+			        Matcher matcher = pattern.matcher( val );
+			        
+			        if (matcher.find()) 
+			        {
+						int n = Integer.parseInt( matcher.group( 1 ) ) ;
+						if( !checkNumberOfSelectedStreams( n, i == 2 ) )
+						{
+							warnMsgsList.add( new WarningMessage( Language.getLocalCaption( (i==1)? Language.MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS : Language.MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS ) + n
+																, WarningMessage.ERROR_MESSAGE ) );
+						}						
+			        }
+			        else 
+			        {
+			            System.out.println("No se encontró ningún número.");
+			        }
+				}
 				else
 				{
 					warnMsgsList.add( new WarningMessage( msg.t2, WarningMessage.WARNING_MESSAGE ) );
@@ -1200,6 +1222,28 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		return warnMsgsList;
+	}
+	
+	private boolean checkNumberOfSelectedStreams( int n, boolean checkSync )
+	{
+		if( n > 0 )
+		{
+			HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+			
+			for( IMutableStreamSetting str : deviceIDs )
+			{
+				if( checkSync )
+				{
+					n =  ( str.isSynchronationStream() ) ? n -1 : n;
+				}
+				else
+				{
+					n =  ( str.isSelected() ) ? n -1 : n;
+				}
+			}
+		}
+		
+		return n == 0;
 	}
 	
 	/**

@@ -122,6 +122,8 @@ public class Language
 	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
 	public static final String CHECK_LSL_CHUNCKSIZE_WARNING_MSG = "CHECK_LSL_CHUNCKSIZE_WARNING_MSG";
 	public static final String CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG = "CHECK_SYNC_UNSELECT_STREAM_WARNING_MSG";
+	public static final String CHECK_SELECTED_DATA_STREAMS_MSG = "CHECK_SELECTED_STREAMS_MSG";
+	public static final String CHECK_SELECTED_SYNC_STREAMS_MSG = "CHECK_SELECTED_SYNC_STREAMS_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -150,6 +152,8 @@ public class Language
 	public static final String MSG_ILLEGAL_VALUE = "MSG_ILLEGAL_VALUE";
 	public static final String MSG_ENCODER_PLUGIN_NO_FOUND = "MSG_ENCODER_PLUGIN_NO_FOUND";
 	public static final String MSG_CANCEL_PROCESS = "MSG_CANCEL_PROCESS";
+	public static final String MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS = "MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS";
+	public static final String MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS = "MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS";
 	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -246,6 +250,12 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		
+		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
+		captions.put( MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, defaultLanguage, "Number of selected sync streams is not equal to " ) );
+		captions.put( CHECK_SELECTED_DATA_STREAMS_MSG, new Caption(CHECK_SELECTED_DATA_STREAMS_MSG, defaultLanguage, "Number of selected data streams equal to " ) );
+		captions.put( CHECK_SELECTED_SYNC_STREAMS_MSG, new Caption(CHECK_SELECTED_SYNC_STREAMS_MSG, defaultLanguage, "Number of selected sync streams equal to " ) );
 		
 		captions.put( CHECKLIST_TEXT, new Caption(CHECKLIST_TEXT, defaultLanguage, "Checklist" ) );
 		captions.put( FOLDER_TEXT, new Caption( FOLDER_TEXT, defaultLanguage, "Folder" ) );
