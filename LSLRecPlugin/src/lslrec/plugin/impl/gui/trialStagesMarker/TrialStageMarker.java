@@ -62,9 +62,28 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	private int subStageDelta = 0;
 	
+	private Timer timeOutAlarm = null;
+	
 	public TrialStageMarker() 
 	{
 		remainingTimeInfo.setFont( this.getFont() );
+		
+		this.timeOutAlarm = new Timer( 400, new ActionListener()
+		{	
+			boolean set = true;
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				remainingTimeInfo.setVisible( false );		
+				
+				remainingTimeInfo.setOpaque( true );
+				remainingTimeInfo.setBackground( ( set ? Color.GREEN : null ) );
+				
+				remainingTimeInfo.setVisible( true );
+				
+				set = !set;
+			}
+		});
 	}
 	
 	@Override
@@ -210,6 +229,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				
 				this.stageSyncMark = stage.getMark();
 				
+				this.timeOutAlarm.stop();
 				this.remainingTimeInfo.setText( stage.getTime() + "");
 				
 				JPanel stagePanel = this.getPhasePanel( stage );
@@ -510,6 +530,8 @@ public class TrialStageMarker extends LSLRecPluginTrial
 		remainingTimeInfo.setVisible( false );
 		remainingTimeInfo.setText( "<html><p style='color:orange'>" + timeoutMsg + "</p></html>" );
 		remainingTimeInfo.setVisible( true );
+		
+		this.timeOutAlarm.start();
 	}
 	
 	private Font getFont()

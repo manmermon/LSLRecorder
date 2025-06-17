@@ -81,7 +81,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 5 - 1, 28 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 6 - 1, 17 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -810,20 +810,68 @@ public class ConfigApp
 							{
 								List< Tuple< Boolean, String > > checkList = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS);
 								
+								int predefinedCheckListSize = checkList.size();
+								int index = 0; 
 								for( int i = 1; i < parts.length; i += 2 )
 								{
 									try
 									{
-										String msg = parts[ i ].trim();
-										if( i < 2 && !checkList.isEmpty() )
-										{
-											msg = checkList.get( 0 ).t2;
-											checkList.remove( 0 );
-										}
+										String msg = parts[ i ].trim();																						
 										Boolean sel = Boolean.parseBoolean( parts[ i-1 ].trim() );
-
-										Tuple< Boolean, String > tmsg = new Tuple<Boolean, String>( sel, msg );
-										checkList.add( tmsg );										
+																				
+										if( index < predefinedCheckListSize )
+										{
+											Tuple< Boolean, String > chMsg = checkList.get( index );
+																						
+											if( index < 1 )
+											{
+												if( msg.equals( chMsg.t2 ) )
+												{
+													checkList.remove( index );
+													checkList.add( index, new Tuple<Boolean, String>( sel, msg ) );
+												}
+												else
+												{
+													ok = false;
+													break;
+												}
+											}
+											else
+											{
+												int lastSpace = msg.lastIndexOf( " " );
+												
+												if( lastSpace > 0 )
+												{
+													String strNum = msg.substring( lastSpace ).trim();
+													
+													try 
+													{
+														int num = Integer.parseInt( strNum );
+														
+														checkList.remove( index );
+														
+														String Msg = chMsg.t2;
+														lastSpace = Msg.lastIndexOf( " " );
+														Msg = Msg.substring(0, lastSpace ) + " " + num;
+														
+														checkList.add( index, new Tuple<Boolean, String>( sel, Msg ) );
+														
+													} 
+													catch (Exception e) 
+													{
+														ok = false;
+														break;
+													}
+												}												
+											}
+											
+											index++;
+										}
+										else
+										{
+											Tuple< Boolean, String > tmsg = new Tuple<Boolean, String>( sel, msg );
+											checkList.add( tmsg );										
+										}
 									}
 									catch( Exception e )
 									{
@@ -1566,7 +1614,7 @@ public class ConfigApp
 		}
 		
 
-		if (defaultValue)
+		if ( defaultValue )
 		{
 			checkPropErrorMsg = defaultMsg;			
 		}
