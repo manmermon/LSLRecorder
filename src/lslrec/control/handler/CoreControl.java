@@ -1052,28 +1052,27 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if( results.length >= 0 )
 		{
-			boolean selected = false;
-			
-			// Check if one stream is selected.
+			boolean selectedStreamsOK = true;
+
+			// Check selected streams.
 			for( IStreamSetting lslcfg : lslPars )
 			{
-				selected = lslcfg.isSelected();
-
-				if( selected )
+				if( lslcfg.isSelected() )
 				{	
-					selected = false;
-					for( int i = 0; i < results.length && !selected; i++ )
+					boolean findStream = false;
+					for( int i = 0; i < results.length && !findStream; i++ )
 					{
-						selected = results[ i ].uid().equals( lslcfg.uid() );
+						findStream = results[ i ].uid().equals( lslcfg.uid() );
 					}
 					
-					if( selected )
+					if( !findStream )
 					{
+						selectedStreamsOK = false;
 						break;
 					}
 				}
 			}
-					
+			
 			// Check if sync stream is selected.
 			for( IStreamSetting lslcfg : lslPars )
 			{
@@ -1085,9 +1084,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 
-			if( !selected )
+			if( !selectedStreamsOK )
 			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECT_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SELECTED_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
 			}
 			
 			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )

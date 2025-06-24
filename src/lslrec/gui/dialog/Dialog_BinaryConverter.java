@@ -29,7 +29,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -92,7 +91,6 @@ import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -100,6 +98,7 @@ import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -131,15 +130,13 @@ public class Dialog_BinaryConverter extends JDialog
 	//private JPanel panelBtnAddTime;
 	private JPanel panelFilesInfo;
 	private JPanel panelBinInfo;
-	private JPanel panelOutPath;
+	//private JPanel panelOutPath;
 	private JPanel panelSyncFile;
 	
 	// JTable
 	private JTable tableFileData;
 	//private JTable tableFileTime;
-	private JLabel lblBinaryDataFiles;
-	//private JLabel lblBinaryTimeFiles;
-	
+		
 	
 	// Labels
 	private JLabel lblStreamName;
@@ -150,8 +147,10 @@ public class Dialog_BinaryConverter extends JDialog
 	private JLabel lblXmlDescr;
 	private JLabel lblFile;
 	private JLabel lblOutputFormat;
-	private JLabel lblOutputPath;
-	
+	//private JLabel lblOutputPath;
+	private JLabel lblBinaryDataFiles;
+	//private JLabel lblBinaryTimeFiles;
+		
 	// JTextField
 	private JTextField txtStreamName;
 	private JTextField txtDataType;
@@ -159,16 +158,17 @@ public class Dialog_BinaryConverter extends JDialog
 	private JTextField txtChunkSize;
 	private JTextField txtXMLDesc;
 	private JTextField txtFilePath;
-	private JTextField txtOutFileFolder;
+	//private JTextField txtOutFileFolder;
 	private JTextField txtSyncMarkerFile;
 		
 	// Buttons
 	private JButton btnDone;
 	private JButton btnCancel;
 	private JButton buttonAddData;
-	private JButton btnOutFolder;
+	//private JButton btnOutFolder;
 	private JButton btnSelectSyncFile;
 	private JButton btnOutFormatOptions;
+	private JButton btlTakeOffFile;
 	
 	// Combox
 	private JComboBox< String > fileFormat;
@@ -182,7 +182,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private JCheckBox chbParallelize;
 	
 	// JToggleButton
-	private JToggleButton jtgBtnSortSyncFile;
+	//private JToggleButton jtgBtnSortSyncFile;
 	
 	
 	// Others variables
@@ -311,10 +311,11 @@ public class Dialog_BinaryConverter extends JDialog
 		String syncFile = this.getTxtSyncFilePath().getText();
 		if( !syncFile.isEmpty() )
 		{			
-			if( this.getJtgBtSyncFile().isSelected() )
+			//if( this.getJtgBtSyncFile().isSelected() )
 			{
 				String outFile = syncFile + "_sort.sync"; 
-				SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+				//SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+				SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null );
 				
 				syncFile = outFile;
 			}
@@ -324,8 +325,12 @@ public class Dialog_BinaryConverter extends JDialog
 				
 		for( String file : this.binaryDataFiles.keySet() )
 		{
-			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), new File( file ) );
+			File binFile = new File( file ); 
+			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), binFile );
 			OutputFileFormatParameters format = this.outFormat.clone();
+			
+			String folder = binFile.getParent();
+			format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder );
 						
 			binFiles.add( new Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >( new Tuple< BinaryFileStreamSetting, OutputFileFormatParameters >( datBin, format ), syncHeader ) );
 		}
@@ -399,7 +404,7 @@ public class Dialog_BinaryConverter extends JDialog
 			this.panelSyncFile.setLayout( new BoxLayout( this.panelSyncFile, BoxLayout.X_AXIS ) );
 			this.panelSyncFile.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 			
-			this.panelSyncFile.add( this.getJtgBtSyncFile() );
+			//this.panelSyncFile.add( this.getJtgBtSyncFile() );
 			this.panelSyncFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.panelSyncFile.add( this.getLblSyncFile() );
 			this.panelSyncFile.add( this.getTxtSyncFilePath() );
@@ -473,6 +478,7 @@ public class Dialog_BinaryConverter extends JDialog
 		return this.btnSelectSyncFile;
 	}
 	
+	/*
 	private JToggleButton getJtgBtSyncFile()
 	{
 		if( this.jtgBtnSortSyncFile == null )
@@ -504,6 +510,7 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		return this.jtgBtnSortSyncFile;
 	}
+	//*/
 	
 	private JPanel getDataFilePanel( ) 
 	{
@@ -534,13 +541,18 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		if ( panelBtnAddData == null )
 		{
-			panelBtnAddData = new JPanel( );
-			FlowLayout flowLayout = ( FlowLayout ) panelBtnAddData.getLayout( );
+			panelBtnAddData = new JPanel( new BorderLayout() );
+			
+			JPanel aux = new JPanel();
+			FlowLayout flowLayout = ( FlowLayout ) aux.getLayout( );
 			flowLayout.setAlignment( FlowLayout.LEFT );
 			//panelBtnAddData.add( getBtnMoveUpDataFile( ) );
 			//panelBtnAddData.add( getButtonMoveDownDataFile( ) );
-			panelBtnAddData.add( getLblBinaryDataFiles( ) );
-			panelBtnAddData.add( getButtonAddData( ) );
+			aux.add( this.getLblBinaryDataFiles( ) );
+			aux.add( this.getButtonAddData( ) );
+			
+			panelBtnAddData.add( aux, BorderLayout.CENTER );
+			panelBtnAddData.add( this.getButtonTakeOffDataFile( ), BorderLayout.EAST );
 		}
 
 		return panelBtnAddData;
@@ -565,7 +577,9 @@ public class Dialog_BinaryConverter extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{
-					clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					//clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					
+					getTableFileData().clearSelection();
 					
 					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
 					if( FILES != null )
@@ -574,10 +588,13 @@ public class Dialog_BinaryConverter extends JDialog
 						{	
 							IMutableStreamSetting bh = getBinaryFileInfo( file );
 							if( bh != null )
-							{								
-								insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
-									
-								binaryDataFiles.put( file, bh );
+							{				
+								if( !binaryDataFiles.keySet().contains( file ) )
+								{
+									insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
+										
+									binaryDataFiles.put( file, bh );
+								}
 							}
 						}
 						
@@ -593,17 +610,58 @@ public class Dialog_BinaryConverter extends JDialog
 		return buttonAddData;
 	}
 
+	private JButton getButtonTakeOffDataFile( ) 
+	{
+		if ( this.btlTakeOffFile == null )
+		{
+			btlTakeOffFile = new JButton( );
+			btlTakeOffFile.setEnabled( false );
+			
+			try
+			{
+				btlTakeOffFile.setIcon( GeneralAppIcon.Close( 15, Color.RED ) );
+			}
+			catch ( Exception e ) 
+			{
+				btlTakeOffFile.setText( Language.getLocalCaption( Language.TAKE_OFF_TEXT ) );
+			}
+			
+			btlTakeOffFile.addActionListener( new ActionListener( ) 
+			{
+				public void actionPerformed( ActionEvent e ) 
+				{
+					int cRow = getTableFileData().getSelectedRow();
+					
+					removeBinaryFiles( getTableFileData(), binaryDataFiles, cRow, cRow );
+				}
+			} );
+			
+			btlTakeOffFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+			btlTakeOffFile.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
+		}
+
+		return btlTakeOffFile;
+	}
 	
 	private void clearBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles )	
 	{
-		this.clearInfoLabels( );
-			
-		binaryFiles.clear( );
-
-		DefaultTableModel dm = ( DefaultTableModel )t.getModel( );
-		while( dm.getRowCount( ) > 0 )
+		this.removeBinaryFiles( t, binaryFiles, 0, t.getRowCount()-1 );
+	}
+	
+	private void removeBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles, int init, int end )	
+	{
+		if( init > -1 && end >= init )
 		{
-			dm.removeRow( dm.getRowCount( ) - 1 );
+			this.clearInfoLabels( );
+				
+			DefaultTableModel dm = ( DefaultTableModel )t.getModel( );
+			for( int i = end; i >= init; i-- )
+			{		
+				String file = dm.getValueAt( i, 0 ).toString();
+				
+				this.binaryDataFiles.remove( file );
+				dm.removeRow( i );
+			}
 		}
 	}
 	
@@ -732,16 +790,20 @@ public class Dialog_BinaryConverter extends JDialog
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;			
 			panelBinInfo.add( panelAux, gbc );
 			
+			/*
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.anchor = GridBagConstraints.EAST;
 			gbc.gridx = 0;
 			gbc.gridy = ( panelBinInfo.getComponentCount() + colPadding ) / COLS;
 			panelBinInfo.add( getLblOutputPath( ), gbc );
+			//*/
 			
+			/*
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.gridx = 1;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
 			panelBinInfo.add( getPanelOutPath( ), gbc );
+			//*/
 		}
 
 		return panelBinInfo;
@@ -1156,8 +1218,28 @@ public class Dialog_BinaryConverter extends JDialog
 							showBinaryFileInfo( file, currentBinFile );
 						}
 					}
+					
+					getButtonTakeOffDataFile().setEnabled( !md.isSelectionEmpty( ) );
 				}
-			} );		
+			} );	
+			
+			this.tableFileData.addKeyListener( new KeyAdapter()
+			{
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					if( e.getKeyCode() == KeyEvent.VK_DELETE )
+					{
+						JTable tb = (JTable)e.getSource();
+						
+						int cRow = tb.getSelectedRow();
+						if( cRow >= 0 && cRow < tb.getRowCount() )
+						{
+							removeBinaryFiles( tb, binaryDataFiles, cRow, cRow );
+						}
+					}
+				}
+			});
 		}
 		
 		return this.tableFileData;
@@ -1220,7 +1302,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private TableModel createBinFileTable( )
 	{					
 		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE )
-																	, Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED )} )
+																	, Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED ) } )
 						{
 							private static final long serialVersionUID = 1L;
 								
@@ -1297,7 +1379,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private void updateDataStreamSetting( String file, int fieldIndex, Object val )
 	{
 		if( file != null && val != null )
-		{
+		{	
 			IMutableStreamSetting bh = this.binaryDataFiles.get( file );
 			
 			switch ( fieldIndex )
@@ -1305,7 +1387,7 @@ public class Dialog_BinaryConverter extends JDialog
 				case 1:
 				{
 					try
-					{
+					{	
 						bh.setInterleaveadData( (Boolean)val);
 					}
 					catch (Exception e) 
@@ -1754,7 +1836,7 @@ public class Dialog_BinaryConverter extends JDialog
 		return chbParallelize;
 	}
 	
-	
+	/*
 	private JLabel getLblOutputPath( ) 
 	{
 		if ( lblOutputPath == null )
@@ -1765,7 +1847,9 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return lblOutputPath;
 	}
+	//*/
 
+	/*
 	private JPanel getPanelOutPath( ) 
 	{
 		if ( panelOutPath == null )
@@ -1778,7 +1862,9 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return panelOutPath;
 	}
+	//*/
 
+	/*
 	private JTextField getTxtOutFileFolder( ) 
 	{
 		if ( txtOutFileFolder == null )
@@ -1825,7 +1911,9 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		return txtOutFileFolder;
 	}
+	//*/
 
+	/*
 	private JButton getBtnOutFolder( ) 
 	{
 		if ( btnOutFolder == null )
@@ -1861,7 +1949,7 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return btnOutFolder;
 	}
-	
+	//*/
 	
 	private JCheckBox getChckbxDeleteBinaries() 
 	{

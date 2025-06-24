@@ -211,7 +211,8 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 			this.outDisorderedStream.close();			
 		}
 		
-		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header, !ConfigApp.isTesting() );
+		//sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header, !ConfigApp.isTesting() );
+		sortMarkers( this.syncFileDisordered.getAbsolutePath(), this.outFileName, this.header );
 		
 		/*
 		EventInfo event = new EventInfo( GetFinalOutEventID(), syncReader );
@@ -270,13 +271,18 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	//, false 
 																	);
 		
-
+		/*
 		return new SyncMarkerBinFileReader( new BinaryFileStreamSetting( stream, new File( file ) )
 											, StreamBinaryHeader.HEADER_END
 											, !ConfigApp.isTesting() );		
+		//*/
+		
+		return new SyncMarkerBinFileReader( new BinaryFileStreamSetting( stream, new File( file ) )
+				, StreamBinaryHeader.HEADER_END
+				, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
 	}
 	
-	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader, boolean delInSyncFile ) throws Exception
+	public static void sortMarkers( String inSyncFileName, String outSynFileName, String newHeader ) throws Exception
 	{	
 		boolean loop = true;
 				

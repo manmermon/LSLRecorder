@@ -116,7 +116,7 @@ public class Language
 
 	public static final String CHECK_SPECIAL_IN_WARNING_MSG = "CHECK_SPECIAL_IN_WARNING_MSG";
 	public static final String CHECK_SYNC_METHOD_WARNING_MSG = "CHECK_SYNC_METHOD_WARNING_MSG";
-	public static final String CHECK_NON_SELECT_STREAM_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_SELECTED_STREAM_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
 	public static final String CHECK_SYNC_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
 	public static final String CHECK_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
 	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
@@ -131,6 +131,7 @@ public class Language
 	public static final String PROCESS_TEXT = "PROCESS_TEXT";
 	public static final String POST_PROCESS_TEXT = "POST_PROCESS_TEXT";
 	public static final String SAVE_DATA_PROCESSING_TEXT = "DATA_PROCESSING_TEXT";
+	public static final String TAKE_OFF_TEXT = "TAKE_OFF_TEXT";
 
 	public static final String DIALOG_SAVE = "DIALOG_SAVE";
 	public static final String DIALOG_ERROR = "DIALOG_ERROR";
@@ -262,6 +263,7 @@ public class Language
 		captions.put( SUBJECT_ID_TEXT, new Caption( SUBJECT_ID_TEXT, defaultLanguage, "Subject id" ) );
 		captions.put( TEST_ID_TEXT, new Caption( TEST_ID_TEXT, defaultLanguage, "Test id" ) );
 		captions.put( FILENAME_TEXT, new Caption( FILENAME_TEXT, defaultLanguage, "File name" ) );
+		captions.put( TAKE_OFF_TEXT, new Caption( TAKE_OFF_TEXT, defaultLanguage, "Take off" ) );
 		
 		captions.put( DATA_CHART_SUMMARY_TEXT, new Caption( DATA_CHART_SUMMARY_TEXT, defaultLanguage, "Data chart summary" ) );
 
@@ -493,8 +495,8 @@ public class Language
 
 		captions.put(CHECK_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));
-		captions.put(CHECK_NON_SELECT_STREAM_ERROR_MSG,
-				new Caption(CHECK_NON_SELECT_STREAM_ERROR_MSG, defaultLanguage, "Non one LSL devices selected."));
+		captions.put(CHECK_SELECTED_STREAM_ERROR_MSG,
+				new Caption(CHECK_SELECTED_STREAM_ERROR_MSG, defaultLanguage, "Selected streams changed."));
 		captions.put(CHECK_SPECIAL_IN_WARNING_MSG,
 				new Caption(CHECK_SPECIAL_IN_WARNING_MSG, defaultLanguage, "Special inputs are not selected."));
 		captions.put(CHECK_SYNC_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_UNSELECTABLE_ERROR_MSG,
