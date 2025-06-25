@@ -116,7 +116,8 @@ public class Language
 
 	public static final String CHECK_SPECIAL_IN_WARNING_MSG = "CHECK_SPECIAL_IN_WARNING_MSG";
 	public static final String CHECK_SYNC_METHOD_WARNING_MSG = "CHECK_SYNC_METHOD_WARNING_MSG";
-	public static final String CHECK_SELECTED_STREAM_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_NON_SELECTED_STREAMS_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG = "CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG";
 	public static final String CHECK_SYNC_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
 	public static final String CHECK_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
 	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
@@ -495,8 +496,10 @@ public class Language
 
 		captions.put(CHECK_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));
-		captions.put(CHECK_SELECTED_STREAM_ERROR_MSG,
-				new Caption(CHECK_SELECTED_STREAM_ERROR_MSG, defaultLanguage, "Selected streams changed."));
+		captions.put(CHECK_NON_SELECTED_STREAMS_ERROR_MSG,
+				new Caption(CHECK_NON_SELECTED_STREAMS_ERROR_MSG, defaultLanguage, "No streams selected."));
+		captions.put(CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG,
+				new Caption(CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG, defaultLanguage, "Selected streams changed."));
 		captions.put(CHECK_SPECIAL_IN_WARNING_MSG,
 				new Caption(CHECK_SPECIAL_IN_WARNING_MSG, defaultLanguage, "Special inputs are not selected."));
 		captions.put(CHECK_SYNC_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_UNSELECTABLE_ERROR_MSG,

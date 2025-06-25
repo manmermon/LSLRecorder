@@ -1053,22 +1053,36 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		if( results.length >= 0 )
 		{
 			boolean selectedStreamsOK = true;
+			boolean selectOneOrMoreStream = false;
 
-			// Check selected streams.
 			for( IStreamSetting lslcfg : lslPars )
 			{
-				if( lslcfg.isSelected() )
-				{	
-					boolean findStream = false;
-					for( int i = 0; i < results.length && !findStream; i++ )
-					{
-						findStream = results[ i ].uid().equals( lslcfg.uid() );
-					}
-					
-					if( !findStream )
-					{
-						selectedStreamsOK = false;
-						break;
+				selectOneOrMoreStream = lslcfg.isSelected();
+				
+				if( selectOneOrMoreStream )
+				{
+					break;
+				}
+			}
+			
+			if( selectOneOrMoreStream )
+			{
+				// Check selected streams.
+				for( IStreamSetting lslcfg : lslPars )
+				{
+					if( lslcfg.isSelected() )
+					{	
+						boolean findStream = false;
+						for( int i = 0; i < results.length && !findStream; i++ )
+						{
+							findStream = results[ i ].uid().equals( lslcfg.uid() );
+						}
+						
+						if( !findStream )
+						{
+							selectedStreamsOK = false;
+							break;
+						}
 					}
 				}
 			}
@@ -1084,9 +1098,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 			}
 
+			if( !selectOneOrMoreStream )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );	
+			}
+			
 			if( !selectedStreamsOK )
 			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SELECTED_STREAM_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
 			}
 			
 			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )
@@ -1133,6 +1152,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
 			}
+		}
+		else
+		{
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
 		}
 		
 		// Checking plugin setting
