@@ -1,4 +1,3 @@
-package lslrec.gui.miscellany;
 /*
  * Copyright 2011-2013 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
@@ -18,6 +17,7 @@ package lslrec.gui.miscellany;
  *   along with CLIS.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
+package lslrec.gui.miscellany;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -499,6 +499,32 @@ public class BasicPainter2D
 		}
 		
 		 return paintOutlinePolygon( xs, ys, thicknessBorder, cBorde, img );		
+	}
+	
+	public static Image paintRoundRectangle( int wd, int hg, int arcW, int arcH, float thicknessBorder, Color colorBorde, Color colorRelleno )
+	{	
+			BufferedImage imagen = null;
+			Graphics g = null;
+
+			imagen = new BufferedImage( wd + 1, hg + 1, BufferedImage.TYPE_INT_ARGB );			
+			g = imagen.getGraphics();
+			((Graphics2D)g).setStroke( new BasicStroke( thicknessBorder ) );
+			
+			((Graphics2D)g).setRenderingHint( RenderingHints.KEY_ANTIALIASING,RenderingHints.VALUE_ANTIALIAS_ON );
+			
+			if( colorRelleno != null )
+			{
+				g.setColor( colorRelleno );
+				g.fillRoundRect(0, 0, wd, hg, arcW, arcH );
+			}
+			
+			if( colorBorde != null )
+			{
+				g.setColor( colorBorde );
+				g.drawRoundRect(0, 0, wd, hg, arcW, arcH );
+			}
+			
+			return imagen;
 	}
 
 	public static Image paintDiamond( int lado, float thicknessBorder, Color colorBorde, Color colorRelleno )

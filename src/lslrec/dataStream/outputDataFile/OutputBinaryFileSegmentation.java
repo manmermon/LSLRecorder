@@ -413,20 +413,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		try
 		{
 			List< Object > dataBuffer = new ArrayList< Object >();
-			
-			/*
-			Object NonSyncMarker = SyncMarker.NON_MARK;
-			
-			if( this.DATA.getDataStreamSetting().getDataType() == LSLUtils.string )
-			{
-				NonSyncMarker = "" + SyncMarker.NON_MARK;
-			}
-			else
-			{
-				 NonSyncMarker = ConvertTo.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataStreamSetting().getDataType() );
-			}
-			*/
-			
+						
 			Number NonSyncMarker = ConvertTo.Casting.NumberTo( SyncMarker.NON_MARK, this.DATA.getDataStreamSetting().data_type() );
 									
 			SyncMarker marker = null;
@@ -485,14 +472,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 							SyncMarker aux = new SyncMarker( marker.getMarkValue(), marker.getTimeMarkValue() );
 	
 							while( aux != null 
-									&& time.doubleValue() > aux.getTimeMarkValue() )
+									&& time.doubleValue() >= aux.getTimeMarkValue() )
 							{
 								marker.addMarkValue( aux.getMarkValue() );
 	
 								aux = this.syncReader.getSyncMarker();																
 							}
 	
-							if( time.doubleValue() > marker.getTimeMarkValue() )
+							if( time.doubleValue() >= marker.getTimeMarkValue() )
 							{
 								Data[ ( index + 1 ) * ( this.DATA.getDataStreamSetting().channel_count() + 1 ) - 1] = ConvertTo.Casting.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().data_type() );
 	
@@ -608,14 +595,14 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 								SyncMarker aux = new SyncMarker( marker.getMarkValue(), marker.getTimeMarkValue() );
 
 								while( aux != null 
-										&& time.doubleValue() > aux.getTimeMarkValue() )
+										&& time.doubleValue() >= aux.getTimeMarkValue() )
 								{
 									marker.addMarkValue( aux.getMarkValue() );
 
 									aux = this.syncReader.getSyncMarker();																
 								}
 
-								if( time.doubleValue() > marker.getTimeMarkValue() )
+								if( time.doubleValue() >= marker.getTimeMarkValue() )
 								{
 									Number m = ConvertTo.Casting.NumberTo( marker.getMarkValue(), this.DATA.getDataStreamSetting().getStringLengthDataType() );
 									Data[ ( index + 1 ) * ( this.DATA.getDataStreamSetting().channel_count() + 1 ) - 1] = m;

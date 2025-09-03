@@ -26,10 +26,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
-import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -42,6 +42,7 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -61,6 +62,7 @@ import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
@@ -73,10 +75,13 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.gui.GuiManager;
+import lslrec.gui.miscellany.TableButtonCellRender;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.TableButtonCellEditor;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 
 import javax.swing.JTable;
@@ -91,8 +96,12 @@ import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
+
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
@@ -100,6 +109,7 @@ import javax.swing.SwingConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
@@ -108,6 +118,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.awt.event.ActionEvent;
@@ -131,15 +142,13 @@ public class Dialog_BinaryConverter extends JDialog
 	//private JPanel panelBtnAddTime;
 	private JPanel panelFilesInfo;
 	private JPanel panelBinInfo;
-	private JPanel panelOutPath;
+	//private JPanel panelOutPath;
 	private JPanel panelSyncFile;
 	
 	// JTable
 	private JTable tableFileData;
 	//private JTable tableFileTime;
-	private JLabel lblBinaryDataFiles;
-	//private JLabel lblBinaryTimeFiles;
-	
+		
 	
 	// Labels
 	private JLabel lblStreamName;
@@ -150,8 +159,10 @@ public class Dialog_BinaryConverter extends JDialog
 	private JLabel lblXmlDescr;
 	private JLabel lblFile;
 	private JLabel lblOutputFormat;
-	private JLabel lblOutputPath;
-	
+	//private JLabel lblOutputPath;
+	private JLabel lblBinaryDataFiles;
+	//private JLabel lblBinaryTimeFiles;
+		
 	// JTextField
 	private JTextField txtStreamName;
 	private JTextField txtDataType;
@@ -159,16 +170,17 @@ public class Dialog_BinaryConverter extends JDialog
 	private JTextField txtChunkSize;
 	private JTextField txtXMLDesc;
 	private JTextField txtFilePath;
-	private JTextField txtOutFileFolder;
+	//private JTextField txtOutFileFolder;
 	private JTextField txtSyncMarkerFile;
 		
 	// Buttons
 	private JButton btnDone;
 	private JButton btnCancel;
 	private JButton buttonAddData;
-	private JButton btnOutFolder;
+	//private JButton btnOutFolder;
 	private JButton btnSelectSyncFile;
 	private JButton btnOutFormatOptions;
+	//private JButton btlTakeOffFile;
 	
 	// Combox
 	private JComboBox< String > fileFormat;
@@ -182,7 +194,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private JCheckBox chbParallelize;
 	
 	// JToggleButton
-	private JToggleButton jtgBtnSortSyncFile;
+	//private JToggleButton jtgBtnSortSyncFile;
 	
 	
 	// Others variables
@@ -311,10 +323,11 @@ public class Dialog_BinaryConverter extends JDialog
 		String syncFile = this.getTxtSyncFilePath().getText();
 		if( !syncFile.isEmpty() )
 		{			
-			if( this.getJtgBtSyncFile().isSelected() )
+			//if( this.getJtgBtSyncFile().isSelected() )
 			{
 				String outFile = syncFile + "_sort.sync"; 
-				SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+				//SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null, this.getChckbxDeleteBinaries().isSelected() );
+				SyncMarkerCollectorWriter.sortMarkers( syncFile, outFile, null );
 				
 				syncFile = outFile;
 			}
@@ -324,8 +337,12 @@ public class Dialog_BinaryConverter extends JDialog
 				
 		for( String file : this.binaryDataFiles.keySet() )
 		{
-			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), new File( file ) );
+			File binFile = new File( file ); 
+			BinaryFileStreamSetting datBin = new BinaryFileStreamSetting( this.binaryDataFiles.get( file ), binFile );
 			OutputFileFormatParameters format = this.outFormat.clone();
+			
+			String folder = binFile.getParent();
+			format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder );
 						
 			binFiles.add( new Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting >( new Tuple< BinaryFileStreamSetting, OutputFileFormatParameters >( datBin, format ), syncHeader ) );
 		}
@@ -399,12 +416,11 @@ public class Dialog_BinaryConverter extends JDialog
 			this.panelSyncFile.setLayout( new BoxLayout( this.panelSyncFile, BoxLayout.X_AXIS ) );
 			this.panelSyncFile.setBorder( new EmptyBorder( 5, 5, 5, 5 ) );
 			
-			this.panelSyncFile.add( this.getJtgBtSyncFile() );
+			//this.panelSyncFile.add( this.getJtgBtSyncFile() );
 			this.panelSyncFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.panelSyncFile.add( this.getLblSyncFile() );
 			this.panelSyncFile.add( this.getTxtSyncFilePath() );
-			this.panelSyncFile.add( this.getBtnSelectSyncFilePath() );
-			
+			this.panelSyncFile.add( this.getBtnSelectSyncFilePath() );			
 		}
 		
 		return this.panelSyncFile;
@@ -414,7 +430,7 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		if( this.lblSyncFile == null )
 		{
-			this.lblSyncFile = new JLabel( Language.getLocalCaption( Language.SETTING_LSL_SYNC ) + " " );
+			this.lblSyncFile = new JLabel( Language.getLocalCaption( Language.SYNC_MARK_FILE_TEXT ) + " " );
 			
 			this.lblSyncFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
 		}
@@ -453,12 +469,40 @@ public class Dialog_BinaryConverter extends JDialog
 				{
 					JTextField t = getTxtSyncFilePath();
 					
-					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
+					String syncExt = SyncMarkerCollectorWriter.SYNC_FILE_EXTENSION;
+					String clisExt = DataFileFormat.getSupportedFileExtension().get( DataFileFormat.CLIS );
+					int indexDot = syncExt.indexOf( "." );
+					syncExt = syncExt.substring( indexDot + 1 );
+					indexDot = clisExt.indexOf( "." );
+					clisExt = clisExt.substring( indexDot + 1 );
+					
+					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY
+																, syncExt + "/" + clisExt , new String[] { syncExt, clisExt }
+																, currentFolderPath );
 					if( FILES != null )
 					{
 						for( String file : FILES )
 						{
 							t.setText( file );
+						}
+						
+						try 
+						{
+							new ClisData( t.getText() );
+							Dialog_ExportSyncMarkFromClisFile dlgSyncMark = new Dialog_ExportSyncMarkFromClisFile( (JFrame)getOwner(), true, t.getText() );
+							
+							dlgSyncMark.setBounds( 100, 100, 450, 210 );
+							dlgSyncMark.setTitle( Language.getLocalCaption( Language.SYNC_MARK_FILE_TEXT ) + "..." );
+							dlgSyncMark.setLocationRelativeTo( getOwner() );
+							dlgSyncMark.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );			
+							dlgSyncMark.setVisible(true);
+							
+							String syncFile = dlgSyncMark.getSyncFile();
+							
+							t.setText( syncFile );
+						} 
+						catch (Exception e2) 
+						{
 						}
 						
 						currentFolderPath = (new File( FILES[ 0 ] )).getAbsolutePath();
@@ -473,6 +517,7 @@ public class Dialog_BinaryConverter extends JDialog
 		return this.btnSelectSyncFile;
 	}
 	
+	/*
 	private JToggleButton getJtgBtSyncFile()
 	{
 		if( this.jtgBtnSortSyncFile == null )
@@ -504,6 +549,7 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		return this.jtgBtnSortSyncFile;
 	}
+	//*/
 	
 	private JPanel getDataFilePanel( ) 
 	{
@@ -534,13 +580,18 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		if ( panelBtnAddData == null )
 		{
-			panelBtnAddData = new JPanel( );
-			FlowLayout flowLayout = ( FlowLayout ) panelBtnAddData.getLayout( );
+			panelBtnAddData = new JPanel( new BorderLayout() );
+			
+			JPanel aux = new JPanel();
+			FlowLayout flowLayout = ( FlowLayout ) aux.getLayout( );
 			flowLayout.setAlignment( FlowLayout.LEFT );
 			//panelBtnAddData.add( getBtnMoveUpDataFile( ) );
 			//panelBtnAddData.add( getButtonMoveDownDataFile( ) );
-			panelBtnAddData.add( getLblBinaryDataFiles( ) );
-			panelBtnAddData.add( getButtonAddData( ) );
+			aux.add( this.getLblBinaryDataFiles( ) );
+			aux.add( this.getButtonAddData( ) );
+			
+			panelBtnAddData.add( aux, BorderLayout.CENTER );
+			//panelBtnAddData.add( this.getButtonTakeOffDataFile( ), BorderLayout.EAST );
 		}
 
 		return panelBtnAddData;
@@ -565,7 +616,9 @@ public class Dialog_BinaryConverter extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{
-					clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					//clearBinaryFiles( getTableFileData( ), binaryDataFiles );
+					
+					getTableFileData().clearSelection();
 					
 					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
 					if( FILES != null )
@@ -574,10 +627,13 @@ public class Dialog_BinaryConverter extends JDialog
 						{	
 							IMutableStreamSetting bh = getBinaryFileInfo( file );
 							if( bh != null )
-							{								
-								insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
-									
-								binaryDataFiles.put( file, bh );
+							{				
+								if( !binaryDataFiles.keySet().contains( file ) )
+								{
+									insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
+										
+									binaryDataFiles.put( file, bh );
+								}
 							}
 						}
 						
@@ -593,17 +649,72 @@ public class Dialog_BinaryConverter extends JDialog
 		return buttonAddData;
 	}
 
+	/*
+	private JButton getButtonTakeOffDataFile( ) 
+	{
+		if ( this.btlTakeOffFile == null )
+		{
+			btlTakeOffFile = new JButton( );
+			btlTakeOffFile.setEnabled( false );
+			
+			try
+			{
+				btlTakeOffFile.setIcon( GeneralAppIcon.Close( 15, Color.RED ) );
+			}
+			catch ( Exception e ) 
+			{
+				btlTakeOffFile.setText( Language.getLocalCaption( Language.TAKE_OFF_TEXT ) );
+			}
+			
+			btlTakeOffFile.addActionListener( new ActionListener( ) 
+			{
+				public void actionPerformed( ActionEvent e ) 
+				{
+					int cRow = getTableFileData().getSelectedRow();
+					
+					removeBinaryFiles( getTableFileData(), binaryDataFiles, cRow, cRow );
+				}
+			} );
+			
+			btlTakeOffFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+			btlTakeOffFile.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
+		}
+
+		return btlTakeOffFile;
+	}
+	//*/
 	
 	private void clearBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles )	
 	{
-		this.clearInfoLabels( );
-			
-		binaryFiles.clear( );
-
-		DefaultTableModel dm = ( DefaultTableModel )t.getModel( );
-		while( dm.getRowCount( ) > 0 )
+		if( t != null && binaryFiles != null )
 		{
-			dm.removeRow( dm.getRowCount( ) - 1 );
+			this.removeBinaryFiles( t, binaryFiles, 0, t.getRowCount()-1 );
+		}
+	}
+	
+	private void removeCurrentBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles  )	
+	{
+		if( t != null && binaryFiles != null  )
+		{
+			int r = t.getSelectedRow();
+			this.removeBinaryFiles( t, binaryFiles, r, r );
+		}
+	}
+	
+	private void removeBinaryFiles( JTable t, Map< String, IMutableStreamSetting > binaryFiles, int init, int end )	
+	{
+		if( t != null && binaryFiles != null && init > -1 && end >= init )
+		{
+			this.clearInfoLabels( );
+				
+			DefaultTableModel dm = ( DefaultTableModel )t.getModel( );
+			for( int i = end; i >= init; i-- )
+			{		
+				String file = dm.getValueAt( i, 0 ).toString();
+				
+				this.binaryDataFiles.remove( file );
+				dm.removeRow( i );
+			}
 		}
 	}
 	
@@ -732,16 +843,20 @@ public class Dialog_BinaryConverter extends JDialog
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;			
 			panelBinInfo.add( panelAux, gbc );
 			
+			/*
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.anchor = GridBagConstraints.EAST;
 			gbc.gridx = 0;
 			gbc.gridy = ( panelBinInfo.getComponentCount() + colPadding ) / COLS;
 			panelBinInfo.add( getLblOutputPath( ), gbc );
+			//*/
 			
+			/*
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.gridx = 1;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
 			panelBinInfo.add( getPanelOutPath( ), gbc );
+			//*/
 		}
 
 		return panelBinInfo;
@@ -1092,6 +1207,44 @@ public class Dialog_BinaryConverter extends JDialog
 			txtXMLDesc = new JTextField( );
 			txtXMLDesc.setEditable( false );
 			txtXMLDesc.setColumns( 10 );
+			
+			txtXMLDesc.getDocument().addDocumentListener( new DocumentListener() 
+			{	
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				private void update( DocumentEvent e )
+				{
+					if( currentBinFile != null )
+					{
+						try 
+						{
+							String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
+							
+																
+							currentBinFile.setDescription( desc );
+						} 
+						catch ( BadLocationException e1 ) 
+						{
+						}
+					}
+				}
+			});
 		}
 
 		return txtXMLDesc;
@@ -1104,6 +1257,9 @@ public class Dialog_BinaryConverter extends JDialog
 		{	
 			this.tableFileData = this.getCreateJTable( );
 			this.tableFileData.setModel( this.createBinFileTable( ) );
+			
+			this.tableFileData.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			
 			this.tableFileData.getModel().addTableModelListener( new TableModelListener() 
 			{				
 				@Override
@@ -1121,23 +1277,56 @@ public class Dialog_BinaryConverter extends JDialog
 							
 							String file = tm.getValueAt( row, FileTableColumn ).toString();
 							
-							updateDataStreamSetting( file, col, d );
+							updateDataStreamSetting( file, row, col, d );
 						}
 					}
 				}
 			});
-			
+						
 			this.tableFileData.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 			
 			this.tableFileData.setPreferredScrollableViewportSize( this.tableFileData.getPreferredSize( ) );
 			this.tableFileData.setFillsViewportHeight( true );
 			
-			this.tableFileData.getColumnModel().getColumn( 0  ).setResizable( false );
+			TableColumnModel tcm = this.tableFileData.getColumnModel();
 			
-			this.tableFileData.getColumnModel().getColumn( 1  ).setResizable( false );
-			this.tableFileData.getColumnModel().getColumn( 1 ).setPreferredWidth( 75 );
-			this.tableFileData.getColumnModel().getColumn( 1 ).setMaxWidth( 75 );
+			tcm.getColumn( 0  ).setResizable( false );
 			
+			tcm.getColumn( 1  ).setResizable( false );
+			tcm.getColumn( 1 ).setPreferredWidth( 75 );
+			tcm.getColumn( 1 ).setMaxWidth( 75 );
+				
+			
+			TableButtonCellRender btRender = new TableButtonCellRender();
+			TableButtonCellEditor btEditor = new TableButtonCellEditor();
+			
+			JButton btR = btRender.getButton();
+			JButton btEd = btEditor.getButton();
+			
+			btR.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			btEd.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			
+			ActionListener actListener = new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JTable tb =  getTableFileData();
+					tb.getCellEditor().stopCellEditing();
+					
+					removeCurrentBinaryFiles( tb, binaryDataFiles );
+					
+				}
+			};
+			btR.addActionListener(actListener );
+			btEd.addActionListener(actListener );
+			
+			tcm.getColumn( 2 ).setCellRenderer( btRender );
+			tcm.getColumn( 2 ).setCellEditor( btEditor );
+			tcm.getColumn( 2  ).setResizable( false );
+			tcm.getColumn( 2 ).setPreferredWidth( 25 );
+			tcm.getColumn( 2 ).setMaxWidth( 25 );
+						
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{				
 				@Override
@@ -1154,10 +1343,90 @@ public class Dialog_BinaryConverter extends JDialog
 							currentBinFile = binaryDataFiles.get( file );
 							
 							showBinaryFileInfo( file, currentBinFile );
+						}						
+					}
+					
+					//getButtonTakeOffDataFile().setEnabled( !md.isSelectionEmpty( ) );
+				}
+			} );	
+			
+			this.tableFileData.addKeyListener( new KeyAdapter()
+			{
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					if( e.getKeyCode() == KeyEvent.VK_DELETE )
+					{
+						JTable tb = (JTable)e.getSource();
+						
+						int cRow = tb.getSelectedRow();
+						if( cRow >= 0 && cRow < tb.getRowCount() )
+						{
+							removeBinaryFiles( tb, binaryDataFiles, cRow, cRow );
 						}
 					}
 				}
-			} );		
+			});
+			
+			this.tableFileData.setDropTarget( new DropTarget()
+			{
+				private static final long serialVersionUID = -4401379753623929995L;
+
+				@Override
+				public synchronized void drop(DropTargetDropEvent dtde) 
+				{
+					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
+					
+					try 
+					{
+						dtde.acceptDrop(DnDConstants.ACTION_COPY);
+						List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						
+						if( !droppedFiles.isEmpty() )
+						{	
+							Iterator< File > itFiles = droppedFiles.iterator();
+							List< String > filePaths = new ArrayList<String>();
+							
+							while( itFiles.hasNext() )
+							{
+								File f = itFiles.next();
+								
+								if( f.exists() && f.isFile() )
+								{
+									filePaths.add( f.getAbsolutePath() );
+								}								
+							}
+														
+							if( !filePaths.isEmpty() )
+							{
+								for( String file : filePaths )
+								{	
+									IMutableStreamSetting bh = getBinaryFileInfo( file );
+									if( bh != null )
+									{				
+										if( !binaryDataFiles.keySet().contains( file ) )
+										{
+											insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
+												
+											binaryDataFiles.put( file, bh );
+										}
+									}
+								}
+								
+								currentFolderPath = (new File( filePaths.get( 0 ) ) ).getAbsolutePath();
+							}
+						}
+						
+						dtde.dropComplete(true);
+					} 
+					catch (Exception ex) 
+					{
+						ex.printStackTrace();
+					}
+					
+					setCursor( new Cursor( Cursor.DEFAULT_CURSOR ) );
+				}
+			});
 		}
 		
 		return this.tableFileData;
@@ -1220,12 +1489,13 @@ public class Dialog_BinaryConverter extends JDialog
 	private TableModel createBinFileTable( )
 	{					
 		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE )
-																	, Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED )} )
+																	, Language.getLocalCaption( Language.SETTING_LSL_INTERLEAVED )
+																	, "" } )
 						{
 							private static final long serialVersionUID = 1L;
 								
 							Class[] columnTypes = getColumnTableTypes();
-							boolean[] columnEditables = new boolean[] { false, true };
+							boolean[] columnEditables = new boolean[] { false, true, true };
 								
 							public Class getColumnClass( int columnIndex ) 
 							{
@@ -1238,7 +1508,8 @@ public class Dialog_BinaryConverter extends JDialog
 									
 								return editable;
 							}
-						};		
+						};
+							
 						
 		return tm;
 	}
@@ -1246,7 +1517,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private Class[] getColumnTableTypes()
 	{
 		this.FileTableColumn = 0;
-		return new Class[]{ String.class, Boolean.class };
+		return new Class[]{ String.class, Boolean.class, Boolean.class };
 	}
 		
 	private void insertBinaryFilesInTable( JTable t, String file, boolean interleaved )
@@ -1289,15 +1560,17 @@ public class Dialog_BinaryConverter extends JDialog
 			this.getTxtDataType( ).setText( t );	
 			this.getTxtNumChannels( ).setText( header.channel_count() + "" );
 			this.getTxtXMLDesc( ).setText( header.description().replaceAll( "\\s+", "" ) );
-			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );
+			//this.getTxtXMLDesc().setEditable( true );
+			
+			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );			
 		}
 	}
 		
 	
-	private void updateDataStreamSetting( String file, int fieldIndex, Object val )
+	private void updateDataStreamSetting( String file, int row, int fieldIndex, Object val )
 	{
 		if( file != null && val != null )
-		{
+		{	
 			IMutableStreamSetting bh = this.binaryDataFiles.get( file );
 			
 			switch ( fieldIndex )
@@ -1305,7 +1578,7 @@ public class Dialog_BinaryConverter extends JDialog
 				case 1:
 				{
 					try
-					{
+					{	
 						bh.setInterleaveadData( (Boolean)val);
 					}
 					catch (Exception e) 
@@ -1314,6 +1587,20 @@ public class Dialog_BinaryConverter extends JDialog
 					
 					break;
 				}
+				/*
+				case 2:
+				{
+					try
+					{
+						removeBinaryFiles( getTableFileData(), binaryDataFiles, row, row );
+					}
+					catch (Exception e) 
+					{
+					}
+					
+					break;
+				}
+				//*/
 				default:
 					break;
 			}
@@ -1593,6 +1880,7 @@ public class Dialog_BinaryConverter extends JDialog
 		this.getTxtDataType( ).setText( "" );
 		this.getTxtNumChannels( ).setText( "" );
 		this.getTxtXMLDesc( ).setText( "" );	
+		this.getTxtXMLDesc().setEditable( false );
 	}
 	
 	/*
@@ -1754,7 +2042,7 @@ public class Dialog_BinaryConverter extends JDialog
 		return chbParallelize;
 	}
 	
-	
+	/*
 	private JLabel getLblOutputPath( ) 
 	{
 		if ( lblOutputPath == null )
@@ -1765,7 +2053,9 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return lblOutputPath;
 	}
+	//*/
 
+	/*
 	private JPanel getPanelOutPath( ) 
 	{
 		if ( panelOutPath == null )
@@ -1778,7 +2068,9 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return panelOutPath;
 	}
+	//*/
 
+	/*
 	private JTextField getTxtOutFileFolder( ) 
 	{
 		if ( txtOutFileFolder == null )
@@ -1825,7 +2117,9 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		return txtOutFileFolder;
 	}
+	//*/
 
+	/*
 	private JButton getBtnOutFolder( ) 
 	{
 		if ( btnOutFolder == null )
@@ -1861,7 +2155,7 @@ public class Dialog_BinaryConverter extends JDialog
 
 		return btnOutFolder;
 	}
-	
+	//*/
 	
 	private JCheckBox getChckbxDeleteBinaries() 
 	{

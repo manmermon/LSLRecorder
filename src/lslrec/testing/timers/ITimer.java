@@ -19,6 +19,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
+
 package lslrec.testing.timers;
 
 public interface ITimer 

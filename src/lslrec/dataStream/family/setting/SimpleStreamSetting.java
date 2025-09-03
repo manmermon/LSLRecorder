@@ -217,8 +217,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, boolean enableCheckerTimer
 								, String sourceID
 								, String uid
-								, Map< String, String > extraInfo
-								  
+								, Map< String, String > extraInfo								  
 								)
 	{
 		

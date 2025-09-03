@@ -20,6 +20,7 @@ f * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS
  *  
  */
 
+
 package lslrec.config.language;
 
 import java.io.File;
@@ -115,12 +116,15 @@ public class Language
 
 	public static final String CHECK_SPECIAL_IN_WARNING_MSG = "CHECK_SPECIAL_IN_WARNING_MSG";
 	public static final String CHECK_SYNC_METHOD_WARNING_MSG = "CHECK_SYNC_METHOD_WARNING_MSG";
-	public static final String CHECK_NON_SELECT_STREAM_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_NON_SELECTED_STREAMS_ERROR_MSG = "CHECK_NON_SELECT_LSL_ERROR_MSG";
+	public static final String CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG = "CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG";
 	public static final String CHECK_SYNC_UNSELECTABLE_ERROR_MSG = "CHECK_SYNC_LSL_UNSELECTABLE_ERROR_MSG";
 	public static final String CHECK_DEVICES_CHANGE_WARNING_MSG = "CHECK_LSL_DEVICES_CHANGE_WARNING_MSG";
 	public static final String CHECK_SYNC_STREAM_WARNING_MSG = "CHECK_LSL_SYNC_STREAM_WARNING_MSG";
 	public static final String CHECK_LSL_CHUNCKSIZE_WARNING_MSG = "CHECK_LSL_CHUNCKSIZE_WARNING_MSG";
 	public static final String CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG = "CHECK_SYNC_UNSELECT_STREAM_WARNING_MSG";
+	public static final String CHECK_SELECTED_DATA_STREAMS_MSG = "CHECK_SELECTED_STREAMS_MSG";
+	public static final String CHECK_SELECTED_SYNC_STREAMS_MSG = "CHECK_SELECTED_SYNC_STREAMS_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -128,6 +132,7 @@ public class Language
 	public static final String PROCESS_TEXT = "PROCESS_TEXT";
 	public static final String POST_PROCESS_TEXT = "POST_PROCESS_TEXT";
 	public static final String SAVE_DATA_PROCESSING_TEXT = "DATA_PROCESSING_TEXT";
+	public static final String TAKE_OFF_TEXT = "TAKE_OFF_TEXT";
 
 	public static final String DIALOG_SAVE = "DIALOG_SAVE";
 	public static final String DIALOG_ERROR = "DIALOG_ERROR";
@@ -149,6 +154,8 @@ public class Language
 	public static final String MSG_ILLEGAL_VALUE = "MSG_ILLEGAL_VALUE";
 	public static final String MSG_ENCODER_PLUGIN_NO_FOUND = "MSG_ENCODER_PLUGIN_NO_FOUND";
 	public static final String MSG_CANCEL_PROCESS = "MSG_CANCEL_PROCESS";
+	public static final String MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS = "MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS";
+	public static final String MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS = "MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS";
 	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -180,6 +187,7 @@ public class Language
 	public static final String DOWN_TEXT = "DOWN_TEXT";
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
 	public static final String OPTIONS_TEXT = "OPTIONS_TEXT";
+	public static final String SYNC_MARK_FILE_TEXT = "SYNC_MARK_FILE_TEXT";
 
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
@@ -236,6 +244,8 @@ public class Language
 	public static final String STEP_TEXT = "STEP_TEXT";
 	public static final String ALL_TEXT = "ALL_TEXT";
 	public static final String NONE_TEXT = "NONE_TEXT";
+	public static final String XAXIS_TEXT = "XAXIS_TEXT";
+	public static final String RELATIVE_TEXT = "RELATIVE_TEXT";
 	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -244,14 +254,24 @@ public class Language
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
+		
+		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
+		captions.put( MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, defaultLanguage, "Number of selected sync streams is not equal to " ) );
+		captions.put( CHECK_SELECTED_DATA_STREAMS_MSG, new Caption(CHECK_SELECTED_DATA_STREAMS_MSG, defaultLanguage, "Number of selected data streams equal to " ) );
+		captions.put( CHECK_SELECTED_SYNC_STREAMS_MSG, new Caption(CHECK_SELECTED_SYNC_STREAMS_MSG, defaultLanguage, "Number of selected sync streams equal to " ) );
+		
+		captions.put( SYNC_MARK_FILE_TEXT, new Caption(SYNC_MARK_FILE_TEXT, defaultLanguage, "Sync. mark file" ) );
 		captions.put( CHECKLIST_TEXT, new Caption(CHECKLIST_TEXT, defaultLanguage, "Checklist" ) );
 		captions.put( FOLDER_TEXT, new Caption( FOLDER_TEXT, defaultLanguage, "Folder" ) );
 		captions.put( SUBJECT_ID_TEXT, new Caption( SUBJECT_ID_TEXT, defaultLanguage, "Subject id" ) );
 		captions.put( TEST_ID_TEXT, new Caption( TEST_ID_TEXT, defaultLanguage, "Test id" ) );
 		captions.put( FILENAME_TEXT, new Caption( FILENAME_TEXT, defaultLanguage, "File name" ) );
+		captions.put( TAKE_OFF_TEXT, new Caption( TAKE_OFF_TEXT, defaultLanguage, "Take off" ) );
 		
 		captions.put( DATA_CHART_SUMMARY_TEXT, new Caption( DATA_CHART_SUMMARY_TEXT, defaultLanguage, "Data chart summary" ) );
 
+		captions.put( RELATIVE_TEXT, new Caption( RELATIVE_TEXT,  defaultLanguage, "Relative" ) );
+		captions.put( XAXIS_TEXT, new Caption( XAXIS_TEXT,  defaultLanguage, "X axis" ) );
 		captions.put( VARIABLE_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variable" ) );
 		captions.put( VARIABLES_TEXT, new Caption( VARIABLE_TEXT,  defaultLanguage, "Variables" ) );
 		captions.put( STEP_TEXT, new Caption( STEP_TEXT,  defaultLanguage, "Step" ) );
@@ -478,8 +498,10 @@ public class Language
 
 		captions.put(CHECK_DEVICES_CHANGE_WARNING_MSG, new Caption(CHECK_DEVICES_CHANGE_WARNING_MSG,
 				defaultLanguage, "LSL devices changed. It is recommended to refresh before continuing."));
-		captions.put(CHECK_NON_SELECT_STREAM_ERROR_MSG,
-				new Caption(CHECK_NON_SELECT_STREAM_ERROR_MSG, defaultLanguage, "Non one LSL devices selected."));
+		captions.put(CHECK_NON_SELECTED_STREAMS_ERROR_MSG,
+				new Caption(CHECK_NON_SELECTED_STREAMS_ERROR_MSG, defaultLanguage, "No streams selected."));
+		captions.put(CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG,
+				new Caption(CHECK_SELECTED_STREAMS_CHANGE_ERROR_MSG, defaultLanguage, "Selected streams changed."));
 		captions.put(CHECK_SPECIAL_IN_WARNING_MSG,
 				new Caption(CHECK_SPECIAL_IN_WARNING_MSG, defaultLanguage, "Special inputs are not selected."));
 		captions.put(CHECK_SYNC_UNSELECTABLE_ERROR_MSG, new Caption(CHECK_SYNC_UNSELECTABLE_ERROR_MSG,

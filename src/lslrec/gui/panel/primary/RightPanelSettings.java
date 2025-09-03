@@ -426,8 +426,8 @@ public class RightPanelSettings extends JPanel
 				boolean find = false;
 				
 				if( dev.isSelected() )
-				{	
-					find = this.searchButton( this.selectedDeviceGroup, dev.source_id() );					
+				{	//deviceName + deviceType + sourceID
+					find = this.searchButton( this.selectedDeviceGroup, dev.name() + dev.content_type() + dev.source_id() );					
 					findDevice = findDevice || find;
 					
 					if( !find )
@@ -1527,14 +1527,23 @@ public class RightPanelSettings extends JPanel
 					
 					Object selItem = c.getSelectedItem();
 					
+					getOutputFormatOptsButton().setEnabled( false );
+					
 					if( selItem != null )
 					{
 						String format =  selItem.toString();
 						
 						ConfigApp.setProperty( ID , format );
 						
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format );
+						Encoder enc = tenc.t1;
+						
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						
+						getOutputFormatOptsButton().setEnabled( opts != null && !opts.isEmpty() );
+						
 						setCompledteOutputFileName();
-					}
+					}					
 				}
 			});
 			
@@ -1856,7 +1865,7 @@ public class RightPanelSettings extends JPanel
 				//
 				//
 				//
-				
+				/*
 				if( !sourceID.isEmpty() )
 				{	
 					selDataStream.setName( sourceID );
@@ -1865,6 +1874,8 @@ public class RightPanelSettings extends JPanel
 				{
 					selDataStream.setName( deviceName + deviceType );
 				}
+				//*/
+				selDataStream.setName( deviceName + deviceType + sourceID );
 	
 				selDataStream.setToolTipText( deviceName + "- uid: " + uid );
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_NAME, selDataStream );
@@ -1952,7 +1963,7 @@ public class RightPanelSettings extends JPanel
 	
 				if( Sync.isEnabled() )
 				{
-					Sync.setEnabled( true );
+					//Sync.setEnabled( true );
 	
 					Sync.addItemListener( new ItemListener()
 					{						
@@ -2087,7 +2098,7 @@ public class RightPanelSettings extends JPanel
 						
 						//String txInfo = JOptionPane.showInputDialog( deviceName + " (" + uid + ").\n" + Language.getLocalCaption( Language.SETTING_LSL_EXTRA_TOOLTIP ) + ":", textInfo );
 						
-						String txInfo = parlist.getParameter(StreamExtraLabels.ID_EXTRA_INFO_LABEL ).getValue().toString();
+						String txInfo = parlist.getParameter( StreamExtraLabels.ID_EXTRA_INFO_LABEL ).getValue().toString();
 						
 						if( txInfo != null )
 						{

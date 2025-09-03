@@ -19,7 +19,6 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-
 package lslrec.testing.timers;
 
 import lslrec.auxiliar.task.INotificationTask;

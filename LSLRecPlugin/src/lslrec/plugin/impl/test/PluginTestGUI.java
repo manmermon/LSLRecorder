@@ -24,6 +24,7 @@ import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin;
+import lslrec.plugin.impl.encoder.binary.BinaryEncoderPlugin;
 import lslrec.plugin.impl.encoder.csv.CSVEncoderPlugin;
 import lslrec.plugin.impl.encoder.hdf5.HDF5EncoderPlugin;
 import lslrec.plugin.impl.encoder.matlab.MatlabEncoderPlugin;
@@ -172,6 +173,7 @@ public class PluginTestGUI extends JFrame {
 		plugins.putElement( PluginType.ENCODER , new CSVEncoderPlugin() );
 		plugins.putElement( PluginType.ENCODER , new HDF5EncoderPlugin() );
 		plugins.putElement( PluginType.ENCODER , new MatlabEncoderPlugin() );
+		plugins.putElement( PluginType.ENCODER , new BinaryEncoderPlugin() );
 		
 		plugins.putElement( PluginType.TRIAL, new PluginArithmeticTest() );
 		plugins.putElement( PluginType.TRIAL, new PluginAlarmTest() );

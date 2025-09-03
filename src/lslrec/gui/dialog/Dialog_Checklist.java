@@ -10,6 +10,7 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -21,6 +22,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -313,6 +315,27 @@ public class Dialog_Checklist extends JDialog {
 			this.tableChecklist.getColumnModel().getColumn(0).setMaxWidth( fm.stringWidth( hCol0 ) * 2 );
 			this.tableChecklist.getColumnModel().getColumn(0).setMinWidth( fm.stringWidth( hCol0 ) );
 			//this.tableChecklist.getColumnModel().getColumn(1).setPreferredWidth(125);
+			
+			this.tableChecklist.addMouseListener( new MouseAdapter() 
+			{
+				@Override
+				public void mouseClicked(MouseEvent e) 
+				{
+					JTable tb = (JTable)e.getSource();
+					
+					int row = tb.rowAtPoint( e.getPoint() );
+					int col = tb.columnAtPoint( e.getPoint() );
+					
+					if( row == 1 && col == 1 )
+					{
+						changeCheckNumberSelectedStreams( Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG ), row, col );
+					}
+					else if( row == 2 && col == 1 )
+					{
+						changeCheckNumberSelectedStreams( Language.getLocalCaption( Language.CHECK_SELECTED_SYNC_STREAMS_MSG ), row, col );
+					}
+				}
+			});
 		}
 		
 		return this.tableChecklist;
@@ -358,7 +381,7 @@ public class Dialog_Checklist extends JDialog {
 											        
 											        if( !table.isCellEditable( row, column ) )
 											        {	
-											        	cellComponent.setBackground( new Color( 255, 255, 150 ) );											        	
+											        	cellComponent.setBackground( new Color( 255, 255, 150 ) );
 											        }
 											        else
 											        {
@@ -383,6 +406,41 @@ public class Dialog_Checklist extends JDialog {
 		return table;
 	}
 	
+	private void changeCheckNumberSelectedStreams( String msg, int row, int col )
+	{
+		String errMsg = "";
+		//String msg = Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG );
+		
+		String val = "";
+		
+		while( val != null && val.isEmpty() )
+		{
+			val = JOptionPane.showInputDialog( this, errMsg + msg );
+			
+			if( val != null )
+			{
+				try 
+				{				
+					if( Integer.parseInt( val ) < 1 )
+					{
+						val = "";
+						errMsg = "";
+					}
+				} 
+				catch (Exception e) 
+				{
+					val = "";
+					errMsg = e.getMessage() + "\n";
+				}
+			}
+		}
+		
+		if( val != null )
+		{
+			tableChecklist.setValueAt( msg + val, row, col );
+		}
+	}
+	
 	private TableModel createTablemodel( )
 	{	
 		TableModel tm =  new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.SELECT_TEXT), Language.getLocalCaption( Language.CHECKLIST_TEXT )  } )
@@ -399,7 +457,7 @@ public class Dialog_Checklist extends JDialog {
 																								
 								public boolean isCellEditable(int row, int column) 
 								{
-									boolean editable = ( row > 0 || column < 1 ) ? columnEditables[ column ] : false;
+									boolean editable = ( row > 2 || column < 1 ) ? columnEditables[ column ] : false;
 									
 									return editable;
 								}
@@ -506,7 +564,7 @@ public class Dialog_Checklist extends JDialog {
 					int index = selIndex[ i ];
 					int row = index + dir;
 					
-					if( row > 0 && index > 0 )
+					if( row > 2 && index > 2 )
 					{
 						tmSource.moveRow( index, index, row );
 						
