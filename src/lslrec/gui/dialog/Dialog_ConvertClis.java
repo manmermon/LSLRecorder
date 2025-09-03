@@ -10,6 +10,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -26,7 +30,10 @@ import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,6 +54,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 
 import lslrec.auxiliar.WarningMessage;
@@ -79,12 +87,16 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.TableButtonCellEditor;
+import lslrec.gui.miscellany.TableButtonCellRender;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.Container;
+import java.awt.Cursor;
+
 import javax.swing.JSplitPane;
 
 /**
@@ -117,6 +129,7 @@ public class Dialog_ConvertClis extends JDialog
 	private JButton btnCancel;
 	//private JButton btnOutFolder;
 	private JButton btnShowFileInfo;
+	private JButton btnClearAll;
 	
 	private JCheckBox chbxEncrypt;
 	
@@ -138,6 +151,8 @@ public class Dialog_ConvertClis extends JDialog
 	
 	private AbstractStoppableThread convertThread = null;
 	private Object sync = new Object();
+	
+	//private Map< String, Map< String, boolean[] > > clisFileVarSelectedChannels;
 	
 	/**
 	 * Launch the application.
@@ -295,6 +310,8 @@ public class Dialog_ConvertClis extends JDialog
 		container.add( this.getCenterPanel(), BorderLayout.CENTER);
 		super.getContentPane().add( this.getSouthPanel(), BorderLayout.SOUTH);
 		super.getContentPane().add( this.getLoadFilePanel(), BorderLayout.NORTH);
+		
+		//this.clisFileVarSelectedChannels = new HashMap< String, Map< String, boolean[] >> ();
 	}
 	
 	private JPanel getCenterPanel()
@@ -319,7 +336,8 @@ public class Dialog_ConvertClis extends JDialog
 		{
 			this.northInputFilePanel = new JPanel( new FlowLayout( FlowLayout.RIGHT ) );
 			
-			this.northInputFilePanel.add( this.getBtnShowFileInfo() );
+			this.northInputFilePanel.add( this.getBtnClearAll() );			
+			this.northInputFilePanel.add( this.getBtnShowFileInfo() );			
 		}
 		
 		return this.northInputFilePanel;
@@ -487,9 +505,9 @@ public class Dialog_ConvertClis extends JDialog
 														
 													}
 												};
-												
-	
+													
 												clis = new ClisData( file );
+												//Map< String, boolean[] > selChannels = clisFileVarSelectedChannels.get( file );
 												
 												List< MetadataVariableBlock > lmvb = clis.getVarInfo();
 												
@@ -501,7 +519,7 @@ public class Dialog_ConvertClis extends JDialog
 												{
 													varNames.add( vb.getName() );
 													nChs += vb.getCols();
-													v += vb.getName();												
+													v += vb.getName();
 												}
 	
 												String header = clis.getHeader();
@@ -788,7 +806,8 @@ public class Dialog_ConvertClis extends JDialog
 		if( Files != null )
 		{
 			JTable t = getTableFileData();
-			
+
+			/*
 			int rc = t.getRowCount();
 			if( rc > 0)
 			{
@@ -797,6 +816,9 @@ public class Dialog_ConvertClis extends JDialog
 					((DefaultTableModel)t.getModel()).removeRow( i );
 				}
 			}
+			/**/
+			
+			//this.clisFileVarSelectedChannels.clear();
 			
 			for( String file : Files )
 			{	
@@ -1257,13 +1279,97 @@ public class Dialog_ConvertClis extends JDialog
 			});
 			//*/
 			
+			this.tableFileData.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			
 			this.tableFileData.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
 			
 			this.tableFileData.setPreferredScrollableViewportSize( this.tableFileData.getPreferredSize( ) );
 			this.tableFileData.setFillsViewportHeight( true );
 			
-			this.tableFileData.getColumnModel().getColumn( 0  ).setResizable( false );
+			/*
+			TableButtonCellRender btRender = new TableButtonCellRender();
+			TableButtonCellEditor btEditor = new TableButtonCellEditor();
+			
+			JButton btR = btRender.getButton();
+			JButton btEd = btEditor.getButton();
+			
+			btR.setIcon( GeneralAppIcon.Pencil( 12, Color.BLACK ) );
+			btEd.setIcon( GeneralAppIcon.Pencil( 12, Color.BLACK ) );
+			
+			ActionListener actListener = new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JTable tb =  getTableFileData();
+					tb.getCellEditor().stopCellEditing();
+					
+					int r = tb.getSelectedRow();
+					if( r > -1 )
+					{
+						String file = tb.getValueAt( r, 0 ).toString();
+						Map< String, boolean[] > selChns = clisFileVarSelectedChannels.get( file );
 						
+						Dialog_SelectChannels dgSelChs = new Dialog_SelectChannels( selChns );
+						dgSelChs.setLocationRelativeTo( tb );
+						dgSelChs.setSize( new Dimension( 300, 150 ) );
+						dgSelChs.setModal( true );
+						dgSelChs.setTitle( Language.getLocalCaption( Language.LSL_CHANNELS ) + "..." );
+						dgSelChs.setIconImages( getIconImages() );
+						//dgSelChs.pack();
+						dgSelChs.setVisible( true );
+					}
+				}
+			};
+			btR.addActionListener(actListener );
+			btEd.addActionListener(actListener );
+			
+			this.tableFileData.getColumnModel().getColumn( 1 ).setCellRenderer( btRender );
+			this.tableFileData.getColumnModel().getColumn( 1 ).setCellEditor( btEditor );
+			
+			this.tableFileData.getColumnModel().getColumn( 1 ).setResizable( false );			
+			this.tableFileData.getColumnModel().getColumn( 1 ).setPreferredWidth( 75 );
+			this.tableFileData.getColumnModel().getColumn( 1 ).setMaxWidth( 75 );
+			//*/
+						
+			TableColumnModel tcm = this.tableFileData.getColumnModel();
+			
+			tcm.getColumn( 0  ).setResizable( false );
+						
+			TableButtonCellRender btRender = new TableButtonCellRender();
+			TableButtonCellEditor btEditor = new TableButtonCellEditor();
+			
+			JButton btR = btRender.getButton();
+			JButton btEd = btEditor.getButton();
+			
+			btR.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			btEd.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			
+			ActionListener actListener = new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JTable tb =  getTableFileData();
+					tb.getCellEditor().stopCellEditing();
+					
+					int selRow = tb.getSelectedRow();
+					if( selRow > -1 )
+					{
+						((DefaultTableModel)tb.getModel()).removeRow( selRow );
+					}
+					
+				}
+			};
+			btR.addActionListener(actListener );
+			btEd.addActionListener(actListener );
+			
+			tcm.getColumn( 1 ).setCellRenderer( btRender );
+			tcm.getColumn( 1 ).setCellEditor( btEditor );
+			tcm.getColumn( 1  ).setResizable( false );
+			tcm.getColumn( 1 ).setPreferredWidth( 25 );
+			tcm.getColumn( 1 ).setMaxWidth( 25 );
+			
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{				
 				@Override
@@ -1291,6 +1397,72 @@ public class Dialog_ConvertClis extends JDialog
 					}
 				}
 			} );		
+			
+			this.tableFileData.setDropTarget( new DropTarget()
+			{
+				private static final long serialVersionUID = -4401379753623929995L;
+
+				@Override
+				public synchronized void drop(DropTargetDropEvent dtde) 
+				{
+					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
+					
+					try 
+					{	
+						dtde.acceptDrop(DnDConstants.ACTION_COPY);
+						List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						
+						if( !droppedFiles.isEmpty() )
+						{	
+							String idEncoder = DataFileFormat.CLIS;
+							String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
+							
+							Iterator< File > itFiles = droppedFiles.iterator();
+							List< String > filePaths = new ArrayList<String>();
+							
+							while( itFiles.hasNext() )
+							{
+								File f = itFiles.next();
+								
+								if( f.exists() )
+								{
+									if( f.isFile() )
+									{
+										filePaths.add( f.getAbsolutePath() );
+									}
+									else
+									{
+										List< Path > recFiles = new ArrayList<Path>();
+										
+										listAllFiles( Paths.get( f.getAbsolutePath() ) , ext, recFiles );
+										
+										for( Path pathRecF : recFiles )
+										{
+											filePaths.add( pathRecF.toFile().getAbsolutePath() );
+										}
+									}									
+								}
+							}
+							
+							if( !filePaths.isEmpty() )
+							{
+								String[] FILES = filePaths.toArray( new String[0] );
+								loadFile2Table( FILES );
+
+								currentFolderPath = (new File( FILES[ 0 ] ) ).getAbsolutePath();							
+							}
+						}
+						
+						dtde.dropComplete(true);
+					} 
+					catch (Exception ex) 
+					{
+						ex.printStackTrace();
+					}
+					
+					setCursor( new Cursor( Cursor.DEFAULT_CURSOR ) );
+				}
+			});
 		}
 		
 		return this.tableFileData;
@@ -1330,7 +1502,7 @@ public class Dialog_ConvertClis extends JDialog
 			infoPanel.add( new JScrollPane( jta ), BorderLayout.CENTER );
 		}
 		
-		infoPanel.setVisible( infoPanel.isVisible() );
+		infoPanel.setVisible( showPanel );
 	}
 	
 	private JTable getCreateJTable( )
@@ -1367,12 +1539,15 @@ public class Dialog_ConvertClis extends JDialog
 	
 	private TableModel createBinFileTable( )
 	{					
-		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE ) } )
+		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE )
+																	, ""
+																	//, Language.getLocalCaption( Language.LSL_CHANNELS ) 
+																	} )
 						{
 							private static final long serialVersionUID = 1L;
 								
 							Class[] columnTypes = getColumnTableTypes();
-							boolean[] columnEditables = new boolean[] { false };
+							boolean[] columnEditables = new boolean[] { false, true };//, true };
 								
 							public Class getColumnClass( int columnIndex ) 
 							{
@@ -1392,7 +1567,7 @@ public class Dialog_ConvertClis extends JDialog
 	
 	private Class[] getColumnTableTypes()
 	{
-		return new Class[]{ String.class };
+		return new Class[]{ String.class, Boolean.class };//, Boolean.class };
 	}
 		
 	private void insertBinaryFilesInTable( JTable t, String file )
@@ -1400,19 +1575,52 @@ public class Dialog_ConvertClis extends JDialog
 		Object[] vals = new Object[ t.getColumnCount( ) ];
 		Class[] colTableTypes = this.getColumnTableTypes();
 		
+		boolean add = false;
+		
 		for( int i = 0; i < vals.length; i++ )
 		{			
 			if( i < colTableTypes.length )
 			{
 				if( colTableTypes[ i ].equals( String.class ) )
 				{
-					vals[ i ] = file;
+					try 
+					{
+						ClisData clis = new ClisData( file );
+						
+						Map< String, boolean[] > selChns = new HashMap< String, boolean[] >();
+						
+						for( MetadataVariableBlock var : clis.getVarInfo() )
+						{
+							String varName = var.getName();
+							int numchs = var.getCols();
+							
+							boolean[] chs = new boolean[ numchs ];
+							for( int c = 0; c < numchs; c++ )
+							{
+								chs[ c ] = true;
+							}
+							
+							selChns.put( varName, chs );
+						}
+						
+						//this.clisFileVarSelectedChannels.put( file, selChns );
+						
+						vals[ i ] = file;
+						add = true;
+					}
+					catch (Exception e) 
+					{
+						e.printStackTrace();
+					}
 				}
 			}			
 		}
 		
-		DefaultTableModel m = ( DefaultTableModel )t.getModel( );
-		m.addRow( vals );
+		if( add )
+		{
+			DefaultTableModel m = ( DefaultTableModel )t.getModel( );
+			m.addRow( vals );
+		}
 	}
 	private JSplitPane getSplitCenterPane() 
 	{
@@ -1435,6 +1643,7 @@ public class Dialog_ConvertClis extends JDialog
 		
 		return this.infoFilePanel;
 	}
+	
 	private JButton getBtnShowFileInfo() 
 	{
 		if (this.btnShowFileInfo == null) 
@@ -1475,6 +1684,53 @@ public class Dialog_ConvertClis extends JDialog
 		}
 		return btnShowFileInfo;
 	}
+	
+	private JButton getBtnClearAll() 
+	{
+		if (this.btnClearAll == null) 
+		{
+			this.btnClearAll = new JButton();
+			
+			this.btnClearAll.setBorder( BorderFactory.createRaisedSoftBevelBorder() );
+			
+			ImageIcon ic = null;
+			ic = new ImageIcon( GeneralAppIcon.Clear( 256, Color.BLACK ).getImage().getScaledInstance( 20, 20, Image.SCALE_SMOOTH ) );			
+			
+			if( ic != null )
+			{
+				this.btnClearAll.setIcon( ic );
+			}
+			else
+			{
+				this.btnClearAll.setText( " clear " );
+			}
+			
+			this.btnClearAll.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{					
+					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
+					
+					JTable tb = getTableFileData();
+					
+					int numRows = tb.getRowCount();
+					
+					for( int r = numRows - 1; r >= 0; r-- )
+					{
+						((DefaultTableModel)tb.getModel()).removeRow( r );
+					}
+					
+					showBinaryFileInfo( null );
+					
+					setCursor( new Cursor( Cursor.DEFAULT_CURSOR ) );
+				}
+			});
+		}
+		
+		return btnClearAll;
+	}
+	
 	private JPanel getLoadFileBtnPanel()
 	{
 		if ( this.loadFileBtnPanel == null) 

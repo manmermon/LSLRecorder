@@ -26,6 +26,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
@@ -61,6 +62,7 @@ import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
@@ -79,6 +81,7 @@ import lslrec.gui.miscellany.TableButtonCellEditor;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 
 import javax.swing.JTable;
@@ -93,6 +96,11 @@ import java.awt.FontMetrics;
 import java.awt.Frame;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
+
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -110,6 +118,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.awt.event.ActionEvent;
@@ -411,8 +420,7 @@ public class Dialog_BinaryConverter extends JDialog
 			this.panelSyncFile.add( Box.createRigidArea( new Dimension( 5, 0 ) ) );
 			this.panelSyncFile.add( this.getLblSyncFile() );
 			this.panelSyncFile.add( this.getTxtSyncFilePath() );
-			this.panelSyncFile.add( this.getBtnSelectSyncFilePath() );
-			
+			this.panelSyncFile.add( this.getBtnSelectSyncFilePath() );			
 		}
 		
 		return this.panelSyncFile;
@@ -422,7 +430,7 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		if( this.lblSyncFile == null )
 		{
-			this.lblSyncFile = new JLabel( Language.getLocalCaption( Language.SETTING_LSL_SYNC ) + " " );
+			this.lblSyncFile = new JLabel( Language.getLocalCaption( Language.SYNC_MARK_FILE_TEXT ) + " " );
 			
 			this.lblSyncFile.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
 		}
@@ -461,12 +469,40 @@ public class Dialog_BinaryConverter extends JDialog
 				{
 					JTextField t = getTxtSyncFilePath();
 					
-					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
+					String syncExt = SyncMarkerCollectorWriter.SYNC_FILE_EXTENSION;
+					String clisExt = DataFileFormat.getSupportedFileExtension().get( DataFileFormat.CLIS );
+					int indexDot = syncExt.indexOf( "." );
+					syncExt = syncExt.substring( indexDot + 1 );
+					indexDot = clisExt.indexOf( "." );
+					clisExt = clisExt.substring( indexDot + 1 );
+					
+					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY
+																, syncExt + "/" + clisExt , new String[] { syncExt, clisExt }
+																, currentFolderPath );
 					if( FILES != null )
 					{
 						for( String file : FILES )
 						{
 							t.setText( file );
+						}
+						
+						try 
+						{
+							new ClisData( t.getText() );
+							Dialog_ExportSyncMarkFromClisFile dlgSyncMark = new Dialog_ExportSyncMarkFromClisFile( (JFrame)getOwner(), true, t.getText() );
+							
+							dlgSyncMark.setBounds( 100, 100, 450, 210 );
+							dlgSyncMark.setTitle( Language.getLocalCaption( Language.SYNC_MARK_FILE_TEXT ) + "..." );
+							dlgSyncMark.setLocationRelativeTo( getOwner() );
+							dlgSyncMark.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );			
+							dlgSyncMark.setVisible(true);
+							
+							String syncFile = dlgSyncMark.getSyncFile();
+							
+							t.setText( syncFile );
+						} 
+						catch (Exception e2) 
+						{
 						}
 						
 						currentFolderPath = (new File( FILES[ 0 ] )).getAbsolutePath();
@@ -1171,6 +1207,44 @@ public class Dialog_BinaryConverter extends JDialog
 			txtXMLDesc = new JTextField( );
 			txtXMLDesc.setEditable( false );
 			txtXMLDesc.setColumns( 10 );
+			
+			txtXMLDesc.getDocument().addDocumentListener( new DocumentListener() 
+			{	
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				private void update( DocumentEvent e )
+				{
+					if( currentBinFile != null )
+					{
+						try 
+						{
+							String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
+							
+																
+							currentBinFile.setDescription( desc );
+						} 
+						catch ( BadLocationException e1 ) 
+						{
+						}
+					}
+				}
+			});
 		}
 
 		return txtXMLDesc;
@@ -1291,6 +1365,66 @@ public class Dialog_BinaryConverter extends JDialog
 							removeBinaryFiles( tb, binaryDataFiles, cRow, cRow );
 						}
 					}
+				}
+			});
+			
+			this.tableFileData.setDropTarget( new DropTarget()
+			{
+				private static final long serialVersionUID = -4401379753623929995L;
+
+				@Override
+				public synchronized void drop(DropTargetDropEvent dtde) 
+				{
+					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
+					
+					try 
+					{
+						dtde.acceptDrop(DnDConstants.ACTION_COPY);
+						List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						
+						if( !droppedFiles.isEmpty() )
+						{	
+							Iterator< File > itFiles = droppedFiles.iterator();
+							List< String > filePaths = new ArrayList<String>();
+							
+							while( itFiles.hasNext() )
+							{
+								File f = itFiles.next();
+								
+								if( f.exists() && f.isFile() )
+								{
+									filePaths.add( f.getAbsolutePath() );
+								}								
+							}
+														
+							if( !filePaths.isEmpty() )
+							{
+								for( String file : filePaths )
+								{	
+									IMutableStreamSetting bh = getBinaryFileInfo( file );
+									if( bh != null )
+									{				
+										if( !binaryDataFiles.keySet().contains( file ) )
+										{
+											insertBinaryFilesInTable( getTableFileData( ), file, bh.isInterleavedData() );
+												
+											binaryDataFiles.put( file, bh );
+										}
+									}
+								}
+								
+								currentFolderPath = (new File( filePaths.get( 0 ) ) ).getAbsolutePath();
+							}
+						}
+						
+						dtde.dropComplete(true);
+					} 
+					catch (Exception ex) 
+					{
+						ex.printStackTrace();
+					}
+					
+					setCursor( new Cursor( Cursor.DEFAULT_CURSOR ) );
 				}
 			});
 		}
@@ -1426,7 +1560,9 @@ public class Dialog_BinaryConverter extends JDialog
 			this.getTxtDataType( ).setText( t );	
 			this.getTxtNumChannels( ).setText( header.channel_count() + "" );
 			this.getTxtXMLDesc( ).setText( header.description().replaceAll( "\\s+", "" ) );
-			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );
+			//this.getTxtXMLDesc().setEditable( true );
+			
+			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );			
 		}
 	}
 		
@@ -1744,6 +1880,7 @@ public class Dialog_BinaryConverter extends JDialog
 		this.getTxtDataType( ).setText( "" );
 		this.getTxtNumChannels( ).setText( "" );
 		this.getTxtXMLDesc( ).setText( "" );	
+		this.getTxtXMLDesc().setEditable( false );
 	}
 	
 	/*

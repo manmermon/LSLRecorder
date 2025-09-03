@@ -25,7 +25,6 @@ import java.util.Map;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
-import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils;
 
 public class StreamBinaryHeader

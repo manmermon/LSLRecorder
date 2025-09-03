@@ -187,6 +187,7 @@ public class Language
 	public static final String DOWN_TEXT = "DOWN_TEXT";
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
 	public static final String OPTIONS_TEXT = "OPTIONS_TEXT";
+	public static final String SYNC_MARK_FILE_TEXT = "SYNC_MARK_FILE_TEXT";
 
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
@@ -259,6 +260,7 @@ public class Language
 		captions.put( CHECK_SELECTED_DATA_STREAMS_MSG, new Caption(CHECK_SELECTED_DATA_STREAMS_MSG, defaultLanguage, "Number of selected data streams equal to " ) );
 		captions.put( CHECK_SELECTED_SYNC_STREAMS_MSG, new Caption(CHECK_SELECTED_SYNC_STREAMS_MSG, defaultLanguage, "Number of selected sync streams equal to " ) );
 		
+		captions.put( SYNC_MARK_FILE_TEXT, new Caption(SYNC_MARK_FILE_TEXT, defaultLanguage, "Sync. mark file" ) );
 		captions.put( CHECKLIST_TEXT, new Caption(CHECKLIST_TEXT, defaultLanguage, "Checklist" ) );
 		captions.put( FOLDER_TEXT, new Caption( FOLDER_TEXT, defaultLanguage, "Folder" ) );
 		captions.put( SUBJECT_ID_TEXT, new Caption( SUBJECT_ID_TEXT, defaultLanguage, "Subject id" ) );

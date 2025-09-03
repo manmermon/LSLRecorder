@@ -16,9 +16,11 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -367,26 +369,40 @@ public class Dialog_PlotClis extends JDialog
 					String[] FILE = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
 					if( FILE != null && FILE.length > 0 )
 					{						
-						getTxtClisFile().setText( FILE[ 0 ] );						
-						
-						try 
-						{
-							currentClisFile = new ClisData( FILE[ 0 ] );
-							currentFolderPath = (new File( FILE[ 0 ] )).getAbsolutePath();
-						} 
-						catch ( Exception e1) 
-						{
-							currentClisFile = null;
-						}
-						
-						showBinaryFileInfo( );
-						setClisDataPlotMetadata( );
+						setClisFile( FILE[ 0 ] );
 					}
 				}
 			} );
 			
 		}
 		return btnLoadFile;
+	}
+	
+	private void setClisFile( String FILE )
+	{
+		if( FILE != null )
+		{	
+			super.setCursor( Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR ) );
+			
+			this.getTxtClisFile().setText( "" );
+			
+			try 
+			{
+				this.currentClisFile = new ClisData( FILE );
+				this.currentFolderPath = (new File( FILE )).getAbsolutePath();
+				
+				this.getTxtClisFile().setText( FILE );
+			} 
+			catch ( Exception e1) 
+			{
+				this.currentClisFile = null;
+			}
+			
+			this.showBinaryFileInfo( );
+			this.setClisDataPlotMetadata( );
+			
+			super.setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
+		}
 	}
 	
 	private JLabel getLblLoadFile() 
@@ -753,8 +769,32 @@ public class Dialog_PlotClis extends JDialog
 			this.panelPlotCanva = new JPanel();
 			this.panelPlotCanva.setBorder(new LineBorder(new Color(0, 0, 0)));
 			this.panelPlotCanva.setBackground(Color.WHITE);
-			panelPlotCanva.setLayout(new BorderLayout(0, 0));
-			panelPlotCanva.add( this.getCanva(), BorderLayout.CENTER );
+			this.panelPlotCanva.setLayout(new BorderLayout(0, 0));
+			this.panelPlotCanva.add( this.getCanva(), BorderLayout.CENTER );
+			
+			this.panelPlotCanva.setDropTarget( new DropTarget()
+			{
+				@Override
+				public synchronized void drop(DropTargetDropEvent dtde) 
+				{
+					try 
+					{
+						dtde.acceptDrop(DnDConstants.ACTION_COPY);
+						List<File> droppedFiles = (List<File>) dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+						
+						if( !droppedFiles.isEmpty() )
+						{
+							setClisFile( droppedFiles.get( 0 ).getCanonicalPath() );
+						}
+						
+						dtde.dropComplete(true);
+					} 
+					catch (Exception ex) 
+					{
+						ex.printStackTrace();
+					}
+				}
+			});
 		}
 		
 		return this.panelPlotCanva;
@@ -1428,7 +1468,7 @@ public class Dialog_PlotClis extends JDialog
 			
 			int rows = dat.length;
 			
-			if( A > rows )
+			if( A >= rows )
 			{
 				A = rows - Math.abs( step );
 			}
@@ -1909,6 +1949,12 @@ public class Dialog_PlotClis extends JDialog
 								double prop = w *1.0D / cvW;
 		
 								double sample = (pX1.get() - leftMargin * 1D) / cvW ;
+		
+								Number[][] dat = clisData.get( currentVar.getName() );
+								
+								int dataLen = dat.length;
+								
+								prevStep = (prevStep <= dataLen ) ? prevStep : dataLen;
 								
 								sampleIndex_A = (int)( sampleIndex_A +  prevStep * sample );
 		
@@ -2008,12 +2054,15 @@ public class Dialog_PlotClis extends JDialog
 						if( dat != null )
 						{
 							int step = (int)getSpinnerStep().getValue();
+							
+							step = ( step < dat.length ) ? step : dat.length;
+							
 							int mov = ( e.getWheelRotation() < 0  ) ? step : -step;
 	
 							sampleIndex_A -= mov;
 							sampleIndex_A = ( sampleIndex_A < 0 ) ? 0 : sampleIndex_A;
 	
-							sampleIndex_A = ( sampleIndex_A + step > dat.length ) ? dat.length - step : sampleIndex_A;
+							sampleIndex_A = ( sampleIndex_A + step >= dat.length ) ? dat.length - step : sampleIndex_A;
 	
 							drawDataPlot( sampleIndex_A, sampleIndex_A + step );
 						}

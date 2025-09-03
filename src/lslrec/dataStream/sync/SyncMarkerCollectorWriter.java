@@ -65,7 +65,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 	
 	//private List< InputSyncData > syncInputData = null;
 	
-	private String ext = ".sync";
+	public static final String SYNC_FILE_EXTENSION = ".sync";
 	
 	private String header = null;
 		
@@ -75,9 +75,9 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		
 		super.setName( this.getClass().getSimpleName() );
 		
-		this.outFileName = file + "_" + date + this.ext;
+		this.outFileName = file + "_" + date + this.SYNC_FILE_EXTENSION;
 		
-		this.syncFileDisordered = FileUtils.CreateTemporalBinFile( file + "_" + date + "_disordered" + this.ext);
+		this.syncFileDisordered = FileUtils.CreateTemporalBinFile( file + "_" + date + "_disordered" + this.SYNC_FILE_EXTENSION);
 		
 		this.outDisorderedStream = new DataOutputStream( new FileOutputStream( this.syncFileDisordered ) );
 		
@@ -236,6 +236,11 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 		}
 			
 		return reader;
+	}
+	
+	public String getOutputFileName()
+	{
+		return this.outFileName;
 	}
 	
 	private static SyncMarkerBinFileReader getSyncMarkerBinFileReader( String file ) throws Exception

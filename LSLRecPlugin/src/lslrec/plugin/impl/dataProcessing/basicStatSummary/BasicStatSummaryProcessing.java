@@ -26,8 +26,8 @@ import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
 
 public class BasicStatSummaryProcessing extends LSLRecPluginDataProcessing
 {	
-	public static final String MARKER_WIN_SEGMENT_LEN = "WIN_LENGTH";
-	public static final String MARKER_ID_SEGMENTS = "MARKER_IDS";
+	public static final String MARKER_WIN_SEGMENT_LEN = "window length (samples for irregular stream or seconds for regular)";
+	public static final String MARKER_ID_SEGMENTS = "marker id for segmentation";
 	
 	private static final String outSubfolder = "images/";
 	
