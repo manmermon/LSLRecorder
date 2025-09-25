@@ -7,19 +7,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.Timer;
 
+import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
 
 public class Dialog_WarningMessages extends JDialog 
@@ -45,6 +47,10 @@ public class Dialog_WarningMessages extends JDialog
 	private int selectedOption = OPTION_NO_SELECTED;
 
 	private int checkCount = 0;
+	
+	private AtomicBoolean checkOn = new AtomicBoolean( false );
+	private Timer timer = null;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -91,6 +97,23 @@ public class Dialog_WarningMessages extends JDialog
 		});
 		//*/
 		
+		int checklistTimer = (Integer)ConfigApp.getProperty( ConfigApp.CHECKLIST_TIMER );
+		
+		if( checklistTimer > 0 )
+		{
+			this.timer = new Timer( checklistTimer*1000, new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					synchronized( checkOn )
+					{
+						checkOn.set( true );
+					}
+				}
+			});			
+		}
+		
 		JPanel checklistpanel = this.getChecklistPanel();
 		
 		checklistpanel.setVisible( false );
@@ -103,12 +126,37 @@ public class Dialog_WarningMessages extends JDialog
 				@Override
 				public void itemStateChanged(ItemEvent e) 
 				{
-					int updateValue = ( e.getStateChange() == ItemEvent.SELECTED  ) ? -1 : 1;
-					
-					checkCount += updateValue;
-					getJLabelCheckCount().setText( "" + checkCount );
-					
-					getBtOk().setEnabled( checkCount < 1 );
+					synchronized( checkOn )
+					{
+						if( checkOn.get() )
+						{
+							int updateValue = ( e.getStateChange() == ItemEvent.SELECTED  ) ? -1 : 1;
+							
+							checkCount += updateValue;
+							getJLabelCheckCount().setText( "" + checkCount );
+							
+							getBtOk().setEnabled( checkCount < 1 );
+							
+							if( timer != null )
+							{
+								if( checkCount > 0 )
+								{
+									checkOn.set( false );
+
+									timer.restart();
+								}
+								else
+								{
+									timer.stop();
+									timer = null;
+								}
+							}
+						}
+						else
+						{
+							JOptionPane.showMessageDialog( checklistpanel, Language.getLocalCaption( Language.MSG_CHECKLIST_WARNING ) );
+						}
+					}
 				}
 			});
 			
@@ -116,8 +164,13 @@ public class Dialog_WarningMessages extends JDialog
 		}
 		
 		this.getJLabelCheckCount().setText( "" + this.checkCount );
-		this.getBtOk().setEnabled( !( this.checkCount > 0 ) );
-		checklistpanel.setVisible( true );
+		this.getBtOk().setEnabled( !( this.checkCount > 0 ) );		
+		checklistpanel.setVisible( true );		
+		
+		if( this.timer != null )
+		{
+			this.timer.start();
+		}
 	}
 	
 	public int getSelectedOption()

@@ -55,7 +55,7 @@ public class Dialog_Checklist extends JDialog {
 	private JButton btDonwMsg;
 	
 	private JTable tableChecklist;
-
+	
 	/**
 	 * Launch the application.
 	 */

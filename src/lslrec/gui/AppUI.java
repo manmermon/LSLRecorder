@@ -1308,13 +1308,16 @@ public class AppUI extends JFrame
 					ParameterList pars = new ParameterList();
 					
 					String[] optList = new String[] { ConfigApp.DEL_BINARY_FILES, ConfigApp.STREAM_SEARCHING_TIME
-													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE };
+													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE 
+													, ConfigApp.CHECKLIST_TIMER
+													};
 					Map< String, String > optIdLang = new HashMap< String, String >();
 					
 					optIdLang.put( ConfigApp.DEL_BINARY_FILES, Language.DEL_BINARY_FILES );
 					optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
 					optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
 					optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
+					optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
 										
 					for( String op : optList )
 					{
