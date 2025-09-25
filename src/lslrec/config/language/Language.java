@@ -156,6 +156,7 @@ public class Language
 	public static final String MSG_CANCEL_PROCESS = "MSG_CANCEL_PROCESS";
 	public static final String MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS = "MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS";
 	public static final String MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS = "MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS";
+	public static final String MSG_CHECKLIST_WARNING = "MSG_CHECKLIST_WARNING";
 	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -253,7 +254,8 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
-		
+				
+		captions.put( MSG_CHECKLIST_WARNING, new Caption(MSG_CHECKLIST_WARNING, defaultLanguage, "Too fast! Read the options before checking them." ) );
 		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, defaultLanguage, "Number of selected sync streams is not equal to " ) );

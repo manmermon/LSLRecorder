@@ -81,7 +81,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 9 - 1, 3 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 9 - 1, 25 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -175,6 +175,8 @@ public class ConfigApp
 	
 	public static final String SEGMENT_BLOCK_SIZE = "SEGMENTATION_BLOCK_SIZE";
 
+	public static final String CHECKLIST_TIMER = "CHECKLIST_TIMER";	
+	
 	/****
 	 * 
 	 * 
@@ -262,6 +264,7 @@ public class ConfigApp
 		list_Key_Type.put( STREAM_SEARCHING_TIME, Double.class );
 		
 		list_Key_Type.put( RECORDING_CHECKER_TIMER, Integer.class );
+		list_Key_Type.put( CHECKLIST_TIMER, Integer.class );
 		
 		list_Key_Type.put( SEGMENT_BLOCK_SIZE, Integer.class );
 		
@@ -283,6 +286,8 @@ public class ConfigApp
 		
 		list_Key_RankValues.put( RECORDING_CHECKER_TIMER, new NumberRange( 0, Integer.MAX_VALUE ) );
 		list_Key_RankValues.put( SEGMENT_BLOCK_SIZE, new NumberRange( 1, 100 ) );
+		
+		list_Key_RankValues.put( CHECKLIST_TIMER, new NumberRange( 0, Integer.MAX_VALUE ) );
 	}
 	
 	public static NumberRange getPropertyRange( String id )
@@ -1813,6 +1818,12 @@ public class ConfigApp
 				
 				break;
 			}
+			case CHECKLIST_TIMER:
+			{
+				loadDefaultChecklist();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1870,6 +1881,7 @@ public class ConfigApp
 		loadDefaultOutputSegmentBlockSize();
 		
 		loadDefaultChecklist();
+		loadDefaultChecklistTimer();
 		
 		//loadDefaultStreamLibrary();
 		
@@ -2047,7 +2059,7 @@ public class ConfigApp
 	{
 		listConfig.put( RECORDING_CHECKER_TIMER, 3 );
 	}
-	
+		
 	private static void loadDefaultOutputSegmentBlockSize()
 	{
 		listConfig.put( SEGMENT_BLOCK_SIZE, 10 );
@@ -2062,6 +2074,11 @@ public class ConfigApp
 		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SELECTED_SYNC_STREAMS_MSG ) + "1" ) );
 		
 		listConfig.put( CHECKLIST_MSGS, chlist );
+	}
+	
+	private static void loadDefaultChecklistTimer()
+	{
+		listConfig.put( CHECKLIST_TIMER, 1 );
 	}
 	
 	/*
