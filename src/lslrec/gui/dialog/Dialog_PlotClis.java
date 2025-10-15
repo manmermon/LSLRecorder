@@ -40,6 +40,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -198,9 +199,10 @@ public class Dialog_PlotClis extends JDialog
 	/**
 	 * Launch the application.
 	 */
-	private static Dialog_PlotClis dgclis = null;
+	//private static Dialog_PlotClis dgclis = null;
 	//private JPanel panelPlotCtr;
 	
+	/*
 	public static void main(String[] args) {
 		try {
 					
@@ -239,7 +241,9 @@ public class Dialog_PlotClis extends JDialog
 			e.printStackTrace();
 		}
 	}
+	//*/
 
+	/*
 	private static void showJdialog()
 	{
 		if( dgclis != null )
@@ -253,6 +257,7 @@ public class Dialog_PlotClis extends JDialog
 		dgclis.setVisible( true );
 		
 	}
+	//*/
 		
 	/**
 	 * Create the dialog.
@@ -1032,6 +1037,7 @@ public class Dialog_PlotClis extends JDialog
 				this.btnShowFileInfo.setText( " i " );
 			}
 			
+			final Dialog_PlotClis dgplotclis = this;
 			this.btnShowFileInfo.addActionListener( new ActionListener() 
 			{				
 				@Override
@@ -1042,34 +1048,40 @@ public class Dialog_PlotClis extends JDialog
 						JButton bt = (JButton)e.getSource();
 						JPanel infoPanel = getInfoFilePanel();
 						
-						JDialog w = new JDialog( Dialog_PlotClis.dgclis );
+						JDialog w = new JDialog( dgplotclis );
+						
+						w.setTitle( getTxtClisFile().getText() );
 						w.setLayout( new BorderLayout() );						
 						w.setSize( new Dimension( 500, 400 ));
-						w.setUndecorated( true );
 						w.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 						
 						w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
 														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
 														JComponent.WHEN_IN_FOCUSED_WINDOW );
 						
+						infoPanel.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 						w.add( infoPanel, BorderLayout.CENTER );
 						
 						Point loc = bt.getLocationOnScreen();
 						Dimension size = bt.getSize();
 						w.setLocation( loc.x + size.width, loc.y );					
-						
-						w.addFocusListener( new FocusAdapter() 
-						{
+							
+						w.addWindowFocusListener( new WindowFocusListener()
+						{				
 							@Override
-							public void focusLost(FocusEvent e) 
+							public void windowLostFocus(WindowEvent e) 
 							{
-								Window w = (Window)e.getSource();
-								
-								w.dispose();
+								//dgplotclis.setModal( true );
+								((Window)e.getSource()).dispose();
+							}
+							
+							@Override
+							public void windowGainedFocus(WindowEvent e) 
+							{					
 							}
 						});
-												
-						w.setVisible( true );												
+						
+						w.setVisible( true );
 						w.requestFocus();
 					}
 				}
