@@ -52,8 +52,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -122,7 +120,6 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 
 /**
  * @author Manuel Merino Monge
@@ -327,7 +324,7 @@ public class Dialog_PlotClis extends JDialog
 					getScrollTableData().setVisible( !getScrollTableData().isVisible() );
 					
 					bt.setText( ">" );
-					if( getInfoFilePanel().isVisible() )
+					if( getScrollTableData().isVisible() )
 					{
 						bt.setText( "<" );
 					}
