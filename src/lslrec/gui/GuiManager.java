@@ -120,6 +120,8 @@ public class GuiManager
 	//Map
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
 	
+	private static Object sync = new Object();
+	
 	private GuiManager()
 	{
 		this.sessionTimer = new Timer( this.sessionTimeUpdateElapsed, this.getSessionTimerAction() );
@@ -446,171 +448,177 @@ public class GuiManager
 	
 	public static void setGUIComponent( String guiID, String cfgPropertyID, Component c )
 	{
-		if( guiID != null && c != null && cfgPropertyID != null ) 
+		synchronized( sync )
 		{
-			guiParameters.put( new StringTuple( guiID, cfgPropertyID ), c );
+			if( guiID != null && c != null && cfgPropertyID != null ) 
+			{
+				guiParameters.put( new StringTuple( guiID, cfgPropertyID ), c );
+			}
 		}
 	}
 	
 	public static void loadConfigValues2GuiComponents()
 	{	
-		List< StringTuple > IDs = new ArrayList< StringTuple >( guiParameters.keySet() );
-		Collections.sort( IDs );
-		Collections.reverse( IDs );
-		
-		for( StringTuple id : IDs )
+		synchronized ( sync ) 
 		{
-			String guiID = id.t1;
-			String propID = id.t2;
-			
-			Component c = guiParameters.get( id );
-			c.setVisible( false );			
+			List< StringTuple > IDs = new ArrayList< StringTuple >( guiParameters.keySet() );
+			Collections.sort( IDs );
+			Collections.reverse( IDs );
 
-			if( c instanceof JComboBox )
+			for( StringTuple id : IDs )
 			{
-				//((JComboBox< String >)c).setSelectedItem( ConfigApp.getProperty( id ) );
-				((JComboBox)c).setSelectedItem( ConfigApp.getProperty( propID ).toString() );
-			}
-			else if( c instanceof JToggleButton )
-			{
-				//((JToggleButton)c).setSelected( (Boolean)ConfigApp.getProperty( id ) );
-				
-				JToggleButton b = (JToggleButton)c;
-				if( b.isEnabled() )
+				String guiID = id.t1;
+				String propID = id.t2;
+
+				Component c = guiParameters.get( id );
+				c.setVisible( false );			
+
+				if( c instanceof JComboBox )
 				{
-					b.setSelected( (Boolean)ConfigApp.getProperty( propID ) );
+					//((JComboBox< String >)c).setSelectedItem( ConfigApp.getProperty( id ) );
+					((JComboBox)c).setSelectedItem( ConfigApp.getProperty( propID ).toString() );
 				}
-			}
-			else if( c instanceof JButton )
-			{
-				if( propID.equals( ConfigApp.SELECTED_SYNC_METHOD ) )
+				else if( c instanceof JToggleButton )
 				{
-					Set< String > mets = (Set< String > )ConfigApp.getProperty( propID );
-					
-					String btText =  "";
-					for( String m : mets )
+					//((JToggleButton)c).setSelected( (Boolean)ConfigApp.getProperty( id ) );
+
+					JToggleButton b = (JToggleButton)c;
+					if( b.isEnabled() )
 					{
-						if( btText.isEmpty() )
-						{
-							btText = m;
-						}
-						else
-						{
-							btText = mets.size() + " " + Language.getLocalCaption( Language.SETTING_SYNC_METHOD );
-						}
+						b.setSelected( (Boolean)ConfigApp.getProperty( propID ) );
 					}
-					
-					((JButton)c).setText( btText);
-					
 				}
-			}
-			else if( c instanceof JTextComponent )
-			{
-				c.setVisible( true );
-				((JTextComponent)c).setText( ConfigApp.getProperty( propID ).toString() );
-			}
-			else if( c instanceof JSpinner )
-			{
-				((JSpinner)c).setValue( ConfigApp.getProperty( propID ) );
-			}
-			else if( c instanceof JTable )
-			{
-				Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( propID );
-				
-				JTable tableSocket = (JTable)c;
-								
-				DefaultTableModel socketModel = (DefaultTableModel)tableSocket.getModel();
-				int nRowBefore = socketModel.getRowCount();
-				
-				for( int i = nRowBefore - 1 ; i >= 0; i-- )
+				else if( c instanceof JButton )
 				{
-					socketModel.removeRow( i );
-				}
-				
-				for( String socket : SOCKETS )
-				{
-					Object[] socketInfo = new Object[3];
-					
-					System.arraycopy( socket.split( ":" ), 0, socketInfo, 0, 3 );
-					socketInfo[ 2 ] = new Integer( socketInfo[ 2 ].toString() );
-										
-					socketModel.addRow( socketInfo );					
-				}
-				
-				if( tableSocket.getRowCount() > 0 )
-				{
-					tableSocket.setRowSelectionInterval( 0, 0 );
-				}
-				
-			}		
-			else if( c instanceof SelectedButtonGroup )
-			{
-				SelectedButtonGroup gr = (SelectedButtonGroup)c;
-
-				if( guiID.equals( RightPanelSettings.STREAM_NAME ) 
-						|| guiID.equals( RightPanelSettings.STREAM_SYNC ) )
-				{
-					HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
-					if( devs != null )
+					if( propID.equals( ConfigApp.SELECTED_SYNC_METHOD ) )
 					{
-						Iterator< IMutableStreamSetting > itDevs = devs.iterator();
-		
-						while( itDevs.hasNext() )
+						Set< String > mets = (Set< String > )ConfigApp.getProperty( propID );
+
+						String btText =  "";
+						for( String m : mets )
 						{
-							IMutableStreamSetting dev = itDevs.next();
-							boolean find = false;
-		
-							if( c.isEnabled() )
+							if( btText.isEmpty() )
 							{
-								if( dev.isSelected() || dev.isSynchronationStream() )
+								btText = m;
+							}
+							else
+							{
+								btText = mets.size() + " " + Language.getLocalCaption( Language.SETTING_SYNC_METHOD );
+							}
+						}
+
+						((JButton)c).setText( btText);
+
+					}
+				}
+				else if( c instanceof JTextComponent )
+				{
+					c.setVisible( true );
+					((JTextComponent)c).setText( ConfigApp.getProperty( propID ).toString() );
+				}
+				else if( c instanceof JSpinner )
+				{
+					((JSpinner)c).setValue( ConfigApp.getProperty( propID ) );
+				}
+				else if( c instanceof JTable )
+				{
+					Set< String > SOCKETS = (Set< String >)ConfigApp.getProperty( propID );
+
+					JTable tableSocket = (JTable)c;
+
+					DefaultTableModel socketModel = (DefaultTableModel)tableSocket.getModel();
+					int nRowBefore = socketModel.getRowCount();
+
+					for( int i = nRowBefore - 1 ; i >= 0; i-- )
+					{
+						socketModel.removeRow( i );
+					}
+
+					for( String socket : SOCKETS )
+					{
+						Object[] socketInfo = new Object[3];
+
+						System.arraycopy( socket.split( ":" ), 0, socketInfo, 0, 3 );
+						socketInfo[ 2 ] = new Integer( socketInfo[ 2 ].toString() );
+
+						socketModel.addRow( socketInfo );					
+					}
+
+					if( tableSocket.getRowCount() > 0 )
+					{
+						tableSocket.setRowSelectionInterval( 0, 0 );
+					}
+
+				}		
+				else if( c instanceof SelectedButtonGroup )
+				{
+					SelectedButtonGroup gr = (SelectedButtonGroup)c;
+
+					if( guiID.equals( RightPanelSettings.STREAM_NAME ) 
+							|| guiID.equals( RightPanelSettings.STREAM_SYNC ) )
+					{
+						HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
+						if( devs != null )
+						{
+							Iterator< IMutableStreamSetting > itDevs = devs.iterator();
+
+							while( itDevs.hasNext() )
+							{
+								IMutableStreamSetting dev = itDevs.next();
+								boolean find = false;
+
+								if( c.isEnabled() )
 								{
-									String devID = dev.source_id();
-			
-									find = searchButton( gr, devID );
-			
-									Enumeration< AbstractButton > bts = gr.getElements();
-			
-									while( bts.hasMoreElements() && !find )
+									if( dev.isSelected() || dev.isSynchronationStream() )
 									{
-										AbstractButton b = bts.nextElement();
-										find = b.getName().equals( devID );
-			
-										if( b.isEnabled() )
-										{									
-											b.setSelected( find );
-										}
-										else
+										String devID = dev.source_id();
+
+										find = searchButton( gr, devID );
+
+										Enumeration< AbstractButton > bts = gr.getElements();
+
+										while( bts.hasMoreElements() && !find )
 										{
-											if( dev.isSelected() )
-											{
-												dev.setSelected( false );
+											AbstractButton b = bts.nextElement();
+											find = b.getName().equals( devID );
+
+											if( b.isEnabled() )
+											{									
+												b.setSelected( find );
 											}
-											else if( dev.isSynchronationStream() )
+											else
 											{
-												dev.setSynchronizationStream( false );
+												if( dev.isSelected() )
+												{
+													dev.setSelected( false );
+												}
+												else if( dev.isSynchronationStream() )
+												{
+													dev.setSynchronizationStream( false );
+												}
 											}
 										}
 									}
 								}
 							}
+
+							ConfigApp.setProperty( propID, devs );
 						}
-						
-						ConfigApp.setProperty( propID, devs );
 					}
 				}
+
+				c.setVisible( true );
 			}
 
-			c.setVisible( true );
-		}
-	
-		AppUI.getInstance().getLeftPanelSetting().loadRegisteredSyncInputMessages();		
-		
-		try 
-		{
-			AppUI.getInstance().getRightPanelSetting().refreshDataStreams();
-		}
-		catch (Exception e) 
-		{
+			AppUI.getInstance().getLeftPanelSetting().loadRegisteredSyncInputMessages();		
+
+			try 
+			{
+				AppUI.getInstance().getRightPanelSetting().refreshDataStreams();
+			}
+			catch (Exception e) 
+			{
+			}
 		}
 	}
 	

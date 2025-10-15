@@ -16,7 +16,9 @@ import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -43,6 +45,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -63,15 +68,21 @@ import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.config.language.Language;
 import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.TableButtonCellEditor;
+import lslrec.gui.miscellany.TableButtonCellRender;
 import lslrec.gui.miscellany.TextLineNumber;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
@@ -85,6 +96,13 @@ import java.awt.Cursor;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jfree.chart.ChartFactory;
@@ -94,7 +112,9 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 
 /**
@@ -120,15 +140,19 @@ public class Dialog_PlotClis extends JDialog
 	private JPanel panelChannelsChb;
 	private JPanel panelxAxis;
 	
+	private JTable tableFileData;
+	
 	private JScrollPane scrChannelPanel;
+	private JScrollPane scrollTableData;
+		
 	
 	private JButton btnLoadFile;
-	//private JButton btnClose;
 	private JButton btnPrevious;
 	private JButton btnNext;
 	private JButton btnEnd;
 	private JButton btnBegin;
 	private JButton btnSaveImg;
+	private JButton btnShowFileInfo;
 	
 	private JTextField clisFileText;
 	
@@ -136,15 +160,14 @@ public class Dialog_PlotClis extends JDialog
 	private JLabel lblVariable;
 	private JLabel lbXAxisMult;
 	private JLabel lbXAxisOffset;
-	//private JLabel lblChannel;
 	private JLabel lblStep;
-	private JLabel canva;
-	
+	private JLabel canva;	
 	private JLabel lblXAxis;
 	
 	private JComboBox<String> cbVariables;
 	private JComboBox<String> cbXAxisVariables;
 	private JComboBox< Integer > cbXAxisVarChannels;
+	
 	private JCheckBox chXAxisRelative;
 	private JToggleButton jtbtDotPaint;
 	private JToggleButton jtbtLinePaint;
@@ -155,7 +178,7 @@ public class Dialog_PlotClis extends JDialog
 	private JSpinner xAxisOffsetValue;
 	
 	private String currentFolderPath;
-	
+		
 	private ClisData currentClisFile = null;
 	private Map< String, Number[][] > clisData = null;
 	private int sampleIndex_A = 0;
@@ -164,6 +187,8 @@ public class Dialog_PlotClis extends JDialog
 	
 	private Object sync = new Object();
 	private boolean[] selectedChannels = null;
+	
+	private int FileTableColumn = 0;
 	
 	/**
 	 * Launch the application.
@@ -274,7 +299,34 @@ public class Dialog_PlotClis extends JDialog
 			this.centerPanel.setLayout( new BorderLayout( 0, 5 ) );
 			this.centerPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 			
-			this.centerPanel.add( this.getInfoFilePanel(), BorderLayout.WEST );
+			//this.centerPanel.add( this.getInfoFilePanel(), BorderLayout.WEST );
+			
+			JButton colapseInfoPanelButton = new JButton( "<" );
+			colapseInfoPanelButton.setBorder( BorderFactory.createEtchedBorder() );
+			colapseInfoPanelButton.setPreferredSize( new Dimension( 15, 0 ) );
+			
+			JPanel infoPanelContainer = new JPanel( new BorderLayout() );
+			infoPanelContainer.add( colapseInfoPanelButton, BorderLayout.WEST );
+			infoPanelContainer.add( this.getScrollTableData(), BorderLayout.CENTER );
+			
+			colapseInfoPanelButton.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JButton bt = (JButton)e.getSource();
+					
+					getScrollTableData().setVisible( !getScrollTableData().isVisible() );
+					
+					bt.setText( ">" );
+					if( getInfoFilePanel().isVisible() )
+					{
+						bt.setText( "<" );
+					}
+				}
+			});
+			
+			this.centerPanel.add( infoPanelContainer, BorderLayout.WEST );			
 			this.centerPanel.add( this.getPlotPanel(), BorderLayout.CENTER );
 		}
 		
@@ -365,11 +417,16 @@ public class Dialog_PlotClis extends JDialog
 						}
 						selExt = new String[] { ext };
 					}
-										
-					String[] FILE = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
-					if( FILE != null && FILE.length > 0 )
-					{						
-						setClisFile( FILE[ 0 ] );
+					
+					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
+					if( FILES != null && FILES.length > 0 )
+					{		
+						Arrays.sort( FILES );
+						
+						insertFilePath2Table( FILES );
+						getTableFileData().setRowSelectionInterval(0, 0);
+						
+						//setClisFile( FILES[ 0 ] );
 					}
 				}
 			} );
@@ -453,6 +510,8 @@ public class Dialog_PlotClis extends JDialog
 	{
 		JPanel infoPanel = getInfoFilePanel();
 		
+		boolean vis = infoPanel.isVisible();
+		
 		infoPanel.setVisible( false );
 		
 		infoPanel.removeAll();
@@ -487,7 +546,7 @@ public class Dialog_PlotClis extends JDialog
 			infoPanel.add( scrp , BorderLayout.CENTER );
 		}
 		
-		infoPanel.setVisible( true );
+		infoPanel.setVisible( vis );
 	}
 	
 	private JPanel getInfoFilePanel()
@@ -772,6 +831,7 @@ public class Dialog_PlotClis extends JDialog
 			this.panelPlotCanva.setLayout(new BorderLayout(0, 0));
 			this.panelPlotCanva.add( this.getCanva(), BorderLayout.CENTER );
 			
+			/*
 			this.panelPlotCanva.setDropTarget( new DropTarget()
 			{
 				@Override
@@ -795,6 +855,7 @@ public class Dialog_PlotClis extends JDialog
 					}
 				}
 			});
+			//*/
 		}
 		
 		return this.panelPlotCanva;
@@ -812,6 +873,7 @@ public class Dialog_PlotClis extends JDialog
 			
 			JPanel varSavePane = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			varSavePane.add( this.getBtnSaveImg() );
+			varSavePane.add( this.getBtnShowFileInfo() );
 			
 			JPanel panel = new JPanel( new BorderLayout() );
 			panel.add( varPane, BorderLayout.NORTH );
@@ -891,6 +953,67 @@ public class Dialog_PlotClis extends JDialog
 		}
 		
 		return this.btnSaveImg;
+	}
+	
+	private JButton getBtnShowFileInfo()
+	{
+		if( this.btnShowFileInfo == null )
+		{
+			this.btnShowFileInfo = new JButton();
+			
+			ImageIcon ic = GeneralAppIcon.Info( 20, Color.BLACK );
+			
+			this.btnShowFileInfo.setIcon( ic );
+			if( ic == null )
+			{
+				this.btnShowFileInfo.setText( " i " );
+			}
+			
+			this.btnShowFileInfo.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					if( clisData != null )
+					{
+						JButton bt = (JButton)e.getSource();
+						JPanel infoPanel = getInfoFilePanel();
+						
+						JDialog w = new JDialog( Dialog_PlotClis.dgclis );
+						w.setLayout( new BorderLayout() );						
+						w.setSize( new Dimension( 500, 400 ));
+						w.setUndecorated( true );
+						w.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+						
+						w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
+														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+														JComponent.WHEN_IN_FOCUSED_WINDOW );
+						
+						w.add( infoPanel, BorderLayout.CENTER );
+						
+						Point loc = bt.getLocationOnScreen();
+						Dimension size = bt.getSize();
+						w.setLocation( loc.x + size.width, loc.y );					
+						
+						w.addFocusListener( new FocusAdapter() 
+						{
+							@Override
+							public void focusLost(FocusEvent e) 
+							{
+								Window w = (Window)e.getSource();
+								
+								w.dispose();
+							}
+						});
+												
+						w.setVisible( true );												
+						w.requestFocus();
+					}
+				}
+			});
+		}
+		
+		return this.btnShowFileInfo;
 	}
 	
 	private JLabel getLblVariable() 
@@ -1659,7 +1782,7 @@ public class Dialog_PlotClis extends JDialog
 		this.clisData = null;
 		this.currentVar = null;
 		this.sampleIndex_A = 0;
-		
+				
 		getCbVariables().setSelectedIndex( -1 );
 		getCbVariables().removeAllItems();
 		
@@ -2073,4 +2196,312 @@ public class Dialog_PlotClis extends JDialog
 		
 		return this.canva;
 	}
+	
+	private JScrollPane getScrollTableData()
+	{
+		if( this.scrollTableData == null )
+		{
+			this.scrollTableData = new JScrollPane( getTableFileData( ) );
+		}
+		
+		return this.scrollTableData;
+	}
+	
+	private JTable getTableFileData( )
+	{
+		if( this.tableFileData == null )
+		{	
+			this.tableFileData = this.getCreateJTable( );
+			this.tableFileData.setModel( this.createBinFileTable( ) );
+			
+			this.tableFileData.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			
+			this.tableFileData.getModel().addTableModelListener( new TableModelListener() 
+			{				
+				@Override
+				public void tableChanged( TableModelEvent e ) 
+				{		
+					TableModel tm = (TableModel)e.getSource();
+					
+					if( e.getType() == TableModelEvent.UPDATE )
+					{
+						int row = e.getFirstRow();
+						int col = e.getColumn();
+						
+						if( row >= 0 && col >= 0 )
+						{	
+							String file = tm.getValueAt( row, FileTableColumn ).toString();
+							
+							setClisFile( file );							
+						}						
+					}
+					else if( e.getType() == TableModelEvent.DELETE )
+					{						
+						if( getTableFileData().getRowCount() < 1 )
+						{
+							clearCurrentClisFile();
+						}
+					}
+				}
+			});
+						
+			this.tableFileData.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
+			
+			this.tableFileData.setPreferredScrollableViewportSize( this.tableFileData.getPreferredSize( ) );
+			this.tableFileData.setFillsViewportHeight( true );
+			
+			TableColumnModel tcm = this.tableFileData.getColumnModel();
+			
+			tcm.getColumn( 0  ).setResizable( false );
+						
+			TableButtonCellRender btRender = new TableButtonCellRender();
+			TableButtonCellEditor btEditor = new TableButtonCellEditor();
+			
+			JButton btR = btRender.getButton();
+			JButton btEd = btEditor.getButton();
+			
+			btR.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			btEd.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			
+			ActionListener actListener = new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JTable tb =  getTableFileData();
+					tb.getCellEditor().stopCellEditing();
+					
+					removeFileTable( tb.getSelectedRow() );					
+				}
+			};
+			btR.addActionListener(actListener );
+			btEd.addActionListener(actListener );
+			
+			tcm.getColumn( 1 ).setCellRenderer( btRender );
+			tcm.getColumn( 1 ).setCellEditor( btEditor );
+			tcm.getColumn( 1  ).setResizable( false );
+			tcm.getColumn( 1 ).setPreferredWidth( 25 );
+			tcm.getColumn( 1 ).setMaxWidth( 25 );
+						
+			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
+			{				
+				@Override
+				public void valueChanged( ListSelectionEvent e ) 
+				{
+					ListSelectionModel md = ( ListSelectionModel )e.getSource( );
+					
+					if( md.isSelectionEmpty() )
+					{
+						clearClisData();
+						
+						clearCurrentClisFile();
+					}
+					else if( !e.getValueIsAdjusting( ) )
+					{
+						int r = tableFileData.getSelectedRow( );
+						
+						String file = tableFileData.getValueAt( r, 0 ).toString();
+						
+						setClisFile( file );						
+					}
+				}
+			} );	
+			
+			this.tableFileData.addKeyListener( new KeyAdapter()
+			{
+				@Override
+				public void keyReleased(KeyEvent e) 
+				{
+					if( e.getKeyCode() == KeyEvent.VK_DELETE )
+					{
+						JTable tb = (JTable)e.getSource();
+						
+						int cRow = tb.getSelectedRow();
+						if( cRow >= 0 && cRow < tb.getRowCount() )
+						{
+							removeFileTable( cRow );
+						}
+					}
+				}
+			});
+			
+			this.tableFileData.setDropTarget( new DropTarget()
+			{
+				private static final long serialVersionUID = -4401379753623929995L;
+
+				@Override
+				public synchronized void drop( DropTargetDropEvent dtde ) 
+				{
+					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
+					
+					try 
+					{
+						dtde.acceptDrop(DnDConstants.ACTION_COPY);
+						List<File> droppedFiles = ( List< File > ) dtde.getTransferable().getTransferData( DataFlavor.javaFileListFlavor );
+						
+						if( !droppedFiles.isEmpty() )
+						{	
+							Iterator< File > itFiles = droppedFiles.iterator();
+							List< String > filePaths = new ArrayList<String>();
+							
+							while( itFiles.hasNext() )
+							{
+								File f = itFiles.next();
+								
+								if( f.exists() && f.isFile() )
+								{
+									filePaths.add( f.getAbsolutePath() );
+								}								
+							}
+														
+							if( !filePaths.isEmpty() )
+							{
+								Collections.sort( filePaths );
+																
+								insertFilePath2Table( filePaths.toArray( new String[ 0 ] ) );
+								
+								currentFolderPath = (new File( filePaths.get( 0 ) ) ).getAbsolutePath();
+							}
+						}
+						
+						dtde.dropComplete( true );
+					} 
+					catch (Exception ex) 
+					{
+						ex.printStackTrace();
+					}
+					
+					setCursor( new Cursor( Cursor.DEFAULT_CURSOR ) );
+				}
+			});
+		}
+		
+		return this.tableFileData;
+	}	
+
+	private void clearCurrentClisFile()
+	{
+		this.getTxtClisFile().setText( "" );
+		
+		if( this.currentClisFile != null )
+		{
+			try 
+			{
+				this.currentClisFile.close();
+			}
+			catch (IOException ex) 
+			{			
+			}
+			finally 
+			{
+				this.currentClisFile = null;
+			}
+		}
+	}
+	
+	private JTable getCreateJTable( )
+	{
+		JTable t = new JTable( )
+				{
+					private static final long serialVersionUID = 1L;
+			
+					//Implement table cell tool tips. 
+					public String getToolTipText( MouseEvent e ) 					 
+					{
+						String tip = null;
+						Point p = e.getPoint( );
+						int rowIndex = rowAtPoint( p );
+						int colIndex = columnAtPoint( p );
+						
+						try 
+						{
+							tip = getValueAt( rowIndex, colIndex ).toString( );
+						}
+						catch ( RuntimeException e1 )
+						{
+							//catch null pointer exception if mouse is over an empty line
+						}
+				
+						return tip;
+					}				 
+				 };
+				 
+		t.getTableHeader( ).setReorderingAllowed( false );
+		
+		return t;
+	}
+	
+	
+	private TableModel createBinFileTable( )
+	{					
+		TableModel tm = new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.MENU_FILE )
+																	, "" } )
+						{
+							private static final long serialVersionUID = 1L;
+								
+							Class[] columnTypes = getColumnTableTypes();
+							boolean[] columnEditables = new boolean[] { false, true };
+								
+							public Class getColumnClass( int columnIndex ) 
+							{
+								return columnTypes[columnIndex];
+							}
+																								
+							public boolean isCellEditable( int row, int column ) 
+							{
+								boolean editable = columnEditables[column];
+									
+								return editable;
+							}
+						};
+							
+						
+		return tm;
+	}
+	
+	
+	private Class[] getColumnTableTypes()
+	{
+		this.FileTableColumn = 0;
+		return new Class[]{ String.class, Boolean.class };
+	}
+	
+	private void insertFilePath2Table( String[] files )
+	{
+		if( files != null )
+		{
+			JTable t = this.getTableFileData();
+			DefaultTableModel m = ( DefaultTableModel )t.getModel( );
+						
+			for( String file : files )
+			{
+				Object[] vals = new Object[ t.getColumnCount( ) ];
+				vals[ 0 ] = file;
+				
+				m.addRow( vals );
+			}
+		}
+	}
+	
+	private void removeFileTable( int row )
+	{
+		JTable t = this.getTableFileData();
+		DefaultTableModel m = ( DefaultTableModel )t.getModel( );
+		
+		if( row >= 0 && row < t.getRowCount() )
+		{
+			m.removeRow( row );
+		}
+	}
+	
+	private void clearFileTable()
+	{
+		JTable t = this.getTableFileData();
+		
+		for( int r = t.getRowCount() - 1; r >= 0; r-- )
+		{
+			this.removeFileTable( r );
+		}
+	}
+
 }

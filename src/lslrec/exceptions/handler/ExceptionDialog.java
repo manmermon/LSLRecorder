@@ -34,7 +34,14 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -45,6 +52,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
+import org.apache.commons.lang3.StringUtils;
+
+import lslrec.config.ConfigApp;
 import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -58,6 +68,11 @@ public class ExceptionDialog
 	private static TextAreaPrintStream log1;
 	
 	private static Object sync = new Object();
+	
+	private static File errorWarningLog =  null;
+	
+	private static String recordSubjID = null;
+	private static String recordSessionID = null;
 	
 	public static void createExceptionDialog( Window owner ) 
 	{
@@ -184,7 +199,16 @@ public class ExceptionDialog
 		}
 	}
 
-	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
+	public static void setRecordSessionInfo( String subjID, String sessionID )
+	{
+		synchronized ( sync )
+		{
+			recordSubjID = subjID;
+			recordSessionID = sessionID;
+		}		
+	}
+	
+ 	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
 	{
 		(new Thread()
 		{
@@ -196,6 +220,8 @@ public class ExceptionDialog
 				synchronized ( sync )
 				{
 					GuiManager.getInstance().showLogTab();
+					
+					Throwable ex = msg.getException();
 					
 					Color msgColor = Color.ORANGE;
 					boolean errorFocus = false;
@@ -222,8 +248,6 @@ public class ExceptionDialog
 	
 						log1.SetColorText( msgColor );
 							
-						Throwable ex = msg.getException();
-	
 						if( ex != null )
 						{
 							if( printExceptionTrace )
@@ -253,7 +277,7 @@ public class ExceptionDialog
 							dialog.setIconImage( ic.getImage() );
 						}
 	
-						Throwable ex = msg.getException();
+						
 	
 						if( ex != null )
 						{
@@ -293,6 +317,79 @@ public class ExceptionDialog
 							{
 								dialog.toFront();
 							}
+						}
+					}
+					
+					String date = new SimpleDateFormat("yyyy-MM-dd").format( new Date());
+										
+					String subj = recordSubjID;
+					String session = recordSessionID;
+										
+					String subjSession = "";
+					if( subj != null && !subj.isEmpty() )
+					{
+						subjSession += subj;
+					}
+					
+					if( session != null && !session.isEmpty() )
+					{
+						subjSession = ( subjSession.isEmpty() ) ? "-" + session : subjSession + "-" + session;
+					}
+					
+					String fileName = ConfigApp.defaultLogPathFile;
+					fileName += ConfigApp.defaulLogFileNamePrefix;
+					fileName += "_" + date + "_" + subjSession + "." + ConfigApp.defaulLogFileExtension;
+					
+					boolean newLogFile = ( errorWarningLog == null ) || ( !errorWarningLog.getAbsoluteFile().toString().equals( fileName ) );
+					
+					if( newLogFile )
+					{	
+						errorWarningLog = new File( fileName );
+						
+						try 
+						{
+							errorWarningLog.getParentFile().mkdirs();
+							errorWarningLog.createNewFile();
+						} 
+						catch (IOException e) 
+						{
+							e.printStackTrace();
+						}
+					}
+					 
+					if( errorWarningLog != null )
+					{
+						try
+						{
+							PrintWriter out = new PrintWriter( new BufferedWriter(
+																new FileWriter( errorWarningLog, true ) )
+																, false );
+							
+							String header = "\n"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
+							header += " (" + subjSession + "):";
+							
+							String type = "WARNING";
+							if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+							{
+								type = "ERROR";
+							}
+							else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
+							{
+								type = "INFO";
+							}
+																					
+							header += type + "\n";
+							header += StringUtils.repeat( "-", header.length() );
+							header += "\n";
+							
+							out.print( header );
+														
+							ex.printStackTrace( out );
+							out.close();
+						}
+						catch (Exception e) 
+						{
+							e.printStackTrace();
 						}
 					}
 						

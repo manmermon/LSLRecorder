@@ -157,7 +157,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	
 	private Object lock = new Object();
 	
-	private BeepSound beep = new BeepSound();
+	private BeepSound beep = null;
 	
 	private String trialPlgExtraStreamInfo = "";
 	
@@ -172,7 +172,16 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		this.createControlUnits();
 		
-		this.beep.startThread();
+		try
+		{
+			this.beep = new BeepSound();
+			
+			this.beep.startThread();
+		}
+		catch (Exception | Error e) 
+		{	
+		}
+		
 	}
 
 	/**
@@ -857,7 +866,42 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				MinionParameters minionPars = new MinionParameters();
 				minionPars.setMinionParameters( this.ctrlOutputFile.ID, StreamPars );
 
-				this.ctrlOutputFile.addSubordinates( minionPars );						
+				this.ctrlOutputFile.addSubordinates( minionPars );
+				
+				//
+				//
+				//				
+				Object testID = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID );
+				Object subjID = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID );
+				
+				File filePath = new File( file );
+				folder = null;
+				
+				String sessionID = "";
+				String sjID = "";
+				
+				if( testID != null && !testID.toString().isEmpty() )
+				{
+					folder = filePath.getParentFile();
+					
+					sessionID = ( folder != null ) ? folder.getName() : "";
+				}
+				
+				if( subjID != null && !subjID.toString().isEmpty() )
+				{
+					if( folder != null )
+					{
+						folder = folder.getParentFile();
+					}
+					else
+					{
+						folder = filePath.getParentFile();
+					}
+					
+					sjID = ( folder != null ) ? folder.getName() : "";
+				}
+				
+				ExceptionDialog.setRecordSessionInfo( sjID, sessionID );
 			}
 		}
 		
@@ -1338,7 +1382,22 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		this.managerGUI.setAppState( AppState.State.RUN, 0, false );
 		
-		this.beep.play();
+		if( this.beep == null )
+		{
+			try
+			{
+				this.beep = new BeepSound();
+				this.beep.startThread();
+			}
+			catch (Exception | Error e)
+			{
+			}
+		}
+		
+		if( this.beep != null )
+		{
+			this.beep.play();
+		}
 		
 		this.isRecording = true;
 		
@@ -1391,6 +1450,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 				
 				this.stopThread = null;
+				
+				ExceptionDialog.setRecordSessionInfo( "", "" );
 			}
 		}
 	}
@@ -2531,7 +2592,22 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				managerGUI.setAppState( AppState.State.STOPPING, 0, false );
 				//managerGUI.enablePlayButton( false );
 
-				beep.play();
+				if( beep == null )
+				{
+					try
+					{
+						beep = new BeepSound();
+						beep.startThread();
+					}
+					catch (Exception | Error e)
+					{
+					}
+				}
+				
+				if( beep != null )
+				{
+					beep.play();
+				}
 				
 				notifiedEventHandler.interruptProcess();
 				notifiedEventHandler.clearEvent();

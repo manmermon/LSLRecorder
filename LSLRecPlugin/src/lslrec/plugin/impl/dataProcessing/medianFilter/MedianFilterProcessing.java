@@ -1,13 +1,12 @@
 package lslrec.plugin.impl.dataProcessing.medianFilter;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.plugin.impl.dataProcessing.downSampling.DownSampling;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
 public class MedianFilterProcessing extends LSLRecPluginDataProcessing 
@@ -96,7 +95,8 @@ public class MedianFilterProcessing extends LSLRecPluginDataProcessing
 		
 		if( arg0 != null && arg0.length > 0 )
 		{
-			Arrays.sort( arg0 );
+			double[] in = ConvertTo.Casting.NumberArray2DoubleArray( arg0 );
+			Arrays.sort( in );
 			
 			int L = arg0.length;
 			
