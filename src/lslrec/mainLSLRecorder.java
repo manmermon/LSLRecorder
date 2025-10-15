@@ -42,8 +42,6 @@ import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
 import java.io.File;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.UIManager;
@@ -78,9 +76,9 @@ public class mainLSLRecorder
 
 		try 
 		{
-			addLibraryPath(p);
+			addLibraryPath(p);			
 		}
-		catch (Exception e) 
+		catch (Exception | Error e) 
 		{
 			showError(e, false);
 		}
@@ -221,9 +219,10 @@ public class mainLSLRecorder
 		} 
 		finally {		}
 	}
-
+	
 	private static void addLibraryPath(String pathToAdd) throws Exception 
 	{
+		/*
 		Field usrPathsField = ClassLoader.class.getDeclaredField("usr_paths");
 		usrPathsField.setAccessible(true);
 		String[] paths = (String[]) usrPathsField.get(null);
@@ -239,8 +238,29 @@ public class mainLSLRecorder
 		String[] newPaths = Arrays.copyOf(paths, paths.length + 1);
 		newPaths[newPaths.length - 1] = pathToAdd;
 		usrPathsField.set(null, newPaths);
+		//*/
+		
+		if( pathToAdd != null )
+		{
+			File folder = new File( pathToAdd );
+			
+			if( folder.exists() && folder.isDirectory() )
+			{
+				for( File f : folder.listFiles() )
+				{
+					String pathFile = f.getAbsolutePath();
+					try
+					{
+						System.load( pathFile );
+					}
+					catch (Exception | Error e) 
+					{
+					}
+				}
+			}
+		}
 	}
-
+	
 	public static void createApplication( int startDelay ) throws Throwable
 	{
 		// Opening dialog

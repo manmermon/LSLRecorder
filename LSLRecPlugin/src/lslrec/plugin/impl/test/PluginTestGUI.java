@@ -21,6 +21,7 @@ import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin
 import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
+import lslrec.plugin.impl.dataProcessing.medianFilter.MedianFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin;
@@ -169,6 +170,7 @@ public class PluginTestGUI extends JFrame {
 		plugins.putElement( PluginType.DATA_PROCESSING, new DataDisplayPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new ZTransformPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new BasicStatSummaryPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new MedianFilterPlugin() );
 		
 		plugins.putElement( PluginType.ENCODER , new CSVEncoderPlugin() );
 		plugins.putElement( PluginType.ENCODER , new HDF5EncoderPlugin() );
