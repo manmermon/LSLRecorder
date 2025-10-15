@@ -44,6 +44,12 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,7 +82,6 @@ import lslrec.auxiliar.extra.FileUtils;
 import lslrec.config.language.Language;
 import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
-import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.BasicPainter2D;
@@ -100,6 +105,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
@@ -116,6 +122,7 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 
 /**
  * @author Manuel Merino Monge
@@ -147,6 +154,7 @@ public class Dialog_PlotClis extends JDialog
 		
 	
 	private JButton btnLoadFile;
+	private JButton btnLoadRecursiveFilesFromFolder;
 	private JButton btnPrevious;
 	private JButton btnNext;
 	private JButton btnEnd;
@@ -404,6 +412,7 @@ public class Dialog_PlotClis extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{	
+					/*
 					String idEncoder = DataFileFormat.CLIS;
 					String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
 					
@@ -425,14 +434,70 @@ public class Dialog_PlotClis extends JDialog
 						
 						insertFilePath2Table( FILES );
 						getTableFileData().setRowSelectionInterval(0, 0);
+					}
+					//*/
+					
+					String[] FILES = getClisFiles( false );
+					if( FILES != null && FILES.length > 0 )
+					{		
+						Arrays.sort( FILES );
 						
-						//setClisFile( FILES[ 0 ] );
+						insertFilePath2Table( FILES );
+						getTableFileData().setRowSelectionInterval(0, 0);
 					}
 				}
 			} );
 			
 		}
 		return btnLoadFile;
+	}
+	
+	private JButton getBtnLoadRecursiveFiles() 
+	{
+		if (btnLoadRecursiveFilesFromFolder == null) {
+			
+			btnLoadRecursiveFilesFromFolder = new JButton(  );
+			
+			this.btnLoadRecursiveFilesFromFolder.setBorder( BorderFactory.createRaisedSoftBevelBorder( ) );
+			this.btnLoadRecursiveFilesFromFolder.setForeground( Color.RED );
+			
+			ImageIcon ic = GeneralAppIcon.Folder( 24, 20, Color.BLACK, Color.RED );
+						
+			if( ic != null )
+			{
+				Image imgR = BasicPainter2D.paintText( "R", this.btnLoadRecursiveFilesFromFolder.getFontMetrics( new Font( Font.DIALOG, Font.PLAIN, 10 ) )
+														, null, Color.BLACK, null );
+				
+				Image folder = ic.getImage();
+				BasicPainter2D.compoundImages( folder, folder.getWidth( null ) - imgR.getWidth( null) - 1
+													, folder.getHeight( null ) - imgR.getHeight( null )+1
+													, imgR );
+				
+				this.btnLoadRecursiveFilesFromFolder.setIcon( new ImageIcon( folder ) );
+			}
+			else
+			{
+				this.btnLoadRecursiveFilesFromFolder.setText( Language.getLocalCaption( Language.LOAD_TEXT ) );
+			}
+			
+			this.btnLoadRecursiveFilesFromFolder.addActionListener( new ActionListener( ) 
+			{
+				public void actionPerformed( ActionEvent e ) 
+				{	
+					String[] FILES = getClisFiles( true );
+					
+					if( FILES != null && FILES.length > 0 )
+					{		
+						Arrays.sort( FILES );
+						
+						insertFilePath2Table( FILES );
+						getTableFileData().setRowSelectionInterval(0, 0);
+					}
+				}
+			} );
+			
+		}
+		return btnLoadRecursiveFilesFromFolder;
 	}
 	
 	private void setClisFile( String FILE )
@@ -573,6 +638,7 @@ public class Dialog_PlotClis extends JDialog
 			
 			this.loadFileBtnPanel.add( this.getLblLoadFile() );
 			this.loadFileBtnPanel.add( this.getBtnLoadFile() );
+			this.loadFileBtnPanel.add( this.getBtnLoadRecursiveFiles() );
 		}
 		return this.loadFileBtnPanel;
 	}
@@ -2253,6 +2319,27 @@ public class Dialog_PlotClis extends JDialog
 			TableColumnModel tcm = this.tableFileData.getColumnModel();
 			
 			tcm.getColumn( 0  ).setResizable( false );
+			DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() 
+			{
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) 
+                {
+                    JLabel label = (JLabel) super.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column);
+
+                    String texto = value != null ? value.toString() : "";
+
+                    // Mostrar solo los últimos caracteres si el texto es muy largo
+                    int len = 20-3;
+                    if (texto.length() > len) 
+                    {
+                        texto = "..." + texto.substring(texto.length() - len);
+                    }
+                    label.setText( texto );
+                    
+                    return label;
+                }
+            };
+            tcm.getColumn( 0 ).setCellRenderer( renderer );
 						
 			TableButtonCellRender btRender = new TableButtonCellRender();
 			TableButtonCellEditor btEditor = new TableButtonCellEditor();
@@ -2339,6 +2426,7 @@ public class Dialog_PlotClis extends JDialog
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 						List<File> droppedFiles = ( List< File > ) dtde.getTransferable().getTransferData( DataFlavor.javaFileListFlavor );
 						
+						/*
 						if( !droppedFiles.isEmpty() )
 						{	
 							Iterator< File > itFiles = droppedFiles.iterator();
@@ -2362,6 +2450,24 @@ public class Dialog_PlotClis extends JDialog
 								
 								currentFolderPath = (new File( filePaths.get( 0 ) ) ).getAbsolutePath();
 							}
+						}
+						//*/
+						
+						String[] files = new String[ droppedFiles.size() ];
+						for( int i = 0; i < files.length; i++ )
+						{
+							files[ i ] = droppedFiles.get( i ).getCanonicalPath();
+						}
+						
+						String[] filePaths = getClisFileRecursive( files, DataFileFormat.CLIS );
+						
+						if( filePaths != null && filePaths.length > 0 )
+						{
+							Arrays.sort( filePaths );
+															
+							insertFilePath2Table( filePaths );
+							
+							currentFolderPath = (new File( filePaths[ 0 ] ) ).getAbsolutePath();
 						}
 						
 						dtde.dropComplete( true );
@@ -2504,4 +2610,130 @@ public class Dialog_PlotClis extends JDialog
 		}
 	}
 
+	private String[] getClisFiles( boolean recursive )
+	{
+		String idEncoder = DataFileFormat.CLIS;
+		String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
+						
+		boolean multiSel = !recursive;
+		int selFilesOrDir = ( recursive ) ? JFileChooser.DIRECTORIES_ONLY : JFileChooser.FILES_ONLY;
+		
+		String[] selExt = null;
+		
+		if( ext != null && !recursive )
+		{						
+			if( ext.charAt( 0 ) == '.' )
+			{
+				ext = ext.substring( 1 );
+			}
+			selExt = new String[] { ext };
+		}
+				
+		String[] FILES = FileUtils.selectUserFile( "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
+		
+		if( recursive )
+		{
+			/*
+			List< String > files = new ArrayList<String>();
+			
+			List<Path> allFiles = new ArrayList< Path >();
+			for( String dir : FILES )
+			{											 
+				try 
+				{
+					listAllFiles( Paths.get( dir ), ext, allFiles );
+				}
+				catch (IOException e1) 
+				{
+				}
+			}
+			
+			for( Path file : allFiles )
+			{	
+				String fileName = file.toFile().getAbsolutePath().toString();
+				files.add( fileName );
+			}
+			
+			FILES = files.toArray( new String[0] );
+			//*/
+			
+			FILES = this.getClisFileRecursive( FILES, ext );
+		}
+		
+		return FILES;
+	}
+	
+	private String[] getClisFileRecursive( String[] filePaths, String ext )
+	{
+		String[] FILES = null;
+		
+		if( filePaths != null )
+		{
+			List< String > files = new ArrayList<String>();
+			
+			List<Path> allFiles = new ArrayList< Path >();
+			for( String dir : filePaths )
+			{		
+				Path path = Paths.get( dir );
+				
+				if( path.toFile().isDirectory() )
+				{
+					try 
+					{
+						listAllFiles( path, ext, allFiles );
+					}
+					catch (IOException e1) 
+					{
+					}
+				}
+				else
+				{
+					PathMatcher matcher = FileSystems.getDefault().getPathMatcher( "glob:*" + ext );
+					if( matcher.matches( path.getFileName() ) )
+					{
+						allFiles.add( path );
+					}
+				}
+			}
+			
+			for( Path file : allFiles )
+			{	
+				String fileName = file.toFile().getAbsolutePath().toString();
+				files.add( fileName );
+			}
+			
+			FILES = files.toArray( new String[0] );
+		}
+		
+		return FILES;
+	}
+	
+	private void listAllFiles( Path currentPath, String fileExtension,  List<Path> allFiles) throws IOException  
+	{ 
+		try ( DirectoryStream<Path> stream = Files.newDirectoryStream( currentPath ) )  
+		{ 
+			for (Path entry : stream) 
+			{ 
+				if ( Files.isDirectory( entry ) ) 
+				{ 
+					listAllFiles(entry, fileExtension, allFiles); 
+				}
+				else 
+				{ 
+					if( fileExtension != null && !fileExtension.trim().isEmpty() )
+					{
+						PathMatcher matcher = FileSystems.getDefault().getPathMatcher( "glob:*" + fileExtension );
+						if( matcher.matches( entry.getFileName() ) )
+						{
+							allFiles.add( entry );
+						}
+					}
+					else
+					{
+						allFiles.add( entry ); 
+					}
+				} 
+			} 
+		} 
+	} 
 }
