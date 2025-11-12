@@ -12,6 +12,7 @@ import java.util.Map;
 import com.sun.jna.Pointer;
 
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
@@ -50,7 +51,9 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	
 	private int recordingCheckerTimer;
 	private boolean enableCheckerTimer = true;
-		
+	
+	private double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
+			
     /**
      * Construct a new stream_info this.object.
      * Core stream information is specified here. Any remaining meta-data can be added later.
@@ -67,13 +70,38 @@ public class LSLStreamInfo implements IMutableStreamSetting
      *                  This is critical for system robustness since it allows recipients to recover from failure even after the
      *                 serving app, device or computer crashes (just by finding a stream with the same source id on the network again).
      *                 Therefore, it is highly recommended to always try to provide whatever information can uniquely identify the data source itself.
+     * @param reconnectionTime 
+     *                
      */
-    public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate, int channel_format, String source_id) { this.obj = this.inst.lsl_create_streaminfo( name, type, channel_count, nominal_srate, channel_format, source_id ); }
-    public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate, int channel_format) { this.obj = this.inst.lsl_create_streaminfo( name, type, channel_count, nominal_srate, channel_format, ""); }
-    public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate) { this.obj = this.inst.lsl_create_streaminfo(name, type, channel_count, nominal_srate, StreamDataType.float32.ordinal(), ""); }
-    public LSLStreamInfo(String name, String type, int channel_count) { this.obj = this.inst.lsl_create_streaminfo(name, type, channel_count, IRREGULAR_RATE, StreamDataType.float32.ordinal(), ""); }
-    public LSLStreamInfo(String name, String type) { this.obj = this.inst.lsl_create_streaminfo(name, type, 1, IRREGULAR_RATE, StreamDataType.float32.ordinal(), ""); }
-    public LSLStreamInfo(Pointer handle) { this.obj = handle; }
+	public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate, int channel_format, String source_id, double reconnectionTime ) 
+	{ 
+		this(  name, type, channel_count, nominal_srate, channel_format, source_id ); 
+		this.reconnectionTime = reconnectionTime; 
+	}
+	public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate, int channel_format, String source_id)
+	{ 
+		this.obj = this.inst.lsl_create_streaminfo( name, type, channel_count, nominal_srate, channel_format, source_id ); 
+	}
+    public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate, int channel_format) 
+    { 
+    	this.obj = this.inst.lsl_create_streaminfo( name, type, channel_count, nominal_srate, channel_format, "");
+    }
+    public LSLStreamInfo(String name, String type, int channel_count, double nominal_srate) 
+    { 
+    	this.obj = this.inst.lsl_create_streaminfo(name, type, channel_count, nominal_srate, StreamDataType.float32.ordinal(), ""); 
+    }
+    public LSLStreamInfo(String name, String type, int channel_count) 
+    { 
+    	this.obj = this.inst.lsl_create_streaminfo(name, type, channel_count, IRREGULAR_RATE, StreamDataType.float32.ordinal(), ""); 
+    }
+    public LSLStreamInfo(String name, String type) 
+    { 
+    	this.obj = this.inst.lsl_create_streaminfo(name, type, 1, IRREGULAR_RATE, StreamDataType.float32.ordinal(), ""); 
+    }
+    public LSLStreamInfo(Pointer handle) 
+    { 
+    	this.obj = handle; 
+    }
 
     /** Destroy a previously created LSLStreamInfo this.object. */
     @Override
@@ -364,6 +392,18 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	public void enableRecordingCheckerTimer(boolean check) 
 	{
 		this.enableCheckerTimer = check;
+	}
+	
+	@Override
+	public double reconnectionWaitingTime() 
+	{
+		return this.reconnectionTime;
+	}
+	
+	@Override
+	public void setReconnectionWaitingTime(double time) 
+	{
+		this.reconnectionTime = time;
 	}
 }
 

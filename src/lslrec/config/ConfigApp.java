@@ -81,7 +81,7 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 10 - 1, 15 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 10 - 1, 27 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
@@ -181,6 +181,8 @@ public class ConfigApp
 
 	public static final String CHECKLIST_TIMER = "CHECKLIST_TIMER";	
 	
+	public static final String WAITING_TIME_TO_RECONNECT_LOST_STREAM = "WAITING_TIME_TO_RECONNECT_LOST_STREAM";
+	
 	/****
 	 * 
 	 * 
@@ -274,6 +276,8 @@ public class ConfigApp
 		
 		list_Key_Type.put( CHECKLIST_MSGS, List.class );
 		
+		list_Key_Type.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, Double.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
 		//list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
@@ -292,6 +296,7 @@ public class ConfigApp
 		list_Key_RankValues.put( SEGMENT_BLOCK_SIZE, new NumberRange( 1, 100 ) );
 		
 		list_Key_RankValues.put( CHECKLIST_TIMER, new NumberRange( 0, Integer.MAX_VALUE ) );
+		list_Key_RankValues.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, new NumberRange( -1, Double.MAX_VALUE ) );
 	}
 	
 	public static NumberRange getPropertyRange( String id )
@@ -1824,7 +1829,13 @@ public class ConfigApp
 			}
 			case CHECKLIST_TIMER:
 			{
-				loadDefaultChecklist();
+				loadDefaultChecklistTimer();
+				
+				break;
+			}
+			case WAITING_TIME_TO_RECONNECT_LOST_STREAM:
+			{
+				loadDefaultWaitingTime2reconnectLostStream();
 				
 				break;
 			}
@@ -1887,6 +1898,7 @@ public class ConfigApp
 		loadDefaultChecklist();
 		loadDefaultChecklistTimer();
 		
+		loadDefaultWaitingTime2reconnectLostStream();
 		//loadDefaultStreamLibrary();
 		
 		//loadDefaultDataChartSummary();
@@ -2083,6 +2095,11 @@ public class ConfigApp
 	private static void loadDefaultChecklistTimer()
 	{
 		listConfig.put( CHECKLIST_TIMER, 1 );
+	}
+	
+	private static void loadDefaultWaitingTime2reconnectLostStream()
+	{
+		listConfig.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, 0.0D );
 	}
 	
 	/*

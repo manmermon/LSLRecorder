@@ -65,7 +65,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -277,17 +276,8 @@ public class Dialog_PlotClis extends JDialog
 			@Override
 			public void windowClosing(WindowEvent e) 
 			{
-				if( currentClisFile != null )
-				{
-					try 
-					{
-						currentClisFile.close();
-					}
-					catch (IOException e1) 
-					{
-						e1.printStackTrace();
-					}
-				}
+				clearClisData();
+				clearCurrentClisFile();
 				
 				super.windowClosing(e);
 			}
@@ -1071,7 +1061,6 @@ public class Dialog_PlotClis extends JDialog
 							@Override
 							public void windowLostFocus(WindowEvent e) 
 							{
-								//dgplotclis.setModal( true );
 								((Window)e.getSource()).dispose();
 							}
 							
@@ -1853,7 +1842,7 @@ public class Dialog_PlotClis extends JDialog
 	
 	
 	private void clearClisData()
-	{	
+	{			
 		this.clisData = null;
 		this.currentVar = null;
 		this.sampleIndex_A = 0;
@@ -2384,15 +2373,10 @@ public class Dialog_PlotClis extends JDialog
 				@Override
 				public void valueChanged( ListSelectionEvent e ) 
 				{
-					ListSelectionModel md = ( ListSelectionModel )e.getSource( );
+					clearClisData();					
+					clearCurrentClisFile();
 					
-					if( md.isSelectionEmpty() )
-					{
-						clearClisData();
-						
-						clearCurrentClisFile();
-					}
-					else if( !e.getValueIsAdjusting( ) )
+					if( !e.getValueIsAdjusting( ) )
 					{
 						int r = tableFileData.getSelectedRow( );
 						

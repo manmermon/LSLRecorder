@@ -32,7 +32,7 @@ import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
-import lslrec.gui.dialog.Dialog_Checklist;
+import lslrec.gui.dialog.Dialog_SetChecklist;
 import lslrec.gui.dialog.Dialog_ConvertClis;
 import lslrec.gui.dialog.Dialog_GNUGLPLicence;
 import lslrec.gui.dialog.Dialog_Info;
@@ -1310,6 +1310,7 @@ public class AppUI extends JFrame
 					String[] optList = new String[] { ConfigApp.DEL_BINARY_FILES, ConfigApp.STREAM_SEARCHING_TIME
 													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE 
 													, ConfigApp.CHECKLIST_TIMER
+													, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM
 													};
 					Map< String, String > optIdLang = new HashMap< String, String >();
 					
@@ -1318,6 +1319,7 @@ public class AppUI extends JFrame
 					optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
 					optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
 					optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
+					optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
 										
 					for( String op : optList )
 					{
@@ -2501,7 +2503,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					Dialog_Checklist checklistDialog = new Dialog_Checklist( );
+					Dialog_SetChecklist checklistDialog = new Dialog_SetChecklist( );
 					checklistDialog.setModal( true );
 					
 					checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );

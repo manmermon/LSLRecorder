@@ -125,6 +125,7 @@ public class Language
 	public static final String CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG = "CHECK_SYNC_UNSELECT_STREAM_WARNING_MSG";
 	public static final String CHECK_SELECTED_DATA_STREAMS_MSG = "CHECK_SELECTED_STREAMS_MSG";
 	public static final String CHECK_SELECTED_SYNC_STREAMS_MSG = "CHECK_SELECTED_SYNC_STREAMS_MSG";
+	public static final String CHECK_SUBJECT_SESSION_IDS_WARNING_MSG = "CHECK_SUBJECT_SESSION_IDS_WARNING_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -189,6 +190,7 @@ public class Language
 	public static final String REPEAT_TEXT = "REPEAT_TEXT";
 	public static final String OPTIONS_TEXT = "OPTIONS_TEXT";
 	public static final String SYNC_MARK_FILE_TEXT = "SYNC_MARK_FILE_TEXT";
+	public static final String RECONNECT_LOST_STREAM = "RECONNECT_LOST_STREAM";
 
 	public static final String INPUT_TEXT = "INPUT_TEXT";
 	public static final String OUTPUT_TEXT = "OUTPUT_TEXT";
@@ -254,7 +256,9 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
-				
+		
+		captions.put( RECONNECT_LOST_STREAM, new Caption(RECONNECT_LOST_STREAM, defaultLanguage, "Reconnection waiting time for lost stream." ) );
+		
 		captions.put( MSG_CHECKLIST_WARNING, new Caption(MSG_CHECKLIST_WARNING, defaultLanguage, "Too fast! Read the options before checking them." ) );
 		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
@@ -516,6 +520,8 @@ public class Language
 				, new Caption( CHECK_LSL_CHUNCKSIZE_WARNING_MSG, defaultLanguage, "Check if the next fields are correct: chunk size and interleaved." ) );
 		captions.put(CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG,
 				new Caption(CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG, defaultLanguage, "The Data Stream (sync method) is activated, but noone input data stream is not set as sync."));
+		captions.put(CHECK_SUBJECT_SESSION_IDS_WARNING_MSG,
+				new Caption(CHECK_SUBJECT_SESSION_IDS_WARNING_MSG, defaultLanguage, "Verified that the subject ID and session have been set."));
 
 		captions.put(INPUT_START_LEGEND,
 				new Caption(INPUT_START_LEGEND, defaultLanguage, "system must start the recording."));

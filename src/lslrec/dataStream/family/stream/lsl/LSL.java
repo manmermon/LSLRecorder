@@ -12,7 +12,13 @@ import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.exceptions.LostException;
 import lslrec.exceptions.TimeoutException;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 
 
 /**
@@ -215,7 +221,7 @@ public class LSL
         	if(obj == null)
         	{   
         		throw new IOException("Unable to open LSL inlet (" + info.name() + ")." );
-        	}
+        	}        	
         }
         public StreamInlet(LSLStreamInfo info, int max_buflen, int max_chunklen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, max_chunklen, 1);if(obj == null) throw new IOException("Unable to open LSL inlet (" + info.name() + ")." ); }
         public StreamInlet(LSLStreamInfo info, int max_buflen) throws IOException { obj = inst.lsl_create_inlet(info.handle(), max_buflen, 0, 1); if(obj == null) throw new IOException("Unable to open LSL inlet (" + info.name() + ")." );}
@@ -224,7 +230,10 @@ public class LSL
         /**
          * Disconnect and close the inlet.
          */
-        public void close() { inst.lsl_destroy_inlet(obj); }
+        public void close() 
+        {        	
+        	inst.lsl_destroy_inlet(obj);
+        }
 
         /**
          * Retrieve the complete information of the given stream, including the extended description.
@@ -266,7 +275,10 @@ public class LSL
          * it should call close_stream() to not waste unnecessary system and network
          * resources.
          */
-        public void close_stream() { inst.lsl_close_stream(obj); }
+        public void close_stream() 
+        {        	
+        	inst.lsl_close_stream(obj); 
+        }
 
         /**
          * Retrieve an estimated time correction offset for the given stream.

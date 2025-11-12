@@ -116,6 +116,41 @@ public class DataStreamFactory
 		return sslist.toArray( new IStreamSetting[ 0 ] );
 	}
 	
+	public static IStreamSetting[] getStreamSetting(IStreamSetting.StreamLibrary lib, String name, String type, double timeout )
+	{
+	    IStreamSetting[] sst = null;
+		
+		switch ( lib )
+		{
+			case LSL:
+			{		
+				if( timeout <= 0 )
+				{
+					sst = LSL.resolve_stream( name, type );
+				}
+				else
+				{
+					sst = LSL.resolve_stream( name, type, 0, timeout );
+				}
+				
+				break;
+			}
+			case LSLREC:
+			{
+				sst = LSLRecStream.getRegisteredStreamSettings().toArray( new IStreamSetting[ 0 ] );
+				
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+		
+		return sst;
+		
+	}
+	
 	public static IDataStream createDataStream( IStreamSetting streamSetting ) throws Exception
 	{
 		IDataStream bds = null;
@@ -136,7 +171,7 @@ public class DataStreamFactory
 					bds = new LSL.StreamInlet( (LSLStreamInfo)stream
 												, streamSetting.getStreamBufferLength()
 												, streamSetting.getChunkSize()
-												, streamSetting.recoverLostStream() );					
+												, streamSetting.reconnectLostStream() );					
 					break;
 				}
 				case LSLREC:

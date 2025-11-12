@@ -120,7 +120,7 @@ public class mainLSLRecorder
 			}
 			catch (Exception e1) {			}
 		}
-		
+				
 		//Set launch paramenters
 		File configFile = null;
 		int delay = -1;

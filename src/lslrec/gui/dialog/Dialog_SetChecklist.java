@@ -38,7 +38,7 @@ import lslrec.gui.GuiTextManager;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 
-public class Dialog_Checklist extends JDialog {
+public class Dialog_SetChecklist extends JDialog {
 
 	/**
 	 * 
@@ -62,7 +62,7 @@ public class Dialog_Checklist extends JDialog {
 	public static void main(String[] args) 
 	{
 		try {
-			Dialog_Checklist dialog = new Dialog_Checklist();
+			Dialog_SetChecklist dialog = new Dialog_SetChecklist();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -73,7 +73,7 @@ public class Dialog_Checklist extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public Dialog_Checklist( ) 
+	public Dialog_SetChecklist( ) 
 	{
 		super.setBounds(100, 100, 450, 300);
 		super.getContentPane().setLayout(new BorderLayout());
@@ -306,15 +306,11 @@ public class Dialog_Checklist extends JDialog {
 			
 			String hCol0 = this.tableChecklist.getColumnModel().getColumn( 0 ).getHeaderValue().toString() + "   ";
 			FontMetrics fm = this.tableChecklist.getFontMetrics( this.tableChecklist.getFont() );
-			
-			//this.tableChecklist.setRowSelectionAllowed( false );
-			//this.tableChecklist.setSelectionMode( ListSelectionModel.SINGLE_SELECTION );
-			 
+						 
 			this.tableChecklist.getColumnModel().getColumn(0).setResizable(false);
 			this.tableChecklist.getColumnModel().getColumn(0).setPreferredWidth( fm.stringWidth( hCol0 ) );
 			this.tableChecklist.getColumnModel().getColumn(0).setMaxWidth( fm.stringWidth( hCol0 ) * 2 );
 			this.tableChecklist.getColumnModel().getColumn(0).setMinWidth( fm.stringWidth( hCol0 ) );
-			//this.tableChecklist.getColumnModel().getColumn(1).setPreferredWidth(125);
 			
 			this.tableChecklist.addMouseListener( new MouseAdapter() 
 			{

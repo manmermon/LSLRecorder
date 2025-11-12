@@ -59,6 +59,7 @@ public class LSLRecSimpleDataStream implements IDataStream
 															, true
 															, name + "-" + System.nanoTime()
 															, name + "-" + System.nanoTime()
+															, IStreamSetting.NO_RECONNECT_LOST_STREAM
 															, new HashMap< String, String >()
 															
 															);

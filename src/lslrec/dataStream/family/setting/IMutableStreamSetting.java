@@ -80,4 +80,16 @@ public interface IMutableStreamSetting extends IStreamSetting
 	public void setRecordingCheckerTimer( int t );
 	
 	public void enableRecordingCheckerTimer( boolean check );	
+	
+    /**
+     * 
+     * @param time: maximum flow reconnection time in seconds to wait before 
+     * considering the connection lost. If this value is =0.0, the flows 
+     * are configured to generate an exception immediately when the 
+     * connection is lost, while if it is different from 0.0, the flows 
+     * are configured to attempt reconnection when lost.  A value <0.0 indicates 
+     * an unlimited wait time, while a value >0.0 indicates the time that will 
+     * be waited for the connection to be reestablished before it is considered lost.
+     */
+    public void setReconnectionWaitingTime( double time );
 }

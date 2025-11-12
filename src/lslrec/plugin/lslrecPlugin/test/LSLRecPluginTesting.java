@@ -40,6 +40,7 @@ import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlockFactory;
@@ -508,7 +509,7 @@ public class LSLRecPluginTesting {
 	private SimpleStreamSetting getSimpleStreamSetting(String name, StreamDataType type, int chs) 
 	{
 		return new SimpleStreamSetting(this.lib, name, type, type, type, chs, 1, 0, 3, true, getClass().getCanonicalName(),
-				getClass().getCanonicalName()
+				getClass().getCanonicalName(), IStreamSetting.NO_RECONNECT_LOST_STREAM
 				// , "testing"
 				, null);
 	}

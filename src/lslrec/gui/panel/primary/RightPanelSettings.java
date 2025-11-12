@@ -143,6 +143,7 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 
 public class RightPanelSettings extends JPanel
@@ -2071,7 +2072,7 @@ public class RightPanelSettings extends JPanel
 						extra.setLangID( Language.SETTING_LSL_EXTRA_TOOLTIP );
 						parlist.addParameter( extra );
 						
-						if( dev.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
+						//if( dev.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
 						{	
 							opts.add( null );
 							
@@ -2083,6 +2084,18 @@ public class RightPanelSettings extends JPanel
 							check.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
 							parlist.addParameter( check );
 						}
+						
+						/*
+						opts.add( null );
+						
+						opt = new SettingOptions( Language.RECONNECT_LOST_STREAM, SettingOptions.Type.NUMBER, false, new NumberRange(IStreamSetting.RECONNECTION_LOST_STREAM_TIME_FOREVER, Double.MAX_VALUE ),  StreamExtraLabels.RECONNECT_LOST_STREAM );
+						opt.addValue( dev.reconnectionWaitingTime() + "" );
+						opts.add( opt );
+						
+						Parameter< Double > reconnect = new Parameter< Double >( StreamExtraLabels.RECONNECT_LOST_STREAM, dev.reconnectionWaitingTime() );
+						reconnect.setLangID( Language.RECONNECT_LOST_STREAM );
+						parlist.addParameter( reconnect );
+						//*/
 						
 						Dialog_AdvancedOptions dialogOpts = new Dialog_AdvancedOptions(opts, parlist );
 						dialogOpts.setTitle( deviceName + " (" + uid + ")" );
@@ -2106,13 +2119,20 @@ public class RightPanelSettings extends JPanel
 						}
 	
 						dev.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, textInfo );
-	
-						
+							
 						Parameter< Boolean > par = parlist.getParameter( Language.SETTING_RECORDING_CHECKER_TIMER );
 						if( par != null )
 						{
 							dev.enableRecordingCheckerTimer( par.getValue() );
 						}
+						
+						/*
+						Parameter< Double > parReconnectTime = parlist.getParameter( StreamExtraLabels.RECONNECT_LOST_STREAM );
+						if( parReconnectTime != null )
+						{
+							dev.setReconnectionWaitingTime( parReconnectTime.getValue());
+						}
+						//*/
 						
 						/*
 						info.desc().remove_child( dev.getExtraInfoLabel() );

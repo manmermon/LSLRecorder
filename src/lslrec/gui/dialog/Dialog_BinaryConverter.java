@@ -1123,6 +1123,7 @@ public class Dialog_BinaryConverter extends JDialog
 																						, prevInfo.isEnableRecordingCheckerTimer()
 																						, prevInfo.source_id()
 																						, prevInfo.uid()
+																						, IStreamSetting.NO_RECONNECT_LOST_STREAM
 																						//, prevInfo.hostname()
 																						//, prevInfo.session_id()
 																						//, prevInfo.version()
@@ -1707,6 +1708,7 @@ public class Dialog_BinaryConverter extends JDialog
 																, true
 																, sid
 																, System.nanoTime() + ""
+																, IStreamSetting.NO_RECONNECT_LOST_STREAM
 																//, ""
 																//, System.nanoTime() + ""
 																//, 1

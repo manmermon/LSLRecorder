@@ -16,7 +16,7 @@ public interface IDataStream
      * Note that significantly larger numbers can cause the timeout to be invalid on some operating systems (e.g., 32-bit UNIX).
      */
     public static final double TIME_FOREVER = 32000000.0;
-    
+        
     /**
      * Disconnect and close the inlet.
      */

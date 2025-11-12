@@ -40,6 +40,7 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	 * @param recordingCheckerTimer
 	 * @param sourceID
 	 * @param uid
+	 * @param reconnectionWaitingTime
 	 * @param extraInfo
 	 * @param chunkSize
 	 */
@@ -47,11 +48,13 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 										, StreamDataType timeDataType, StreamDataType stringLenType
 										, int numChs, double samplingRate, int recordingCheckerTimer
 										, boolean enableCheckerTimer
-										, String sourceID, String uid, Map<String
+										, String sourceID, String uid, double reconnectionWaitingTime
+										, Map<String
 										, String> extraInfo, int chunkSize) 
 	{
 		super(libType, name, dataType, timeDataType, stringLenType, numChs, chunkSize
-				, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID, uid, extraInfo
+				, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID
+				, uid, reconnectionWaitingTime, extraInfo
 				);
 	}
 	
@@ -108,4 +111,11 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	{
 		super.enableCheckerTimer = check;
 	}
+
+	@Override
+	public void setReconnectionWaitingTime(double time) 
+	{
+		super.reconnectionTime = time;
+	}
+
 }

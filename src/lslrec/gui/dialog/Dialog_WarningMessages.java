@@ -2,11 +2,15 @@ package lslrec.gui.dialog;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Rectangle;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -14,15 +18,18 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
+import lslrec.gui.KeyActions;
 
 public class Dialog_WarningMessages extends JDialog 
 {
@@ -39,6 +46,8 @@ public class Dialog_WarningMessages extends JDialog
 	private JPanel panelButtons;
 	private JPanel panelChecklist;
 	
+	private JScrollPane scrListPanel;
+	
 	private JButton btOk;
 	private JButton btnCancel;
 	
@@ -46,10 +55,10 @@ public class Dialog_WarningMessages extends JDialog
 		
 	private int selectedOption = OPTION_NO_SELECTED;
 
-	private int checkCount = 0;
-	
 	private AtomicBoolean checkOn = new AtomicBoolean( false );
 	private Timer timer = null;
+	
+	private List< JCheckBox > chbList = new ArrayList< JCheckBox >();
 	
 	/**
 	 * Launch the application.
@@ -73,7 +82,11 @@ public class Dialog_WarningMessages extends JDialog
 		super( owner );
 		
 		this.setTitle( Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
-				
+		
+		super.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+												KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+												JComponent.WHEN_IN_FOCUSED_WINDOW );
+		
 		//super.setSize( new Dimension( 250, 175 ) );
 		//super.setResizable( false );
 				
@@ -117,10 +130,13 @@ public class Dialog_WarningMessages extends JDialog
 		JPanel checklistpanel = this.getChecklistPanel();
 		
 		checklistpanel.setVisible( false );
-		this.checkCount = messages.size();
+		
 		for( String msg : messages )
 		{
 			JCheckBox ch = new JCheckBox( msg );
+			
+			chbList.add( ch );
+			
 			ch.addItemListener( new ItemListener() 
 			{				
 				@Override
@@ -128,18 +144,22 @@ public class Dialog_WarningMessages extends JDialog
 				{
 					synchronized( checkOn )
 					{
+						JCheckBox ch = (JCheckBox)e.getSource();
+						
 						if( checkOn.get() )
-						{
-							int updateValue = ( e.getStateChange() == ItemEvent.SELECTED  ) ? -1 : 1;
+						{	
+							boolean wasSelected = ( ch.getName() != null );
 							
-							checkCount += updateValue;
-							getJLabelCheckCount().setText( "" + checkCount );
-							
-							getBtOk().setEnabled( checkCount < 1 );
-							
-							if( timer != null )
+							if( !wasSelected && e.getStateChange() == e.SELECTED )
 							{
-								if( checkCount > 0 )
+								ch.setName( "was selected" );
+							}
+							
+							int totalchecks = numberOfSelectedChecks();
+							
+							if( timer != null && !wasSelected )
+							{
+								if( totalchecks > 0 )
 								{
 									checkOn.set( false );
 
@@ -160,11 +180,20 @@ public class Dialog_WarningMessages extends JDialog
 				}
 			});
 			
+			ch.addFocusListener( new FocusAdapter()
+			{
+				@Override
+				public void focusGained(FocusEvent e) 
+				{
+					
+				}
+			});
+			
 			checklistpanel.add( ch );
 		}
 		
-		this.getJLabelCheckCount().setText( "" + this.checkCount );
-		this.getBtOk().setEnabled( !( this.checkCount > 0 ) );		
+		this.getJLabelCheckCount().setText( "" + this.chbList.size() );
+		this.getBtOk().setEnabled( !( this.chbList.size() > 0 ) );		
 		checklistpanel.setVisible( true );		
 		
 		if( this.timer != null )
@@ -172,6 +201,34 @@ public class Dialog_WarningMessages extends JDialog
 			this.timer.start();
 		}
 	}
+	
+	private int numberOfSelectedChecks()
+	{
+		int totalchecks = this.chbList.size();
+		
+		boolean setScrollBarPosition = false;
+		
+		for( JCheckBox ch : this.chbList )
+		{
+			totalchecks += ( ch.isSelected() ) ? -1 : 0;
+			
+			if( !ch.isSelected() && !setScrollBarPosition )
+			{				 
+				Rectangle pos = ch.getBounds();
+				
+				getChecklistPanel().scrollRectToVisible( pos );
+				
+				setScrollBarPosition = true;
+			}
+		}
+		
+		getJLabelCheckCount().setText( "" + totalchecks );
+		
+		getBtOk().setEnabled( totalchecks < 1 );
+		
+		return totalchecks;
+	}
+	
 	
 	public int getSelectedOption()
 	{
@@ -188,11 +245,23 @@ public class Dialog_WarningMessages extends JDialog
 			
 			this.contentPanel.add( this.getButtonsPanel(), BorderLayout.SOUTH );
 			
-			JScrollPane sc = new JScrollPane( this.getChecklistPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			//JScrollPane sc = new JScrollPane( this.getChecklistPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			JScrollPane sc = this.getMessageListScrollPanel();
+			sc.setViewportView( this.getChecklistPanel() );
 			this.contentPanel.add( sc, BorderLayout.CENTER );
 		}
 		
 		return this.contentPanel;
+	}
+	
+	private JScrollPane getMessageListScrollPanel()
+	{
+		if( this.scrListPanel == null )
+		{
+			this.scrListPanel = new JScrollPane( JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+		}
+		
+		return this.scrListPanel;
 	}
 	
 	private JPanel getButtonsPanel()
@@ -265,7 +334,7 @@ public class Dialog_WarningMessages extends JDialog
 		if( this.jlbCheckcount == null )
 		{
 			this.jlbCheckcount = new JLabel( );
-			this.jlbCheckcount.setText( this.checkCount + "" );
+			this.jlbCheckcount.setText( this.chbList.size() + "" );
 		}
 		
 		return this.jlbCheckcount;

@@ -714,7 +714,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			
 			int recordingCheckerTimer = (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER );
-			
+			double waitingTime2reconnect = (Double)ConfigApp.getProperty( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM );			
 			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 						
@@ -729,6 +729,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( dev.isSelected() )
 				{						
 					dev.setRecordingCheckerTimer( recordingCheckerTimer );
+					dev.setReconnectionWaitingTime( waitingTime2reconnect );
+					
 					DEV_ID.add( dev );
 					
 					LSLRecPluginDataProcessing process = null;
@@ -757,6 +759,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 																				, dev.isEnableRecordingCheckerTimer()
 																				, dev.source_id()
 																				, dev.uid()
+																				, dev.reconnectionWaitingTime()
 																				, dev.getExtraInfo()
 																				, dev.getChunkSize() );
 					PluginDataProcessingSettings plgDatPostProcessingSettings = new PluginDataProcessingSettings( posDev );
@@ -832,7 +835,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, file );
 				outFormat.setParameter( OutputFileFormatParameters.ZIP_ID, ConfigApp.getProperty( ConfigApp.OUTPUT_COMPRESSOR ).toString() );
 				outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );
-				outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );
+				outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );				
 				outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
 				this.encryptKey = "";
 				
@@ -1247,6 +1250,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( i == 0 )
 				{
 					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SUBJECT_SESSION_IDS_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 				}
 				else if( i == 1 || i == 2 )
 				{					

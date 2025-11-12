@@ -68,6 +68,8 @@ public class SimpleStreamSetting implements IStreamSetting
 	
 	protected int recordingCheckerTimer = 3;
 	protected boolean enableCheckerTimer = true;
+	
+	protected double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
 		
 	/**
 	 * 
@@ -83,6 +85,7 @@ public class SimpleStreamSetting implements IStreamSetting
 	 * @param enableCheckerTimer
 	 * @param sourceID
 	 * @param uid
+	 * @param reconnectionWaitingTime
 	 * @param extraInfo
 	 */
 	public SimpleStreamSetting( StreamLibrary libType
@@ -97,6 +100,7 @@ public class SimpleStreamSetting implements IStreamSetting
 								, boolean enableCheckerTimer
 								, String sourceID
 								, String uid
+								, double reconnectionWaitingTime
 								, Map< String, String > extraInfo								  
 								)
 	{
@@ -132,6 +136,8 @@ public class SimpleStreamSetting implements IStreamSetting
 
 		this.recordingCheckerTimer = recordingCheckerTimer;
 		this.enableCheckerTimer = enableCheckerTimer;
+		
+		this.reconnectionTime = reconnectionWaitingTime;
 		
 		this.sourceID = sourceID;
 		this.uid = uid;
@@ -190,7 +196,9 @@ public class SimpleStreamSetting implements IStreamSetting
 								)
 	{
 		
-		this( libType, name, dataType, numChs, chunkSize, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID, uid, null );
+		this( libType, name, dataType, numChs, chunkSize, samplingRate
+				, recordingCheckerTimer, enableCheckerTimer
+				, sourceID, uid, null );
 	}
 	
 	/**
@@ -221,9 +229,10 @@ public class SimpleStreamSetting implements IStreamSetting
 								)
 	{
 		
-		this( libType, name, dataType
-				, StreamDataType.double64, StreamDataType.int64
-				, numChs, chunkSize, samplingRate, recordingCheckerTimer, enableCheckerTimer, sourceID, uid, extraInfo );
+		this( libType, name, dataType, StreamDataType.double64
+				, StreamDataType.int64, numChs, chunkSize
+				, samplingRate, recordingCheckerTimer, enableCheckerTimer
+				, sourceID, uid, IStreamSetting.NO_RECONNECT_LOST_STREAM, extraInfo );
 	}
 	
 	@Override
@@ -434,6 +443,12 @@ public class SimpleStreamSetting implements IStreamSetting
 	{	
 	}
 
+	@Override
+	public double reconnectionWaitingTime() 
+	{
+		return this.reconnectionTime;
+	}
+	
 	/*
 	@Override
 	public void setAdditionalInfo(String id, String info) 

@@ -53,6 +53,9 @@ public interface IStreamSetting
      * Constant to indicate that a stream has variable sampling rate.
      */
     public static final double IRREGULAR_RATE = 0.0;
+    
+    public static final double RECONNECTION_LOST_STREAM_TIME_FOREVER = -1.0;
+    public static final double NO_RECONNECT_LOST_STREAM = 0.0;
 	
 	/**
 	 * 
@@ -282,11 +285,6 @@ public interface IStreamSetting
 		return bufSize;
     }
     
-    public default boolean recoverLostStream()
-    {
-    	return false;
-    }
-       
     public default int streamHashCode()
     {
     	String t = "" + this.name() + this.content_type() + this.source_id();  
@@ -318,10 +316,30 @@ public interface IStreamSetting
 					+ 	", " 	+ this.isInterleavedData()	// 7
 					+ 	", " 	+ this.isSynchronationStream()	// 8
 					+ 	", " 	+ this.isEnableRecordingCheckerTimer()	// 9
+					//+   ", "    + this.reconnectionWaitingTime()	// 10
 					+ 	">";
     }    
     
-    /** Destroy a previously created LSLStreamInfo this.object. */
-    public void destroy();
 
+    public default boolean reconnectLostStream()
+    {
+    	return this.reconnectionWaitingTime() != 0.0;
+    }
+    
+    /**
+     * 
+     * @return Maximum flow reconnection time in seconds to wait before 
+     * considering the connection lost. If this value is =0.0, the flows 
+     * are configured to generate an exception immediately when the 
+     * connection is lost, while if it is different from 0.0, the flows 
+     * are configured to attempt reconnection when lost.  A value <0.0 indicates 
+     * an unlimited wait time, while a value >0.0 indicates the time that will 
+     * be waited for the connection to be reestablished before it is considered lost.
+     * 
+     **/
+    public double reconnectionWaitingTime();   
+    
+    
+    /** Destroy a previously created LSLStreamInfo this.object. */
+    public void destroy();    
 }

@@ -43,6 +43,7 @@ import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
+import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
@@ -99,6 +100,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, false
 																	, ""
 																	, ""
+																	, IStreamSetting.NO_RECONNECT_LOST_STREAM
 																	//, ""
 																	//, ""
 																	//, 1
@@ -265,6 +267,7 @@ public class SyncMarkerCollectorWriter extends AbstractStoppableThread implement
 																	, false
 																	, ""
 																	, ""
+																	, IStreamSetting.NO_RECONNECT_LOST_STREAM
 																	//, ""
 																	//, ""
 																	//, 1
