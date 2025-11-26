@@ -5,19 +5,24 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import lslrec.auxiliar.task.ITaskLog;
@@ -41,6 +46,11 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	public static final int MARK_BIAS = Math.max( POSTRUN_MARK, PRERUN_MARK );
 	
+	
+	private JLabel remainingTimeInfo = new JLabel();
+	
+	private JButton nextStageBT = null;
+	
 	private int stageSyncMark = SyncMarker.NON_MARK;
 		
 	private List< TrialStage > stages = new ArrayList<TrialStage>();
@@ -48,7 +58,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	private boolean autofinish = false;
 	
-	private JLabel remainingTimeInfo = new JLabel();
+	
 	private long refTimer = 0L;
 	private Timer coundDownTimer = null; 
 	private String timeoutMsg = "Tiempo agotado";		
@@ -58,32 +68,38 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	private boolean stageTimerStop = false;
 	private boolean wakeupTrialCallByTimer = false;
 	
-	private Object sync = new Object();
+	private Object syncMarkers = new Object();
 	
 	private int subStageDelta = 0;
 	
-	private Timer timeOutAlarm = null;
+	//private Timer timeOutAlarm = null;
 	
 	public TrialStageMarker() 
 	{
 		remainingTimeInfo.setFont( this.getFont() );
 		
+		/*
 		this.timeOutAlarm = new Timer( 400, new ActionListener()
 		{	
 			boolean set = true;
+			
 			@Override
 			public void actionPerformed(ActionEvent e) 
 			{
-				remainingTimeInfo.setVisible( false );		
-				
-				remainingTimeInfo.setOpaque( true );
-				remainingTimeInfo.setBackground( ( set ? Color.GREEN : null ) );
-				
-				remainingTimeInfo.setVisible( true );
-				
-				set = !set;
+				synchronized ( sync ) 
+				{
+					remainingTimeInfo.setVisible( false );		
+					
+					remainingTimeInfo.setOpaque( true );
+					remainingTimeInfo.setBackground( ( set ? Color.GREEN : null ) );
+					
+					remainingTimeInfo.setVisible( true );
+					
+					set = !set;
+				}
 			}
 		});
+		//*/
 	}
 	
 	@Override
@@ -204,19 +220,18 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	{
 		if( trialPanel != null )
 		{
-			synchronized ( sync )
+			if( this.stageTimer != null )
 			{
-				if( this.stageTimer != null )
-				{
-					this.stageTimer.stop();
-					
-					this.stageTimerStop = true;
-				}
+				this.stageTimer.stop();
+				this.stageTimer = null;
 				
-				if( this.coundDownTimer != null )
-				{
-					this.coundDownTimer.stop();
-				}
+				this.stageTimerStop = true;
+			}
+
+			if( this.coundDownTimer != null )
+			{
+				this.coundDownTimer.stop();
+				this.coundDownTimer = null;
 			}			
 			
 			if( this.stageIndex < this.stages.size() )
@@ -224,12 +239,16 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				trialPanel.setVisible( false );
 				trialPanel.setLayout( new BorderLayout() );
 				trialPanel.removeAll();
+				for( ComponentListener cl : trialPanel.getComponentListeners() )
+				{
+					trialPanel.removeComponentListener( cl );
+				}
 
 				TrialStage stage = this.stages.get( this.stageIndex );
 				
 				this.stageSyncMark = stage.getMark();
 				
-				this.timeOutAlarm.stop();
+				//this.timeOutAlarm.stop();
 				this.remainingTimeInfo.setText( stage.getTime() + "");
 				
 				JPanel stagePanel = this.getPhasePanel( stage );
@@ -252,16 +271,16 @@ public class TrialStageMarker extends LSLRecPluginTrial
 							
 							long remainedTime = ( phaseTime - elapsedTime ) / 1000;
 							if( remainedTime >= 0 )
-							{
-								synchronized ( sync )
+							{	
+								/*
+								if( remainingTimeInfo.getText().indexOf( timeoutMsg ) < 0 )
 								{
-									if( remainingTimeInfo.getText().indexOf( timeoutMsg ) < 0 )
-									{
-										remainingTimeInfo.setVisible( false );
-										remainingTimeInfo.setText( remainedTime + "" );
-										remainingTimeInfo.setVisible( true );
-									}
+									remainingTimeInfo.setVisible( false );
+									remainingTimeInfo.setText( String.valueOf( remainedTime ));
+									remainingTimeInfo.setVisible( true );
 								}
+								//*/
+								remainingTimeInfo.setText( String.valueOf( remainedTime ));
 							}
 							else
 							{
@@ -282,7 +301,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 						{
 							refTimer = System.currentTimeMillis();
 							stageTimer.start();
-							
+
 							coundDownTimer.start();
 						}
 					}
@@ -345,9 +364,10 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				int stageMark = stg.getMark();
 				String idStage = stg.getId( ) + "(" + stageMark +")  ";
 				
-				if( stage.getId().equals( stg.getId() ) )
+				boolean currentPhase = stage.getId().equals( stg.getId() ); 
+				if( currentPhase )
 				{
-					idStage = "<html><p style='color:orange'>" + idStage + "</p></html>";
+					idStage = "<html><p style='color:orange'>" + idStage + "</p></html>";					
 				}
 				
 				JLabel lb = new JLabel( idStage );
@@ -360,10 +380,9 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					stageMark += subStages.length; 
 				}
 			}
-			allStagePanel.setBorder(BorderFactory.createEmptyBorder( 0, 0, 15, 0 ));
-			
+			allStagePanel.setBorder(BorderFactory.createEmptyBorder( 0, 0, 15, 0 ));			
 			stagePanel.add( new JScrollPane( allStagePanel ), BorderLayout.NORTH );
-		
+						
 			JPanel panel = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.CENTER, 5,5 ) );
 		
 			JLabel retime = new JLabel( "Tiempo restante:");
@@ -376,10 +395,12 @@ public class TrialStageMarker extends LSLRecPluginTrial
 			panel.add( ptime );
 			JPanel panelSig = new JPanel( new FlowLayout( FlowLayout.LEFT, 2,2) );
 			
+			
+			/*
 			JButton bt = new JButton( "Siguiente fase");
 			bt.setFont( this.getFont() );
 			bt.setForeground( Color.BLUE );
-			
+						
 			JButton btSi = new JButton( "Sí" );
 			btSi.setFont( this.getFont() );
 			btSi.setEnabled( false );
@@ -401,9 +422,10 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				{
 					bt.setEnabled( false );
 					btSi.setEnabled( true );
-					btNo.setEnabled( true );
+					btNo.setEnabled( true );					
 				}
 			});
+			
 			
 			btSi.addActionListener( new ActionListener() 
 			{	
@@ -435,8 +457,10 @@ public class TrialStageMarker extends LSLRecPluginTrial
 					btNo.setEnabled( false );
 				}
 			});
+			//*/
 			
 			
+			panelSig.add( this.getNextStageBt() );
 			panel.add( panelSig );
 			panel.add( Box.createRigidArea( new Dimension( 5, 10 )) );
 						
@@ -456,7 +480,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 						@Override
 						public void actionPerformed(ActionEvent e) 
 						{
-							synchronized ( sync )
+							synchronized ( syncMarkers )
 							{
 								if( subStageDelta != delta )
 								{
@@ -481,6 +505,46 @@ public class TrialStageMarker extends LSLRecPluginTrial
 		return stagePanel;
 	}
 	
+	private JButton getNextStageBt()
+	{
+		if( this.nextStageBT == null )
+		{
+			this.nextStageBT = new JButton( "Siguiente fase");
+			this.nextStageBT.setFont( this.getFont() );
+			this.nextStageBT.setForeground( Color.BLUE );
+			
+			this.nextStageBT.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JButton bt = (JButton)e.getSource();
+					
+					Window w = SwingUtilities.getWindowAncestor( bt );
+					int sel = JOptionPane.showConfirmDialog( w, bt.getText() + "???" , bt.getText(), JOptionPane.YES_NO_OPTION );
+					
+					if( sel == JOptionPane.YES_OPTION )
+					{
+						synchronized ( syncMarkers )
+						{
+							stageTimerStop = true;
+							
+							stageSyncMark -= subStageDelta;
+							subStageDelta = 0;
+							
+							if( !wakeupTrialCallByTimer )
+							{					
+								wakeUpTrial();
+							}
+						}		
+					}
+				}
+			});
+		}
+		
+		return this.nextStageBT;
+	}
+	
 	private Timer getStageTimer( TrialStage stage )
 	{
 		Timer timer = null;
@@ -495,7 +559,7 @@ public class TrialStageMarker extends LSLRecPluginTrial
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					synchronized ( sync )
+					synchronized ( syncMarkers )
 					{
 						if( !stageTimerStop )
 						{
@@ -504,6 +568,24 @@ public class TrialStageMarker extends LSLRecPluginTrial
 							
 							if( auto )
 							{
+								Window[] windows = Window.getWindows();
+								
+								 for (Window window : windows) 
+								 {
+					                    if( window instanceof JDialog ) 
+					                    {
+					                        JDialog dialog = (JDialog) window;
+					                        
+					                        String title = dialog.getTitle();					                        
+					                        if( dialog.getContentPane().getComponentCount() == 1
+					                            && dialog.getContentPane().getComponent(0) instanceof JOptionPane
+					                            && title != null && title.equals( getNextStageBt().getText() ) )
+					                        {
+					                            dialog.dispose();
+					                        }
+					                    }
+					                }
+								
 								wakeupTrialCallByTimer = true;
 								
 								wakeUpTrial();
@@ -527,11 +609,13 @@ public class TrialStageMarker extends LSLRecPluginTrial
 	
 	private void setTimeoutTimerMessage( )
 	{
-		remainingTimeInfo.setVisible( false );
+		//remainingTimeInfo.setVisible( false );
+		if( this.coundDownTimer != null )
+		{
+			this.coundDownTimer.stop();
+		}
 		remainingTimeInfo.setText( "<html><p style='color:orange'>" + timeoutMsg + "</p></html>" );
-		remainingTimeInfo.setVisible( true );
-		
-		this.timeOutAlarm.start();
+		//remainingTimeInfo.setVisible( true );
 	}
 	
 	private Font getFont()

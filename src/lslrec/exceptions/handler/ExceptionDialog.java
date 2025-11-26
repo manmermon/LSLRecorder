@@ -246,7 +246,10 @@ public class ExceptionDialog
 							log1.flush();
 						}
 	
-						log1.SetColorText( msgColor );
+						if( !log1.isSameTextColor( msgColor ) )
+						{
+							log1.SetColorText( msgColor );
+						}
 							
 						if( ex != null )
 						{
@@ -270,14 +273,15 @@ public class ExceptionDialog
 	
 						dialog.setTitle( msg.getTitleException() );
 	
-						log2.SetColorText( msgColor );
+						if( !log2.isSameTextColor( msgColor ) )
+						{
+							log2.SetColorText( msgColor );
+						}
 	
 						if( ic != null )
 						{
 							dialog.setIconImage( ic.getImage() );
 						}
-	
-						
 	
 						if( ex != null )
 						{

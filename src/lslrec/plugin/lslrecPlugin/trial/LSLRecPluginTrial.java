@@ -21,8 +21,11 @@ package lslrec.plugin.lslrecPlugin.trial;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.util.List;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -41,7 +44,8 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 {	
 	private LSLRecPluginSyncMethod syncMethod;
 
-	private JFrame testWindow = null;
+	//private JFrame testWindow = null;
+	private JDialog testWindow = null;
 	private JPanel GUIPanel = null;
 	
 	private ITaskMonitor monitor = null;
@@ -55,7 +59,8 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	{
 		super( );
 								
-		this.testWindow = new JFrame();
+		//this.testWindow = new JFrame();
+		this.testWindow = new JDialog();
 		this.testWindow.setVisible( false );
 		
 		this.GUIPanel = new JPanel( new BorderLayout() );
@@ -150,7 +155,46 @@ public abstract class LSLRecPluginTrial extends AbstractStoppableThread
 	{
 		if( this.testWindow != null )
 		{
-			this.testWindow.setExtendedState( state );
+			//this.testWindow.setExtendedState( state );
+			
+			Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+			
+			Rectangle origBounds = this.testWindow.getBounds();
+			
+			Rectangle newBounds = new Rectangle( origBounds );
+			switch ( state )
+			{
+				case JFrame.MAXIMIZED_BOTH:
+				{
+					newBounds.setSize( screenSize );
+					newBounds.setLocation( 0, 0 );
+					break;
+				}
+				case JFrame.MAXIMIZED_HORIZ:
+				{
+					newBounds.width = screenSize.width;
+					newBounds.x = 0;
+					
+					break;
+				}
+				case JFrame.MAXIMIZED_VERT:
+				{
+					newBounds.height = screenSize.height;
+					newBounds.y = 0;
+					
+					break;
+				}		
+				case JFrame.ICONIFIED:
+				{
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+			
+			this.testWindow.setBounds( newBounds );
 		}
 	}
 	

@@ -143,7 +143,6 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 
 public class RightPanelSettings extends JPanel

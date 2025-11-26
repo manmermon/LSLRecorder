@@ -1,0 +1,2015 @@
+
+2025-11-26 16:46:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:46:41 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:47:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:47:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:47:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:47:59 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:05 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:14 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:19 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:24 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:46 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:48:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:05 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:10 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:49:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:26 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:46 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:50 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:50:59 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:10 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:14 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:26 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 16:51:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:26 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:41 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:05:59 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:00 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:05 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:11 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:24 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:27 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:39 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:44 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:55 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:06:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:00 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:11 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:19 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:41 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:50 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:07:59 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:05 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:10 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:08:58 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:11 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:14 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:27 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:39 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:55 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:09:58 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:05 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:10 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:24 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:26 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:46 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:10:58 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:11 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:50 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:11:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:00 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:11 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:14 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:22 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:27 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:31 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:38 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:48 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:50 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:55 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:12:58 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:21 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:24 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:27 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:35 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:40 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:41 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:43 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:46 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:50 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:54 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:13:59 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:00 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:02 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:04 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:08 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:10 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:17 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:24 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:27 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:32 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:34 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:39 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:51 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:53 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:55 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:14:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:18 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:20 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:23 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:25 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:28 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:29 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:30 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:33 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:36 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:37 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:39 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:42 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:18:49 ():WARNING
+--------------------------------
+java.lang.Exception: The output data file exist. It was renamed as F:\NextCloud\WorkSpace\GitHub\LSLRecorder\records\data_Simulation_20251126_171850.019.clis
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:45 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:47 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:49 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:52 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:55 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:56 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:32:57 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:01 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:03 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:06 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:07 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:09 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:12 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:13 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:15 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:16 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:19 ():WARNING
+--------------------------------
+java.lang.Exception: No data received 1s from Simulation (irregular sampling rate).
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)
+
+2025-11-26 17:33:24 ():WARNING
+--------------------------------
+java.lang.Exception: The output data file exist. It was renamed as F:\NextCloud\WorkSpace\GitHub\LSLRecorder\records\data_Simulation_20251126_173325.647.clis
+	at lslrec.control.handler.CoreControl$controlNotifiedManager$1.run(CoreControl.java:2265)

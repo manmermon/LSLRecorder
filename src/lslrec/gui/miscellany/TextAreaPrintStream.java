@@ -93,11 +93,8 @@ public class TextAreaPrintStream extends PrintStream
     	catch (BadLocationException e) 
     	{
     		this.textArea.setText( this.textArea.getText() + "\n" + string );
-		}
-    	
+		}    	
     }
-
-
 
     /**
      * Method print
@@ -128,6 +125,32 @@ public class TextAreaPrintStream extends PrintStream
     	AttributeSet attrs = SimpleAttributeSet.EMPTY;
 		
     	this.attSet = sc.addAttribute( attrs , StyleConstants.Foreground, color);
+    }
+    
+    public Color getColorText()
+    {
+    	Color c = null;
+    	
+    	if( this.attSet != null )
+    	{
+    		c = (Color)this.attSet.getAttribute( StyleConstants.Foreground );
+    	}
+    	
+    	return c;
+    }
+    
+    public boolean isSameTextColor( Color c )
+    {
+    	boolean eq = false;
+    	
+    	if( c != null && this.attSet != null )
+    	{
+    		Object currentColor = this.attSet.getAttribute( StyleConstants.Foreground );
+    		
+    		eq = ( currentColor != null ) ? currentColor.equals( c ) : false;
+    	}
+    	
+    	return eq;
     }
     
     public void requestFocus()
