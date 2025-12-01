@@ -13,7 +13,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -21,15 +20,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.KeyStroke;
-import javax.swing.Timer;
 
+import lslrec.auxiliar.thread.timer.ActionTimerThread;
+import lslrec.auxiliar.thread.timer.IAction;
+import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
 import lslrec.gui.KeyActions;
+import lslrec.stoppableThread.IStoppableThread;
 
 public class Dialog_WarningMessages extends JDialog 
 {
@@ -55,7 +56,7 @@ public class Dialog_WarningMessages extends JDialog
 		
 	private int selectedOption = OPTION_NO_SELECTED;
 
-	private AtomicBoolean checkOn = new AtomicBoolean( false );
+	//private AtomicBoolean checkOn = new AtomicBoolean( false );
 	private Timer timer = null;
 	
 	private List< JCheckBox > chbList = new ArrayList< JCheckBox >();
@@ -65,11 +66,14 @@ public class Dialog_WarningMessages extends JDialog
 	 */
 	public static void main(String[] args) 
 	{
-		try {
+		try 
+		{
 			Dialog_WarningMessages dialog = new Dialog_WarningMessages( null, new ArrayList<String>() );
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
-		} catch (Exception e) {
+		}
+		catch (Exception e) 
+		{
 			e.printStackTrace();
 		}
 	}
@@ -114,6 +118,7 @@ public class Dialog_WarningMessages extends JDialog
 		
 		if( checklistTimer > 0 )
 		{
+			/*
 			this.timer = new Timer( checklistTimer*1000, new ActionListener() 
 			{				
 				@Override
@@ -124,7 +129,17 @@ public class Dialog_WarningMessages extends JDialog
 						checkOn.set( true );
 					}
 				}
-			});			
+			});
+			//*/
+			
+			this.timer = new Timer( checklistTimer * 1000, false, new ActionTimerThread( new IAction() 
+			{				
+				@Override
+				public void execute() 
+				{
+					enableCheckboxList( true );
+				}
+			}));
 		}
 		
 		JPanel checklistpanel = this.getChecklistPanel();
@@ -137,6 +152,7 @@ public class Dialog_WarningMessages extends JDialog
 			
 			chbList.add( ch );
 			
+			/*
 			ch.addItemListener( new ItemListener() 
 			{				
 				@Override
@@ -179,6 +195,50 @@ public class Dialog_WarningMessages extends JDialog
 					}
 				}
 			});
+			//*/
+
+			ch.addItemListener( new ItemListener() 
+			{				
+				@Override
+				public void itemStateChanged(ItemEvent e) 
+				{
+					enableCheckboxList( false );
+					
+					boolean wasSelected = ( ch.getName() != null );
+					
+					if( !wasSelected && e.getStateChange() == e.SELECTED )
+					{
+						ch.setName( "was selected" );
+					}
+					
+					int totalchecks = numberOfSelectedChecks();
+					
+					if( wasSelected )
+					{
+						enableCheckboxList( true );
+					}
+					else
+					{
+						if( totalchecks > 0 )
+						{
+							if( timer != null )
+							{
+								timer.restartTimer();
+							}
+						}
+						else
+						{
+							if( timer != null )
+							{
+								timer.stopThread( IStoppableThread.FORCE_STOP );
+								timer = null;
+							}
+							
+							enableCheckboxList( true );
+						}
+					}
+				}
+			});
 			
 			ch.addFocusListener( new FocusAdapter()
 			{
@@ -198,7 +258,18 @@ public class Dialog_WarningMessages extends JDialog
 		
 		if( this.timer != null )
 		{
-			this.timer.start();
+			this.timer.restartTimer();
+		}
+	}
+	
+	private void enableCheckboxList( boolean ena )
+	{
+		if( this.chbList != null )
+		{
+			for( JCheckBox cb : this.chbList )
+			{
+				cb.setEnabled(ena);
+			}
 		}
 	}
 	

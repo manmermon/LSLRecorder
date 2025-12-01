@@ -16,6 +16,8 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread.timer"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread.timer.event"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control"/>
