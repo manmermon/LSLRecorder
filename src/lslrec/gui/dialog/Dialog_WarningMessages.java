@@ -225,6 +225,10 @@ public class Dialog_WarningMessages extends JDialog
 							{
 								timer.restartTimer();
 							}
+							else
+							{
+								enableCheckboxList( true );
+							}
 						}
 						else
 						{
