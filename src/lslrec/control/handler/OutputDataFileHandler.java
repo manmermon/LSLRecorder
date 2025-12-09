@@ -24,6 +24,9 @@
 package lslrec.control.handler;
 
 import lslrec.auxiliar.thread.LaunchThread;
+import lslrec.auxiliar.thread.timer.ActionTimerThread;
+import lslrec.auxiliar.thread.timer.IAction;
+import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;
@@ -68,8 +71,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.swing.Timer;
 
 public class OutputDataFileHandler extends HandlerMinionTemplate implements ITaskMonitor
 {	
@@ -621,13 +622,16 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		
 		synchronized ( this.outWriterHandlers ) 
 		{
-			String[] iwh = this.outWriterHandlers.keySet().toArray( new String[0]);		
-			int nWH = iwh.length;
+			//String[] iwh = this.outWriterHandlers.keySet().toArray( new String[0]);
+			//int nWH = iwh.length;
+			int nWH = this.outWriterHandlers.size();
+			
 			saving = ( nWH > 0 );
 			// Problem with this.outWriterHandlers.isEmpty() and  this.outWriterHandlers.size()  
 			
 			if( saving )
 			{
+				String[] iwh = this.outWriterHandlers.keySet().toArray( new String[0]);
 				List< String > terminatedwriter = new ArrayList<String>();
 							
 				for( String id : this.outWriterHandlers.keySet() )
@@ -732,7 +736,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						{								
 							if( this.checkOutWriterTimer != null )
 							{
-								this.checkOutWriterTimer.stop();
+								//this.checkOutWriterTimer.stop();
+								this.checkOutWriterTimer.stopThread( IStoppableThread.FORCE_STOP );
 								this.checkOutWriterTimer = null;
 							}
 
@@ -1066,6 +1071,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		if( this.checkOutWriterTimer == null )
 		{
+			/*
 			this.checkOutWriterTimer = new Timer( 5_000 , new ActionListener() // 5 s 
 			{	
 				@Override
@@ -1076,6 +1082,18 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			});
 			
 			this.checkOutWriterTimer.start();
+			//*/
+			
+			this.checkOutWriterTimer = new Timer( 5_000, false, new ActionTimerThread( new IAction() // 5s
+			{				
+				@Override
+				public void execute() 
+				{
+					CheckOutWriters();
+				}
+			}));
+			
+			this.checkOutWriterTimer.restartTimer();
 		}
 	}
 	
@@ -1119,14 +1137,16 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		if( this.outWriterHandlers.size() < 1 && this.NumberOfSavingThreads.get() < 1 )
 		{
 			super.supervisor.eventNotification( this, new EventInfo( super.getName(), EventType.ALL_OUTPUT_DATA_FILES_SAVED, "" )  );
-			this.checkOutWriterTimer.stop();
+			//this.checkOutWriterTimer.stop();
+			this.checkOutWriterTimer.stopThread( IStoppableThread.FORCE_STOP );
 			this.checkOutWriterTimer = null;
 		}
 		else
 		{
 			if( this.checkOutWriterTimer != null )
 			{
-				this.checkOutWriterTimer.restart();
+				//this.checkOutWriterTimer.restart();
+				this.checkOutWriterTimer.restartTimer();
 			}
 		}
 		

@@ -25,6 +25,9 @@ package lslrec.control.handler;
 import lslrec.auxiliar.thread.BeepSound;
 import lslrec.auxiliar.thread.DeadlockDetector;
 import lslrec.auxiliar.thread.LostWaitedThread;
+import lslrec.auxiliar.thread.timer.ActionTimerThread;
+import lslrec.auxiliar.thread.timer.IAction;
+import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -84,8 +87,6 @@ import lslrec.auxiliar.task.ITaskMonitor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.nio.file.FileSystemException;
 import java.text.DecimalFormat;
@@ -106,7 +107,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
-import javax.swing.Timer;
 import javax.swing.UIManager;
 
 public class CoreControl extends Thread implements IHandlerSupervisor
@@ -127,8 +127,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	private static CoreControl core = null;
 
 	private GuiManager managerGUI;
-
-	//private List< WarningMessage > warnMsg = null;
 
 	private boolean showWarningEvent = true;
 	
@@ -180,8 +178,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		catch (Exception | Error e) 
 		{	
-		}
-		
+		}		
 	}
 
 	/**
@@ -447,7 +444,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{	
 			if( this.writingTestTimer != null )
 			{
-				this.writingTestTimer.stop();
+				//this.writingTestTimer.stop();
+				this.writingTestTimer.stopThread( IStoppableThread.FORCE_STOP );
 				this.writingTestTimer = null;
 			}
 			
@@ -599,6 +597,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				this.isWaitingForStartCommand = false;
 				
+				/*
 				this.writingTestTimer = new Timer( ConfigApp.WRITING_TEST_TIME, new ActionListener() 
 				{			
 					@Override
@@ -609,6 +608,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				} );
 				
 				this.writingTestTimer.start();
+				//*/
+				
+				this.writingTestTimer = new Timer( ConfigApp.WRITING_TEST_TIME, false, new ActionTimerThread( new IAction() 
+				{					
+					@Override
+					public void execute() 
+					{
+						managerGUI.stopTest();						
+					}
+				} ));
+				
+				this.writingTestTimer.startThread();
 			}			
 			
 			//
@@ -904,7 +915,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					sjID = ( folder != null ) ? folder.getName() : "";
 				}
 				
-				ExceptionDialog.setRecordSessionInfo( sjID, sessionID );
+				//ExceptionDialog.setRecordSessionInfo( sjID, sessionID );
+				ExceptionDialog.openLogFile( sjID, sessionID );
 			}
 		}
 		
@@ -1455,7 +1467,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				this.stopThread = null;
 				
-				ExceptionDialog.setRecordSessionInfo( "", "" );
+				ExceptionDialog.closeLogFile();
 			}
 		}
 	}
@@ -2622,7 +2634,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 				if( writingTestTimer != null )
 				{
-					writingTestTimer.stop();
+					//writingTestTimer.stop();
+					writingTestTimer.stopThread(  IStoppableThread.FORCE_STOP );
 					//writingTestTimer = null;
 				}
 

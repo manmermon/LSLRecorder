@@ -3,15 +3,14 @@
  */
 package lslrec.dataStream.family.stream.lslrec;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.lang.Thread.State;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
-import javax.swing.Timer;
-
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.auxiliar.thread.timer.ActionTimerThread;
+import lslrec.auxiliar.thread.timer.IAction;
+import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
@@ -201,36 +200,44 @@ public class LSLRecSimpleDataStream implements IDataStream
 		return false;
 	}
 
-	private void startTimer( double timeout, ActionListener action )
+	//private void startTimer( double timeout, ActionListener action )
+	private void startTimer( double timeout, IAction action )
 	{
 		if( this.timer != null )
 		{
-			this.timer.stop();			
+			//this.timer.stop();
+			this.timer.stopThread( IStoppableThread.FORCE_STOP );
 		}
 		
 		int delay = (int)Math.round( 1000 * timeout );
 		
-		this.timer = new Timer( delay, action );
+		/*
+		this.timer = new Timer( delay, action );		
 		
 		this.timer.start();
+		//*/
+		
+		this.timer = new Timer( delay, false,  new ActionTimerThread( action ) );
+		this.timer.restartTimer();
 	}
 	
 	private void stopTimer()
 	{
 		if( this.timer != null )
 		{
-			this.timer.stop();			
+			//this.timer.stop();			
+			this.timer.stopThread( IStoppableThread.FORCE_STOP );
 		}
 		
 		this.timer = null;
 	}
 	
-	private ActionListener getTimeoutOpenAction( )
+	private IAction getTimeoutOpenAction( )
 	{
-		return new ActionListener() 
-				{			
+		return new IAction() 
+				{					
 					@Override
-					public void actionPerformed(ActionEvent e) 
+					public void execute() 
 					{
 						if( datGiver != null )
 						{
@@ -240,12 +247,12 @@ public class LSLRecSimpleDataStream implements IDataStream
 				};
 	}
 	
-	private ActionListener getTimeoutReadAction( )
+	private IAction getTimeoutReadAction( )
 	{
-		return new ActionListener() 
+		return new IAction() 
 				{			
 					@Override
-					public void actionPerformed(ActionEvent e) 
+					public void execute() 
 					{
 						if( datGiver != null )
 						{

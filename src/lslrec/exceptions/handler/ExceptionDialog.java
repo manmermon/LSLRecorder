@@ -34,17 +34,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.StringWriter;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
@@ -52,10 +46,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
-import org.apache.commons.lang3.StringUtils;
-
-import lslrec.config.ConfigApp;
-import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TextAreaPrintStream;
@@ -63,16 +53,18 @@ import lslrec.gui.miscellany.TextAreaPrintStream;
 public class ExceptionDialog 
 {
 	private static JDialog dialog;
-	private static TextAreaPrintStream log2;
-	
-	private static TextAreaPrintStream log1;
 	
 	private static Object sync = new Object();
+	private static Object syncLogFile = new Object();
 	
-	private static File errorWarningLog =  null;
+	private static ExceptionLogGUIThread logGUI = new ExceptionLogGUIThread( 10 );
 	
-	private static String recordSubjID = null;
-	private static String recordSessionID = null;
+	//private static File errorWarningLog =  null;
+	
+	//private static String recordSubjID = null;
+	//private static String recordSessionID = null;
+	
+	private static ExceptionLogFileThread errorWarningLog;
 	
 	public static void createExceptionDialog( Window owner ) 
 	{
@@ -92,7 +84,8 @@ public class ExceptionDialog
 			//jta.setLineWrap( true );
 			//jta.setTabSize( 0 );
 	
-			log2 = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
+			//log2 = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
+			 logGUI.addLog( new TextAreaPrintStream( jta, new ByteArrayOutputStream() ) );
 	
 			dialog = new JDialog( owner );
 	
@@ -144,12 +137,16 @@ public class ExceptionDialog
 				{
 					synchronized( sync )
 					{
+						/*
 						log2.flush();
 						
 						if( log1 != null )
 						{
 							log1.flush();
 						}
+						//*/
+						
+						logGUI.clearLog();
 					}					
 				}
 			});
@@ -169,7 +166,8 @@ public class ExceptionDialog
 	{
 		synchronized ( sync )
 		{
-			log1 = mainLog;
+			logGUI.addLog( mainLog );
+			//log1 = mainLog;
 		}
 	}
 	
@@ -183,6 +181,8 @@ public class ExceptionDialog
 	
 	public static void AppExitWhenWindowClosing()
 	{
+		closeLogFile();
+		
 		synchronized ( sync )
 		{
 			if( dialog != null )
@@ -199,207 +199,69 @@ public class ExceptionDialog
 		}
 	}
 
-	public static void setRecordSessionInfo( String subjID, String sessionID )
+	public static void openLogFile( String subjID, String sessionID ) throws Exception
 	{
-		synchronized ( sync )
+		synchronized ( syncLogFile )
 		{
-			recordSubjID = subjID;
-			recordSessionID = sessionID;
+			if( errorWarningLog != null )
+			{
+				throw new RuntimeException( "Log is opened." );
+			}
+			
+			errorWarningLog = new ExceptionLogFileThread( subjID, sessionID, 10 );
+		}
+	}
+	
+	public static void closeLogFile()
+	{
+		logGUI.flush();
+		
+		synchronized ( syncLogFile )
+		{
+			if( errorWarningLog != null )
+			{
+				errorWarningLog.close();
+				errorWarningLog = null;
+			}
 		}		
 	}
 	
  	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
 	{
-		(new Thread()
+ 		if( logGUI != null )
+ 		{
+ 			logGUI.write( msg, concatMsg, printExceptionTrace );
+ 		}
+ 		
+ 		if( dialog != null )
 		{
-			@Override
-			public void run() 
+			dialog.setTitle( msg.getTitleException() );
+			
+			if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
 			{
-				super.setName( "ExceptionDialog-showMessage-" + super.getId() );
-				
-				synchronized ( sync )
-				{
-					GuiManager.getInstance().showLogTab();
-					
-					Throwable ex = msg.getException();
-					
-					Color msgColor = Color.ORANGE;
-					boolean errorFocus = false;
-					ImageIcon ic = GeneralAppIcon.Warning( 64, Color.ORANGE );
-
-					if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
-					{
-						ic = GeneralAppIcon.Error( 64, Color.RED );
-						msgColor = Color.RED;
-						errorFocus = true;
-					}
-					else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
-					{
-						ic = GeneralAppIcon.Info( 64, Color.BLACK );
-						msgColor = Color.BLACK;
-					}
-					
-					if( log1 != null )
-					{
-						if( !concatMsg )
-						{
-							log1.flush();
-						}
-	
-						if( !log1.isSameTextColor( msgColor ) )
-						{
-							log1.SetColorText( msgColor );
-						}
-							
-						if( ex != null )
-						{
-							if( printExceptionTrace )
-							{
-								ex.printStackTrace( log1 );
-							}
-							else
-							{
-								log1.println( ex.getMessage() );
-							}
-						}
-					}
-					
-					if( dialog != null )
-					{
-						if( !concatMsg )
-						{
-							log2.flush();
-						}
-	
-						dialog.setTitle( msg.getTitleException() );
-	
-						if( !log2.isSameTextColor( msgColor ) )
-						{
-							log2.SetColorText( msgColor );
-						}
-	
-						if( ic != null )
-						{
-							dialog.setIconImage( ic.getImage() );
-						}
-	
-						if( ex != null )
-						{
-							if( printExceptionTrace )
-							{
-								ex.printStackTrace( log2 );
-							}
-							else
-							{
-								log2.println( ex.getMessage() );
-							}
-						}
-						
-						if( errorFocus )
-						{
-							if( !dialog.isVisible() )
-							{							
-								dialog.setLocationRelativeTo( dialog.getOwner() );
-							}
-								
-							boolean show = false;
-							
-							while( !show )
-							{
-								try
-								{
-									dialog.setVisible( true );
-									
-									show = true;
-								}
-								catch (Exception e) 
-								{								
-								}
-							}
-							
-							if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
-							{
-								dialog.toFront();
-							}
-						}
-					}
-					
-					String date = new SimpleDateFormat("yyyy-MM-dd").format( new Date());
-										
-					String subj = recordSubjID;
-					String session = recordSessionID;
-										
-					String subjSession = "";
-					if( subj != null && !subj.isEmpty() )
-					{
-						subjSession += subj;
-					}
-					
-					if( session != null && !session.isEmpty() )
-					{
-						subjSession = ( subjSession.isEmpty() ) ? "-" + session : subjSession + "-" + session;
-					}
-					
-					String fileName = ConfigApp.defaultLogPathFile;
-					fileName += ConfigApp.defaulLogFileNamePrefix;
-					fileName += "_" + date + "_" + subjSession + "." + ConfigApp.defaulLogFileExtension;
-					
-					boolean newLogFile = ( errorWarningLog == null ) || ( !errorWarningLog.getAbsoluteFile().toString().equals( fileName ) );
-					
-					if( newLogFile )
-					{	
-						errorWarningLog = new File( fileName );
-						
-						try 
-						{
-							errorWarningLog.getParentFile().mkdirs();
-							errorWarningLog.createNewFile();
-						} 
-						catch (IOException e) 
-						{
-							e.printStackTrace();
-						}
-					}
-					 
-					if( errorWarningLog != null )
-					{
-						try
-						{
-							PrintWriter out = new PrintWriter( new BufferedWriter(
-																new FileWriter( errorWarningLog, true ) )
-																, false );
-							
-							String header = "\n"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
-							header += " (" + subjSession + "):";
-							
-							String type = "WARNING";
-							if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
-							{
-								type = "ERROR";
-							}
-							else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
-							{
-								type = "INFO";
-							}
-																					
-							header += type + "\n";
-							header += StringUtils.repeat( "-", header.length() );
-							header += "\n";
-							
-							out.print( header );
-														
-							ex.printStackTrace( out );
-							out.close();
-						}
-						catch (Exception e) 
-						{
-							e.printStackTrace();
-						}
-					}
-						
+				if( !dialog.isVisible() )
+				{							
+					dialog.setLocationRelativeTo( dialog.getOwner() );
 				}
+				
+				dialog.setVisible( true );
+				dialog.toFront();
+				
 			}
-		}).start();
+		}						
+ 		
+ 		Throwable ex = msg.getException();
+ 		StringWriter sw = new StringWriter();
+ 		PrintWriter pw = new PrintWriter(sw);
+ 		ex.printStackTrace(pw);
+
+ 		synchronized ( syncLogFile )
+		{
+ 			if( errorWarningLog != null )
+ 			{
+ 				errorWarningLog.write( sw.toString(), msg.getMessageType() );
+ 			}
+		}
 	}	
 
 	public static void showDialog()
@@ -422,15 +284,7 @@ public class ExceptionDialog
 	{
 		synchronized( sync )
 		{
-			if( log1 != null )
-			{
-				log1.flush();
-			}
-			
-			if( log2 != null )
-			{
-				log2.flush();
-			}
+			logGUI.clearLog();
 		}
 	}
 }
