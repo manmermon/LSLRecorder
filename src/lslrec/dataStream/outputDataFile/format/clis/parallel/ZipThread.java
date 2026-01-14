@@ -26,10 +26,10 @@ import java.util.List;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;

@@ -116,7 +116,7 @@ public class DataStreamFactory
 		return sslist.toArray( new IStreamSetting[ 0 ] );
 	}
 	
-	public static IStreamSetting[] getStreamSetting(IStreamSetting.StreamLibrary lib, String name, String type, double timeout )
+	public static IStreamSetting[] getStreamSetting(IStreamSetting.StreamLibrary lib, String property, String value, double timeout )
 	{
 	    IStreamSetting[] sst = null;
 		
@@ -126,11 +126,11 @@ public class DataStreamFactory
 			{		
 				if( timeout <= 0 )
 				{
-					sst = LSL.resolve_stream( name, type );
+					sst = LSL.resolve_stream( property, value );
 				}
 				else
 				{
-					sst = LSL.resolve_stream( name, type, 0, timeout );
+					sst = LSL.resolve_stream( property, value, 0, timeout );
 				}
 				
 				break;
@@ -147,8 +147,7 @@ public class DataStreamFactory
 			}
 		}
 		
-		return sst;
-		
+		return sst;	
 	}
 	
 	public static IDataStream createDataStream( IStreamSetting streamSetting ) throws Exception

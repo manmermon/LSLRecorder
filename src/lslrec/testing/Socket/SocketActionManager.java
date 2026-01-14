@@ -25,10 +25,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.sockets.SocketReaderThread;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

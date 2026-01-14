@@ -26,15 +26,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import lslrec.auxiliar.task.IMonitoredTask;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.auxiliar.task.NotificationTask;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
-public abstract class OutputParallelizableFileWriterTemplate extends AbstractStoppableThread implements IOutputDataFileWriter, IMonitoredTask, ITaskIdentity //INotificationTask//, ITaskMonitor
+public abstract class OutputParallelizableFileWriterTemplate extends AbstractStoppableThread implements IOutputDataFileWriter, ITaskIdentity, IMonitoredTask //INotificationTask//, ITaskMonitor
 {		
 	protected ITaskMonitor monitor = null;
 	
@@ -78,11 +78,23 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 		}
 	}
 	
+	public void setNotificationTask( NotificationTask notif )
+	{
+		synchronized( this )
+		{
+			if( this.getState().equals( State.NEW ) )
+			{
+				this.notifTask = notif;
+			}
+		}
+	}
+	
 	@Override
 	protected void preStart() throws Exception 
 	{
 		super.preStart();
 		
+		/*
 		synchronized ( this ) 
 		{
 			if( this.monitor != null )
@@ -93,6 +105,7 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 				this.notifTask.startThread();
 			}
 		}
+		//*/
 		
 	}
 			
@@ -211,12 +224,17 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 				if( this.notifTask != null )
 				{
 					EventInfo e = new EventInfo( this.getID(), evType, null );
+					
+					/*
 					notify = this.notifTask.addEvent( e, true );
 					
 					if( notify )
 					{
 						this.Notifier();
 					}
+					//*/
+					
+					this.notifTask.queueAndSendEvent( e, true );
 				}
 			}
 		}		
@@ -258,8 +276,8 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			if( this.notifTask != null )
 			{
 				EventInfo e = new EventInfo( this.getID(), EventType.THREAD_STOP, null );
-				
-				this.notifTask.addEvent( e );
+		
+				this.notifTask.queueEvent( e );
 				this.notifTask.stopThread( IStoppableThread.STOP_IN_NEXT_LOOP );
 				
 				this.Notifier();

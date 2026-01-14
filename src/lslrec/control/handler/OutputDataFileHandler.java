@@ -42,9 +42,7 @@ import lslrec.dataStream.writingSystemTester.WritingTest;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.auxiliar.task.NotificationTask;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
@@ -53,11 +51,12 @@ import lslrec.config.ParameterList;
 import lslrec.control.HandlerMinionTemplate;
 import lslrec.control.IHandlerMinion;
 import lslrec.control.MinionParameters;
+import lslrec.control.inputDataChecker.StreamChecker;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.NotificationTask;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -118,6 +117,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	private Semaphore taskDoneSem = new Semaphore( 1, true );
 	
+	private NotificationTask inputDataNotificationTask = null;
+	
+	private StreamChecker streamChecker = null;
+	
 	//private boolean isSyncThreadActive = false;
 	
 	//private Timer checkWaitingLock = null;
@@ -165,6 +168,12 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			this.NumberOfSavingThreads.set( this.temps.size() );
 			
 			this.savingPercentage.clear();
+			
+			if( this.streamChecker != null )
+			{
+				this.streamChecker.stopThread( IStoppableThread.FORCE_STOP );
+				this.streamChecker = null;
+			}
 			
 			for ( TemporalOutDataFileWriter temp : this.temps )
 			{					
@@ -262,15 +271,21 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					if( !this.isRecorderThreadOn )
 					{
 						this.isRecorderThreadOn = true;	
-							
+						
 						for( final TemporalOutDataFileWriter temp : this.temps )
 						{						
-							temp.taskMonitor( this );
+							//temp.taskMonitor( this );
+							temp.setNotificationTask( this.inputDataNotificationTask );
 	
 							LaunchThread tLaunch = new LaunchThread( temp );
 							tLaunch.taskMonitor( this );
 														
 							tLaunch.startThread();
+						}
+						
+						if( this.streamChecker != null )
+						{
+							this.streamChecker.startThread();
 						}
 					}					
 				}
@@ -284,7 +299,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			}
 		}
 	}
-	
+		
 	public boolean areReadySyncMarkThreads()
 	{
 		return this.saveSyncMarker.get() && this.syncMarkerThreadsReady.get();
@@ -314,7 +329,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				
 				for( InputSyncData sync : this.syncInputData )
 				{	
-					sync.taskMonitor( this );
+					//sync.taskMonitor( this );
+					sync.setNotificationTask( this.inputDataNotificationTask );
 					
 					Thread tLauch = new Thread()
 					{
@@ -410,7 +426,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			//
 			// Clear control list
 			//
-			
+						
 			this.temps.clear();
 			this.syncInputData.clear();
 			
@@ -419,8 +435,26 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				this.syncCollector.stopThread( IStoppableThread.FORCE_STOP );
 			}
 			
+			if( this.streamChecker == null )
+			{
+				this.streamChecker = new StreamChecker();
+				this.streamChecker.setNotificationTask( this.inputDataNotificationTask );
+			}
+			
 			this.syncCollector = new SyncMarkerCollectorWriter( fileFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString() );				
 
+			/*
+			if( this.inputDataNotificationTask != null )
+			{
+				this.inputDataNotificationTask.stopThread( IStoppableThread.FORCE_STOP );
+			}
+
+			this.inputDataNotificationTask = new NotificationTask( false, false );
+			this.inputDataNotificationTask.taskMonitor( this );
+			this.inputDataNotificationTask.setName( this.inputDataNotificationTask.getID() + "-" + this.getClass().getName() + "-" + super.getId() );		
+			this.inputDataNotificationTask.startThread();
+			//*/
+			
 			//
 			//
 			// Check LSL streamings
@@ -518,6 +552,20 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 							temp = new TemporalOutDataFileWriter( stream2rec, fformat, indexInlets );
 
+							double samplingRate = stream2rec.sampling_rate();
+							if( samplingRate == IStreamSetting.IRREGULAR_RATE )
+							{
+								samplingRate = 1;
+							}
+							
+							int time = (int)( stream2rec.getRecordingCheckerTimer() * 1000.0D / samplingRate  ) ;
+							if ( time < 3000 && stream2rec.sampling_rate() != IStreamSetting.IRREGULAR_RATE )
+							{
+								time = 3000; // 3000 milliseconds
+							}
+							
+							this.streamChecker.setInputDataTime( temp, time );
+							
 							if( processes != null )
 							{
 								LSLRecPluginDataProcessing p = processes.get( stream2rec );
@@ -800,7 +848,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				else if ( event.getEventType().equals( EventType.TEST_WRITE_TIME ) )
 				{		
 					final IHandlerMinion hand = this;
-					final ITaskMonitor handMonitor = this;
+					//final ITaskMonitor handMonitor = this;
 					final long time = ThreadLocalRandom.current().nextLong( 20L, 500L );
 					
 					this.InitCheckOutOWriters();
@@ -821,7 +869,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								}
 								
 								supervisor.eventNotification( hand , new EventInfo( event.getIdSource(), EventType.TEST_WRITE_TIME, event.getEventInformation() ) );
-																
+														
+								/*
 								NotificationTask nt = new NotificationTask( true );
 								nt.setID( nt.getID() +  "-" + event.getEventType() );
 								nt.setName( nt.getID() );
@@ -837,6 +886,18 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								{
 									runExceptionManager( e );
 								}
+								//*/
+								
+								/*
+								inputDataNotificationTask.addEvent( new EventInfo( event.getIdSource(), EventType.OUTPUT_DATA_FILE_SAVED, new Tuple< String, SyncMarkerBinFileReader >( event.getIdSource(), null ) ));
+								
+								synchronized( inputDataNotificationTask )
+								{
+									inputDataNotificationTask.notify();
+								}
+								//*/
+								
+								inputDataNotificationTask.queueAndSendEvent( new EventInfo( event.getIdSource(), EventType.OUTPUT_DATA_FILE_SAVED, new Tuple< String, SyncMarkerBinFileReader >( event.getIdSource(), null ) ) );
 							}
 						};
 						
@@ -906,7 +967,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 									dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 
 									saveOutFileThread = new OutputBinaryFileSegmentation( dat, reader );
-									saveOutFileThread.taskMonitor( this );
+									//saveOutFileThread.taskMonitor( this );
+									saveOutFileThread.setNotificationTask( this.inputDataNotificationTask );
 									
 									if( this.outWriterHandlers != null )
 									{
@@ -1010,7 +1072,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						dat.getOutputFileFormat().setParameter( OutputFileFormatParameters.OUT_FILE_NAME, res.t1 );
 						
-						launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
+						//launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this, this.outWriterHandlers );
+						launch = new LaunchOutBinFileSegmentation( this.syncCollector, dat, this.inputDataNotificationTask, this.outWriterHandlers );
 
 						launch.startThread();
 
@@ -1065,6 +1128,11 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 		//this.NumberOfTestThreads.set( 0 );
 		
 		//super.stopThread = true;
+		
+		this.inputDataNotificationTask = new NotificationTask( false, false );
+		this.inputDataNotificationTask.taskMonitor( this );
+		this.inputDataNotificationTask.setName( this.inputDataNotificationTask.getID() + "-" + this.getClass().getSimpleName() + "-" + super.getId() );		
+		this.inputDataNotificationTask.startThread();
 	}
 	
 	private void InitCheckOutOWriters()
@@ -1163,14 +1231,18 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		private SyncMarkerCollectorWriter syncCollector = null;
 		private TemporalBinData dat = null;
-		private ITaskMonitor m = null;
+		//private ITaskMonitor m = null;
+		private NotificationTask notificationTask = null;
 		private  Map< String, OutputBinaryFileSegmentation > writeList = null;
 		
 		private OutputBinaryFileSegmentation saveOutFileThread = null;
 		
 		private boolean error = false;
 		
-		public LaunchOutBinFileSegmentation( SyncMarkerCollectorWriter syncCol, TemporalBinData data, ITaskMonitor monitor,  Map< String, OutputBinaryFileSegmentation > wrList ) throws Exception 
+		public LaunchOutBinFileSegmentation( SyncMarkerCollectorWriter syncCol, TemporalBinData data
+											//, ITaskMonitor monitor
+											, NotificationTask notifTask
+											,  Map< String, OutputBinaryFileSegmentation > wrList ) throws Exception 
 		{
 			if( syncCol == null )
 			{
@@ -1181,7 +1253,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			this.syncCollector = syncCol;
 			this.dat = data;
-			this.m = monitor;
+			//this.m = monitor;
+			this.notificationTask = notifTask;
 			this.writeList = wrList;
 		}
 
@@ -1212,7 +1285,8 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				}
 				
 				this.saveOutFileThread = new OutputBinaryFileSegmentation( this.dat, reader );
-				this.saveOutFileThread.taskMonitor( this.m );
+				//this.saveOutFileThread.taskMonitor( this.m );
+				this.saveOutFileThread.setNotificationTask( this.notificationTask );
 				
 				if( this.writeList != null )
 				{
@@ -1253,6 +1327,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 				{
 					this.StopOutBinFileSegmentation( IStoppableThread.FORCE_STOP );
 				}
+				/*
 				else if( this.m != null )
 				{
 					NotificationTask notif = new NotificationTask( false );
@@ -1268,6 +1343,20 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 					{
 						e1.printStackTrace();
 					}
+				}
+				//*/
+				else if( this.notificationTask != null )
+				{
+					/*
+					this.notificationTask.addEvent( new EventInfo( this.getName(), EventType.PROBLEM, e ) );
+					
+					synchronized( this.notificationTask )
+					{
+						this.notificationTask.notify();
+					}
+					//*/
+					
+					this.notificationTask.queueAndSendEvent( new EventInfo( this.getName(), EventType.PROBLEM, e )  );
 				}
 			}
 		}

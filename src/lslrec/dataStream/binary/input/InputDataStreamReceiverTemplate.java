@@ -23,13 +23,7 @@
 package lslrec.dataStream.binary.input;
 
 import lslrec.auxiliar.extra.ConvertTo;
-import lslrec.auxiliar.task.IMonitoredTask;
 import lslrec.auxiliar.task.ITaskIdentity;
-import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.auxiliar.task.NotificationTask;
-import lslrec.auxiliar.thread.timer.ActionTimerThread;
-import lslrec.auxiliar.thread.timer.IAction;
-import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.exceptions.LostException;
 import lslrec.exceptions.ReadInputDataException;
 import lslrec.exceptions.SettingException;
@@ -42,9 +36,9 @@ import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
-import lslrec.config.ConfigApp;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.NotificationTask;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -54,23 +48,16 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.security.auth.DestroyFailedException;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableThread implements IMonitoredTask, ITaskIdentity //, ITimerMonitor, INotificationTask
+public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableThread implements ITaskIdentity //, IMonitoredTask //, ITimerMonitor, INotificationTask
 {
-	protected ITaskMonitor monitor = null;
-
-	//private LSL.StreamInlet inLet = null;
 	private IDataStream inLet = null;
 
-	private Timer noDataCheckerTimer = null;
-	private Timer reconnectionTimer = null;
+	//private Timer noDataCheckerTimer = null;
+	//private Timer reconnectionTimer = null;
 
 	private double blockTimer = 0.0D;
 	
@@ -90,30 +77,11 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	
 	private Double timeCorrection = null;
 	private double[] timeMark;	
-	//protected int LSLFormatData = LSLUtils.float32;
-
-	//protected Semaphore syncMarkSem = null;
-
-	//protected String LSLName = "";
-
-	//protected String lslXML = "";
-
-	//protected int lslChannelCounts = 0;
-
-	//protected List< EventInfo > events;
-	protected NotificationTask notifTask = null;
 	
-	//protected int LSLFormatData = LSLUtils.float32;
+	protected NotificationTask notifTask = null;
 	
 	protected int chunckLength = 1;
 	protected int arrayLen = 1; 
-	
-	//protected boolean interleavedData = false;
-	
-	//protected int timeType = LSLUtils.double64;
-	//protected int strLenType = LSLUtils.int64;
-	
-	//protected double samplingRate = LSL.IRREGULAR_RATE;
 	
 	private AtomicBoolean isStreamClosed = new AtomicBoolean( false );
 	private AtomicBoolean isRecording = new AtomicBoolean( false );
@@ -123,6 +91,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	protected IStreamSetting streamSetting = null;
 	
 	private Object syncTimeCorrection = new Object();
+	
+	private Long numberReceivedDataBlock = 0L;
 			
 	public InputDataStreamReceiverTemplate( IStreamSetting lslCfg ) throws Exception
 	{		
@@ -149,7 +119,16 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		}
 		
 		this.createArrays();
-		this.createTimers();
+		
+		//this.createTimers();
+		double samplingRate = this.streamSetting.sampling_rate();
+		
+		this.blockTimer = 0.5D; // 0.5 s
+		
+		if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
+		{
+			this.blockTimer = 2 / samplingRate; // 2 times the period time  
+		}
 		
 		this.inLet = DataStreamFactory.createDataStream( this.streamSetting );
 		
@@ -187,18 +166,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		}
 				
 		//*/
-		
-		/*
-		try
-		{			
-			timeCorrection = inLet.time_correction( );
-		}
-		catch( Exception | Error e )
-		{
-			timeCorrection =  0D;
-		}
-		//*/
-		
+				
 		// Avoid unnecessary buffering data, waste unnecessary system, and network resources.
 		inLet.close_stream();
 	}
@@ -292,10 +260,12 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			this.isRecording.set( true );
 		}
 		
+		/*
 		synchronized ( this )
 		{
 			startMonitor();
 		}
+		//*/
 		
 		/*
 		if( this.timer != null )
@@ -313,15 +283,20 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		this.tempTimeMark = new ArrayList< Double >();
 	}
 	
+	/*
 	private void createTimers()
 	{
 		double samplingRate = this.streamSetting.sampling_rate();
 		
 		this.blockTimer = 0.5D; // 0.5 s
 		
+		if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
+		{
+			this.blockTimer = 1.5 / samplingRate; // 1.5 times the period time  
+		}
+		
 		int recordingCheckerTimer = this.streamSetting.getRecordingCheckerTimer();
 		
-		//if(  recordingCheckerTimer > 0 )
 		if(  recordingCheckerTimer > 0 &&  this.streamSetting.isEnableRecordingCheckerTimer() )
 		{
 			if ( samplingRate != IStreamSetting.IRREGULAR_RATE )
@@ -335,58 +310,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				}
 							
 				if( time > 0 )
-				{										
-					/*
-					this.noDataCheckerTimer = new Timer( time, new ActionListener() 
-						{				
-							@Override
-							public void actionPerformed(ActionEvent e) 
-							{
-								IStreamSetting[] iss = DataStreamFactory.getStreamSetting( streamSetting.getLibraryID()
-																							, streamSetting.name()
-																							, streamSetting.content_type()
-																							, 1.0D );
-													
-								boolean isConnectedStream = ( iss != null ) && ( iss.length > 0 );
-								
-								if( isConnectedStream || !streamSetting.reconnectLostStream() )
-								{
-									timeOver();
-								}
-								else if( reconnectionTimer != null )
-								{
-									if( notifTask != null )
-									{	
-										EventInfo event = new EventInfo( getID(), EventType.WARNING, "Reconnecting the lost stream: " + streamSetting.name() );
-										
-										notifTask.addEvent( event );
-										
-										synchronized ( notifTask )
-										{
-											notifTask.notify();
-										}
-									}
-									
-									reconnectionTimer.start();
-								}
-								else
-								{
-									if( notifTask != null )
-									{	
-										EventInfo event = new EventInfo( getID(), EventType.WARNING, "Stream " + streamSetting.name() + " is lost. Waiting to reconnect..." );
-										
-										notifTask.addEvent( event );
-										
-										synchronized ( notifTask )
-										{
-											notifTask.notify();
-										}
-									}
-								}
-							}
-					});
-					//*/
-					
+				{								
 					this.noDataCheckerTimer = new Timer( time, false, new ActionTimerThread( new IAction() 
 					{						
 						@Override
@@ -408,13 +332,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 								if( notifTask != null )
 								{	
 									EventInfo event = new EventInfo( getID(), EventType.WARNING, "Reconnecting the lost stream: " + streamSetting.name() );
-
-									notifTask.addEvent( event );
-
-									synchronized ( notifTask )
-									{
-										notifTask.notify();
-									}
+									
+									notifTask.queueAndSendEvent( event );
 								}
 
 								try 
@@ -424,13 +343,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 								catch (Exception e) 
 								{
 									EventInfo event = new EventInfo( getID(), EventType.WARNING, "Reconnection Timer exection: " + e.getMessage() );
-
-									notifTask.addEvent( event );
-
-									synchronized ( notifTask )
-									{
-										notifTask.notify();
-									}
+									
+									notifTask.queueAndSendEvent( event );
 								}
 							}
 							else
@@ -439,77 +353,18 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 								{	
 									EventInfo event = new EventInfo( getID(), EventType.WARNING, "Stream " + streamSetting.name() + " is lost. Waiting to reconnect..." );
 
-									notifTask.addEvent( event );
-
-									synchronized ( notifTask )
-									{
-										notifTask.notify();
-									}
+									
+									notifTask.queueAndSendEvent( event );
 								}
 							}
 						}
 					}));
-				}					
+				}		
 			}
-			//else if( !this.streamSetting.isSynchronationStream() && this.streamSetting.isEnableRecordingCheckerTimer() )
 			else if( !this.streamSetting.isSynchronationStream() )
 			{
 				int time = recordingCheckerTimer * 1000; // seconds
 				String msg = "No data received " + String.format(Locale.getDefault(), "%d", time/1000 ) + "s from " + streamSetting.name() + " (irregular sampling rate).";
-												
-				/*
-				this.noDataCheckerTimer = new Timer( time, new ActionListener() 
-				{				
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						if( notifTask != null )
-						{	
-							EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
-							
-							notifTask.addEvent( event );
-							
-							synchronized ( notifTask )
-							{
-								notifTask.notify();
-							}
-						}
-						
-						IStreamSetting[] iss = DataStreamFactory.getStreamSetting( streamSetting.getLibraryID()
-								, streamSetting.name()
-								, streamSetting.content_type()
-								, 1.0D );
-
-						boolean isConnectedStream = ( iss != null ) && ( iss.length > 0 );
-						
-						if( !isConnectedStream && streamSetting.reconnectLostStream() )
-						{
-							String msg = "Stream " + streamSetting.name() + " is lost. Waiting to reconnect...";
-							if( reconnectionTimer != null )
-							{
-								msg = "Reconnect the lost stream: " + streamSetting.name();
-							}
-							
-							if( notifTask != null )
-							{	
-								EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
-								
-								notifTask.addEvent( event );
-								
-								synchronized ( notifTask )
-								{
-									notifTask.notify();
-								}
-							}
-							
-							if( reconnectionTimer != null )
-							{
-								reconnectionTimer.start();
-							}
-						}
-					}
-				});
-				//*/
 				
 				this.noDataCheckerTimer = new Timer( time, false, new ActionTimerThread( new IAction() 
 				{					
@@ -519,13 +374,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 						if( notifTask != null )
 						{	
 							EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
-							
-							notifTask.addEvent( event );
-							
-							synchronized ( notifTask )
-							{
-								notifTask.notify();
-							}
+														
+							notifTask.queueAndSendEvent( event );
 						}
 						
 						IStreamSetting[] iss = DataStreamFactory.getStreamSetting( streamSetting.getLibraryID()
@@ -546,13 +396,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 							if( notifTask != null )
 							{	
 								EventInfo event = new EventInfo( getID(), EventType.WARNING, msg );
-								
-								notifTask.addEvent( event );
-								
-								synchronized ( notifTask )
-								{
-									notifTask.notify();
-								}
+																
+								notifTask.queueAndSendEvent( event );
 							}
 							
 							if( reconnectionTimer != null )
@@ -564,13 +409,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 								catch (Exception e) 
 								{
 									EventInfo event = new EventInfo( getID(), EventType.WARNING, "Reconnection Timer exection: " + e.getMessage() );
-
-									notifTask.addEvent( event );
-
-									synchronized ( notifTask )
-									{
-										notifTask.notify();
-									}
+									
+									notifTask.queueAndSendEvent( event );
 								}
 							}
 						}
@@ -585,27 +425,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		{
 			int reconnectTime = (int)Math.round(reconnectTimer * 1000 );
 			reconnectTime = ( reconnectTime < 100 ) ? 100 : reconnectTime;
-			
-			/*
-			this.reconnectionTimer = new Timer( reconnectTime, new ActionListener() 
-			{	
-				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
-					IStreamSetting[] iss = DataStreamFactory.getStreamSetting( streamSetting.getLibraryID()
-							, streamSetting.name()
-							, streamSetting.content_type()
-							, 1.0D );
-
-					boolean isConnectedStream = ( iss != null ) && ( iss.length > 0 );
-					
-					if( !isConnectedStream )
-					{
-						timeOver();
-					}
-				}
-			});
-			//*/
 			
 			this.reconnectionTimer = new Timer( reconnectTime, false, new ActionTimerThread( new IAction() 
 			{				
@@ -625,17 +444,23 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 					}
 				}
 			}));
+			
+			this.reconnectionTimer.setName( "reconnectionTimer-" + this.getId() );
 		}
 	}
+	//*/
 	
 	protected void startUp() throws Exception
 	{
 		super.startUp();
 
+		/*
 		if( this.noDataCheckerTimer != null )
 		{
+			this.noDataCheckerTimer.setName( "noDataCheckerTimer-" + this.getId() );
 			this.noDataCheckerTimer.startThread();
 		}
+		//*/
 		
 		synchronized ( this.isStreamClosed )
 		{
@@ -649,6 +474,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		if( friendliness == IStoppableThread.FORCE_STOP 
 				|| ( this.streamSetting.sampling_rate() == IStreamSetting.IRREGULAR_RATE ))
 		{
+			/*
 			if( this.noDataCheckerTimer != null )
 			{
 				this.noDataCheckerTimer.stopThread( IStoppableThread.FORCE_STOP );
@@ -658,11 +484,18 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			{
 				this.reconnectionTimer.stopThread( IStoppableThread.FORCE_STOP );
 			}
+			//*/
 			
 			synchronized ( this.isStreamClosed ) 
 			{
 				this.isStreamClosed.set( true );
-				this.inLet.close_stream(); 				
+				try
+				{
+					this.inLet.close_stream(); 				
+				}
+				catch ( Error e)
+				{
+				}
 			}
 		}
 	}
@@ -677,6 +510,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		if( data != null )
 		{				
+			/*
 			if (this.noDataCheckerTimer != null)
 			{
 				//this.noDataCheckerTimer.stop();
@@ -688,18 +522,41 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				//this.reconnectionTimer.stop();
 				this.reconnectionTimer.stopTimer();
 			}
+			//*/
 						
 			this.managerData( data, ConvertTo.Transform.doubleArray2byteArray( this.timeMark ) );
 			
+			/*
 			if (this.noDataCheckerTimer != null)
 			{
 				this.noDataCheckerTimer.restartTimer();
 			}
+			//*/
+			
+			synchronized( this.numberReceivedDataBlock )
+			{
+				this.numberReceivedDataBlock++;
+			}
 		}
+		/*
 		else if( this.reconnectionTimer != null && !this.reconnectionTimer.isRunning() )
 		{
 			this.reconnectionTimer.restartTimer();
 		}
+		//*/
+	}
+	
+	public long getNumberReceivedDataBlocks()
+	{
+		synchronized( this.numberReceivedDataBlock )
+		{
+			return this.numberReceivedDataBlock;
+		}
+	}
+	
+	public IStreamSetting getStreamSetting()
+	{
+		return this.streamSetting;
 	}
 	
 	@Override
@@ -1195,11 +1052,13 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		if ( spread )
 		{
+			/*
 			if( this.noDataCheckerTimer != null )
 			{
 				//this.noDataCheckerTimer.stop(); 
 				this.noDataCheckerTimer.stopThread( IStoppableThread.FORCE_STOP );
 			}
+			//*/
 			
 			this.stopThread = true;
 			
@@ -1231,11 +1090,13 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	{
 		super.cleanUp();
 		
+		/*
 		if (this.noDataCheckerTimer != null)
 		{
 			this.noDataCheckerTimer.stopThread( IStoppableThread.FORCE_STOP );
 		}		
 		this.noDataCheckerTimer = null;
+		//*/
 		
 		try
 		{
@@ -1248,20 +1109,9 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			if( !this.isStreamClosed.get() )
 			{
 				this.isStreamClosed.set( true );
-								
-				int delay = 3000; // 3 seconds
 				
 				/*
-				this.noDataCheckerTimer = new Timer( delay, new ActionListener() 
-				{					
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						timeOver2();
-					}
-				});				
-				this.noDataCheckerTimer.start();
-				//*/
+				int delay = 3000; // 3 seconds
 				
 				this.noDataCheckerTimer = new Timer( delay, false, new ActionTimerThread( new IAction() 
 				{					
@@ -1272,7 +1122,9 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 					}
 				}));
 				
+				this.noDataCheckerTimer.setName( "noDataCheckerTimer-" + this.getId() );
 				this.noDataCheckerTimer.startThread();
+				//*/
 				
 				this.inLet.close();
 			}
@@ -1280,11 +1132,13 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		synchronized ( this.postCleanDone ) 
 		{
+			/*
 			if( this.noDataCheckerTimer != null )
 			{
 				//this.noDataCheckerTimer.stop();
 				this.noDataCheckerTimer.stopThread( IStoppableThread.FORCE_STOP );
 			}
+			//*/
 			
 			if( !this.postCleanDone.get() )
 			{
@@ -1292,39 +1146,19 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				
 				this.postCleanUp();
 				
-				this.closeNotifierThread();
+				//this.closeNotifierThread();
+				
+				if( this.notifTask != null )
+				{
+					synchronized ( this.notifTask )
+					{
+						this.notifTask.notify();
+					}
+				}
 			}
 		}		
 	}
-	
-	protected void closeNotifierThread()
-	{
-		if( this.notifTask != null )
-		{			
-			synchronized ( this.notifTask )
-			{
-				this.notifTask.notify();
-			}
-			
-			synchronized ( this )
-			{
-				try
-				{
-					super.wait( 100L );
-				} 
-				catch (InterruptedException e) 
-				{
-				}
-			}
-			
-			this.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-			synchronized ( this.notifTask )
-			{
-				this.notifTask.notify();
-			}
-		}
-	}
-	
+		
 	private void readRemainingData() throws Exception
 	{						
 		double timestamp_buffer[] = new double[ this.chunckLength ];
@@ -1858,14 +1692,19 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		{
 			EventInfo ev = new EventInfo( this.getID(), EventType.PROBLEM, errorMsg ) ;
 			
+			/*
 			this.notifTask.addEvent( ev );
 			synchronized ( this.notifTask )
 			{
 				this.notifTask.notify();
 			}
+			//*/
+			
+			notifTask.queueAndSendEvent( ev );
 		}
 	}
 
+	/*
 	public void taskMonitor(ITaskMonitor m)
 	{
 		if( super.getState().equals( Thread.State.NEW ) && this.notifTask == null )
@@ -1876,7 +1715,21 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			}			
 		}
 	}
+	//*/
+	
+	public void setNotificationTask( NotificationTask notif )
+	{
 
+		if( super.getState().equals( Thread.State.NEW ) )
+		{
+			synchronized ( this )
+			{
+				this.notifTask = notif;
+			}			
+		}
+	}
+
+	/*
 	private void timeOver( )
 	{	
 		this.stopThread( IStoppableThread.FORCE_STOP );
@@ -1886,19 +1739,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 			if( !this.isStreamClosed.get() )
 			{
 				this.isStreamClosed.set( true );
-				
-				/*
-				this.noDataCheckerTimer = new Timer( this.noDataCheckerTimer.getDelay(), new ActionListener()
-				{					
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						timeOver2();
-					}
-				});
-				this.noDataCheckerTimer.start();
-				//*/
-				
 
 				this.noDataCheckerTimer = new Timer( 3000, false, new ActionTimerThread( new IAction() 
 				{					
@@ -1908,8 +1748,10 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 						timeOver2();
 					}
 				}));
+				
 				try
 				{
+					this.noDataCheckerTimer.setName( "noDataCheckerTimer-" + this.getId() );
 					this.noDataCheckerTimer.startThread();
 				}
 				catch (Exception e1) 
@@ -1925,7 +1767,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 				
 				this.inLet.close();
 				
-				//this.noDataCheckerTimer.stop();
 				this.noDataCheckerTimer.stopThread( IStoppableThread.FORCE_STOP );
 			}
 		}		
@@ -1937,39 +1778,6 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 	private void timeOver2( )
 	{	
 		super.interrupt(); // a new try to stop the thread
-			
-		/*
-		this.noDataCheckerTimer = new Timer( this.noDataCheckerTimer.getDelay(), new ActionListener() 
-		{			
-			@Override
-			public void actionPerformed(ActionEvent e) 
-			{	
-				try 
-				{
-					synchronized ( postCleanDone ) 
-					{
-						if( !postCleanDone.get() )
-						{
-							postCleanDone.set( true );
-							
-							postCleanUp();
-						}
-					}					
-				} 
-				catch (Exception e1) 
-				{
-					runExceptionManager( e1 );
-				}
-				finally 
-				{
-					notifyProblem( new DestroyFailedException( "The input stream " + streamSetting.name() 
-																+ " is blocked. It is not possible released/closed. "
-																+ "Quit " + ConfigApp.shortNameApp + " is recommended.") );
-				}
-			}
-		});		
-		this.noDataCheckerTimer.start();
-		//*/
 		
 		this.noDataCheckerTimer = new Timer( 5000, false, new ActionTimerThread( new IAction() 
 		{			
@@ -2003,6 +1811,7 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 		
 		try 
 		{
+			this.noDataCheckerTimer.setName( "noDataCheckerTimer-" + this.getId() );
 			this.noDataCheckerTimer.startThread();
 		}
 		catch (Exception e1) 
@@ -2016,23 +1825,8 @@ public abstract class InputDataStreamReceiverTemplate extends AbstractStoppableT
 														+ "Quit " + ConfigApp.shortNameApp + " is recommended.") );
 		}	
 	}
+	//*/
 	
-	
-	
-	protected void startMonitor() throws Exception 
-	{
-		if( this.monitor != null )
-		{
-			this.notifTask = new NotificationTask( false );
-			this.notifTask.taskMonitor( this.monitor );
-			this.notifTask.setName( this.notifTask.getID() + "-" + this.getClass().getName() + "-" + super.getId() );
-			this.notifTask.startThread();
-		}
-		else
-		{
-			throw new SettingException( "Monitor non defined. Use taskMonitor( ... ) function to set it." );
-		}
-	}
 
 	protected abstract void postCleanUp() throws Exception;
 

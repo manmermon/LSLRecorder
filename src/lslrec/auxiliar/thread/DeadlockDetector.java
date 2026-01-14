@@ -188,7 +188,4 @@ public class DeadlockDetector extends AbstractStoppableThread
 	protected void postStopThread(int friendliness) throws Exception 
 	{	
 	}
-
-	
-
 }

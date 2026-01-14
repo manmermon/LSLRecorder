@@ -155,30 +155,16 @@ public class InputSyncData extends InputDataStreamReceiverTemplate
 		antiDeadlock.start();
 		*/
 		
-		super.notifTask.addEvent( event );
-		
 		/*
-		Thread antiDeadlock = new Thread()
-		{
-			@Override
-			public synchronized void run() 
-			{
-				this.setName( "antiDeadlock-InputSyncData" );
-				synchronized ( notifTask )
-				{
-					notifTask.notify();
-				}
-			}					
-		};
-	
-		antiDeadlock.start();
-		*/
-		
+		super.notifTask.addEvent( event );
+				
 		synchronized ( super.notifTask )
 		{
 			super.notifTask.notify();
 		}
+		//*/
 		
+		this.notifTask.queueAndSendEvent( event );
 	}
 	
 	@Override

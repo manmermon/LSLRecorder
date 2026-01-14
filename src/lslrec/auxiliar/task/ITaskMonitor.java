@@ -22,6 +22,8 @@
 
 package lslrec.auxiliar.task;
 
+import lslrec.control.notification.INotificationTask;
+
 /**
  * 
  * @author Manuel Merino Monge

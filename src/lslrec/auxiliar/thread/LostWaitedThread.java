@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import lslrec.auxiliar.task.NotificationTask;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

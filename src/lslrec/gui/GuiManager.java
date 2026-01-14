@@ -70,7 +70,6 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.NotificationTask;
 import lslrec.config.ConfigApp;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
@@ -78,6 +77,7 @@ import lslrec.control.handler.OutputDataFileHandler;
 import lslrec.control.message.AppState;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
@@ -398,7 +398,8 @@ public class GuiManager
 				notifTask.setID( notifTask.getID() + "-NotifyConvertBin2OutputFile" );
 				notifTask.setName( notifTask.getID() );
 				notifTask.taskMonitor( outCtr );
-				notifTask.addEvent( event );
+				//notifTask.addEvent( event );
+				notifTask.queueEvent( event );
 				notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
 				
 				notifTask.startThread();
@@ -727,8 +728,7 @@ public class GuiManager
 						isWriteTest = false;
 					}
 					
-					CoreControl.getInstance().startWorking( test );
-					
+					CoreControl.getInstance().startWorking( test );					
 				} 
 				catch ( Exception e) 
 				{					
@@ -744,6 +744,7 @@ public class GuiManager
 			};
 		};
 		
+		t.setName( this.getClass().getSimpleName() + "-startTest" );
 		t.start();
 	}
 	

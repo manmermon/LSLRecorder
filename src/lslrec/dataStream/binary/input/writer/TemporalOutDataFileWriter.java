@@ -249,13 +249,13 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		
 		if( this.notifTask != null )
 		{
-			super.notifTask.addEvent( processingEvent );
+			super.notifTask.queueEvent( processingEvent );
 			
 			EventInfo event = new EventInfo( this.getID(), GetFinalOutEvent(), this.getTemporalFileData( this.file, super.streamSetting, this.outputFormat, true ) );
 							
-			super.notifTask.addEvent( event );
+			super.notifTask.queueAndSendEvent( event );
 			
-			super.closeNotifierThread();
+			//super.closeNotifierThread();
 		}
 	}
 	

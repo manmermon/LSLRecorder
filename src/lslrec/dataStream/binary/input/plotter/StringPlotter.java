@@ -235,8 +235,10 @@ public class StringPlotter extends InputDataStreamReceiverTemplate
 		}
 	} 
 
+	/*
 	@Override
 	protected void startMonitor() throws Exception 
 	{
 	}
+	//*/
 }

@@ -21,8 +21,10 @@ public class ExceptionLogGUIThread
 	
 	private boolean running = true;
 	
+	private boolean flush = false;
+	
 	public ExceptionLogGUIThread( final int batchSize ) 
-	{
+	{		
 		this.logs = new ArrayList<TextAreaPrintStream>();
 				
 		this.queue = new LinkedBlockingQueue< Tuple< ExceptionMessage, Tuple< Boolean, Boolean > > >();
@@ -34,28 +36,41 @@ public class ExceptionLogGUIThread
 			 {
 				 while (running || !queue.isEmpty()) 
 				 {
-					 Tuple< ExceptionMessage, Tuple< Boolean, Boolean > > in = queue.take();
-					 
-					 buffer.add( in );
-					 
-					 if( buffer.size() >= batchSize )
+					 try
 					 {
-						flushBatch( buffer );
+						 Tuple< ExceptionMessage, Tuple< Boolean, Boolean > > in = queue.take();
+
+						 buffer.add( in );
+
+						 if( buffer.size() >= batchSize )
+						 {
+							 flushBatch( buffer );
+						 }
+					 }
+					 catch (InterruptedException ignored) 
+					 {
+						 if( flush &&  buffer.size() >= batchSize )
+						 {
+							 flushBatch( buffer );
+						 }
+						 
+						 flush = false;
 					 }
 				 }
 			 } 
-			 catch (InterruptedException ignored) 
-			 {				 
-				 if( buffer.size() >= batchSize )
-				 {
-					flushBatch( buffer );
-				 }
+			 catch (Exception ignored) 
+			 {	 
 			 }
 			 finally 
 			 { 	 
+				 if( buffer.size() >= batchSize )
+				 {
+					 flushBatch( buffer );
+				 }
 			 }
 		 });
 
+		 this.worker.setName( "Worker-" + this.getClass().getSimpleName() );
 		 this.worker.setDaemon(true);
 		 this.worker.start();
 	}	
@@ -177,6 +192,7 @@ public class ExceptionLogGUIThread
 	
 	public void flush()
 	{
+		this.flush = true;
 		this.worker.interrupt();
 	}
 	

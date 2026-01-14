@@ -30,7 +30,6 @@ import lslrec.sockets.TCP_UDPServer;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -38,6 +37,7 @@ import lslrec.control.HandlerMinionTemplate;
 import lslrec.control.MinionParameters;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;

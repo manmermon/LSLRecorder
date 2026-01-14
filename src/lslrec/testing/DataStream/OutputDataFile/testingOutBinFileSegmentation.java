@@ -22,10 +22,10 @@ package lslrec.testing.DataStream.OutputDataFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;

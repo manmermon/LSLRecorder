@@ -265,8 +265,10 @@ public class DataPlotter extends InputDataStreamReceiverTemplate
 		}
 	}
 	
+	/*
 	@Override
 	protected void startMonitor() throws Exception 
 	{
 	}
+	//*/
 }

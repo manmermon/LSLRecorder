@@ -20,10 +20,12 @@
  *   
  */
 
-package lslrec.auxiliar.task;
+package lslrec.control.notification;
 
 import java.util.List;
 
+import lslrec.auxiliar.task.IMonitoredTask;
+import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.control.message.EventInfo;
 
 /**

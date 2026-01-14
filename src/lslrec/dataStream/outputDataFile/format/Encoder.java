@@ -25,6 +25,7 @@ import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.family.setting.IStreamSetting;
 
 public interface Encoder extends ITaskIdentity 
@@ -42,6 +43,7 @@ public interface Encoder extends ITaskIdentity
 	public boolean isSupportedEncryption();	
 	
 	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception;	
+	//public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, NotificationTask notif ) throws Exception;
 	
 	public List< SettingOptions > getSettiongOptions();
 	

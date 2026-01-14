@@ -17,7 +17,9 @@ import lslrec.config.ConfigApp;
 
 public class ExceptionLogFileThread  
 {
-	private final BlockingQueue<String> queue;
+	private static final int MAXIMUM_BATCH_SIZE = 10000;
+	
+	private final BlockingQueue< String > queue;
     private final BufferedWriter writer;
     private final Thread worker;
     private volatile boolean running = true;
@@ -26,7 +28,12 @@ public class ExceptionLogFileThread
     
     private int batch_size = 1;
     
-	public ExceptionLogFileThread( String subjID, String sessionID, int batchSize ) throws IOException 
+    public ExceptionLogFileThread( String subjID, String sessionID ) throws Exception
+    {
+    	this( subjID, sessionID, MAXIMUM_BATCH_SIZE );
+    }
+    
+	public ExceptionLogFileThread( String subjID, String sessionID, int batchSize ) throws Exception 
 	{		
 		this.queue = new LinkedBlockingQueue<>();
 		
@@ -68,6 +75,7 @@ public class ExceptionLogFileThread
 		
 		 this.worker = new Thread(() -> 
 		 {
+			 
 			 List<String> buffer = new ArrayList< String >( this.batch_size );
 
 			 try 
@@ -118,6 +126,7 @@ public class ExceptionLogFileThread
 			 }
 		 });
 
+		 this.worker.setName( "Worker-" + this.getClass().getSimpleName() );
 		 this.worker.setDaemon(true);
 		 this.worker.start();
 	}
@@ -146,13 +155,13 @@ public class ExceptionLogFileThread
 			 throw new IllegalStateException("Logger cerrado");
 		 }
 	 
-		 queue.add( getMessageHeader( msgType ) );
+		 queue.add( this.getMessageHeader( msgType ) );
 		 queue.add( tx );
 	}
 	
 	private String getMessageHeader( int msgType )
 	{
-		String header = "\n"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
+		String header = "\n"+ new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date() );
 		header += " (" + this.getSubjectSessionID() + "):";
 		
 		String type = "WARNING";
@@ -175,6 +184,6 @@ public class ExceptionLogFileThread
 	public void close() 
 	{
         running = false;
-        worker.interrupt();
+        worker.interrupt();        
     }
 }

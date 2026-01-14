@@ -29,10 +29,10 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import lslrec.auxiliar.task.BridgeNotifierThread;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

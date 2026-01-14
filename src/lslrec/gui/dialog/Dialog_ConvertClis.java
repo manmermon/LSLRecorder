@@ -61,7 +61,6 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.auxiliar.thread.LostWaitedThread;
 import lslrec.config.ConfigApp;
@@ -69,6 +68,8 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.control.message.AppState;
+import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
@@ -389,7 +390,7 @@ public class Dialog_ConvertClis extends JDialog
 								dcc.setEnabled( false );
 								
 								String idEncoder = outFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue().toString();
-								
+																
 								try
 								{	
 									Tuple< Encoder, WarningMessage > tEnc = DataFileFormat.getDataFileEncoder( idEncoder );
@@ -497,15 +498,6 @@ public class Dialog_ConvertClis extends JDialog
 												
 												outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, outFile);
 												
-												ITaskMonitor itm = new ITaskMonitor() 
-												{											
-													@Override
-													public void taskDone(INotificationTask task) throws Exception 
-													{	
-														
-													}
-												};
-													
 												clis = new ClisData( file );
 												//Map< String, boolean[] > selChannels = clisFileVarSelectedChannels.get( file );
 												
@@ -540,7 +532,18 @@ public class Dialog_ConvertClis extends JDialog
 												msst.setDescription( header );
 												outFormat.setParameter( OutputFileFormatParameters.DATA_NAMES, varNames.toString() );
 												
-												wr = enc.getWriter( outFormat, msst, itm );
+												
+												ITaskMonitor itm = new ITaskMonitor() 
+												{											
+													@Override
+													public void taskDone(INotificationTask task) throws Exception 
+													{	
+														
+													}
+												};
+												
+												wr = enc.getWriter( outFormat, msst, itm );	
+												
 																							
 												int iSeq = 0;
 												for( int iv = 0; iv < lmvb.size(); iv++ )
@@ -616,7 +619,7 @@ public class Dialog_ConvertClis extends JDialog
 									
 									dcc.setEnabled( false );
 									
-									super.stopThread = true;
+									super.stopThread = true;									
 								}
 								//JOptionPane.showMessageDialog( dcc, AppState.State.SAVED );
 								

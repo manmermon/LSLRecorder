@@ -57,7 +57,7 @@ public class ExceptionDialog
 	private static Object sync = new Object();
 	private static Object syncLogFile = new Object();
 	
-	private static ExceptionLogGUIThread logGUI = new ExceptionLogGUIThread( 10 );
+	private static ExceptionLogGUIThread logGUI = new ExceptionLogGUIThread( 1 );
 	
 	//private static File errorWarningLog =  null;
 	
@@ -208,7 +208,7 @@ public class ExceptionDialog
 				throw new RuntimeException( "Log is opened." );
 			}
 			
-			errorWarningLog = new ExceptionLogFileThread( subjID, sessionID, 10 );
+			errorWarningLog = new ExceptionLogFileThread( subjID, sessionID );
 		}
 	}
 	
@@ -245,8 +245,7 @@ public class ExceptionDialog
 				}
 				
 				dialog.setVisible( true );
-				dialog.toFront();
-				
+				dialog.toFront();				
 			}
 		}						
  		

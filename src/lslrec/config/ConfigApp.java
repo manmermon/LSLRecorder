@@ -81,12 +81,12 @@ public class ConfigApp
 	
 	public static final String fullNameApp = "LSL Recorder";
 	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2025, 12 - 1, 4 );
+	public static final Calendar buildDate = new GregorianCalendar( 2025, 12 - 1, 30 );
 	//public static final int buildNum = 33;
 	
 	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
 	
-	public static final String version = "Version 3" 
+	public static final String version = "Version 4" 
 											//+ "." + buildNum
 											+ "." + ( buildDate.get( Calendar.YEAR ) % 100 )											
 											+ "." + ( buildDate.get( Calendar.DAY_OF_YEAR ) ) 

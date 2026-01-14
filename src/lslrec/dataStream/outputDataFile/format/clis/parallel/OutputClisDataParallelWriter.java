@@ -30,6 +30,7 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -61,6 +62,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
 	
 	public OutputClisDataParallelWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
+	//public OutputClisDataParallelWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, NotificationTask notif ) throws Exception
 	{
 		super();
 		
@@ -75,7 +77,7 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 		}
 		
 		super.taskMonitor( monitor );
-		
+		//this.setNotificationTask( notif );
 		
 		this.clisWriter = new ClisCompressorWriter( (String)formatPars.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue(), this.metadata );
 		

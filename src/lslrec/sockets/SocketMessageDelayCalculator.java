@@ -30,9 +30,9 @@ import org.icmp4j.IcmpPingResponse;
 import org.icmp4j.IcmpPingUtil;
 
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.auxiliar.task.NotificationTask;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -184,12 +184,16 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 				{
 					EventInfo ev = new EventInfo( super.getName(), EventType.INPUT_MARK_READY, new SyncMarker( Mark, time ) );
 					
+					/*
 					this.notifier.addEvent( ev );
 					
 					synchronized ( this.notifier )
 					{
 						this.notifier.notify();
 					}
+					//*/
+					
+					this.notifier.queueAndSendEvent( ev );
 				}
 			}
 		}
@@ -211,12 +215,16 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 				time = this.currentMsg.receivedTime();				
 				EventInfo ev = new EventInfo( super.getName(), EventType.INPUT_MARK_READY, new SyncMarker( Mark, time ) );
 
+				/*
 				this.notifier.addEvent( ev );
 				
 				synchronized ( this.notifier ) 
 				{
 					this.notifier.notify();
 				}				
+				//*/
+				
+				this.notifier.queueAndSendEvent( ev );
 			}
 		}
 	}
@@ -229,7 +237,10 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 		if( this.notifier != null )
 		{			
 			EventInfo ev = new EventInfo( super.getName(), EventType.SOCKET_PING_END, this );
-			this.notifier.addEvent( ev );
+			
+			//this.notifier.addEvent( ev );
+			
+			this.notifier.queueEvent( ev );
 			
 			synchronized ( this.notifier )
 			{

@@ -34,11 +34,11 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
@@ -514,10 +514,13 @@ public class LSLRecPluginTesting {
 				, null);
 	}
 
-	private ITaskMonitor getDefaultMonitor() {
-		return new ITaskMonitor() {
+	private ITaskMonitor getDefaultMonitor() 
+	{
+		return new ITaskMonitor() 
+		{
 			@Override
-			public void taskDone(INotificationTask task) throws Exception {
+			public void taskDone(INotificationTask task) throws Exception 
+			{
 				String msg = task.getResult(true).toString();
 
 				if (!msg.endsWith("\n")) {

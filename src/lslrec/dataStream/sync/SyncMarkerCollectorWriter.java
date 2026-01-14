@@ -34,13 +34,13 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;

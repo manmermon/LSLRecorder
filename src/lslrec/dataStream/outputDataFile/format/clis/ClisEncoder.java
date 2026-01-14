@@ -29,6 +29,7 @@ import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
 import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.Encoder;
@@ -91,15 +92,15 @@ public class ClisEncoder implements Encoder
 	}
 
 	@Override
-	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, ITaskMonitor monitor )
-			throws Exception 
+	public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
+	//public IOutputDataFileWriter getWriter( OutputFileFormatParameters pars, IStreamSetting streamSettings, NotificationTask notif ) throws Exception
 	{
 		IOutputDataFileWriter wr = null;
 		
 		Parameter< Boolean> p = pars.getParameter( OutputFileFormatParameters.PARALLELIZE );
 		if( p != null && p.getValue() != null && !p.getValue() )
 		{
-			wr = new OutputClisDataWriter( pars, streamSettings, monitor);
+			wr = new OutputClisDataWriter( pars, streamSettings, monitor );
 		}
 		else
 		{

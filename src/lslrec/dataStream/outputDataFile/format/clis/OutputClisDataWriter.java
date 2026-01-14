@@ -51,6 +51,7 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 	private ClisCompressorWriter clisWriter = null;
 	
 	public OutputClisDataWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception
+	//public OutputClisDataWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings ) throws Exception
 	{		
 		//this.dataBlockList = new ConcurrentLinkedDeque< DataBlock >();
 		
@@ -244,7 +245,7 @@ public class OutputClisDataWriter implements IOutputDataFileWriter //extends Out
 	}
 
 	@Override
-	public void taskMonitor(ITaskMonitor monitor) 
+	public void taskMonitor( ITaskMonitor monitor) 
 	{
 	}
 }

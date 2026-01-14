@@ -40,6 +40,7 @@ import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.control.message.RegisterSyncMessages;
 import lslrec.control.message.SocketInformations;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
@@ -80,9 +81,9 @@ import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
+import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 
 import java.awt.BorderLayout;
@@ -1503,7 +1504,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		t.start();
 		*/
-		
 		this.notifiedEventHandler.registreNotification( event );
 		
 		//this.notifiedEventHandler.treatEvent();
@@ -1843,7 +1843,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 	private class NotifiedEventHandler extends AbstractStoppableThread implements ITaskMonitor
 	{
-		private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
+		//private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
+		private ArrayTreeMap< String, Object > eventRegister = new ArrayTreeMap<String, Object >();
 		private boolean treatEvent = true;
 
 		private CoreControl.controlNotifiedManager ctrlManager = null;
@@ -1907,6 +1908,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{		
 				if (this.ctrlManager == null || this.ctrlManager.getState().equals( State.TERMINATED ) )
 				{
+
+					//System.out.println("CoreControl.eventNotification() " + this.eventRegister );
 					this.ctrlManager = new controlNotifiedManager( this.eventRegister );
 					this.ctrlManager.taskMonitor( this );
 
@@ -1948,13 +1951,15 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				//{
 					if ( event_type.equals( EventType.SOCKET_EVENTS ) )
 					{
-						List< EventInfo > storedEvents = ( List< EventInfo > )this.eventRegister.get( event_type );
+						//List< EventInfo > storedEvents = ( List< EventInfo > )this.eventRegister.get( event_type );
+						List< Object > storedEvents = this.eventRegister.get( event_type );
 						List< EventInfo > newEvents = ( List< EventInfo > )event_Info;
 						Set< String > setRegisteredEvents = new HashSet< String >(); 
 						
 						if ( storedEvents != null )
 						{
-							Iterator< EventInfo > itEvent = storedEvents.iterator();
+							//Iterator< EventInfo > itEvent = storedEvents.iterator();
+							Iterator< Object > itEvent = storedEvents.iterator();
 
 							while ( itEvent.hasNext() )
 							{
@@ -1969,7 +1974,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 								{
 									setRegisteredEvents.add( e.getEventType() );
 								}
-							}
+							}							
 						}
 						
 						Iterator<EventInfo> itNewEvent = newEvents.iterator();
@@ -1986,6 +1991,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 							}		
 						}
 						
+						/*
 						if (storedEvents != null)
 						{
 							storedEvents.addAll( newEvents );
@@ -1996,6 +2002,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						}
 
 						event_Info = storedEvents;
+						//*/
+						
+						if (storedEvents != null)
+						{
+							storedEvents.addAll( newEvents );
+						}
+						else
+						{
+							storedEvents = new ArrayList< Object >( newEvents );
+						}
+						
+						event_Info = storedEvents;						
 					}
 
 					if( event_type.equals( EventType.TEST_WRITE_TIME ) )
@@ -2009,11 +2027,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						
 						ob.add( event_Info );
 						
-						this.eventRegister.put( event_type, ob );
+						this.eventRegister.putElement( event_type, ob );
 					}
 					else
 					{
-						this.eventRegister.put(event_type, event_Info);
+						this.eventRegister.putElement(event_type, event_Info);
 					}
 				}
 			//}
@@ -2038,7 +2056,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				super.notify();
 			}
 			*/
-			
 			synchronized ( this )
 			{
 				this.treatEvent = true;
@@ -2115,11 +2132,13 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	//
 	private class controlNotifiedManager extends AbstractStoppableThread implements INotificationTask
 	{
-		private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
+		//private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
+		private ArrayTreeMap< String, Object > eventRegister = new ArrayTreeMap<String, Object>();
 
 		private ITaskMonitor monitor;
 
-		public controlNotifiedManager( Map< String, Object > events )
+		//public controlNotifiedManager( Map< String, Object > events )
+		public controlNotifiedManager( ArrayTreeMap< String, Object > events )
 		{
 			if (events != null)
 			{
@@ -2134,13 +2153,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			super.setName( this.getClass().getName() );
 		}
-
-		@Override
-		protected void preStart() throws Exception
-		{
-			super.preStart();
-		}
-
 
 		@Override
 		protected void preStopThread(int friendliness) throws Exception
@@ -2159,135 +2171,108 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			if ( this.eventRegister.size() > 0 )
 			{
 				String event_type = (String)this.eventRegister.keySet().iterator().next();
-				final Object eventObject = this.eventRegister.get( event_type );
+				//final Object eventObject = this.eventRegister.get( event_type );
+				List< Object > evObjList = this.eventRegister.get( event_type );
 
 				this.eventRegister.remove( event_type );
-
-				if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
+				
+				for( Object eventObject : evObjList )
 				{
-					this.setAllFilesSaved();
-				}
-				else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
-				{	
-					managerGUI.setAppState( AppState.State.SAVING, 0, true );
-					
-					managerGUI.enablePlayButton( false );
-				}		
-				else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
-				{
-					int val = -1;
-					
-					try
+					if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
 					{
-						val = (Integer)eventObject;
+						this.setAllFilesSaved();
 					}
-					catch (Exception e) 
-					{
-						val = -1;
-					}
-					
-					if( val > savingDataProgress )
-					{
-						managerGUI.setAppState( AppState.State.SAVING, val, true );
-						savingDataProgress = val;
+					else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
+					{	
+						managerGUI.setAppState( AppState.State.SAVING, 0, true );
 						
-						/*
-						if( savingDataProgress >= 100 )
-						{
-							LostWaitedThread.getInstance().wakeup();
-						}
-						*/
+						managerGUI.enablePlayButton( false );
+					}		
+					else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
+					{
+						int val = -1;
 						
-						/*
-						if( savingDataProgress >= 100 ) //&& !ctrlOutputFile.isSavingData() )
+						try
 						{
-							System.out.println("CoreControl.controlNotifiedManager.runInLoop() savingDataProgress >= 100");
-							this.setAllFilesSaved();
+							val = (Integer)eventObject;
 						}
-						//*/
-					}
-				}
-				else if (event_type.equals( EventType.SOCKET_EVENTS ))
-				{
-					eventSocketMessagesManager( (List< EventInfo> )eventObject );
-				}
-				/*
-				else if( event_type.equals( EventType.SOCKET_MSG_DELAY ) )
-				{					
-					NotificationTask not = new NotificationTask();
-					not.setID( not.getID() + "-" + EventType.SOCKET_MSG_DELAY );
-					not.addEvent( new EventInfo( not.getID(), EventType.INPUT_MARK_READY, eventObject ));
-					not.taskMonitor( ctrlOutputFile );					
-					not.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-					
-					not.startThread();					
-				}
-				*/
-				else if( event_type.equals( EventType.TEST_WRITE_TIME ) )
-				{
-					List< Tuple< String, List< Long > > > testValues = (List)eventObject;
-					for( Tuple< String, List< Long > > times : testValues )
-					{				
-						WriteTestCalculator cal = new WriteTestCalculator(  times.t1, times.t2 );
-						cal.start();
-					}
-				}
-				/*
-				else if( event_type.equals( EventType.SOCKET_PING_END ) )
-				{	
-					sockMsgDelayCalculator = null;
-				}
-				*/
-				else if( event_type.equals( EventType.INPUT_MARK_READY ) )
-				{
-					this.InputMarker( (SyncMarker) eventObject );
-				}				
-				else if (event_type.equals( EventType.PROBLEM ) )
-				{
-					try 
-					{
-						stopWorking( );						
-					}
-					catch (Exception e) 
-					{
-						ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionMessage.ERROR_MESSAGE );
-						ExceptionDialog.showMessageDialog( msg , true, true );						
-					}
-
-					Exception ex = new Exception( eventObject.toString() );
-										
-					if( eventObject instanceof Exception )
-					{
-						ex = (Exception)eventObject;
-					}
-					
-					ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionMessage.ERROR_MESSAGE );
-					ExceptionDialog.showMessageDialog( msg, true, true );
-					
-					GuiManager.getInstance().refreshDataStreams();					
-				}
-				else if (event_type.equals( EventType.WARNING ) )
-				{
-					if( showWarningEvent )
-					{
-						new Thread()
+						catch (Exception e) 
 						{
-							public void run()
+							val = -1;
+						}
+						
+						if( val > savingDataProgress )
+						{
+							managerGUI.setAppState( AppState.State.SAVING, val, true );
+							savingDataProgress = val;
+						}
+					}
+					else if (event_type.equals( EventType.SOCKET_EVENTS ))
+					{
+						eventSocketMessagesManager( (List< EventInfo> )eventObject );
+					}
+					else if( event_type.equals( EventType.TEST_WRITE_TIME ) )
+					{
+						List< Tuple< String, List< Long > > > testValues = (List)eventObject;
+						for( Tuple< String, List< Long > > times : testValues )
+						{				
+							WriteTestCalculator cal = new WriteTestCalculator(  times.t1, times.t2 );
+							cal.start();
+						}
+					}
+					else if( event_type.equals( EventType.INPUT_MARK_READY ) )
+					{
+						this.InputMarker( (SyncMarker) eventObject );
+					}				
+					else if (event_type.equals( EventType.PROBLEM ) )
+					{
+						try 
+						{
+							stopWorking( );						
+						}
+						catch (Exception e) 
+						{
+							ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionMessage.ERROR_MESSAGE );
+							ExceptionDialog.showMessageDialog( msg , true, true );						
+						}
+	
+						Exception ex = new Exception( eventObject.toString() );
+											
+						if( eventObject instanceof Exception )
+						{
+							ex = (Exception)eventObject;
+						}
+						
+						ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionMessage.ERROR_MESSAGE );
+						ExceptionDialog.showMessageDialog( msg, true, true );
+						
+						//GuiManager.getInstance().refreshDataStreams();					
+					}
+					else if (event_type.equals( EventType.WARNING ) )
+					{
+						if( showWarningEvent )
+						{
+							new Thread()
 							{
-								Exception ex = new Exception( eventObject.toString() );
-								
-								if( eventObject instanceof Exception )
+								public void run()
 								{
-									ex = (Exception)eventObject ;
+									super.setName( "Thread show warning");
+									
+									Exception ex = new Exception( eventObject.toString() );
+									
+									if( eventObject instanceof Exception )
+									{
+										ex = (Exception)eventObject ;
+									}
+									
+									ExceptionMessage msg = new ExceptionMessage( ex
+																				, Language.getLocalCaption( Language.MSG_WARNING )
+																				, ExceptionMessage.WARNING_MESSAGE );
+									
+									ExceptionDialog.showMessageDialog( msg, true, false );								
 								}
-								
-								ExceptionMessage msg = new ExceptionMessage( ex
-																			, Language.getLocalCaption( Language.MSG_WARNING )
-																			, ExceptionMessage.WARNING_MESSAGE );
-								
-								ExceptionDialog.showMessageDialog( msg, true, false );								
-							}
-						}.start();
+							}.start();
+						}
 					}
 				}
 			}
@@ -2298,7 +2283,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			managerGUI.setAppState( AppState.State.SAVED, 100, false );
 			
 			savingDataProgress = 0;
-			//managerGUI.enablePlayButton( true );
 			
 			if( deadlockDetector != null )
 			{ 
@@ -2307,30 +2291,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 			
 			LostWaitedThread.getInstance().wakeup();
-			
-			//
-			// DATA CHART SUMMARY
-			//-->
-			/*
-			if( (Boolean)ConfigApp.getProperty( ConfigApp.DATA_CHART_SUMMARY ) && writingTestTimer == null)
-			{
-				File f = new File( ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME).toString() );
-				ClisData2ChartImageTask data2chart = new ClisData2ChartImageTask( f.getParentFile().getAbsolutePath() );
-				try 
-				{
-					data2chart.createChartImageFromClisFiles();
-				} 
-				catch (ReadInputDataException e) 
-				{
-					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionDictionary.ERROR_MESSAGE ); 
-					ExceptionDialog.showMessageDialog( msg, true, true );
-				}
-			}
-			//*/
-			//
-			// 
-			//<--
-			
+						
 			managerGUI.enablePlayButton( true );
 			
 			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
@@ -2353,28 +2314,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				if( isActiveSpecialInputMsg )
 				{
 					SpecialMarker = mark;
-					/*
-					Thread t = new Thread()
-					{
-						@Override
-						public synchronized void run() 
-						{
-							try 
-							{
-								stopWorking( );
-							}
-							catch (Exception e) 
-							{
-								
-							}
-						}
-					};
-					
-					t.setName( this.getClass().getSimpleName() + "-stopWorking" );
-					
-					t.start();
-					*/					
-				
+									
 					try 
 					{
 						stopWorking( );
@@ -2428,12 +2368,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 															, "Exception in " + getClass().getSimpleName()
 															, ExceptionMessage.ERROR_MESSAGE );
 				ExceptionDialog.showMessageDialog( msg, true, true );
-				
-				/*
-				JOptionPane.showMessageDialog(   managerGUI.getAppUI(), e.getMessage(), 
-						"Exception in " + getClass().getSimpleName(), 
-						JOptionPane.ERROR_MESSAGE);
-				*/
 			}
 		}
 
@@ -2696,6 +2630,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				}
 
 				SpecialMarker = null;
+				
+				GuiManager.getInstance().refreshDataStreams();
 
 				/*
 				System.gc();

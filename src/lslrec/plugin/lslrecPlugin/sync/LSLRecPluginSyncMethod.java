@@ -25,16 +25,16 @@ import java.util.Map;
 import lslrec.auxiliar.task.IMonitoredTask;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.auxiliar.task.NotificationTask;
 import lslrec.config.Parameter;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
 public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
-												implements IMonitoredTask, ITaskIdentity
+												implements ITaskIdentity, IMonitoredTask 
 {
 	private ITaskMonitor monitor = null;
 	private NotificationTask notifier = null;
@@ -93,11 +93,15 @@ public abstract class LSLRecPluginSyncMethod extends AbstractStoppableThread
 		
 		if( this.notifier != null && marker != null )
 		{
+			/*
 			this.notifier.addEvent( new EventInfo( this.getID(), EventType.INPUT_MARK_READY, marker ) );
 			synchronized ( this.notifier )
 			{
 				this.notifier.notify();
 			}			
+			//*/
+			
+			this.notifier.queueAndSendEvent( new EventInfo( this.getID(), EventType.INPUT_MARK_READY, marker ) );			
 		}
 	}
 	

@@ -74,11 +74,15 @@ public class WritingTest extends TemporalOutDataFileWriter
 		
 		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.streamSetting.name(), this.times ) );
 		
+		/*
 		this.notifTask.addEvent( event );
 		synchronized ( this.notifTask )
 		{
 			this.notifTask.notify();
 		}
+		//*/
+		
+		this.notifTask.queueAndSendEvent( event );
 	}
 	
 }

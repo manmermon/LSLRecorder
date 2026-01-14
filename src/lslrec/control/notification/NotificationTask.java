@@ -18,12 +18,13 @@
  *   
  *
  */
-package lslrec.auxiliar.task;
+package lslrec.control.notification;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
@@ -31,7 +32,7 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 {
 	private List< EventInfo > events = new ArrayList< EventInfo >();
 	
-	private String ID = this.getClass().getName();
+	private String ID = this.getClass().getSimpleName();
 	
 	private ITaskMonitor monitor = null;
 
@@ -113,7 +114,7 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 		this.ID = id;
 	}
 	
-	public void addEvent( EventInfo event )
+	public void queueEvent( EventInfo event )
 	{
 		if( event != null )
 		{
@@ -124,7 +125,7 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 		}
 	}
 	
-	public boolean addEvent( EventInfo event, boolean addIfNotContainSameEventType )
+	public boolean queueEvent( EventInfo event, boolean addIfNotContainSameEventType )
 	{
 		boolean add = event != null;
 		
@@ -153,6 +154,26 @@ public class NotificationTask extends AbstractStoppableThread implements INotifi
 		}
 		
 		return add;
+	}
+	
+	public void queueAndSendEvent( EventInfo event )
+	{
+		this.queueEvent( event );
+		
+		synchronized( this )
+		{
+			super.notify();
+		}
+	}
+	
+	public void queueAndSendEvent( EventInfo event, boolean addIfNotContainSameEventType )
+	{
+		this.queueEvent( event, addIfNotContainSameEventType );
+		
+		synchronized( this )
+		{
+			super.notify();
+		}
 	}
 	
 	@Override

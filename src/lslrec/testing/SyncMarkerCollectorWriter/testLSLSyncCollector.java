@@ -22,10 +22,10 @@ package lslrec.testing.SyncMarkerCollectorWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import lslrec.auxiliar.task.INotificationTask;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
