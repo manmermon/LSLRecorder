@@ -29,6 +29,8 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
  */
 public class SimpleMutableStreamSetting extends SimpleStreamSetting implements IMutableStreamSetting 
 {	
+	private String extraInfoNode = super.getRootNode2ExtraInfoLabel();
+	
 	/**
 	 * @param libType
 	 * @param name
@@ -118,4 +120,15 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 		super.reconnectionTime = time;
 	}
 
+	@Override
+	public void setRootNode2ExtraInfoLabel(String id) 
+	{
+		this.extraInfoNode = id;
+	}
+
+	@Override
+	public String getRootNode2ExtraInfoLabel() 
+	{
+		return this.extraInfoNode;
+	}
 }

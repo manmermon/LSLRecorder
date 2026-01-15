@@ -69,6 +69,8 @@ import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
+import lslrec.dataStream.family.stream.lsl.LSLUtils;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
@@ -162,6 +164,7 @@ public class Dialog_BinaryConverter extends JDialog
 	//private JLabel lblOutputPath;
 	private JLabel lblBinaryDataFiles;
 	//private JLabel lblBinaryTimeFiles;
+	private JLabel lblExtraInfo;
 		
 	// JTextField
 	private JTextField txtStreamName;
@@ -172,6 +175,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private JTextField txtFilePath;
 	//private JTextField txtOutFileFolder;
 	private JTextField txtSyncMarkerFile;
+	private JTextField txtExtraInfo;
 		
 	// Buttons
 	private JButton btnDone;
@@ -181,6 +185,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private JButton btnSelectSyncFile;
 	private JButton btnOutFormatOptions;
 	//private JButton btlTakeOffFile;
+	//private JButton btnEditDesc;
 	
 	// Combox
 	private JComboBox< String > fileFormat;
@@ -425,6 +430,52 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		return this.panelSyncFile;
 	}
+	
+	private JLabel getLbExtraInfo()
+	{
+		if( this.lblExtraInfo == null )
+		{
+			this.lblExtraInfo = new JLabel();
+			this.lblExtraInfo.setText( Language.getLocalCaption( Language.SETTING_LSL_EXTRA ) );
+			this.lblExtraInfo.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+		}
+		
+		return this.lblExtraInfo;
+	}
+	
+	/*
+	private JButton getEditDescBt()
+	{
+		if( this.btnEditDesc == null )
+		{
+			this.btnEditDesc = new JButton( GeneralAppIcon.Pencil( 16, Color.BLACK ) );
+			
+			this.btnEditDesc.addActionListener( new ActionListener() 
+			{	
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JTextArea txtArea = new JTextArea( getXMLDesc().getText() );
+					txtArea.setWrapStyleWord( true );
+					
+					Object[] text = { Language.getLocalCaption( Language.DESCRIPTION_TEXT ), txtArea };
+					
+					int opt = JOptionPane.showConfirmDialog( null, text, Language.getLocalCaption( Language.DESCRIPTION_TEXT ), JOptionPane.OK_CANCEL_OPTION );
+					
+					if( opt == JOptionPane.OK_OPTION )
+					{
+						String tx = txtArea.getText();
+						getXMLDesc().setText( tx );
+					}
+				}
+			});
+			
+			this.btnEditDesc.setEnabled( false );
+		}
+		
+		return this.btnEditDesc;
+	}
+	//*/
 	
 	private JLabel getLblSyncFile()
 	{
@@ -819,7 +870,17 @@ public class Dialog_BinaryConverter extends JDialog
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.gridx = 1;
 			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
-			panelBinInfo.add( getTxtXMLDesc( ), gbc );
+			panelBinInfo.add( getXMLDesc( ), gbc );
+			
+			gbc.fill = GridBagConstraints.NONE;
+			gbc.gridx = 0;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getLbExtraInfo( ), gbc );
+			
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 1;
+			gbc.gridy = ( panelBinInfo.getComponentCount()  + colPadding ) / COLS;
+			panelBinInfo.add( getTxExtraInfo( ), gbc );
 			
 			gbc.fill = GridBagConstraints.NONE;
 			gbc.gridx = 0;
@@ -1201,7 +1262,7 @@ public class Dialog_BinaryConverter extends JDialog
 		return this.txtChunkSize;
 	}
 	
-	private JTextField getTxtXMLDesc( ) 
+	private JTextField getXMLDesc( ) 
 	{
 		if ( txtXMLDesc == null )
 		{
@@ -1209,6 +1270,7 @@ public class Dialog_BinaryConverter extends JDialog
 			txtXMLDesc.setEditable( false );
 			txtXMLDesc.setColumns( 10 );
 			
+			/*
 			txtXMLDesc.getDocument().addDocumentListener( new DocumentListener() 
 			{	
 				@Override
@@ -1246,11 +1308,62 @@ public class Dialog_BinaryConverter extends JDialog
 					}
 				}
 			});
+			//*/
+			
 		}
 
 		return txtXMLDesc;
 	}
-		
+	
+	private JTextField getTxExtraInfo( ) 
+	{
+		if ( this.txtExtraInfo == null )
+		{
+			this.txtExtraInfo = new JTextField( );
+			this.txtExtraInfo.setEditable( false );
+			this.txtExtraInfo.setColumns( 10 );
+			
+			this.txtExtraInfo.getDocument().addDocumentListener( new DocumentListener() 
+			{	
+				@Override
+				public void removeUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e) 
+				{
+					update( e );
+				}
+				
+				private void update( DocumentEvent e )
+				{
+					if( currentBinFile != null )
+					{
+						try 
+						{
+							String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
+							
+																
+							currentBinFile.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL, desc );
+						} 
+						catch ( BadLocationException e1 ) 
+						{
+						}
+					}
+				}
+			});			
+		}
+
+		return this.txtExtraInfo;
+	}
 
 	private JTable getTableFileData( )
 	{
@@ -1560,10 +1673,16 @@ public class Dialog_BinaryConverter extends JDialog
 						
 			this.getTxtDataType( ).setText( t );	
 			this.getTxtNumChannels( ).setText( header.channel_count() + "" );
-			this.getTxtXMLDesc( ).setText( header.description().replaceAll( "\\s+", "" ) );
+			this.getXMLDesc( ).setText( header.description().replaceAll( "\\s+", "" ) );
 			//this.getTxtXMLDesc().setEditable( true );
 			
-			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );			
+			this.getTxExtraInfo().setEditable( true );
+			
+			this.getTxtChunkSize( ).setText( header.getChunkSize() + "" );
+			
+			String extra = header.getExtraInfo().get( StreamExtraLabels.ID_EXTRA_INFO_LABEL );
+			extra = ( extra == null ) ? "" : extra;
+			this.txtExtraInfo.setText( extra );
 		}
 	}
 		
@@ -1671,7 +1790,7 @@ public class Dialog_BinaryConverter extends JDialog
 				}
 			}
 			
-			xml = xml.replaceAll( "\\s+", " " );
+			//xml = xml.replaceAll( "\\s+", " " );
 			
 			Map< String, String > fields = this.getStreamInfoFields( xml );
 						
@@ -1722,6 +1841,7 @@ public class Dialog_BinaryConverter extends JDialog
 																);
 			strSetting.setDescription( xml );
 			strSetting.setInterleaveadData( Boolean.parseBoolean( interleaved ) );
+			strSetting.setRootNode2ExtraInfoLabel( LSLUtils.getAdditionalInformationLabelInXml() );
 			
 			
 			/*
@@ -1881,8 +2001,10 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		this.getTxtDataType( ).setText( "" );
 		this.getTxtNumChannels( ).setText( "" );
-		this.getTxtXMLDesc( ).setText( "" );	
-		this.getTxtXMLDesc().setEditable( false );
+		this.getXMLDesc( ).setText( "" );	
+		this.getXMLDesc().setEditable( false );
+		
+		this.getTxExtraInfo().setEditable( false );
 	}
 	
 	/*

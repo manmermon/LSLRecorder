@@ -69,7 +69,6 @@ import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.control.message.AppState;
 import lslrec.control.notification.INotificationTask;
-import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;

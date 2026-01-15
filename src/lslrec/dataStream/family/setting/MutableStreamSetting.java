@@ -53,6 +53,8 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	
 	private double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
 	
+	private String extraInfoNode = StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL;
+	
 	/**
 	 * 
 	 * @param streamSetting
@@ -80,6 +82,8 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		this.interleaved = this.str.isInterleavedData();
 		this.enableCheckerTimer = this.str.isEnableRecordingCheckerTimer();
 		this.reconnectionTime = streamSetting.reconnectionWaitingTime();
+		
+		this.extraInfoNode = this.str.getRootNode2ExtraInfoLabel();
 	}
 	
 	@Override
@@ -91,7 +95,13 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	@Override
 	public String getRootNode2ExtraInfoLabel() 
 	{
-		return this.str.getRootNode2ExtraInfoLabel();
+		return this.extraInfoNode;
+	}
+	
+	@Override
+	public void setRootNode2ExtraInfoLabel(String id) 
+	{
+		this.extraInfoNode = id;
 	}
 	
 	@Override

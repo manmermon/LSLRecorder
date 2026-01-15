@@ -2369,20 +2369,31 @@ public class Dialog_PlotClis extends JDialog
 			tcm.getColumn( 1 ).setMaxWidth( 25 );
 						
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
-			{				
+			{	
 				@Override
 				public void valueChanged( ListSelectionEvent e ) 
-				{
-					clearClisData();					
-					clearCurrentClisFile();
-					
+				{	
 					if( !e.getValueIsAdjusting( ) )
 					{
+						int prevSelXAxisIndex = getCbXAxisVariables().getSelectedIndex();
+						
+						clearClisData();					
+						clearCurrentClisFile();
+						
 						int r = tableFileData.getSelectedRow( );
 						
 						String file = tableFileData.getValueAt( r, 0 ).toString();
 						
-						setClisFile( file );						
+						setClisFile( file );
+						
+						int numTotal = getCbXAxisVariables().getItemCount();
+						
+						if( prevSelXAxisIndex < 0 && numTotal > 0 )
+						{					
+							prevSelXAxisIndex = 0;
+						}
+						
+						getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
 					}
 				}
 			} );	

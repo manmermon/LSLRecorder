@@ -92,4 +92,10 @@ public interface IMutableStreamSetting extends IStreamSetting
      * be waited for the connection to be reestablished before it is considered lost.
      */
     public void setReconnectionWaitingTime( double time );
+    
+    /**
+     * 
+     * @param id: XML node to append new values.
+     */
+    public void setRootNode2ExtraInfoLabel( String id );
 }

@@ -71,6 +71,7 @@ import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
+import lslrec.config.Parameter;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.handler.OutputDataFileHandler;
@@ -312,6 +313,37 @@ public class GuiManager
 				String idEnc = (String)format.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue();
 				String ofn = DataFileFormat.getSupportedFileExtension().get( idEnc  );
 				format.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, folder + "data" +  ofn );
+				
+
+				/*
+				IStreamSetting strSetting = binSetting.getStreamSetting();
+				
+				Map< String, String > extraInfo = strSetting.getExtraInfo();
+				
+				if( extraInfo != null && !extraInfo.isEmpty() )
+				{
+					Map< String, String > addInfo = new HashMap<String, String>();
+					
+					Parameter par = format.getParameter( OutputFileFormatParameters.RECORDING_INFO );
+					if( par != null )
+					{
+						addInfo = (Map< String, String >)par.getValue();
+					}
+					
+					for( String id : extraInfo.keySet() )
+					{
+						String newInfo= extraInfo.get( id );
+						String prevInfo = addInfo.get( id );
+						
+						prevInfo = ( prevInfo == null ) ? newInfo : prevInfo + ";" + newInfo; 
+						
+						addInfo.put( id, prevInfo );
+					}
+					
+					format.setParameter( OutputFileFormatParameters.RECORDING_INFO, addInfo );
+				}
+				//*/
+				
 				
 				File dataFile = null;
 				if( dat != null )

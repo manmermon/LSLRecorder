@@ -196,7 +196,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			this.outputFormat.setParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE, this.BLOCK_SIZE );
 			String outFormat = (String)this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT ).getValue();			
 			
-			// Header size stimation
+			// Header size estimation
 			long binFileSizeLen = this.DATA.getDataBinaryFileSize();
 			binFileSizeLen = (long) Math.ceil( 1.0D * binFileSizeLen / this.BLOCK_SIZE );
 			
@@ -272,7 +272,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			this.maxSequenceNumber += Math.ceil( this.DATA.getDataBinaryFileSize() / ( this.maxNumElements * dbSize * 1D ) ) + 1;
 			
 			//
-			// Convertion
+			// Conversion
 			//
 			
 			String rootNode = streamSettings.getRootNode2ExtraInfoLabel();
@@ -298,7 +298,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			if( streamSettings.data_type() != StreamDataType.string )
 			{
-				//System.out.println("OutputBinaryFileSegmentation.runInLoop() ProcessDataAndSync" );
 				counterDataBlock = this.ProcessDataAndSync( counterDataBlock, varName );			
 			}
 			else
@@ -332,44 +331,13 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			
 			this.DATA.reset();
 			this.setMaxNumElements( streamSettings.getDataTypeBytes( streamSettings.getTimestampDataType() ), 1 );
-			//System.out.println("OutputBinaryFileSegmentation.runInLoop() ProcessTimeStream " + super.getName());
-			counterDataBlock = this.ProcessTimeStream(  this.DATA, streamSettings.getTimestampDataType(), counterDataBlock, timeName );
-			
-			/*
-			// Header info
-			
-			lslXML = StreamUtils.addElementToXmlStreamDescription( lslXML
-																			, rootNode
-																			, StreamExtraLabels.ID_RECORDED_SAMPLES_BY_CHANNELS
-																			//, "" + ( this.totalSampleByChannels / ( nChannel + 2 ) ) ); // nChannel + 2: channels + marker column + time ;			
-																			//, "" + this.totalSampleByChannels ); // nChannel + 2: channels + marker column + time ;
-			
-			this.writer.addMetadata( info + lslName, lslXML ); // output file header
-			//*/
+			counterDataBlock = this.ProcessTimeStream(  this.DATA, streamSettings.getTimestampDataType(), counterDataBlock, timeName );			
 		}
 		else
-		{
-			/*
-			if( this.monitor != null )
-			{
-				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
-
-				this.events.add( event );
-				this.monitor.taskDone( this );
-			}
-			*/
-			
+		{			
 			if( this.notifTask != null )
 			{
 				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException( "Problem: it is not possible to write in the file " + this.writer.getFileName() + ", because Writer null."));
-				
-				/*
-				this.notifTask.addEvent( event );
-				synchronized ( this.notifTask )
-				{
-					this.notifTask.notify();
-				}
-				//*/
 				
 				this.notifTask.queueAndSendEvent( event );
 			}

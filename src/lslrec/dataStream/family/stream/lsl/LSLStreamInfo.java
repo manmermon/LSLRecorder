@@ -53,6 +53,8 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	private boolean enableCheckerTimer = true;
 	
 	private double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
+	
+	private String extraInfoNode = LSLUtils.getAdditionalInformationLabelInXml();
 			
     /**
      * Construct a new stream_info this.object.
@@ -362,9 +364,13 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	@Override
 	public String getRootNode2ExtraInfoLabel() 
 	{
-		String root = LSLUtils.getAdditionalInformationLabelInXml();
-		
-		return root;
+		return this.extraInfoNode;
+	}
+	
+	@Override
+	public void setRootNode2ExtraInfoLabel(String id) 
+	{	
+		this.extraInfoNode = id;
 	}
 	
 	/**

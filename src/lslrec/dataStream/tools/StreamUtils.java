@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
