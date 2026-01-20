@@ -132,19 +132,19 @@ public abstract class OutputParallelizableFileWriterTemplate extends AbstractSto
 			
 			synchronized ( this.counterProcessingDataBlocks )
 			{
-				add = this.counterProcessingDataBlocks.get() > 0;
-			}			
+				add = this.counterProcessingDataBlocks.get() > 0;	
 			
-			if( add )
-			{			
-				add = add && this.DataBlockManager( data );
-					
 				if( add )
-				{
-					this.counterProcessingDataBlocks.decrementAndGet();
+				{			
+					add = this.DataBlockManager( data );
+						
+					if( add )
+					{
+						this.counterProcessingDataBlocks.decrementAndGet();
+					}
+					
+					super.notify();			
 				}
-				
-				super.notify();			
 			}
 		}
 		

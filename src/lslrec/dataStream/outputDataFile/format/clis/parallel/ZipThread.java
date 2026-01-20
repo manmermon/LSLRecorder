@@ -30,6 +30,7 @@ import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.outputDataFile.dataBlock.DataInByteFormatBlock;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
@@ -98,7 +99,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 	}
 
 	@Override
-	protected void runInLoop() throws Exception 
+	protected void runInLoop() throws Exception, Error
 	{
 		int n = -1;
 		Object[] data = null;
@@ -187,7 +188,7 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 					}
 					
 					if( i > 0 )
-					{
+					{						
 						if( i < data.length )
 						{
 							compressData = this.zip.zipData( Arrays.copyOf( aux, i ) );
@@ -407,6 +408,29 @@ public class ZipThread extends AbstractStoppableThread implements INotificationT
 			this.order = ordered;
 			
 			this.DataBlock = new Tuple<Integer, Object[] >( ordered, data );
+		}
+	}
+	
+	@Override
+	protected void runExceptionManager(Throwable e) 
+	{		
+		super.runExceptionManager(e);
+		
+		if( this.monitor != null )
+		{
+			EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, e );
+			this.events.add( event );
+
+			NotificationTask notif = new NotificationTask( false );
+			notif.setName( this.getID() +"-notificationTask" );
+			
+			notif.taskMonitor( this.monitor );
+			notif.queueEvent( event );
+			
+			synchronized( notif )
+			{
+				notif.notify();
+			}			
 		}
 	}
 	

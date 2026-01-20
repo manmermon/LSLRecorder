@@ -95,7 +95,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -1937,7 +1936,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 			String event_type = event.getEventType();
 			Object event_Info = event.getEventInformation();
-			
+						
 			try
 			{
 				this.eventRegisterSemaphore.acquire();
@@ -2184,28 +2183,43 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}
 					else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
 					{	
-						managerGUI.setAppState( AppState.State.SAVING, 0, true );
+						//managerGUI.setAppState( AppState.State.SAVING, 0, true );
+						managerGUI.setAppState( AppState.State.SAVING, 0, false );
 						
 						managerGUI.enablePlayButton( false );
 					}		
 					else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
 					{
 						int val = -1;
+						File file = null;
 						
 						try
 						{
-							val = (Integer)eventObject;
+							//val = (Integer)eventObject;				
+							Tuple< File, Integer > progress = (Tuple< File, Integer >)eventObject;
+							
+							file = progress.t1;
+							val = progress.t2;							
+							
+							managerGUI.setSavingState( file, val );
 						}
 						catch (Exception e) 
 						{
 							val = -1;
 						}
-						
+												
 						if( val > savingDataProgress )
 						{
-							managerGUI.setAppState( AppState.State.SAVING, val, true );
+							//managerGUI.setAppState( AppState.State.SAVING, val, true );							
+							managerGUI.setAppState( AppState.State.SAVING, 0, false );
 							savingDataProgress = val;
 						}
+					}
+					else if( event_type.equals( EventType.OUTPUT_DATA_FILE_SAVED ) )
+					{
+						File file = (File)eventObject;
+						
+						managerGUI.setSavingStateEnd( file );;
 					}
 					else if (event_type.equals( EventType.SOCKET_EVENTS ))
 					{
@@ -2281,6 +2295,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		private void setAllFilesSaved()
 		{
 			managerGUI.setAppState( AppState.State.SAVED, 100, false );
+			managerGUI.closeSavingFileProgressDialog();
 			
 			savingDataProgress = 0;
 			

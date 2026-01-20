@@ -144,6 +144,7 @@ public class Language
 
 	public static final String FILE_NOT_FOUND = "FILE_NOT_FOUND";
 
+	public static final String GENERAL_WAIT_MSG = "WAIT_MSG";
 	public static final String MSG_WINDOW_CLOSE = "MSG_WINDOW_CLOSE";
 	public static final String MSG_WINDOW_LOAD_CONFIG = "MSG_WINDOW_LOAD_CONFIG_MSG";
 	public static final String MSG_INTERRUPT = "MSG_INTERRUPT";
@@ -166,8 +167,7 @@ public class Language
 	public static final String ABOUT_AUTHOR_LABEL = "ABOUT_AUTHOR_LABEL";
 	public static final String ABOUT_EMAIL_LABEL = "ABOUT_EMAIL_LABEL";
 	public static final String ABOUT_SOURCE_CODE_LABEL = "ABOUT_SOURCE_CODE_LABEL";
-
-	public static final String GENERAL_WAIT_MSG = "WAIT_MSG";
+	
 
 	public static final String TOO_MUCH_TIME = "TOO_MUCH_TIME";
 	public static final String FORCE_QUIT = "FORCE_QUIT";
@@ -213,6 +213,8 @@ public class Language
 	public static final String PROBLEM_TEXT = "PROBLEM_TEXT";
 	
 	public static final String CHECKLIST_TEXT = "CHECKLIST_TEXT";
+	
+	public static final String COMMON_TEXT = "COMMON_TEXT";
 
 	public static final String COPY = "COPY";
 	public static final String COPY_ALL = "COPY_ALL";
@@ -256,6 +258,8 @@ public class Language
 	{		
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put( COMMON_TEXT, new Caption(COMMON_TEXT, defaultLanguage, "Common" ) );
 		
 		captions.put( RECONNECT_LOST_STREAM, new Caption(RECONNECT_LOST_STREAM, defaultLanguage, "Reconnection waiting time for lost stream." ) );
 		

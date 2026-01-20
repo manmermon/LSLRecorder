@@ -20,6 +20,7 @@
 
 package lslrec.dataStream.outputDataFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -157,11 +158,11 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	}
 	
 	private void setMaxNumElements( int dataTypeBytes, int channels )
-	{			
+	{	
 		this.maxNumElements = this.BLOCK_SIZE / dataTypeBytes;
 		
 		this.maxNumElements = (int)( ( Math.floor( 1.0D * this.maxNumElements / channels ) ) * channels );
-		
+				
 		if( this.maxNumElements < this.DATA.getDataStreamSetting().channel_count() )
 		{
 			this.maxNumElements = this.DATA.getDataStreamSetting().channel_count();
@@ -679,23 +680,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			this.datPostProcessingExec.processData( dataBlock, null );
 		}
 		//this.totalReadedBlock += ( to - from ) * LSLUtils.getDataTypeBytes( dataType );
-		
-		/*
-		synchronized ( this )
-		{
-			while( !this.writer.isReady() )
-			{
-				try
-				{
-					super.wait( 1000L );
-				}
-				catch ( InterruptedException e) 
-				{
-				}
-			}					
-		}
-		*/
-		
+				
 		synchronized ( this )
 		{
 			//this.totalSampleByChannels += ( to - from ) / Nchannels;
@@ -751,7 +736,9 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			//EventInfo ev = new EventInfo( this.getID(), EventType.SAVING_DATA_PROGRESS, (int)( ( 100.0D * this.totalReadedBlock) / this.DATA.getDataBinaryFileSize() ) );
 			
 			double perc = ( 100.0D * seqNum) / this.maxSequenceNumber;
-			EventInfo ev = new EventInfo( this.DATA.getDataStreamSetting().uid(), EventType.SAVING_DATA_PROGRESS, (int)perc );
+			//EventInfo ev = new EventInfo( this.DATA.getDataStreamSetting().uid(), EventType.SAVING_DATA_PROGRESS, (int)perc );
+			
+			EventInfo ev = new EventInfo( this.DATA.getDataStreamSetting().uid(), EventType.SAVING_DATA_PROGRESS, new Tuple< File, Integer>( new File( this.writer.getFileName()), (int)perc ) );
 			
 			/*
 			this.notifTask.addEvent( ev );
@@ -769,7 +756,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 	private Tuple< Number[], Number[] > getNextNumberBlock( TemporalBinData temp ) throws Exception
 	{
-		List< Object > dataBuffer = new ArrayList< Object >();
+		//List< Object > dataBuffer = new ArrayList< Object >();
 		
 		Tuple< Number[], Number[] > out = null;
 		
@@ -918,7 +905,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 					while( dataBuffer.size() >= this.maxNumElements )
 					{
-						//this.totalSampleByChannels += this.maxNumElements;
+						//this.totalSampleByChannels += this.maxNumElements;						
 						seqNum = this.SaveDataBuffer( seqNum, dataBuffer, dataType, 1, name, false );
 					}
 				}
@@ -1084,7 +1071,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 		
 		this.datPostProcessingExec = null;
 		
-		//this.writer.closeWriter();
 		while( this.antideadlockCounter.get() > 0 )
 		{
 			try 
@@ -1096,19 +1082,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 			}
 		}
 		
-		/*
-		if( !this.writer.isFinished() )
-		{
-			this.writer.close();
-						
-			if( this.writer instanceof IStoppableThread )
-			{
-				((IStoppableThread)this.writer).stopThread( IStoppableThread.FORCE_STOP );
-			}
-		}
-		*/
-		
-		boolean loop = true;
+		boolean loop = !this.writer.isFinished();
 		int counter = 0;
 		while( loop )
 		{
@@ -1142,65 +1116,32 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				{
 					writerStop = ( (AbstractStoppableThread)stWriter).getState().equals( Thread.State.TERMINATED );
 				}
-				//System.out.println("OutputBinaryFileSegmentation.cleanUp() Writer.stop Force "+ this.writer.getFileName() );
 			}
 		}
 		
-		//System.out.println("OutputBinaryFileSegmentation.cleanUp() Writer was stoppped " + this.writer.getFileName() );
-				
-		this.writer = null;
-			
 		this.DATA.closeTempBinaryFile();
 		
 		if( this.syncReader != null )
 		{
 			this.syncReader.closeStream();
 		}
-		
-		//this.WriterloopEndInteractionNotifier.stopThread( IStoppableThread.FORCE_STOP );
-		//this.WriterloopEndInteractionNotifier = null;
-			
-		/*
-		if( this.monitor != null )
-		{		
-			Tuple< String, SyncMarkerBinFileReader > t = new Tuple<String, SyncMarkerBinFileReader>( DATA.getStreamingName(), this.syncReader );
-			
-			EventInfo event = new EventInfo( this.getID(), EventType.OUTPUT_DATA_FILE_SAVED, t);
-			this.events.add( event );
-		
-			this.monitor.taskDone( this );
-		}
-		*/
-		
+				
 		if( this.notifTask != null )
 		{		
-			Tuple< String, SyncMarkerBinFileReader > t = new Tuple<String, SyncMarkerBinFileReader>( DATA.getDataStreamSetting().name(), this.syncReader );
+			//Tuple< String, SyncMarkerBinFileReader > t = new Tuple<String, SyncMarkerBinFileReader>( DATA.getDataStreamSetting().name(), this.syncReader );
+			Tuple< String, SyncMarkerBinFileReader > t = new Tuple<String, SyncMarkerBinFileReader>( this.writer.getFileName(), this.syncReader );
 			
 			EventInfo event = new EventInfo( this.getID(), EventType.OUTPUT_DATA_FILE_SAVED, t);
-			
-			/*
-			this.notifTask.addEvent( event );
-			synchronized ( this.notifTask )
-			{
-				this.notifTask.notify();
-			}
-			//*/
-			
+						
 			this.notifTask.queueAndSendEvent( event );
 			
 			synchronized ( this ) 
 			{
 				this.wait( 50L );
-			}
-			
-			/*
-			this.notifTask.stopThread( IStoppableThread.STOP_WITH_TASKDONE );
-			synchronized ( this.notifTask )
-			{
-				this.notifTask.notify();
-			}
-			//*/
+			}			
 		}
+		
+		this.writer = null;
 	}
 
 	/*

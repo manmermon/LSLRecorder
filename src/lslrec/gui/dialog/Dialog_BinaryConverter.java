@@ -78,9 +78,9 @@ import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.TableButtonCellRender;
+import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TableButtonCellEditor;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
 
 import java.awt.Color;
 import java.awt.Cursor;
@@ -114,6 +114,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -165,6 +167,7 @@ public class Dialog_BinaryConverter extends JDialog
 	private JLabel lblBinaryDataFiles;
 	//private JLabel lblBinaryTimeFiles;
 	private JLabel lblExtraInfo;
+	private JLabel lblExtraCommonInfo;
 		
 	// JTextField
 	private JTextField txtStreamName;
@@ -176,6 +179,7 @@ public class Dialog_BinaryConverter extends JDialog
 	//private JTextField txtOutFileFolder;
 	private JTextField txtSyncMarkerFile;
 	private JTextField txtExtraInfo;
+	private JTextField txtExtraCommonInfo;
 		
 	// Buttons
 	private JButton btnDone;
@@ -237,8 +241,8 @@ public class Dialog_BinaryConverter extends JDialog
 			 }
 		};
 		
-		root.registerKeyboardAction( escListener, KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), JComponent.WHEN_IN_FOCUSED_WINDOW );
-				
+		root.registerKeyboardAction( escListener, KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0 ), JComponent.WHEN_IN_FOCUSED_WINDOW );		
+		
 		super.setContentPane( this.getMainPanel( ) );
 	}
 	
@@ -368,6 +372,40 @@ public class Dialog_BinaryConverter extends JDialog
 				public void actionPerformed( ActionEvent e ) 
 				{
 					clearBinaryFiles = false;
+					
+					Object format = getComboBoxOutputFormat().getSelectedItem().toString();
+					
+					if( format != null )
+					{
+						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+						Encoder enc = tenc.t1;
+						List< SettingOptions > opts = enc.getSettiongOptions();
+						
+						for( SettingOptions opt : opts )
+						{
+							String id = opt.getID();
+							String idRef = opt.getIDReferenceParameter();
+							
+							Parameter par = outFormat.getParameter( id );
+							Parameter parRef = outFormat.getParameter( idRef );
+							
+							if( par != null && parRef != null )
+							{
+								par.setValue( parRef.getValue() );
+							}
+						}
+					}
+					
+					String commonText = getTxExtraCommonInfo().getText().trim();
+					
+					if( !commonText.isEmpty() )
+					{
+						for( String idFile : binaryDataFiles.keySet() )
+						{
+							IMutableStreamSetting strcfg = binaryDataFiles.get( idFile );
+							strcfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL + StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL.toUpperCase(), commonText );
+						}
+					}
 						
 					dispose();
 				}
@@ -441,6 +479,18 @@ public class Dialog_BinaryConverter extends JDialog
 		}
 		
 		return this.lblExtraInfo;
+	}
+	
+	private JLabel getLbExtraCommonInfo()
+	{
+		if( this.lblExtraCommonInfo == null )
+		{
+			this.lblExtraCommonInfo = new JLabel();
+			this.lblExtraCommonInfo.setText( Language.getLocalCaption( Language.COMMON_TEXT ) );
+			this.lblExtraCommonInfo.setFont( new Font( "Tahoma", Font.BOLD, 11 ) );
+		}
+		
+		return this.lblExtraCommonInfo;
 	}
 	
 	/*
@@ -895,7 +945,9 @@ public class Dialog_BinaryConverter extends JDialog
 			JPanel panelAux = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			panelAux.add( getComboBoxOutputFormat( ) );
 			//panelAux.add( new JLabel( Language.getLocalCaption( Language.OPTIONS_TEXT ) ) );
-			panelAux.add( this.getOutputFormatOptsButton() );			
+			panelAux.add( this.getOutputFormatOptsButton() );
+			panelAux.add( this.getLbExtraCommonInfo() );
+			panelAux.add( this.getTxExtraCommonInfo() );
 			//colPadding++;
 			
 			gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -960,7 +1012,6 @@ public class Dialog_BinaryConverter extends JDialog
 						
 						dial.setTitle( format.toString() + " - " + Language.getLocalCaption( Language.SETTING_LSL_OUTPUT_FORMAT ) );
 
-						
 						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
 						Encoder enc = tenc.t1;
 						List< SettingOptions > opts = enc.getSettiongOptions();
@@ -969,10 +1020,10 @@ public class Dialog_BinaryConverter extends JDialog
 						
 						for( SettingOptions opt : opts )
 						{	
-							Parameter p = outFormat.getParameter( opt.getIDReferenceParameter() );
-							Parameter p2  = encPars.getParameter( opt.getIDReferenceParameter() );
-							
 							String id = opt.getIDReferenceParameter();
+							Parameter p = outFormat.getParameter( id );
+							Parameter p2  = encPars.getParameter( id );
+														
 							Object val = null;
 							String langID = null;
 									
@@ -982,7 +1033,7 @@ public class Dialog_BinaryConverter extends JDialog
 								langID = p.getLangID();
 							}
 							
-							if( val == null )
+							if( val == null  )
 							{
 								val = p2.getValue();
 								langID = p2.getLangID();
@@ -997,9 +1048,8 @@ public class Dialog_BinaryConverter extends JDialog
 							outFormat.getParameter( id ).setLangID( langID );
 						}
 						
-						
 						JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, outFormat.getAllParameters() ) );
-
+						
 						main.add( scr, BorderLayout.CENTER );
 						
 						dial.add( main );
@@ -1019,7 +1069,8 @@ public class Dialog_BinaryConverter extends JDialog
 						
 						dial.setSize( s );
 						
-						dial.setVisible( true );
+						dial.setVisible( true );						
+						
 					}
 				}
 			});
@@ -1363,6 +1414,18 @@ public class Dialog_BinaryConverter extends JDialog
 		}
 
 		return this.txtExtraInfo;
+	}
+	
+	private JTextField getTxExtraCommonInfo( ) 
+	{
+		if ( this.txtExtraCommonInfo == null )
+		{
+			this.txtExtraCommonInfo = new JTextField( );
+			this.txtExtraCommonInfo.setEditable( true );
+			this.txtExtraCommonInfo.setColumns( 10 );			
+		}
+
+		return this.txtExtraCommonInfo;
 	}
 
 	private JTable getTableFileData( )

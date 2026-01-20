@@ -46,6 +46,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 
+import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TextAreaPrintStream;
@@ -230,6 +231,7 @@ public class ExceptionDialog
 	{
  		if( logGUI != null )
  		{
+ 			GuiManager.getInstance().showLogTab();
  			logGUI.write( msg, concatMsg, printExceptionTrace );
  		}
  		

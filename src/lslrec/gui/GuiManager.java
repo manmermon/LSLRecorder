@@ -34,6 +34,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,6 +60,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
@@ -71,7 +73,6 @@ import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
-import lslrec.config.Parameter;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.handler.OutputDataFileHandler;
@@ -90,6 +91,7 @@ import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dialog.Dialog_BinaryConverter;
+import lslrec.gui.dialog.Dialog_SavingFileProcess;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
@@ -117,6 +119,8 @@ public class GuiManager
 	private Boolean isWriteTest = false;
 	
 	private AppState.State appState = AppState.State.NONE;
+	
+	private Dialog_SavingFileProcess dialog_savingFileProcess = null;
 	
 	//Map
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
@@ -285,7 +289,8 @@ public class GuiManager
 		
 		if( binFiles.size() > 0 )
 		{ 
-			this.setAppState( AppState.State.SAVING, 0, true );
+			//this.setAppState( AppState.State.SAVING, 0, true );
+			this.setAppState( AppState.State.SAVING, 0, false );
 			
 			enablePlayButton( false );
 		}
@@ -871,6 +876,64 @@ public class GuiManager
 		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 		Date date = new Date();		
 		timeState.setText( dateFormat.format( date ) );
+	}
+	
+	private void setSavingFileProgresDialog()
+	{
+		SwingUtilities.invokeLater(() ->
+		{
+			if( this.dialog_savingFileProcess == null )
+			{
+				this.dialog_savingFileProcess = new Dialog_SavingFileProcess( );
+				this.dialog_savingFileProcess.setModal( true );
+				this.dialog_savingFileProcess.setIconImage( this.getAppUI().getIconImage() );
+				
+				this.dialog_savingFileProcess.setLocationRelativeTo( this.getAppUI() );
+				
+				this.dialog_savingFileProcess.setSize( 400, 300 );
+				this.dialog_savingFileProcess.setVisible( true );
+			}
+		});
+	}
+	
+	public synchronized void closeSavingFileProgressDialog()
+	{
+		if( this.dialog_savingFileProcess != null )
+		{			
+			this.dialog_savingFileProcess.dispose();
+			this.dialog_savingFileProcess = null;
+		}
+	}
+	
+	public synchronized void setSavingState( File file, int perc )
+	{	
+		if( file != null )
+		{	
+			setSavingFileProgresDialog();
+			
+			try 
+			{	
+				if( !dialog_savingFileProcess.contains( file.getCanonicalPath() ) )
+				{
+					dialog_savingFileProcess.addFileProgressBar( file );
+				}
+				
+			} 
+			catch (IOException e) 
+			{
+				e.printStackTrace();
+			}
+			
+			dialog_savingFileProcess.setProgressValue( file, perc );
+		}
+	}
+	
+	public synchronized void setSavingStateEnd( File file )
+	{				
+		if( this.dialog_savingFileProcess != null )
+		{
+			this.dialog_savingFileProcess.setProgressEnd( file );
+		}
 	}
 	
 	/*

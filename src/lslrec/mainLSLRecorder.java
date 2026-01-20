@@ -426,13 +426,14 @@ public class mainLSLRecorder
 		ui.setSize(dm);
 
 		ui.toFront();
-		Dimension d = new Dimension(dm);
-		d.width /= 5;
+		//Dimension d = new Dimension(dm);
+		//d.width /= 5;
 
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gd.getDefaultConfiguration());
+		Insets insets = t.getScreenInsets(gd.getDefaultConfiguration());
 		ui.setLocation(insets.left + 1, insets.top + 1);
-		ui.pack();
+		//ui.pack();
+		
 		
 		ui.setVisible(true);
 

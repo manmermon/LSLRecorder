@@ -28,9 +28,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
+import lslrec.config.Parameter;
 import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
-import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -61,6 +61,8 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	
 	private AtomicBoolean dataBlockProcessed = new AtomicBoolean( false );
 	
+	private int maxNumThreads = 1;
+	
 	public OutputClisDataParallelWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, ITaskMonitor monitor ) throws Exception 
 	//public OutputClisDataParallelWriter( OutputFileFormatParameters formatPars, IStreamSetting streamSettings, NotificationTask notif ) throws Exception
 	{
@@ -85,6 +87,26 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 		this.compressDataList = new ConcurrentSkipListMap< Integer, DataInByteFormatBlock >();
 		this.zpThreadList = new ArrayList< ZipThread >();
 		
+		Runtime rt = Runtime.getRuntime();
+
+		long heapTotal = (rt.totalMemory() / 1024 / 1024 ); // MB
+		
+		Parameter< Integer > blockSizePar = formatPars.getParameter( OutputFileFormatParameters.BLOCK_DATA_SIZE );
+		
+		if( blockSizePar != null )
+		{
+			Integer blockSize = ( blockSizePar.getValue() / 1024 / 1024 );
+			this.maxNumThreads = (int)( heapTotal / blockSize ) / 2;
+			
+			if( this.maxNumThreads > Runtime.getRuntime().availableProcessors() )
+			{
+				this.maxNumThreads = Runtime.getRuntime().availableProcessors() / 2;
+			}
+			
+			this.maxNumThreads = ( this.maxNumThreads < 1 ) ? 1 : this.maxNumThreads;
+		}
+		
+		
 		super.setName( this.getClass().getSimpleName() + "-" + this.clisWriter.getSimpleFileName() );
 		
 		super.startThread();
@@ -99,7 +121,9 @@ public class OutputClisDataParallelWriter extends OutputParallelizableFileWriter
 	@Override
 	protected int getMaxNumThreads() 
 	{
-		return Runtime.getRuntime().availableProcessors();
+		//return Runtime.getRuntime().availableProcessors();
+				
+		return this.maxNumThreads;
 	}
 	
 	@Override
