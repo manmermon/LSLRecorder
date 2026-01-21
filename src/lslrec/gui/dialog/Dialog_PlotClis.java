@@ -136,6 +136,7 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 
 /**
  * @author Manuel Merino Monge
@@ -292,9 +293,9 @@ public class Dialog_PlotClis extends JDialog
 			@Override
 			public void windowClosing(WindowEvent e) 
 			{
-				clearClisData();
 				clearCurrentClisFile();
-				
+				clearClisData();
+								
 				super.windowClosing(e);
 			}
 			
@@ -508,30 +509,30 @@ public class Dialog_PlotClis extends JDialog
 		return btnLoadRecursiveFilesFromFolder;
 	}
 	
-	private void setClisFile( String FILE )
+	private void setClisFile( final String FILE )
 	{
 		if( FILE != null )
 		{	
 			super.setCursor( Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR ) );
-			
+
 			this.getTxtClisFile().setText( "" );
-			
+
 			try 
 			{
 				this.currentClisFile = new ClisData( FILE );
 				this.currentFolderPath = (new File( FILE )).getAbsolutePath();
-				
+
 				this.getTxtClisFile().setText( FILE );
 			} 
 			catch ( Exception e1) 
 			{
 				this.currentClisFile = null;
 			}
-			
-			this.showBinaryFileInfo( );
-			this.setClisDataPlotMetadata( );
-			
+
 			super.setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
+
+			this.showBinaryFileInfo( );
+			this.setClisDataPlotMetadata( );					
 		}
 	}
 	
@@ -2409,7 +2410,11 @@ public class Dialog_PlotClis extends JDialog
 							prevSelXAxisIndex = 0;
 						}
 						
-						getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
+						final int selAxis = prevSelXAxisIndex;
+						SwingUtilities.invokeLater(() ->
+						{
+							getCbXAxisVariables().setSelectedIndex( selAxis );
+						});
 					}
 				}
 			} );	

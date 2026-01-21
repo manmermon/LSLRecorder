@@ -107,6 +107,7 @@ import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -371,43 +372,60 @@ public class Dialog_BinaryConverter extends JDialog
 				@Override
 				public void actionPerformed( ActionEvent e ) 
 				{
-					clearBinaryFiles = false;
+					String syncFile = getTxtSyncFilePath().getText();				
 					
-					Object format = getComboBoxOutputFormat().getSelectedItem().toString();
+					JButton bt = (JButton)e.getSource();
 					
-					if( format != null )
+					int cont = JOptionPane.YES_OPTION;
+					
+					if( syncFile.trim().isEmpty() && !binaryDataFiles.isEmpty() )
 					{
-						Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
-						Encoder enc = tenc.t1;
-						List< SettingOptions > opts = enc.getSettiongOptions();
+						String msg = Language.getLocalCaption( Language.SYNC_MARK_FILE_TEXT );
+						msg += ". " + Language.getLocalCaption(Language.CONTINUE_TEXT ) + "?";
 						
-						for( SettingOptions opt : opts )
+						cont = JOptionPane.showConfirmDialog( SwingUtilities.getWindowAncestor( bt ), msg, "", JOptionPane.YES_NO_OPTION );
+					}
+					
+					if( cont == JOptionPane.YES_OPTION )
+					{
+						clearBinaryFiles = false;
+						
+						Object format = getComboBoxOutputFormat().getSelectedItem().toString();
+						
+						if( format != null )
 						{
-							String id = opt.getID();
-							String idRef = opt.getIDReferenceParameter();
+							Tuple< Encoder, WarningMessage > tenc = DataFileFormat.getDataFileEncoder( format.toString() );
+							Encoder enc = tenc.t1;
+							List< SettingOptions > opts = enc.getSettiongOptions();
 							
-							Parameter par = outFormat.getParameter( id );
-							Parameter parRef = outFormat.getParameter( idRef );
-							
-							if( par != null && parRef != null )
+							for( SettingOptions opt : opts )
 							{
-								par.setValue( parRef.getValue() );
+								String id = opt.getID();
+								String idRef = opt.getIDReferenceParameter();
+								
+								Parameter par = outFormat.getParameter( id );
+								Parameter parRef = outFormat.getParameter( idRef );
+								
+								if( par != null && parRef != null )
+								{
+									par.setValue( parRef.getValue() );
+								}
 							}
 						}
-					}
-					
-					String commonText = getTxExtraCommonInfo().getText().trim();
-					
-					if( !commonText.isEmpty() )
-					{
-						for( String idFile : binaryDataFiles.keySet() )
-						{
-							IMutableStreamSetting strcfg = binaryDataFiles.get( idFile );
-							strcfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL + StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL.toUpperCase(), commonText );
-						}
-					}
 						
-					dispose();
+						String commonText = getTxExtraCommonInfo().getText().trim();
+						
+						if( !commonText.isEmpty() )
+						{
+							for( String idFile : binaryDataFiles.keySet() )
+							{
+								IMutableStreamSetting strcfg = binaryDataFiles.get( idFile );
+								strcfg.setAdditionalInfo( StreamExtraLabels.ID_EXTRA_INFO_LABEL + StreamExtraLabels.ID_GENERAL_DESCRIPTION_LABEL.toUpperCase(), commonText );
+							}
+						}
+							
+						dispose();
+					}
 				}
 			} );
 		}
