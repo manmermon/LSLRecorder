@@ -46,6 +46,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -294,11 +295,8 @@ public class RightPanelSettings extends JPanel
 
 		try
 		{
-			//LSL lsl = new LSL();
-
-			///IStreamSetting[] streams = lsl.resolve_streams( );
-			//IStreamSetting[] streams = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
-			IStreamSetting[] streams = DataStreamFactory.getStreamSettings( );
+			IStreamSetting[] streams = DataStreamFactory.getStreamSettings( ); 
+			streams = DataStreamFactory.getStreamSettings( ); // 
 			
 			Comparator< Tuple< String, Integer > > comp = new Comparator<Tuple<String,Integer>>() 
 			{	
@@ -400,18 +398,7 @@ public class RightPanelSettings extends JPanel
 		this.getDisabledPanel().setEnabled( false );
 		
 		Tuple< JPanel, JTree > update = this.getUpdateStreamPanel();
-		
-		JSplitPane splitPanel = this.getContentPanelStreamInfo();
-		splitPanel.setVisible( false );
 				
-		JPanel scr = this.getPanelSelectDevPanel();
-		//scr.getVerticalScrollBar().setUnitIncrement( 10 );
-		scr.setVisible( false );
-		scr.removeAll();
-		//scr.setViewportView( update.t1 );
-		scr.add( update.t1, BorderLayout.CENTER );		
-		
-		
 		boolean findDevice = false;
 
 		try
@@ -455,14 +442,25 @@ public class RightPanelSettings extends JPanel
 		}					
 		catch( Exception ex )
 		{						
-		}		
+		}
 		
-		scr.setVisible( true );
-		splitPanel.setVisible( true );
-		
-		GuiTextManager.updateSelectedStreamText();
-		
-		this.getDisabledPanel().setEnabled( true );
+		SwingUtilities.invokeLater(() ->
+		{
+			JSplitPane splitPanel = this.getContentPanelStreamInfo();
+			splitPanel.setVisible( false );
+					
+			JPanel scr = this.getPanelSelectDevPanel();
+			scr.setVisible( false );
+			scr.removeAll();
+			scr.add( update.t1, BorderLayout.CENTER );		
+			
+			scr.setVisible( true );
+			splitPanel.setVisible( true );
+			
+			GuiTextManager.updateSelectedStreamText();
+			
+			this.getDisabledPanel().setEnabled( true );
+		});
 		
 		return findDevice;
 	}
@@ -1613,17 +1611,21 @@ public class RightPanelSettings extends JPanel
 			this.splitPanelDevices.setFocusable( false );
 			this.splitPanelDevices.setFocusCycleRoot( false );
 		
-			Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
 			
-			JPanel scr = this.getPanelSelectDevPanel();
-			scr.setVisible( false );
-			scr.removeAll();
-			scr.add( deviceInfo.t1, BorderLayout.CENTER );
-			scr.setVisible( true );
-						
-			this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
-			this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.t2 ) );
-			
+			final Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
+
+			SwingUtilities.invokeLater( () -> 
+			{
+				JPanel scr = this.getPanelSelectDevPanel();
+				scr.setVisible( false );
+				scr.removeAll();
+				scr.add( deviceInfo.t1, BorderLayout.CENTER );
+				scr.setVisible( true );
+
+				this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
+				this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.t2 ) );
+			});
+
 		}
 
 		return this.splitPanelDevices;
@@ -1679,6 +1681,7 @@ public class RightPanelSettings extends JPanel
 	private Tuple< JPanel, JTree > getUpdateStreamPanel()
 	{
 		JPanel panelLSLSettings  = new JPanel();
+		
 		JTree tree = this.getDeviceInfoTree();
 		DefaultTreeModel model = (DefaultTreeModel) tree.getModel();
 		DefaultMutableTreeNode root = (DefaultMutableTreeNode)( model.getRoot() );
@@ -1702,7 +1705,7 @@ public class RightPanelSettings extends JPanel
 				
 		if( this.deviceInfo != null
 				&& this.deviceInfo.length > 0 )
-		{
+		{			
 			DefaultMutableTreeNode tmodel = new DefaultMutableTreeNode();
 			tmodel.setUserObject( Language.getLocalCaption( Language.SETTING_LSL_DEVICES ) + " (" + this.deviceInfo.length + ")" );
 			
@@ -1721,9 +1724,7 @@ public class RightPanelSettings extends JPanel
 				devsPanel.add( p );
 			}
 			
-			//int maxHeightComponent = Integer.MIN_VALUE;
-			
-			
+		
 			//Remove unplugged devices
 			Iterator< IMutableStreamSetting > itLSL = deviceIDs.iterator();
 			while ( itLSL.hasNext() )
@@ -1743,18 +1744,18 @@ public class RightPanelSettings extends JPanel
 					itLSL.remove();
 				}
 			}				
-	
+				
 			// Adding new devices
 			int devLen = this.deviceInfo.length;
 			for( int i = 0; i < devLen; i++ )
-			{
+			{				
 				IStreamSetting info = this.deviceInfo[ i ];
 				
 				String deviceName = info.name();
 				String deviceType = info.content_type();
 				String uid = info.uid();
 				String sourceID = info.source_id(); 
-	
+					
 				itLSL = deviceIDs.iterator();
 				boolean enc = false;
 				while( itLSL.hasNext() && !enc )
@@ -1762,7 +1763,7 @@ public class RightPanelSettings extends JPanel
 					IMutableStreamSetting lslCfg = itLSL.next();
 					enc = lslCfg.uid().equals( uid );
 				}
-	
+					
 				if( !enc )
 				{
 					if( sourceID.isEmpty() )
@@ -1773,9 +1774,9 @@ public class RightPanelSettings extends JPanel
 					MutableStreamSetting newLSL = new MutableStreamSetting( info  );
 					
 					deviceIDs.add( newLSL );
-				}
+				}				
 			}
-	
+						
 			ConfigApp.setProperty( ConfigApp.ID_STREAMS, deviceIDs  );
 	
 			GuiTextManager.removeTranslateToken( GuiTextManager.TEXT, Language.SETTING_LSL_EXTRA );
@@ -1794,7 +1795,7 @@ public class RightPanelSettings extends JPanel
 			GuiTextManager.removeTranslateToken( GuiTextManager.TOOLTIP, Language.SETTING_LSL_NAME );
 			
 			GuiTextManager.clearSelectedStreamComponent();
-			
+									
 			//
 			//
 			//
@@ -1809,7 +1810,7 @@ public class RightPanelSettings extends JPanel
 				String deviceName = info.name();
 				String deviceType = info.content_type();
 				String sourceID = info.source_id();
-	
+				
 				itLSL = deviceIDs.iterator();
 				boolean enc = false;
 				IMutableStreamSetting auxDev = null;
@@ -1819,7 +1820,7 @@ public class RightPanelSettings extends JPanel
 	
 					enc = auxDev.uid().equals( uid );
 				}
-	
+				
 				if( !enc )
 				{
 					if( sourceID.isEmpty() )
@@ -1831,6 +1832,7 @@ public class RightPanelSettings extends JPanel
 					deviceIDs.add( auxDev );
 				}
 				
+								
 				final IMutableStreamSetting dev = auxDev;
 				
 				String idNode = deviceName + " (" + uid + ")";
@@ -1844,7 +1846,7 @@ public class RightPanelSettings extends JPanel
 				//
 				// 
 				//
-				
+								
 				List< Component > streamComponents = new ArrayList< Component >();
 				
 				JButton addInfo = new JButton();
@@ -1865,16 +1867,7 @@ public class RightPanelSettings extends JPanel
 				//
 				//
 				//
-				/*
-				if( !sourceID.isEmpty() )
-				{	
-					selDataStream.setName( sourceID );
-				}
-				else
-				{
-					selDataStream.setName( deviceName + deviceType );
-				}
-				//*/
+								
 				selDataStream.setName( deviceName + deviceType + sourceID );
 	
 				selDataStream.setToolTipText( deviceName + "- uid: " + uid );
@@ -1951,7 +1944,7 @@ public class RightPanelSettings extends JPanel
 				{
 					Sync.setName( deviceName + deviceType );
 				}
-	
+				
 				//
 				//
 				//
@@ -1994,20 +1987,8 @@ public class RightPanelSettings extends JPanel
 						{	
 							Set< String > syncMets = (Set<String>)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 							
-							/*
-							if( !( ((String).equalsIgnoreCase( SyncMethod.SYNC_STREAM ) 
-									|| ((String)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD )).equalsIgnoreCase( SyncMethod.SYNC_ALL ) ) 
-								)
-							*/
 							if( !( syncMets.contains( SyncMethod.SYNC_STREAM ) ) )
-							{
-								/*
-								JOptionPane.showMessageDialog( winOwner
-																, Language.getLocalCaption( Language.MSG_SELECTED_LSL_SYNC_STREAM_ERROR )
-																, Language.getLocalCaption( Language.DIALOG_ERROR )
-																, JOptionPane.ERROR_MESSAGE );
-								*/
-								
+							{								
 								Exception ex = new Exception( Language.getLocalCaption( Language.MSG_SELECTED_LSL_SYNC_STREAM_ERROR ) );
 								ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 								ExceptionDialog.showMessageDialog( msg, true, false );
@@ -2017,7 +1998,7 @@ public class RightPanelSettings extends JPanel
 						}
 					}
 				});
-
+				
 				//
 				//
 				//
@@ -2084,18 +2065,6 @@ public class RightPanelSettings extends JPanel
 							parlist.addParameter( check );
 						}
 						
-						/*
-						opts.add( null );
-						
-						opt = new SettingOptions( Language.RECONNECT_LOST_STREAM, SettingOptions.Type.NUMBER, false, new NumberRange(IStreamSetting.RECONNECTION_LOST_STREAM_TIME_FOREVER, Double.MAX_VALUE ),  StreamExtraLabels.RECONNECT_LOST_STREAM );
-						opt.addValue( dev.reconnectionWaitingTime() + "" );
-						opts.add( opt );
-						
-						Parameter< Double > reconnect = new Parameter< Double >( StreamExtraLabels.RECONNECT_LOST_STREAM, dev.reconnectionWaitingTime() );
-						reconnect.setLangID( Language.RECONNECT_LOST_STREAM );
-						parlist.addParameter( reconnect );
-						//*/
-						
 						Dialog_AdvancedOptions dialogOpts = new Dialog_AdvancedOptions(opts, parlist );
 						dialogOpts.setTitle( deviceName + " (" + uid + ")" );
 						dialogOpts.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
@@ -2106,9 +2075,6 @@ public class RightPanelSettings extends JPanel
 						dialogOpts.setSize( size );
 						dialogOpts.setVisible(true);
 						
-						
-						
-						//String txInfo = JOptionPane.showInputDialog( deviceName + " (" + uid + ").\n" + Language.getLocalCaption( Language.SETTING_LSL_EXTRA_TOOLTIP ) + ":", textInfo );
 						
 						String txInfo = parlist.getParameter( StreamExtraLabels.ID_EXTRA_INFO_LABEL ).getValue().toString();
 						
@@ -2124,20 +2090,7 @@ public class RightPanelSettings extends JPanel
 						{
 							dev.enableRecordingCheckerTimer( par.getValue() );
 						}
-						
-						/*
-						Parameter< Double > parReconnectTime = parlist.getParameter( StreamExtraLabels.RECONNECT_LOST_STREAM );
-						if( parReconnectTime != null )
-						{
-							dev.setReconnectionWaitingTime( parReconnectTime.getValue());
-						}
-						//*/
-						
-						/*
-						info.desc().remove_child( dev.getExtraInfoLabel() );
-						info.desc().append_child_value( dev.getExtraInfoLabel(), textInfo );
-						*/
-	
+							
 						getJTabDevice( null ).setVisible( false );
 	
 						int numDevices = tmodel.getRoot().getChildCount();
@@ -2213,7 +2166,6 @@ public class RightPanelSettings extends JPanel
 									}
 									
 									jtb.setSelected( true );
-									//jtb.setBackground( Color.GREEN );
 
 									final JPanel plotPanel = getPanelPlot();
 									plotPanel.removeAll();
@@ -2246,8 +2198,6 @@ public class RightPanelSettings extends JPanel
 								}
 								else
 								{
-									//jtb.setBackground( null );
-
 									CoreControl.getInstance().disposeDataPlots();
 									
 									isRunning.release();
@@ -2261,7 +2211,6 @@ public class RightPanelSettings extends JPanel
 					}
 				});
 				
-				//*
 				plot.addItemListener( new ItemListener() 
 				{					
 					@Override
@@ -2287,16 +2236,12 @@ public class RightPanelSettings extends JPanel
 				}
 				catch (Exception e1) 
 				{
-				}
-				
-				//*/
-	
+				}	
 
 				//
 				//
 				//
 				
-				//chunckSize.setToolTipText( selDataStream.getText() + ": " + Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				chunckSize.setToolTipText(Language.getLocalCaption( Language.SETTING_LSL_CHUNCK_TOOLTIP ) );
 				
 				GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_LSL_CHUNCK, chunckSize );
@@ -2364,7 +2309,6 @@ public class RightPanelSettings extends JPanel
 					}
 				});		
 	
-
 				//
 				//
 				//
@@ -2514,24 +2458,7 @@ public class RightPanelSettings extends JPanel
 								if( e.getID() == ItemEvent.ITEM_STATE_CHANGED )
 								{
 									boolean sel = ( e.getStateChange() == ItemEvent.SELECTED ); 
-									
-									/*
-									if( e.getStateChange() == ItemEvent.DESELECTED )
-									{
-										JCheckBox jch = (JCheckBox)e.getSource();
-										
-										for( Component comp : strList )
-										{
-											if( comp instanceof JToggleButton )
-											{												
-												((JToggleButton)comp).setSelected( true );
-											}
-										}
-																				
-										jch.setSelected( true );
-									}
-									//*/
-																		
+																											
 									for( Component comp : strList )
 									{
 										if( comp instanceof JToggleButton )
@@ -2702,8 +2629,6 @@ public class RightPanelSettings extends JPanel
 			model.reload( );
 		}
 		
-		
-		
 		return new Tuple< JPanel, JTree >( panelLSLSettings, tree );
 	}
 
@@ -2846,21 +2771,6 @@ public class RightPanelSettings extends JPanel
 		{
 			try
 			{  
-				/*
-				LSL.StreamInlet in = new LSL.StreamInlet( info );
-				StreamInfo inInfo = in.info();
-				*/
-				
-				/*
-				while( this.hasDescLabelNode( inInfo.desc(), dev.getExtraInfoLabel() ) )
-				{
-					dev.increaseExtraCountLabel();
-				}
-				
-				inInfo.desc().append_child_value( dev.getExtraInfoLabel(), extra );
-				String xml = inInfo.as_xml();
-				*/
-				
 				String xml = StreamUtils.getDeepXmlStreamDescription( inInfo );
 				String rootNode = inInfo.getRootNode2ExtraInfoLabel();
 				
@@ -2880,7 +2790,7 @@ public class RightPanelSettings extends JPanel
 				ByteArrayInputStream bis = new ByteArrayInputStream( xml.getBytes( "UTF-8" ) );
 				Document doc = db.parse( bis );
 				Node root = (Node)doc.getDocumentElement();
-				tree = this.builtTreeNode( root );				
+				tree = this.builtTreeNode( root );		
 			}
 			catch( Exception e )
 			{			 

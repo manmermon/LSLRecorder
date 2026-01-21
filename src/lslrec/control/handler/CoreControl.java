@@ -654,7 +654,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 			else
 			{
-				this.managerGUI.setAppState( AppState.State.SAVING, 0, true );
+				//this.managerGUI.setAppState( AppState.State.SAVING, 0, true );
+				this.managerGUI.setAppState( AppState.State.SAVING, 0, false);
 			}
 			
 			this.managerGUI.restoreGUI();
@@ -2207,7 +2208,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						{
 							val = -1;
 						}
-												
+						
 						if( val > savingDataProgress )
 						{
 							//managerGUI.setAppState( AppState.State.SAVING, val, true );							
@@ -2626,7 +2627,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 						if( ctrlOutputFile.isSavingData() )
 						{
-							managerGUI.setAppState( AppState.State.SAVING, 0, true );
+							//managerGUI.setAppState( AppState.State.SAVING, 0, true );
+							managerGUI.setAppState( AppState.State.SAVING, 0, false );
 						}
 						else
 						{

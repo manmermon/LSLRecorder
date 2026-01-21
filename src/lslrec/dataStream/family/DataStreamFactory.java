@@ -64,7 +64,7 @@ public class DataStreamFactory
 			case LSL:
 			{		
 				if( timeout <= 0 )
-				{
+				{	
 					sst = LSL.resolve_streams( );
 				}
 				else

@@ -850,7 +850,7 @@ public class AppUI extends JFrame
 									}
 									
 									bt.setEnabled( true );
-																		
+											
 									if( enaBtPlay )
 									{
 										AppUI.this.getJButtonPlay().setEnabled( true );

@@ -215,7 +215,8 @@ public class Language
 	public static final String CHECKLIST_TEXT = "CHECKLIST_TEXT";
 	
 	public static final String COMMON_TEXT = "COMMON_TEXT";
-
+	public static final String TOTAL_TEXT = "TOTAL_TEXT";
+	
 	public static final String COPY = "COPY";
 	public static final String COPY_ALL = "COPY_ALL";
 	public static final String CUT = "CUT";
@@ -260,6 +261,7 @@ public class Language
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
 		captions.put( COMMON_TEXT, new Caption(COMMON_TEXT, defaultLanguage, "Common" ) );
+		captions.put( TOTAL_TEXT, new Caption(TOTAL_TEXT, defaultLanguage, "Total" ) );
 		
 		captions.put( RECONNECT_LOST_STREAM, new Caption(RECONNECT_LOST_STREAM, defaultLanguage, "Reconnection waiting time for lost stream." ) );
 		

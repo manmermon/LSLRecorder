@@ -880,18 +880,21 @@ public class GuiManager
 	
 	private void setSavingFileProgresDialog()
 	{
-		SwingUtilities.invokeLater(() ->
+		SwingUtilities.invokeLater(() ->		
 		{
-			if( this.dialog_savingFileProcess == null )
+			if( dialog_savingFileProcess == null )
 			{
-				this.dialog_savingFileProcess = new Dialog_SavingFileProcess( );
-				this.dialog_savingFileProcess.setModal( true );
-				this.dialog_savingFileProcess.setIconImage( this.getAppUI().getIconImage() );
-				
-				this.dialog_savingFileProcess.setLocationRelativeTo( this.getAppUI() );
-				
-				this.dialog_savingFileProcess.setSize( 400, 300 );
-				this.dialog_savingFileProcess.setVisible( true );
+				dialog_savingFileProcess = new Dialog_SavingFileProcess( );
+				dialog_savingFileProcess.setModal( true );
+				dialog_savingFileProcess.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
+				dialog_savingFileProcess.setIconImage( getAppUI().getIconImage() );
+
+				dialog_savingFileProcess.setSize( 400, 300 );
+
+				dialog_savingFileProcess.setLocationRelativeTo( getAppUI() );
+
+
+				dialog_savingFileProcess.setVisible( true );
 			}
 		});
 	}

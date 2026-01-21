@@ -114,8 +114,6 @@ import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -168,6 +166,8 @@ public class Dialog_BinaryConverter extends JDialog
 	//private JLabel lblBinaryTimeFiles;
 	private JLabel lblExtraInfo;
 	private JLabel lblExtraCommonInfo;
+	private JLabel lblTotalFiles;
+	
 		
 	// JTextField
 	private JTextField txtStreamName;
@@ -691,13 +691,27 @@ public class Dialog_BinaryConverter extends JDialog
 			aux.add( this.getLblBinaryDataFiles( ) );
 			aux.add( this.getButtonAddData( ) );
 			
+			
 			panelBtnAddData.add( aux, BorderLayout.CENTER );
+			panelBtnAddData.add( this.getLbNumberofTotalFiles(), BorderLayout.EAST );
 			//panelBtnAddData.add( this.getButtonTakeOffDataFile( ), BorderLayout.EAST );
 		}
 
 		return panelBtnAddData;
 	}
 
+	private JLabel getLbNumberofTotalFiles()
+	{
+		if( this.lblTotalFiles == null )
+		{
+			this.lblTotalFiles = new JLabel( );
+			
+			this.lblTotalFiles.setText( Language.getLocalCaption( Language.TOTAL_TEXT ) + " 0" );
+		}
+		
+		return this.lblTotalFiles;
+	}
+	
 	private JButton getButtonAddData( ) 
 	{
 		if ( buttonAddData == null )
@@ -816,6 +830,8 @@ public class Dialog_BinaryConverter extends JDialog
 				this.binaryDataFiles.remove( file );
 				dm.removeRow( i );
 			}
+			
+			this.updateNumOfTotalFile();
 		}
 	}
 	
@@ -942,13 +958,22 @@ public class Dialog_BinaryConverter extends JDialog
 			panelBinInfo.add( getComboBoxOutputFormat( ), gbc );
 			*/
 			
+			/*
 			JPanel panelAux = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
 			panelAux.add( getComboBoxOutputFormat( ) );
-			//panelAux.add( new JLabel( Language.getLocalCaption( Language.OPTIONS_TEXT ) ) );
 			panelAux.add( this.getOutputFormatOptsButton() );
 			panelAux.add( this.getLbExtraCommonInfo() );
 			panelAux.add( this.getTxExtraCommonInfo() );
 			//colPadding++;
+			//*/
+			
+			JPanel panelAux = new JPanel( new BorderLayout() );
+			JPanel panelAux2 = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+			panelAux2.add( getComboBoxOutputFormat( ) );
+			panelAux2.add( this.getOutputFormatOptsButton() );
+			panelAux2.add( this.getLbExtraCommonInfo() );
+			panelAux.add( panelAux2, BorderLayout.WEST );
+			panelAux.add( this.getTxExtraCommonInfo(), BorderLayout.CENTER );
 			
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			gbc.anchor = GridBagConstraints.WEST;
@@ -1719,6 +1744,13 @@ public class Dialog_BinaryConverter extends JDialog
 		
 		DefaultTableModel m = ( DefaultTableModel )t.getModel( );
 		m.addRow( vals );
+		
+		this.updateNumOfTotalFile();
+	}
+
+	private void updateNumOfTotalFile()
+	{
+		getLbNumberofTotalFiles().setText( Language.getLocalCaption( Language.TOTAL_TEXT ) + " " + getTableFileData().getRowCount() );
 	}
 
 	private void showBinaryFileInfo( String file, IMutableStreamSetting header )	
