@@ -52,6 +52,7 @@ import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.sync.SyncMethod;
@@ -200,8 +201,8 @@ public class testLSLRecModeTest
 		Dimension openDim = new Dimension( 500, 200 );
 		Dialog_Opening open = new Dialog_Opening( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
-												, ConfigApp.shortNameApp
-												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
+												, GeneralSettings.shortNameApp
+												, "<html><center><h1>Opening " + GeneralSettings.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
 		open.setVisible( true );
 		open.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
@@ -224,7 +225,7 @@ public class testLSLRecModeTest
 			pid += " + " + ManagementFactory.getRuntimeMXBean().getName();
 		}
 		
-		ui.setTitle(  ConfigApp.fullNameApp  + pid );
+		ui.setTitle(  GeneralSettings.fullNameApp  + pid );
 		
 		ui.setBackground(SystemColor.info);
 

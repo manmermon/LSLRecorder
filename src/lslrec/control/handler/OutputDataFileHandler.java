@@ -84,7 +84,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	public static final String ACTION_SET_MARK = "mark";
 	
 	public static final String PARAMETER_OUTPUT_FORMAT = "PARAMETER_OUTPUT_FORMAT";	
-	//public static final String PARAMETER_FILE_PATH = "filePath";
 	public static final String PARAMETER_LSL_SETTING = "LSL settings";
 	public static final String PARAMETER_WRITE_TEST = "Writing test";
 	public static final String PARAMETER_DATA_PROCESSING = "data processing";
@@ -97,18 +96,14 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private List< InputSyncData > syncInputData;
 	private SyncMarkerCollectorWriter syncCollector = null;
 		
-	//private boolean syncCollectorReady = false;
 	private boolean inputSyncLauched = false;
 	private boolean isRecorderThreadOn = false;
 	private AtomicBoolean saveSyncMarker = new AtomicBoolean( false );
 	
 	private AtomicBoolean syncMarkerThreadsReady = new AtomicBoolean( false );
-	
-	//private List<LSL.StreamInfo> streamInfos = null;
 
 	private Map<String, OutputBinaryFileSegmentation> outWriterHandlers = null;
 	private AtomicInteger NumberOfSavingThreads = new AtomicInteger( 0 );
-	//private AtomicInteger NumberOfTestThreads = new AtomicInteger( 0 );
 	private AtomicBoolean isRunBinData = new AtomicBoolean( false ); 
 	
 	private Object sync = new Object();
@@ -124,11 +119,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	private NotificationTask inputDataNotificationTask = null;
 	
 	private StreamChecker streamChecker = null;
-	
-	//private boolean isSyncThreadActive = false;
-	
-	//private Timer checkWaitingLock = null;
-	
+		
 	private LaunchOutBinFileSegmentation lauchConvertThread = null;
 	
 	private List< String > outputDataFileNames = new ArrayList<String>();
@@ -140,7 +131,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	{
 		this.temps = new ArrayList< TemporalOutDataFileWriter >();
 		this.syncInputData = new ArrayList< InputSyncData >();
-		//this.streamInfos = new ArrayList< LSL.StreamInfo >();
 		this.outWriterHandlers = new HashMap< String, OutputBinaryFileSegmentation >();
 		
 		super.setName( this.getClass().getSimpleName() );
@@ -268,12 +258,10 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 								
 				if( act.equals( ACTION_START_SYNC ) )
 				{					
-					//System.out.println("OutputDataFileHandler.startWork() ACTION_START_SYNC");
 					this.startSyncThread( );
 				}
 				else if ( act.toString().equals( ACTION_START_RECORD ) )
 				{	
-					//System.out.println("OutputDataFileHandler.startWork() ACTION_START_RECORD");
 					this.startSyncThread( );
 					
 					if( !this.isRecorderThreadOn )
@@ -282,7 +270,6 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						
 						for( final TemporalOutDataFileWriter temp : this.temps )
 						{						
-							//temp.taskMonitor( this );
 							temp.setNotificationTask( this.inputDataNotificationTask );
 	
 							LaunchThread tLaunch = new LaunchThread( temp );
@@ -560,19 +547,22 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 
 							temp = new TemporalOutDataFileWriter( stream2rec, fformat, indexInlets );
 
-							double samplingRate = stream2rec.sampling_rate();
-							if( samplingRate == IStreamSetting.IRREGULAR_RATE )
+							if( stream2rec.isEnableRecordingCheckerTimer() )
 							{
-								samplingRate = 1;
+								double samplingRate = stream2rec.sampling_rate();
+								if( samplingRate == IStreamSetting.IRREGULAR_RATE )
+								{
+									samplingRate = 1;
+								}
+								
+								int time = (int)( stream2rec.getRecordingCheckerTimer() * 1000.0D / samplingRate  ) ;
+								if ( time < 3000 && stream2rec.sampling_rate() != IStreamSetting.IRREGULAR_RATE )
+								{
+									time = 3000; // 3000 milliseconds
+								}
+								
+								this.streamChecker.setInputDataTime( temp, time );	
 							}
-							
-							int time = (int)( stream2rec.getRecordingCheckerTimer() * 1000.0D / samplingRate  ) ;
-							if ( time < 3000 && stream2rec.sampling_rate() != IStreamSetting.IRREGULAR_RATE )
-							{
-								time = 3000; // 3000 milliseconds
-							}
-							
-							this.streamChecker.setInputDataTime( temp, time );
 							
 							if( processes != null )
 							{

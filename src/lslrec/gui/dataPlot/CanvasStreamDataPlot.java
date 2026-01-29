@@ -88,6 +88,7 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 
 public class CanvasStreamDataPlot extends JPanel
 {
@@ -397,7 +398,7 @@ public class CanvasStreamDataPlot extends JPanel
 			
 			this.jFramePlot.setLayout( new BorderLayout() );
 			this.jFramePlot.setDefaultCloseOperation( JDialog.HIDE_ON_CLOSE );
-			this.jFramePlot.setTitle( ConfigApp.fullNameApp + ": " + Language.getLocalCaption( Language.SETTING_LSL_PLOT ) );
+			this.jFramePlot.setTitle( GeneralSettings.fullNameApp + ": " + Language.getLocalCaption( Language.SETTING_LSL_PLOT ) );
 			this.jFramePlot.setIconImage( GeneralAppIcon.getIconoAplicacion( 32, 32 ).getImage() );
 			
 			this.jFramePlot.addWindowListener( new WindowAdapter()

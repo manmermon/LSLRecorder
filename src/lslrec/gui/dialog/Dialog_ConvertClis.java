@@ -85,6 +85,7 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TableButtonCellEditor;
@@ -773,7 +774,7 @@ public class Dialog_ConvertClis extends JDialog
 			selExt = new String[] { ext };
 		}
 				
-		String[] FILES = FileUtils.selectUserFile( "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
+		String[] FILES = FileUtils.selectUserFile( this, "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
 		
 		if( recursive )
 		{

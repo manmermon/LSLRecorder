@@ -45,6 +45,7 @@ import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
 
 import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
@@ -80,6 +81,7 @@ public class ExceptionDialog
 			}
 			
 			JTextPane jta = new JTextPane();
+			jta.setText( "" );
 			jta.setAutoscrolls( true );
 			jta.setEditable( false );
 			//jta.setLineWrap( true );
@@ -93,8 +95,7 @@ public class ExceptionDialog
 			Icon icono = GeneralAppIcon.Warning( 16, Color.RED );
 			
 			int w = icono.getIconWidth();
-			int h = icono.getIconHeight();
-			
+			int h = icono.getIconHeight();			
 			
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			GraphicsDevice gd = ge.getDefaultScreenDevice();
@@ -229,27 +230,30 @@ public class ExceptionDialog
 	
  	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
 	{
- 		if( logGUI != null )
+ 		SwingUtilities.invokeLater(() -> 
  		{
- 			GuiManager.getInstance().showLogTab();
- 			logGUI.write( msg, concatMsg, printExceptionTrace );
- 		}
- 		
- 		if( dialog != null )
-		{
-			dialog.setTitle( msg.getTitleException() );
-			
-			if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+	 		if( logGUI != null )
+	 		{
+	 			GuiManager.getInstance().showLogTab();
+	 			logGUI.write( msg, concatMsg, printExceptionTrace );
+	 		}
+	 		
+	 		if( dialog != null )
 			{
-				if( !dialog.isVisible() )
-				{							
-					dialog.setLocationRelativeTo( dialog.getOwner() );
-				}
+				dialog.setTitle( msg.getTitleException() );
 				
-				dialog.setVisible( true );
-				dialog.toFront();				
-			}
-		}						
+				if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+				{
+					if( !dialog.isVisible() )
+					{							
+						dialog.setLocationRelativeTo( dialog.getOwner() );
+					}
+					
+					dialog.setVisible( true );
+					dialog.toFront();				
+				}
+			}						
+ 		});
  		
  		Throwable ex = msg.getException();
  		StringWriter sw = new StringWriter();

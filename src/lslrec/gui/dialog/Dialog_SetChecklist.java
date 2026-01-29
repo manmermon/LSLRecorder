@@ -45,12 +45,18 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
 import lslrec.gui.GuiTextManager;
@@ -215,6 +221,7 @@ public class Dialog_SetChecklist extends JDialog {
 		if( this.btnDelMsg == null )
 		{
 			this.btnDelMsg = new JButton();
+			this.btnDelMsg.setEnabled( false );
 			this.btnDelMsg.setFont( new Font( Font.DIALOG, Font.BOLD, 16) );
 			
 			Icon ic = GeneralAppIcon.Close( 16, Color.RED );
@@ -243,6 +250,7 @@ public class Dialog_SetChecklist extends JDialog {
 		if( this.btUpMsg == null )
 		{
 			this.btUpMsg = new JButton();
+			this.btUpMsg.setEnabled( false );
 			
 			try
 			{
@@ -282,6 +290,7 @@ public class Dialog_SetChecklist extends JDialog {
 		if( this.btDonwMsg == null )
 		{
 			this.btDonwMsg = new JButton();
+			this.btDonwMsg.setEnabled( false );
 			
 			try
 			{
@@ -351,6 +360,26 @@ public class Dialog_SetChecklist extends JDialog {
 					}
 				}
 			});
+			
+			this.tableChecklist.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
+			{	
+				@Override
+				public void valueChanged( ListSelectionEvent e ) 
+				{	
+					if( !e.getValueIsAdjusting( ) )
+					{
+						JTable t = getChecklistTable();
+						
+						int selRow = t.getSelectedRow();
+						
+						boolean enable = ( selRow >= GeneralSettings.CHECKLIST_DEFAULT_LEN );
+						
+						getBtDelMsg().setEnabled( enable );
+						getBtUpMsg().setEnabled( enable );
+						getBtDonwMsg().setEnabled( enable );
+					}
+				}
+			} );	
 		}
 		
 		return this.tableChecklist;
@@ -372,7 +401,7 @@ public class Dialog_SetChecklist extends JDialog {
 				
 				                try 
 				                {
-				                    tip = getValueAt(rowIndex, colIndex).toString();
+				                    tip = getValueAt( rowIndex, colIndex).toString();
 				                }
 				                catch ( RuntimeException e1 )
 				                {
@@ -472,7 +501,7 @@ public class Dialog_SetChecklist extends JDialog {
 																								
 								public boolean isCellEditable(int row, int column) 
 								{
-									boolean editable = ( row > 2 || column < 1 ) ? columnEditables[ column ] : false;
+									boolean editable = ( row >= GeneralSettings.CHECKLIST_DEFAULT_LEN || column < 1 ) ? columnEditables[ column ] : false;
 									
 									return editable;
 								}
@@ -509,9 +538,16 @@ public class Dialog_SetChecklist extends JDialog {
 		{			
 			int r = index[ i ];
 				
-			if( r > 0 )
+			if( r >= GeneralSettings.CHECKLIST_DEFAULT_LEN )
 			{
-				chlistTm.removeRow( r );			
+				chlistTm.removeRow( r );
+				
+				r = ( r < chlistTm.getRowCount() ) ? r : chlistTm.getRowCount()-1;
+				
+				if( r >= 0 )
+				{
+					chlistTb.setRowSelectionInterval(r, r);
+				}
 			}
 		}
 		
@@ -579,7 +615,7 @@ public class Dialog_SetChecklist extends JDialog {
 					int index = selIndex[ i ];
 					int row = index + dir;
 					
-					if( row > 2 && index > 2 )
+					if( row >= GeneralSettings.CHECKLIST_DEFAULT_LEN && index >= GeneralSettings.CHECKLIST_DEFAULT_LEN )
 					{
 						tmSource.moveRow( index, index, row );
 						

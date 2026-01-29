@@ -73,6 +73,7 @@ import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.handler.OutputDataFileHandler;
@@ -177,11 +178,11 @@ public class GuiManager
 	
 	protected void saveFileConfig()
 	{
-		File[] f = FileUtils.selectFile(ConfigApp.defaultNameFileConfig
+		File[] f = FileUtils.selectFile( getAppUI(), ConfigApp.defaultNameFileConfig
 										, Language.getLocalCaption( Language.DIALOG_SAVE )
 										, JFileChooser.SAVE_DIALOG, false, JFileChooser.FILES_ONLY
-										, "config (*." + ConfigApp.defaultNameFileConfigExtension + ")"
-										, new String[] { ConfigApp.defaultNameFileConfigExtension }
+										, "config (*." + GeneralSettings.defaultNameFileConfigExtension + ")"
+										, new String[] { GeneralSettings.defaultNameFileConfigExtension }
 										, System.getProperty("user.dir"));
 
 		if ((f != null) && (f[0].exists()))
@@ -221,11 +222,11 @@ public class GuiManager
 		
 	protected void loadFileConfig()
 	{
-		File[] f = FileUtils.selectFile( ConfigApp.defaultNameFileConfig
+		File[] f = FileUtils.selectFile( getAppUI(), ConfigApp.defaultNameFileConfig
 											, Language.getLocalCaption( Language.DIALOG_LOAD )
 											, JFileChooser.OPEN_DIALOG, false, JFileChooser.FILES_ONLY
-											, "config (*." + ConfigApp.defaultNameFileConfigExtension + ")"
-											, new String[] { ConfigApp.defaultNameFileConfigExtension }
+											, "config (*." + GeneralSettings.defaultNameFileConfigExtension + ")"
+											, new String[] { GeneralSettings.defaultNameFileConfigExtension }
 											, System.getProperty("user.dir") );
 
 		if ((f != null) && ( f[0].exists() ) )

@@ -74,26 +74,29 @@ public class TextAreaPrintStream extends PrintStream
      * attribute of the class).
      * After having printed such a String, prints a new line.
      **/
-    public void println(String string) 
+    public void println(String inString ) 
     {
-    	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
-    	LocalDateTime now = LocalDateTime.now();  
-    	string = dtf.format(now ) + " " + string;   
-    	   
-    	int len = this.textArea.getDocument().getLength();
-    	
-    	this.textArea.setCaretPosition( len );
-    	this.textArea.setCharacterAttributes( this.attSet, true );
-    	
-    	StyledDocument doc = this.textArea.getStyledDocument();
-    	try 
+    	SwingUtilities.invokeLater(() -> 
     	{
-			doc.insertString( len, string + "\n", this.attSet );
-		} 
-    	catch (BadLocationException e) 
-    	{
-    		this.textArea.setText( this.textArea.getText() + "\n" + string );
-		}    	
+    		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
+    		LocalDateTime now = LocalDateTime.now();  
+    		String str = dtf.format(now ) + " " + inString;   
+
+    		int len = this.textArea.getDocument().getLength();
+
+    		this.textArea.setCaretPosition( len );
+    		this.textArea.setCharacterAttributes( this.attSet, true );
+
+    		StyledDocument doc = this.textArea.getStyledDocument();
+    		try 
+    		{
+    			doc.insertString( len, str + "\n", this.attSet );
+    		} 
+    		catch (BadLocationException e) 
+    		{
+    			this.textArea.setText( this.textArea.getText() + "\n" + inString );
+    		}
+    	});
     }
 
     /**

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import javax.swing.UIManager;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.exceptions.handler.ExceptionDialog;
@@ -163,8 +164,8 @@ public class testRunLSLRec
 		Dimension openDim = new Dimension( 500, 200 );
 		Dialog_Opening open = new Dialog_Opening( openDim 
 												,  GeneralAppIcon.getIconoAplicacion( 128, 128).getImage()
-												, ConfigApp.shortNameApp
-												, "<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1></center></html>" 
+												, GeneralSettings.shortNameApp
+												, "<html><center><h1>Opening " + GeneralSettings.fullNameApp + ".<br>Wait please...</h1></center></html>" 
 												, Color.WHITE );
 		open.setVisible( true );
 		open.setDefaultCloseOperation( Dialog_Opening.DISPOSE_ON_CLOSE );
@@ -180,7 +181,7 @@ public class testRunLSLRec
 		AppUI ui = AppUI.getInstance();
 		
 		ui.setIconImage(GeneralAppIcon.getIconoAplicacion(64, 64).getImage());
-		ui.setTitle(  ConfigApp.fullNameApp );
+		ui.setTitle(  GeneralSettings.fullNameApp );
 		
 		ui.setBackground(SystemColor.info);
 

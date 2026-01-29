@@ -14,6 +14,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.apache.commons.lang3.StringUtils;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 
 public class ExceptionLogFileThread  
 {
@@ -55,9 +56,9 @@ public class ExceptionLogFileThread
 			this.subjSession = ( this.subjSession.isEmpty() ) ? "-" + session : this.subjSession + "-" + session;
 		}
 		
-		String fileName = ConfigApp.defaultLogPathFile;
-		fileName += ConfigApp.defaulLogFileNamePrefix;
-		fileName += "_" + date + "_" + this.subjSession + "." + ConfigApp.defaulLogFileExtension;
+		String fileName = GeneralSettings.defaultLogPathFile;
+		fileName += GeneralSettings.defaulLogFileNamePrefix;
+		fileName += "_" + date + "_" + this.subjSession + "." + GeneralSettings.defaulLogFileExtension;
 		
 		File errorWarningLog = new File( fileName );
 		

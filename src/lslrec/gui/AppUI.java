@@ -46,6 +46,7 @@ import lslrec.gui.panel.primary.SyncSocketPanelSetting;
 import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
@@ -1194,116 +1195,7 @@ public class AppUI extends JFrame
 			{				
 				@Override
 				public void actionPerformed(ActionEvent arg0) 
-				{
-					/*
-					JDialog dial = new JDialog( ui );
-					
-					dial.setModal( true );
-					dial.setLayout( new BorderLayout() );
-					dial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
-
-					dial.setTitle( ConfigApp.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
-
-					JPanel main = new JPanel( new BorderLayout() );
-					
-					List< SettingOptions > opts = new ArrayList<SettingOptions>();
-					SettingOptions opt = new SettingOptions( ConfigApp.DEL_BINARY_FILES
-															, SettingOptions.Type.BOOLEAN
-															, false
-															, null
-															, ConfigApp.DEL_BINARY_FILES );
-					opt.addValue( ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ).toString() );
-					opts.add( opt );	
-					
-					opt = new SettingOptions( ConfigApp.STREAM_SEARCHING_TIME
-												, SettingOptions.Type.NUMBER
-												, false
-												, new NumberRange( 0, IDataStream.TIME_FOREVER )
-												, ConfigApp.STREAM_SEARCHING_TIME );
-					opt.addValue( ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ).toString() );
-					opts.add( opt );
-					
-					ParameterList pars = new ParameterList();
-					
-					Parameter par =  new Parameter< Boolean >( ConfigApp.DEL_BINARY_FILES, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
-					par.setLangID( Language.DEL_BINARY_FILES );
-					
-					par.addValueChangeListener( new ChangeListener() 
-					{	
-						@Override
-						public void stateChanged(ChangeEvent e) 
-						{
-							Parameter par = (Parameter)e.getSource();
-							
-							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-							{
-								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-							}
-						}
-					});
-					
-					pars.addParameter( par );
-					
-					par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
-					par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
-					
-					par.addValueChangeListener( new ChangeListener() 
-					{	
-						@Override
-						public void stateChanged(ChangeEvent e) 
-						{
-							Parameter par = (Parameter)e.getSource();
-							
-							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-							{
-								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-							}
-						}
-					});
-					
-					pars.addParameter( par );
-										
-					
-					JScrollPane scr = new JScrollPane( CreatorDefaultSettingPanel.getSettingPanel( opts, pars ) );
-
-					main.add( scr, BorderLayout.CENTER );
-
-					dial.add( main );										
-					dial.pack();
-
-					Dimension s = dial.getSize();
-					FontMetrics fm = dial.getFontMetrics( dial.getFont() );
-
-					int t = fm.stringWidth( dial.getTitle() ) * 2;
-					
-					for( String id : pars.getParameterIDs() )
-					{
-						Parameter p = pars.getParameter( id );
-						int wp = (int)(fm.stringWidth( Language.getLocalCaption( p.getLangID() ) ) * 2.5);
-						if( t < wp )
-						{
-							t = wp;
-						}
-					}
-					
-					if( t > s.width )
-					{
-						s.width = t;
-					}
-					s.height += 15;
-
-					dial.setSize( s );
-
-					dial.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
-																KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-																JComponent.WHEN_IN_FOCUSED_WINDOW );
-					
-					dial.setLocationRelativeTo( ui );
-					dial.setResizable( false );
-					dial.setIconImage( ui.getIconImage() );
-					dial.setVisible( true );
-					*/
-					
+				{	
 					List< SettingOptions > opts = new ArrayList< SettingOptions >();
 					ParameterList pars = new ParameterList();
 					
@@ -1451,7 +1343,7 @@ public class AppUI extends JFrame
 					*/
 					
 					Dialog_AdvancedOptions diag = new Dialog_AdvancedOptions( opts, pars );
-					diag.setTitle( ConfigApp.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
+					diag.setTitle( GeneralSettings.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
 					diag.setLocationRelativeTo( ui );
 					diag.setResizable( false );
 					diag.setIconImage( ui.getIconImage() );
@@ -1907,7 +1799,7 @@ public class AppUI extends JFrame
 				{					
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
-					Exception ex = new Exception( "Writing test duration " + df.format( ConfigApp.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
+					Exception ex = new Exception( "Writing test duration " + df.format( GeneralSettings.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
 					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, false );
 

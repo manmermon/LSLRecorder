@@ -529,6 +529,7 @@ public class Dialog_ExportSyncMarkFromClisFile extends JDialog
 				buttonAddData.setText( Language.getLocalCaption( Language.SELECT_TEXT ) );
 			}
 			
+			final JDialog parent = this;
 			buttonAddData.addActionListener( new ActionListener( ) 
 			{
 				public void actionPerformed( ActionEvent e ) 
@@ -539,7 +540,7 @@ public class Dialog_ExportSyncMarkFromClisFile extends JDialog
 					int firstDot = clisExt.indexOf( "." );
 					clisExt = ( firstDot > -1 ) ? clisExt.substring( firstDot + 1 ) : clisExt;
 					
-					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY, DataFileFormat.CLIS, new String[] { clisExt }, currentFolderPath );
+					String[] FILES = FileUtils.selectUserFile( parent, "", true, false, JFileChooser.FILES_ONLY, DataFileFormat.CLIS, new String[] { clisExt }, currentFolderPath );
 					if( FILES != null )
 					{
 						loadClisFile2TxtField( FILES[ 0 ] );

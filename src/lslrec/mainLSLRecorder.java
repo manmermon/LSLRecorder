@@ -33,6 +33,7 @@ import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.compressor.LSLRecPluginCompressor;
 import lslrec.plugin.lslrecPlugin.encoder.LSLRecPluginEncoder;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -63,15 +64,15 @@ public class mainLSLRecorder
 	{		
 		String OS = System.getProperty("os.name").toLowerCase();
 
-		String p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_WIN_PATH;
+		String p = System.getProperty("user.dir") + "/" + GeneralSettings.SYSTEM_LIB_WIN_PATH;
 
 		if (Platform.getOSType() == Platform.LINUX) 
 		{
-			p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_LINUX_PATH;
+			p = System.getProperty("user.dir") + "/" + GeneralSettings.SYSTEM_LIB_LINUX_PATH;
 		}
 		else if (Platform.getOSType() == Platform.MAC) 
 		{
-			p = System.getProperty("user.dir") + "/" + ConfigApp.SYSTEM_LIB_MACOS_PATH;
+			p = System.getProperty("user.dir") + "/" + GeneralSettings.SYSTEM_LIB_MACOS_PATH;
 		}
 
 		try 
@@ -374,8 +375,8 @@ public class mainLSLRecorder
 	{
 		Dimension openDim = new Dimension(500, 200);
 		Dialog_Opening openDialog = new Dialog_Opening(openDim, GeneralAppIcon.getIconoAplicacion(128, 128).getImage(),
-													ConfigApp.shortNameApp,
-													"<html><center><h1>Opening " + ConfigApp.fullNameApp + ".<br>Wait please...</h1>"
+													GeneralSettings.shortNameApp,
+													"<html><center><h1>Opening " + GeneralSettings.fullNameApp + ".<br>Wait please...</h1>"
 															+ (ConfigApp.isTesting() ? "<br><h5>Debug mode on</h5>" : "" )															
 															+ "</center></html>",
 													Color.WHITE);
@@ -406,7 +407,7 @@ public class mainLSLRecorder
 			mode = " - debug mode";
 		}
 
-		ui.setTitle(ConfigApp.fullNameApp + mode);
+		ui.setTitle( GeneralSettings.fullNameApp + mode);
 
 		ui.setBackground(SystemColor.info);
 

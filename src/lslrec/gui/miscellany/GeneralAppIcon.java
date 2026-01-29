@@ -26,6 +26,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 import javax.swing.ImageIcon;
 
@@ -2009,5 +2010,55 @@ public class GeneralAppIcon
 		BasicPainter2D.compoundImages( img, (w-stick.getWidth(null))/2, glass.getHeight(null), stick );
 		
 		return new ImageIcon( img.getScaledInstance( size, size, Image.SCALE_SMOOTH ) );
+	}
+	
+	public static ImageIcon Thumbtack( int sizeImg, Color c )
+	{
+		ImageIcon ic = null;
+		
+		int size = 256;
+		BufferedImage  img = (BufferedImage)BasicPainter2D.paintArc(0, 0, size, size, -45, 180, 2F, c, Color.BLACK, null);
+		/*
+		int x1 = (int)((1+Math.cos( Math.toRadians( 135 ) ) )*size/2D);
+		int x2 = (int)((1+Math.cos( Math.toRadians( -45 ) ))*size/2D);
+		int y1 = (int)((1+Math.sin( Math.toRadians( -45 ) ) )*size/2D);
+		int y2 = (int)((1+Math.sin( Math.toRadians( 135 ) ))*size/2D);
+		BasicPainter2D.paintLine( x1, y1, x2, y2, 2F, c, img);
+		//*/
+		BasicPainter2D.paintLine( 0, size, size/2, size/2, size/8, c, img);
+		
+		ic = new ImageIcon( img.getScaledInstance( sizeImg, sizeImg, BufferedImage.SCALE_SMOOTH ) );		
+		return ic;
+	}
+	
+	public static ImageIcon Lock( int size, Color c, boolean open )
+	{
+		ImageIcon ic = null;
+		
+		int sizeImg = 256;
+		int thin = 16;
+		BufferedImage  img = (BufferedImage)BasicPainter2D.createEmptyImage( sizeImg, sizeImg, null );
+		
+		
+		BufferedImage body = (BufferedImage)BasicPainter2D.paintRoundRectangle( sizeImg-thin, sizeImg/2, sizeImg/4, sizeImg/4, thin, c, null );
+		BasicPainter2D.paintLine( body.getWidth() / 2 , body.getHeight()/4
+									, body.getWidth() / 2 , (3*body.getHeight())/4
+									, thin, c, body);
+		
+		int arcAngle = 180;
+		int w = sizeImg / 2;
+		int x = (sizeImg - w ) / 2;
+		BasicPainter2D.paintArc( x, 0, w, sizeImg/2, 0, arcAngle, thin, c, null, img);
+		BasicPainter2D.compoundImages(img, thin/2, sizeImg/2 - thin/2, body );
+		
+		if( !open )
+		{
+			BasicPainter2D.paintLine( x + thin/2, sizeImg/4, x + thin/2 , sizeImg/2 - thin/2, thin, c, img);
+		}
+		
+		BasicPainter2D.paintLine( x + w-1, sizeImg/4, x + w -1, sizeImg/2 - thin/2, thin, c, img);
+		
+		ic = new ImageIcon( img.getScaledInstance( size, size, BufferedImage.SCALE_SMOOTH ) );		
+		return ic;
 	}
 }

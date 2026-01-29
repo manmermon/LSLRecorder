@@ -74,15 +74,7 @@ public class DataFileFormat
 		Tuple< Encoder, WarningMessage > tenc = getDataFileEncoder( CLIS );
 		Encoder enc = tenc.t1;		
 		exts.put( CLIS, enc.getOutputFileExtension() );
-		
-		/*
-		enc = getDataFileEncoder( HDF5 );
-		exts.put( HDF5, enc.getOutputFileExtension() );
-		
-		enc = getDataFileEncoder( MATLAB );
-		exts.put( MATLAB, enc.getOutputFileExtension() );
-		*/
-		
+				
 		for( LSLRecPluginEncoder pl : pluginEncoders.values() )
 		{
 			String ex = pl.getEncoder().getOutputFileExtension();

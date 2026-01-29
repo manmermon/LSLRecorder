@@ -35,8 +35,9 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 	
 	private final long timerTime = 100L;
 	private final int reconnectionWarningMaxCounter = 50; // 50 times timerTimes
-	private int reconnectionCounter = 0;
 	
+	private Map< InputDataStreamReceiverTemplate, Integer > reconnectionCounter = null;
+		
 	public StreamChecker() 
 	{
 		super.setName( super.getClass().getSimpleName() );
@@ -44,11 +45,13 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 		this.timer = new Timer( this.timerTime, false, this.getActionTimer() );
 		this.timer.setName( this.getClass().getSimpleName() + "-Timer");
 		
-		this.inputDataWaitingTime = new HashMap<InputDataStreamReceiverTemplate, Long >();
+		this.inputDataWaitingTime = new HashMap< InputDataStreamReceiverTemplate, Long >();
 		
-		this.timeFromLastData = new HashMap<InputDataStreamReceiverTemplate, Long>();
+		this.reconnectionCounter = new HashMap<InputDataStreamReceiverTemplate, Integer>(); 
 		
-		this.receivedDataBlock = new HashMap<InputDataStreamReceiverTemplate, Long>();
+		this.timeFromLastData = new HashMap< InputDataStreamReceiverTemplate, Long>();
+		
+		this.receivedDataBlock = new HashMap< InputDataStreamReceiverTemplate, Long>();
 	}
 	
 	private ActionTimerThread getActionTimer()
@@ -122,6 +125,8 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 				{
 					this.timeFromLastData.put( str, currentTime );
 					this.receivedDataBlock.put( str, 0L );
+					
+					this.reconnectionCounter.put( str, 0 );
 				}
 				
 				this.timer.startThread();
@@ -149,6 +154,8 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 			long prevNumBlocks = this.receivedDataBlock.get( str );
 			long prevTime = this.timeFromLastData.get( str );
 			
+			int reconnectionCounter = this.reconnectionCounter.get( str );
+			
 			Long waitingTime = this.inputDataWaitingTime.get( str );
 			
 			IStreamSetting iss = str.getStreamSetting();
@@ -168,15 +175,8 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 							//&& iss.uid().equals( istr[0].uid() ) // To avoid a fail by reconnection 
 							)
 					{
-						if( this.reconnectionCounter > 0 && this.reconnectionCounter < this.reconnectionWarningMaxCounter )
-						{
-							String errMsg = "Reconnected stream <" + iss.name() + ">.";
-							EventInfo ev = new  EventInfo( this.getID(), EventType.WARNING, errMsg );
-							
-							events.add( ev );
-							
-							this.reconnectionCounter = 0;
-							
+						if( reconnectionCounter > 0 && reconnectionCounter < this.reconnectionWarningMaxCounter )
+						{							
 							updateTime = true;
 						}
 						else
@@ -210,17 +210,19 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 					{
 						// Waiting reconnection
 						
-						this.reconnectionCounter--;
+						reconnectionCounter--;
 						
-						if( this.reconnectionCounter <= 1 )
+						if( reconnectionCounter <= 1 )
 						{
-							this.reconnectionCounter = this.reconnectionWarningMaxCounter;
+							reconnectionCounter = this.reconnectionWarningMaxCounter;
 							
 							String errMsg = "Stream <" + iss.name() + "> is lost. Waiting to reconnect...";
 							EventInfo ev = new  EventInfo( this.getID(), EventType.WARNING, errMsg );
 							
 							events.add( ev );
 						}
+						
+						this.reconnectionCounter.put( str, reconnectionCounter );
 					}
 				}
 			}
@@ -230,15 +232,17 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 				this.timeFromLastData.put( str, currentTime );
 				this.receivedDataBlock.put( str, numBlocks );
 				
-				if( this.reconnectionCounter > 0 && this.reconnectionCounter < this.reconnectionWarningMaxCounter )
+				if( reconnectionCounter > 0 && reconnectionCounter < this.reconnectionWarningMaxCounter )
 				{
 					String errMsg = "Reconnected stream <" + iss.name() + ">.";
 					EventInfo ev = new  EventInfo( this.getID(), EventType.WARNING, errMsg );
 					
 					events.add( ev );
 					
-					this.reconnectionCounter = this.reconnectionWarningMaxCounter;
+					reconnectionCounter = 0;
 				}
+				
+				this.reconnectionCounter.put( str, reconnectionCounter );
 			}
 		}
 		

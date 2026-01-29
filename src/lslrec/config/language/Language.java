@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.dataStream.sync.SyncMethod;
 
 public class Language 
@@ -126,6 +127,8 @@ public class Language
 	public static final String CHECK_SELECTED_DATA_STREAMS_MSG = "CHECK_SELECTED_STREAMS_MSG";
 	public static final String CHECK_SELECTED_SYNC_STREAMS_MSG = "CHECK_SELECTED_SYNC_STREAMS_MSG";
 	public static final String CHECK_SUBJECT_SESSION_IDS_WARNING_MSG = "CHECK_SUBJECT_SESSION_IDS_WARNING_MSG";
+	public static final String CHECK_SUBJECT_IDS_WARNING_MSG = "CHECK_SUBJECT_IDS_WARNING_MSG";
+	public static final String CHECK_SESSION_IDS_WARNING_MSG = "CHECK_SESSION_IDS_WARNING_MSG";
 
 	public static final String APPLY_TEXT = "APPLY_TEXT";
 	public static final String INSERT_TEXT = "INSERT_TEXT";
@@ -159,6 +162,7 @@ public class Language
 	public static final String MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS = "MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS";
 	public static final String MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS = "MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS";
 	public static final String MSG_CHECKLIST_WARNING = "MSG_CHECKLIST_WARNING";
+	public static final String MSG_EMPTY = "MSG_EMPTY";
 	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -265,6 +269,7 @@ public class Language
 		
 		captions.put( RECONNECT_LOST_STREAM, new Caption(RECONNECT_LOST_STREAM, defaultLanguage, "Reconnection waiting time for lost stream." ) );
 		
+		captions.put( MSG_EMPTY, new Caption(MSG_EMPTY, defaultLanguage, "It is empty." ) );
 		captions.put( MSG_CHECKLIST_WARNING, new Caption(MSG_CHECKLIST_WARNING, defaultLanguage, "Too fast! Read the options before checking them." ) );
 		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
@@ -350,7 +355,7 @@ public class Language
 		captions.put(ACTION_STOP, new Caption(ACTION_STOP, defaultLanguage, "Stop"));
 
 		captions.put(MENU_CONFIG, new Caption(MENU_CONFIG, defaultLanguage, "Config"));
-		captions.put(MENU_ABOUT, new Caption(MENU_ABOUT, defaultLanguage, "About " + ConfigApp.shortNameApp ));
+		captions.put(MENU_ABOUT, new Caption(MENU_ABOUT, defaultLanguage, "About " + GeneralSettings.shortNameApp ));
 		captions.put(MENU_GNU_GPL, new Caption(MENU_GNU_GPL, defaultLanguage, "GNU GLP"));
 		captions.put(MENU_PREFERENCE, new Caption(MENU_PREFERENCE, defaultLanguage, "Preference"));
 
@@ -529,6 +534,13 @@ public class Language
 		captions.put(CHECK_SUBJECT_SESSION_IDS_WARNING_MSG,
 				new Caption(CHECK_SUBJECT_SESSION_IDS_WARNING_MSG, defaultLanguage, "Verified that the subject ID and session have been set."));
 
+		captions.put(CHECK_SUBJECT_IDS_WARNING_MSG,
+				new Caption(CHECK_SUBJECT_IDS_WARNING_MSG, defaultLanguage, "Verified that the subject ID has been set."));
+
+		captions.put(CHECK_SESSION_IDS_WARNING_MSG,
+				new Caption(CHECK_SESSION_IDS_WARNING_MSG, defaultLanguage, "Verified that the session ID has been set."));
+
+		
 		captions.put(INPUT_START_LEGEND,
 				new Caption(INPUT_START_LEGEND, defaultLanguage, "system must start the recording."));
 		captions.put(INPUT_STOP_LEGEND,
@@ -577,7 +589,8 @@ public class Language
 		}
 	}
 
-	private static void loadLanguageFile(File f) throws Exception {
+	private static void loadLanguageFile(File f) throws Exception 
+	{
 		Properties prop = new Properties();
 		FileInputStream propFileIn = null;
 
@@ -606,9 +619,9 @@ public class Language
 						if ( caption != null )
 						{
 							if( key.toString().equalsIgnoreCase( MENU_ABOUT ) 
-									&& !val.toString().toLowerCase().contains( ConfigApp.shortNameApp ) )
+									&& !val.toString().toLowerCase().contains( GeneralSettings.shortNameApp ) )
 							{
-								val = val.toString().trim() + " " + ConfigApp.shortNameApp;
+								val = val.toString().trim() + " " + GeneralSettings.shortNameApp;
 							}
 							
 							caption.setCaption(idLang.toString(), val.toString());

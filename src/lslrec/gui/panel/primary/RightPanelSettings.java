@@ -910,7 +910,8 @@ public class RightPanelSettings extends JPanel
 					{}
 					//*/
 					
-					String path[] = FileUtils.selectUserFile( (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME )
+					String path[] = FileUtils.selectUserFile( GuiManager.getInstance().getAppUI()
+															, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME )
 															, false, false, JFileChooser.DIRECTORIES_ONLY, format
 															, filters, System.getProperty("user.dir") );
 					if( path != null )

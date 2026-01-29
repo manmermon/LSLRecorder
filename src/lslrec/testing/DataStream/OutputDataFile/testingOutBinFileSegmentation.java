@@ -26,6 +26,7 @@ import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.family.DataStreamFactory;
@@ -200,10 +201,15 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 			{
 				MutableStreamSetting cfg = LSLthreadList.get( i );
 				
+				NotificationTask notif = new NotificationTask( false );
+				notif.taskMonitor( main );
+				notif.startThread();
+				
 				if( cfg.channel_count() == 1 && cfg.data_type() ==StreamDataType.int32 )
 				{				
 					InputSyncData syncData = new InputSyncData( cfg );
-					syncData.taskMonitor( main );
+					//syncData.taskMonitor( main );					
+					syncData.setNotificationTask( notif );
 										
 					syncs.add( syncData );
 					
@@ -227,7 +233,8 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				else
 				{
 					TemporalOutDataFileWriter wr = new TemporalOutDataFileWriter( cfg, DataFileFormat.getDefaultOutputFileFormatParameters(), i );
-					wr.taskMonitor( main );				
+					//wr.taskMonitor( main );
+					wr.setNotificationTask(notif);
 					
 					writers.add( wr );
 					
@@ -318,7 +325,12 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 				TemporalBinData tempData = (TemporalBinData)e.getEventInformation();
 								
 				OutputBinaryFileSegmentation seg = new OutputBinaryFileSegmentation( tempData, reader );
-				seg.taskMonitor( main );
+				
+				NotificationTask notif = new NotificationTask( false );
+				notif.taskMonitor( main );
+				notif.startThread();
+				//seg.taskMonitor( main );
+				seg.setNotificationTask( notif );
 
 				seg.startThread();
 			}			

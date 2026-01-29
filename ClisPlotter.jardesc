@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<jardesc>
+    <jar path="LSLRecorder/binaries/ClisPlotter.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/LSLRecorder/ClisPlotter.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" manifestLocation="/LSLRecorder/ClisManifest/manifest.mf" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{AppUI.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisCompressorWriter.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisEncoder.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisMetadata.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_GNUGLPLicence.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Info.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Opening.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{KeyActions.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_PlotClis.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{GeneralSettings.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.convertData.clis.compress.zip"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.compress.zip"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.dataBlock"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.tools"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.miscellany"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>
+    </selectedElements>
+</jardesc>

@@ -58,17 +58,13 @@ import com.sun.jna.Platform;
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.gui.AppUI;
 import lslrec.gui.KeyActions;
 
 public class Dialog_AboutApp extends JDialog
 {
 	private static final long serialVersionUID = 2004993043954574898L;
-
-	//WEB
-	private final String url = "http://grupo.us.es/grupotais/";//"http://matrix.dte.us.es/grupotais/";
-	private final String authorEmail = "manmermon@dte.us.es";
-	private final String sourceURL = "https://github.com/manmermon/LSLRecorder";
 
 	//PANELS
 	private JPanel jContentPaneAcercaDe = null;
@@ -88,7 +84,7 @@ public class Dialog_AboutApp extends JDialog
 	//TEXTAREAS
 	private JTextArea jTextAreaGPL;
 
-	public Dialog_AboutApp(Window owner)
+	public Dialog_AboutApp( Window owner )
 	{
 		super(owner);
 
@@ -120,7 +116,7 @@ public class Dialog_AboutApp extends JDialog
 		{
 			this.jLabelWeb = new JLabel();
 			this.jLabelWeb.setText( Language.getLocalCaption( Language.ABOUT_WEB_LABEL ) 
-									+": " + this.url );
+									+": " + GeneralSettings.url );
 			this.jLabelWeb.setAlignmentX( Component.CENTER_ALIGNMENT );
 			this.jLabelWeb.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
 			this.jLabelWeb.addMouseListener(new MouseAdapter()
@@ -145,7 +141,7 @@ public class Dialog_AboutApp extends JDialog
 				{
 					try 
 					{
-						Desktop.getDesktop().browse(new URI( url ));
+						Desktop.getDesktop().browse(new URI( GeneralSettings.url ));
 					}
 					catch (IOException localIOException)
 					{}
@@ -176,7 +172,7 @@ public class Dialog_AboutApp extends JDialog
 
 			this.jLabelEmail = new JLabel();
 			this.jLabelEmail.setText(Language.getLocalCaption( Language.ABOUT_EMAIL_LABEL )
-										+": " + this.authorEmail );
+										+": " + GeneralSettings.authorEmail );
 			this.jLabelEmail.setAlignmentX( Component.CENTER_ALIGNMENT );
 			this.jLabelEmail.addMouseListener(new MouseAdapter()
 			{
@@ -225,7 +221,7 @@ public class Dialog_AboutApp extends JDialog
 			this.jLabelSourceURL = new JLabel();
 			this.jLabelSourceURL.setAlignmentX( Component.CENTER_ALIGNMENT );
 			this.jLabelSourceURL.setText( Language.getLocalCaption( Language.ABOUT_SOURCE_CODE_LABEL )
-											+ " " + this.sourceURL );
+											+ " " + GeneralSettings.sourceURL );
 			this.jLabelSourceURL.addMouseMotionListener(new MouseMotionAdapter()
 			{
 				public void mouseMoved(MouseEvent e)
@@ -261,7 +257,7 @@ public class Dialog_AboutApp extends JDialog
 					{
 						if( Desktop.isDesktopSupported() ) 
 						{
-							Desktop.getDesktop().browse( new URI( sourceURL ) );
+							Desktop.getDesktop().browse( new URI( GeneralSettings.sourceURL ) );
 						}
 					}
 					catch( Exception ex )
@@ -275,8 +271,8 @@ public class Dialog_AboutApp extends JDialog
 			this.jLabelVersion = new JLabel();
 			this.jLabelVersion.setAlignmentX( Component.CENTER_ALIGNMENT );			
 			DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() );			
-			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + ConfigApp.fullNameApp + " " + ConfigApp.version 
-										+ "</b><br/></font><font size='2' face='serif'>" + df.format( ConfigApp.buildDate.getTime() ) 
+			this.jLabelVersion.setText( "<html><p><font size='5' face='serif'><b>" + GeneralSettings.fullNameApp + " " + GeneralSettings.version 
+										+ "</b><br/></font><font size='2' face='serif'>" + df.format( GeneralSettings.buildDate.getTime() ) 
 										+"</font><font size='2' face='serif'> - LSL Library version: "  + LSL.library_version()
 											+ " (" + ( Platform.is64Bit() ? "64 bits)" : "32 bits)" )
 											+ "<br/>Java version: " + System.getProperty( "java.specification.version" )
@@ -318,18 +314,18 @@ public class Dialog_AboutApp extends JDialog
 	{
 		if (this.jTextAreaGPL == null)
 		{
-			String txt = "Copyright " + ConfigApp.appDateRange + " by Manuel Merino Monge "; 
-			txt += "<" + this.authorEmail + ">\n\n";
-			txt = txt + ConfigApp.shortNameApp + " is free software: you can redistribute it and/or modify ";
+			String txt = "Copyright " + GeneralSettings.appDateRange + " by " + GeneralSettings.authorName; 
+			txt += " <" + GeneralSettings.authorEmail + ">\n\n";
+			txt = txt + GeneralSettings.shortNameApp + " is free software: you can redistribute it and/or modify ";
 			txt = txt + "it under the terms of the GNU General Public License as published by ";
 			txt = txt + "the Free Software Foundation, either version 3 of the License, or ";
 			txt = txt + "(at your option) any later version.\n\n";
-			txt = txt + ConfigApp.shortNameApp + " is distributed in the hope that it will be useful, ";
+			txt = txt + GeneralSettings.shortNameApp + " is distributed in the hope that it will be useful, ";
 			txt = txt + "but WITHOUT ANY WARRANTY; without even the implied warranty of ";
 			txt = txt + "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the ";
 			txt = txt + "GNU General Public License for more details.\n\n";
 			txt = txt + "You should have received a copy of the GNU General Public License ";
-			txt = txt + "along with " + ConfigApp.shortNameApp + ".  If not, see <http://www.gnu.org/licenses/>.";
+			txt = txt + "along with " + GeneralSettings.shortNameApp + ".  If not, see <http://www.gnu.org/licenses/>.";
 
 			this.jTextAreaGPL = new JTextArea();
 			this.jTextAreaGPL.setLineWrap(true);

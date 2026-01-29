@@ -7,6 +7,7 @@ import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.exceptions.LostException;
@@ -486,7 +487,7 @@ public class LSL
     	 System.setProperty("jna.debug_load", "true");
          System.setProperty("jna.debug_load.jna", "true");
          
-         String libPath = ConfigApp.SYSTEM_LIB_WIN_PATH;
+         String libPath = GeneralSettings.SYSTEM_LIB_WIN_PATH;
          String libName = "";
          String libNameAlt = "";
          
@@ -500,7 +501,7 @@ public class LSL
              }
              case Platform.MAC:
              {
-             	libPath = ConfigApp.SYSTEM_LIB_MACOS_PATH;
+             	libPath = GeneralSettings.SYSTEM_LIB_MACOS_PATH;
              	
              	libName = ( Platform.is64Bit() ? "liblsl64.dylib" : "liblsl32.dylib" );
              	libNameAlt = "liblsl.dylib";
@@ -516,7 +517,7 @@ public class LSL
              }
              default:
              {
-             	libPath = ConfigApp.SYSTEM_LIB_LINUX_PATH;
+             	libPath = GeneralSettings.SYSTEM_LIB_LINUX_PATH;
              	libName += ( Platform.is64Bit() ? "liblsl64.so" : "liblsl32.so" );
              	libNameAlt = "liblsl.so";
                  break;

@@ -34,6 +34,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
@@ -57,6 +58,7 @@ import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -67,9 +69,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -81,6 +86,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -93,10 +99,12 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.dataStream.convertData.clis.ClisData;
 import lslrec.dataStream.convertData.clis.MetadataVariableBlock;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -107,6 +115,9 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import java.awt.Container;
@@ -131,12 +142,15 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 /**
  * @author Manuel Merino Monge
@@ -144,10 +158,162 @@ import javax.swing.SwingUtilities;
  */
 public class Dialog_PlotClis extends JDialog 
 {
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) 
+	{
+		try 
+		{
+			 UIManager.setLookAndFeel( new FlatLightLaf() );
+			
+		} 
+		catch( Exception ex ) 
+		{	
+			try 
+			{
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+			} catch (Exception e) 
+			{
+			}
+		}		
+		
+		try 
+		{
+			Image ico = GeneralAppIcon.getIconoAplicacion( 128, 128 ).getImage();
+			Font f = new Font( Font.DIALOG, Font.BOLD, 55 );
+			FontMetrics fm = (new JLabel()).getFontMetrics( f );
+			String appName = "CLIS";
+			BasicPainter2D.paintText( appName, fm, Color.BLACK, Color.WHITE, ico );			
+			
+			
+			Dimension openDim = new Dimension(500, 200);
+			Dialog_Opening openDialog = new Dialog_Opening(openDim, ico, "ClisPlotter"
+									, "<html><center><h1>Opening  ClisPlotter.<br>Wait please...</h1></center></html>"
+									,Color.WHITE);
+			
+			openDialog.setLocationRelativeTo(null);
+			openDialog.setDefaultCloseOperation(Dialog_Opening.DISPOSE_ON_CLOSE);
+			openDialog.setVisible(true);
+			
+			Dialog_PlotClis dialog = new Dialog_PlotClis();
+			
+			JFrame window = new JFrame();
+			window.setTitle( "Clis plotter" );
+			
+			
+			window.setIconImage( ico );
+			
+			window.setContentPane( dialog.getContentPane() );
+			for( WindowListener listener : dialog.getWindowListeners() )
+			{
+				window.addWindowListener( listener );
+			}
+			
+			window.addWindowListener( new WindowAdapter()
+			{
+				@Override
+				public void windowClosing(WindowEvent e) 
+				{
+					System.exit( 0 );
+				}
+			});
+			
+			JMenuBar menubar = new JMenuBar();
+			window.setJMenuBar( menubar );
+			
+			JMenu fileMenu = new JMenu( Language.getLocalCaption( Language.MENU_FILE ) );
+			menubar.add( fileMenu );
+			
+			
+			JMenuItem aboutMenu = new JMenuItem( "About ClisPlotter");
+			aboutMenu.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					DateFormat df = DateFormat.getDateInstance( DateFormat.LONG, Locale.getDefault() ); 
+					
+					Date versionDate = GeneralSettings.buildDate.getTime();
+					String info = "ClisPlotter is part of " + GeneralSettings.fullNameApp + ", " + GeneralSettings.version
+									+ ", date " + df.format( versionDate ) 
+									+ ".\nCopyright " + GeneralSettings.appDateRange + " by " + GeneralSettings.authorName + "."
+									+ "\nGroup: " + GeneralSettings.url
+									+ ".\nSource code: " + GeneralSettings.sourceURL + "."
+									;
+					Dialog_Info aboutDial = new Dialog_Info( window, info, false );
+					aboutDial.setSize( 450, 150 );
+					aboutDial.setLocationRelativeTo( window );
+					aboutDial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+					aboutDial.setUndecorated( false );
+					
+					//gnuDial.setModal( true );					
+					aboutDial.setVisible( true );
+				}
+			});
+			fileMenu.add( aboutMenu );
+			
+			JMenuItem gnuMenu = new JMenuItem( Language.getLocalCaption( Language.MENU_GNU_GPL ) );
+			gnuMenu.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					JDialog gnuDial = new Dialog_GNUGLPLicence( window );
+					gnuDial.setSize( 500, 500 );
+					gnuDial.setLocationRelativeTo( window );
+					gnuDial.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+					
+					//gnuDial.setModal( true );					
+					gnuDial.setVisible( true );
+				}
+			});
+			fileMenu.add( gnuMenu );
+			
+			fileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
+			
+			JMenuItem exitMenu = new JMenuItem( Language.getLocalCaption( Language.MENU_EXIT ) );
+			exitMenu.addActionListener( new ActionListener() 
+			{				
+				@Override
+				public void actionPerformed(ActionEvent e) 
+				{
+					window.dispose();
+				}
+			});
+			exitMenu.setIcon( GeneralAppIcon.Exit( 16, Color.BLACK ) );
+			fileMenu.add( exitMenu );
+			
+			
+			
+			window.setSize( new Dimension( 1000, 500 ) );
+			window.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			window.pack();
+			
+			Toolkit tk = Toolkit.getDefaultToolkit();
+			
+			Dimension size = tk.getScreenSize();
+			Dimension sizeW = window.getSize();
+			
+			sizeW.width = ( sizeW.width < size.width / 2) ? size.width / 2 : sizeW.width;
+			sizeW.height = ( sizeW.height < size.height / 2) ? size.height / 2 : sizeW.height;
+			window.setSize( sizeW );
+			
+			window.setVisible(true);
+			
+			dialog.dispose();
+			
+			openDialog.dispose();
+		} 
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
 	private static final long serialVersionUID = 2257212620236071644L;
 	
 	private JPanel centerPanel = null;
-	//private JPanel southPanel;	
 	private JPanel centerOutputFormatPanel;
 	private JPanel loadFilePanel;
 	private JPanel infoFilePanel;
@@ -199,6 +365,8 @@ public class Dialog_PlotClis extends JDialog
 	private JSpinner xAxisMultValue;
 	private JSpinner xAxisOffsetValue;
 	
+	private JDialog dataInfoDialog;
+	
 	private String currentFolderPath;
 		
 	private ClisData currentClisFile = null;
@@ -211,70 +379,7 @@ public class Dialog_PlotClis extends JDialog
 	private boolean[] selectedChannels = null;
 	
 	private int FileTableColumn = 0;
-	
-	/**
-	 * Launch the application.
-	 */
-	//private static Dialog_PlotClis dgclis = null;
-	//private JPanel panelPlotCtr;
-	
-	/*
-	public static void main(String[] args) {
-		try {
-					
-			JFrame jf = new JFrame();
 			
-			JButton jb = new JButton( "show" );
-			
-			jb.addActionListener( new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
-					showJdialog(); 
-				}
-			});
-			
-			jf.getContentPane().add( jb );
-			jf.setBounds( 100, 100 , 300, 100 );
-			
-			jf.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
-			
-			jf.addWindowListener( new WindowAdapter() {
-				@Override
-				public void windowClosing(WindowEvent e) 
-				{
-					if( dgclis != null )
-					{
-						dgclis.dispose();
-					}
-				}
-			});
-			
-			jf.setVisible( true );
-						
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	//*/
-
-	/*
-	private static void showJdialog()
-	{
-		if( dgclis != null )
-		{
-			dgclis.dispose();
-		}
-		
-		dgclis = new Dialog_PlotClis();
-		dgclis.setBounds( 200, 100, 600, 400 );
-		
-		dgclis.setVisible( true );
-		
-	}
-	//*/
-		
 	/**
 	 * Create the dialog.
 	 */
@@ -295,8 +400,8 @@ public class Dialog_PlotClis extends JDialog
 			{
 				clearCurrentClisFile();
 				clearClisData();
-								
-				super.windowClosing(e);
+				
+				dispose();				
 			}
 			
 		});
@@ -421,31 +526,6 @@ public class Dialog_PlotClis extends JDialog
 			{
 				public void actionPerformed( ActionEvent e ) 
 				{	
-					/*
-					String idEncoder = DataFileFormat.CLIS;
-					String ext = DataFileFormat.getSupportedFileExtension().get( idEncoder );
-					
-					String[] selExt = null;
-					
-					if( ext != null )
-					{						
-						if( ext.charAt( 0 ) == '.' )
-						{
-							ext = ext.substring( 1 );
-						}
-						selExt = new String[] { ext };
-					}
-					
-					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, idEncoder, selExt, currentFolderPath );
-					if( FILES != null && FILES.length > 0 )
-					{		
-						Arrays.sort( FILES );
-						
-						insertFilePath2Table( FILES );
-						getTableFileData().setRowSelectionInterval(0, 0);
-					}
-					//*/
-					
 					String[] FILES = getClisFiles( false );
 					if( FILES != null && FILES.length > 0 )
 					{		
@@ -513,7 +593,7 @@ public class Dialog_PlotClis extends JDialog
 	{
 		if( FILE != null )
 		{	
-			super.setCursor( Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR ) );
+			super.setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
 
 			this.getTxtClisFile().setText( "" );
 
@@ -526,13 +606,25 @@ public class Dialog_PlotClis extends JDialog
 			} 
 			catch ( Exception e1) 
 			{
+				if( this.currentClisFile != null )
+				{
+					try 
+					{
+						this.currentClisFile.close();
+					}
+					catch (IOException e) 
+					{
+						e.printStackTrace();
+					}
+				}
+				
 				this.currentClisFile = null;
 			}
 
-			super.setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
-
 			this.showBinaryFileInfo( );
-			this.setClisDataPlotMetadata( );					
+			this.setClisDataPlotMetadata( );	
+			
+			super.setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
 		}
 	}
 	
@@ -978,6 +1070,7 @@ public class Dialog_PlotClis extends JDialog
 				this.btnSaveImg.setIcon( ic );
 			}
 			
+			final JDialog parent = this;
 			this.btnSaveImg.addActionListener( new ActionListener() 
 			{	
 				@Override
@@ -998,7 +1091,7 @@ public class Dialog_PlotClis extends JDialog
 						
 						Filename += suffix + "." + ext;
 						
-						String[] file = FileUtils.selectUserFile( Filename, false, false, JFileChooser.FILES_ONLY
+						String[] file = FileUtils.selectUserFile( parent, Filename, false, false, JFileChooser.FILES_ONLY
 																	, ext, new String[] { ext }, currentFolderPath );
 						
 						if( file != null && file.length > 0 )
@@ -1053,32 +1146,59 @@ public class Dialog_PlotClis extends JDialog
 					if( clisData != null )
 					{
 						JButton bt = (JButton)e.getSource();
+						
+						if( dataInfoDialog == null || !dataInfoDialog.isVisible() )
+						{
+							dataInfoDialog = new JDialog( dgplotclis );
+							
+							dataInfoDialog.setTitle( getTxtClisFile().getText() );
+							dataInfoDialog.setLayout( new BorderLayout() );						
+							dataInfoDialog.setSize( new Dimension( 500, 400 ));
+							dataInfoDialog.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+							
+							dataInfoDialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
+															KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+															JComponent.WHEN_IN_FOCUSED_WINDOW );							
+						}
+						
+						dataInfoDialog.getContentPane().removeAll();
+						
+						JPanel northPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+						final JToggleButton tgbt = new JToggleButton();
+						//tgbt.setIcon( GeneralAppIcon.Thumbtack( 16, Color.BLACK ) );
+						tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, true ) );
+						
+						tgbt.addChangeListener( new ChangeListener() 
+						{							
+							@Override
+							public void stateChanged(ChangeEvent e) 
+							{
+								JToggleButton tgbt = (JToggleButton)e.getSource();
+								
+								tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, !tgbt.isSelected() ));
+							}
+						});
+						
+						northPanel.add( tgbt );
+						dataInfoDialog.add( northPanel, BorderLayout.NORTH );
+						
 						JPanel infoPanel = getInfoFilePanel();
-						
-						JDialog w = new JDialog( dgplotclis );
-						
-						w.setTitle( getTxtClisFile().getText() );
-						w.setLayout( new BorderLayout() );						
-						w.setSize( new Dimension( 500, 400 ));
-						w.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
-						
-						w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
-														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-														JComponent.WHEN_IN_FOCUSED_WINDOW );
-						
 						infoPanel.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
-						w.add( infoPanel, BorderLayout.CENTER );
-						
+						dataInfoDialog.add( infoPanel, BorderLayout.CENTER );
+												
 						Point loc = bt.getLocationOnScreen();
 						Dimension size = bt.getSize();
-						w.setLocation( loc.x + size.width, loc.y );					
+						dataInfoDialog.setLocation( loc.x + size.width, loc.y );					
 							
-						w.addWindowFocusListener( new WindowFocusListener()
+						dataInfoDialog.addWindowFocusListener( new WindowFocusListener()
 						{				
 							@Override
 							public void windowLostFocus(WindowEvent e) 
 							{
-								((Window)e.getSource()).dispose();
+								if( !tgbt.isSelected() )
+								{
+									((Window)e.getSource()).dispose();
+								}
 							}
 							
 							@Override
@@ -1087,8 +1207,14 @@ public class Dialog_PlotClis extends JDialog
 							}
 						});
 						
-						w.setVisible( true );
-						w.requestFocus();
+						dataInfoDialog.setAlwaysOnTop( true );			
+						dataInfoDialog.setVisible( true );
+						dataInfoDialog.requestFocus();
+					}
+					else if( dataInfoDialog != null )
+					{
+						dataInfoDialog.dispose();
+						dataInfoDialog = null;
 					}
 				}
 			});
@@ -1126,7 +1252,11 @@ public class Dialog_PlotClis extends JDialog
 				{
 					if( e.getStateChange() == ItemEvent.SELECTED )
 					{
-						setData2Plot( );						
+						setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
+						
+						setData2Plot( );
+						
+						setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
 					}
 				}
 			});
@@ -1748,7 +1878,7 @@ public class Dialog_PlotClis extends JDialog
 					{
 						try 
 						{
-							clisData = this.currentClisFile.importAllData();							
+							clisData = this.currentClisFile.importAllData();	
 						}
 						catch (Exception e) 
 						{
@@ -2283,6 +2413,7 @@ public class Dialog_PlotClis extends JDialog
 		if( this.scrollTableData == null )
 		{
 			this.scrollTableData = new JScrollPane( getTableFileData( ) );
+			this.scrollTableData.setVerticalScrollBarPolicy( JScrollPane.VERTICAL_SCROLLBAR_ALWAYS );
 		}
 		
 		return this.scrollTableData;
@@ -2309,7 +2440,7 @@ public class Dialog_PlotClis extends JDialog
 						int row = e.getFirstRow();
 						int col = e.getColumn();
 						
-						if( row >= 0 && col >= 0 )
+						if( row >= 0 && col == 0 )
 						{	
 							String file = tm.getValueAt( row, FileTableColumn ).toString();
 							
@@ -2392,28 +2523,36 @@ public class Dialog_PlotClis extends JDialog
 				{	
 					if( !e.getValueIsAdjusting( ) )
 					{
-						int prevSelXAxisIndex = getCbXAxisVariables().getSelectedIndex();
+						final int prevSel = getCbXAxisVariables().getSelectedIndex();
 						
 						clearClisData();					
 						clearCurrentClisFile();
 						
-						int r = tableFileData.getSelectedRow( );
-						
-						String file = tableFileData.getValueAt( r, 0 ).toString();
-						
-						setClisFile( file );
-						
-						int numTotal = getCbXAxisVariables().getItemCount();
-						
-						if( prevSelXAxisIndex < 0 && numTotal > 0 )
-						{					
-							prevSelXAxisIndex = 0;
-						}
-						
-						final int selAxis = prevSelXAxisIndex;
 						SwingUtilities.invokeLater(() ->
 						{
-							getCbXAxisVariables().setSelectedIndex( selAxis );
+							int r = tableFileData.getSelectedRow( );
+							
+							if( r >= 0 )
+							{
+								String file = tableFileData.getValueAt( r, 0 ).toString();
+								
+								setClisFile( file );
+								
+								int numTotal = getCbXAxisVariables().getItemCount();
+							
+								int prevSelXAxisIndex = prevSel;
+								if( prevSelXAxisIndex < 0 && numTotal > 0 )
+								{					
+									prevSelXAxisIndex = 0;
+								}
+							
+								getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
+							}
+							else if( dataInfoDialog != null || dataInfoDialog.isVisible() )
+							{
+								dataInfoDialog.dispose();
+								dataInfoDialog = null;
+							}
 						});
 					}
 				}
@@ -2450,34 +2589,7 @@ public class Dialog_PlotClis extends JDialog
 					{
 						dtde.acceptDrop(DnDConstants.ACTION_COPY);
 						List<File> droppedFiles = ( List< File > ) dtde.getTransferable().getTransferData( DataFlavor.javaFileListFlavor );
-						
-						/*
-						if( !droppedFiles.isEmpty() )
-						{	
-							Iterator< File > itFiles = droppedFiles.iterator();
-							List< String > filePaths = new ArrayList<String>();
-							
-							while( itFiles.hasNext() )
-							{
-								File f = itFiles.next();
-								
-								if( f.exists() && f.isFile() )
-								{
-									filePaths.add( f.getAbsolutePath() );
-								}								
-							}
-														
-							if( !filePaths.isEmpty() )
-							{
-								Collections.sort( filePaths );
-																
-								insertFilePath2Table( filePaths.toArray( new String[ 0 ] ) );
-								
-								currentFolderPath = (new File( filePaths.get( 0 ) ) ).getAbsolutePath();
-							}
-						}
-						//*/
-						
+												
 						String[] files = new String[ droppedFiles.size() ];
 						for( int i = 0; i < files.length; i++ )
 						{
@@ -2654,34 +2766,10 @@ public class Dialog_PlotClis extends JDialog
 			selExt = new String[] { ext };
 		}
 				
-		String[] FILES = FileUtils.selectUserFile( "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
+		String[] FILES = FileUtils.selectUserFile( this, "", true, multiSel, selFilesOrDir, idEncoder, selExt, this.currentFolderPath );
 		
 		if( recursive )
-		{
-			/*
-			List< String > files = new ArrayList<String>();
-			
-			List<Path> allFiles = new ArrayList< Path >();
-			for( String dir : FILES )
-			{											 
-				try 
-				{
-					listAllFiles( Paths.get( dir ), ext, allFiles );
-				}
-				catch (IOException e1) 
-				{
-				}
-			}
-			
-			for( Path file : allFiles )
-			{	
-				String fileName = file.toFile().getAbsolutePath().toString();
-				files.add( fileName );
-			}
-			
-			FILES = files.toArray( new String[0] );
-			//*/
-			
+		{			
 			FILES = this.getClisFileRecursive( FILES, ext );
 		}
 		

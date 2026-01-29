@@ -29,6 +29,7 @@ import lslrec.auxiliar.thread.timer.ActionTimerThread;
 import lslrec.auxiliar.thread.timer.IAction;
 import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.language.Language;
@@ -224,7 +225,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		// Socket delay calculator
-		this.socketMsgDelayCal = new SocketMessageDelayCalculator( ConfigApp.DEFAULT_NUM_SOCKET_PING );
+		this.socketMsgDelayCal = new SocketMessageDelayCalculator( GeneralSettings.DEFAULT_NUM_SOCKET_PING );
 		this.socketMsgDelayCal.taskMonitor( this.ctrlOutputFile );
 		this.socketMsgDelayCal.startThread();
 
@@ -444,15 +445,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		{	
 			if( this.writingTestTimer != null )
 			{
-				//this.writingTestTimer.stop();
 				this.writingTestTimer.stopThread( IStoppableThread.FORCE_STOP );
 				this.writingTestTimer = null;
 			}
 			
 			System.gc(); // Clean memory
 
-			//this.warnMsg = new ArrayList<WarningMessage>(); // new WarningMessage(); // To check setting
-			
 			// Delete plots.
 			this.disposeDataPlots();
 			
@@ -462,13 +460,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			// Check settings
 			List< WarningMessage > warnMsg = this.checkSettings();
-			/*
-			if (this.warnMsg.getWarningType() == WarningMessage.ERROR_MESSAGE )
-			{	
-				throw new SettingException( this.warnMsg.getMessage() );
-			}
-			//*/
-			
+					
 			List< String > errorMsgs = new ArrayList<String>();
 			List< String > warningMsgs = new ArrayList<String>();
 			for( WarningMessage wmsg : warnMsg )
@@ -499,45 +491,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				throw new SettingException( error );
 			}
 			
-			/*
-			if (this.warnMsg.getWarningType() == WarningMessage.WARNING_MESSAGE 
-					&& !testWriting 
-					&& !ConfigApp.isTesting() 
-					)
-			{
-				String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
-						UIManager.getString( "OptionPane.noButtonText" ) };
-
-				String msg = this.warnMsg.getMessage();
-				
-				if( !msg.endsWith( "\n" ) )
-				{
-					msg += "\n";
-				}
-				
-				int actionDialog = JOptionPane.showOptionDialog( this.managerGUI.getAppUI(), msg + "\n"
-										+ Language.getLocalCaption( Language.CONTINUE_TEXT) + "?" 
-										, Language.getLocalCaption( Language.MSG_WARNING ), JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE 
-										, null, opts, opts[1]);
-
-				if ( actionDialog == JOptionPane.CANCEL_OPTION 
-						|| actionDialog == JOptionPane.NO_OPTION 
-						|| actionDialog == JOptionPane.CLOSED_OPTION )
-				{					
-					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
-					
-					
-					//this.isRecording = false;
-					//this.managerGUI.restoreGUI();
-					//this.managerGUI.refreshDataStreams();
-
-					//return;
-					
-					throw new CoreControlUserCancelStartException();
-				}
-			}	
-			//*/
-			
 			if( !warningMsgs.isEmpty() 
 					&& !testWriting 
 					//&& !ConfigApp.isTesting() 
@@ -553,15 +506,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						|| actionDialog == Dialog_WarningMessages.OPTION_NO_SELECTED )
 				{					
 					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
-					
-					/*
-					this.isRecording = false;
-					this.managerGUI.restoreGUI();
-					this.managerGUI.refreshDataStreams();
-
-					return;
-					//*/
-					
+										
 					throw new CoreControlUserCancelStartException();
 				}
 			}
@@ -596,21 +541,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			else
 			{
 				this.isWaitingForStartCommand = false;
-				
-				/*
-				this.writingTestTimer = new Timer( ConfigApp.WRITING_TEST_TIME, new ActionListener() 
-				{			
-					@Override
-					public void actionPerformed(ActionEvent e) 
-					{
-						managerGUI.stopTest();						
-					}
-				} );
-				
-				this.writingTestTimer.start();
-				//*/
-				
-				this.writingTestTimer = new Timer( ConfigApp.WRITING_TEST_TIME, false, new ActionTimerThread( new IAction() 
+												
+				this.writingTestTimer = new Timer( GeneralSettings.WRITING_TEST_TIME, false, new ActionTimerThread( new IAction() 
 				{					
 					@Override
 					public void execute() 
@@ -727,33 +659,24 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			int recordingCheckerTimer = (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER );
 			double waitingTime2reconnect = (Double)ConfigApp.getProperty( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM );			
-			//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
 			Set< String > syncMet = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 						
-			/*
-			ParameterList processingPars = new ParameterList();			
-			File filePath = new File( file );			
-			processingPars.addParameter( new Parameter( ILSLRecPluginDataProcessing.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath() ) );
-			//*/
-			
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
-				{						
+				{	
 					dev.setRecordingCheckerTimer( recordingCheckerTimer );
 					dev.setReconnectionWaitingTime( waitingTime2reconnect );
 					
 					DEV_ID.add( dev );
 					
 					LSLRecPluginDataProcessing process = null;
-					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					
 					PluginDataProcessingSettings plgDatProcessingSettings = new PluginDataProcessingSettings( dev );
 					File filePath = new File( file );
 					plgDatProcessingSettings.setParameter( PluginDataProcessingSettings.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath());
 					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.PROCESSING ) )
 					{
-						//process = pr.getProcessing( dev, processingPars, process );
 						process = pr.getProcessing( plgDatProcessingSettings, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
@@ -777,26 +700,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					PluginDataProcessingSettings plgDatPostProcessingSettings = new PluginDataProcessingSettings( posDev );
 					plgDatPostProcessingSettings.setParameter( PluginDataProcessingSettings.PAR_OUTPUT_FOLDER, filePath.getParentFile().getCanonicalPath());
 					process = null;
-					//for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
+					
 					for( ILSLRecPluginDataProcessing pr : DataProcessingPluginRegistrar.getNewInstanceOfDataProcessing( dev, DataProcessingPluginRegistrar.POSTPROCESSING ) )
-					{
-						/*
-						IMutableStreamSetting posDev = new SimpleMutableStreamSetting( dev.getLibraryID()
-																						, dev.name()
-																						, dev.data_type()
-																						, dev.getTimestampDataType()
-																						, dev.getStringLengthDataType()
-																						, dev.channel_count() + 1
-																						, dev.sampling_rate()
-																						, dev.getRecordingCheckerTimer()
-																						, dev.isEnableRecordingCheckerTimer()
-																						, dev.source_id()
-																						, dev.uid()
-																						, dev.getExtraInfo()
-																						, dev.getChunkSize() );
-						
-						process = pr.getProcessing( posDev, processingPars, process );
-						//*/
+					{						
 						process = pr.getProcessing( plgDatPostProcessingSettings, process );
 						process.loadProcessingSettings( pr.getSettings() );
 					}
@@ -916,7 +822,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					sjID = ( folder != null ) ? folder.getName() : "";
 				}
 				
-				//ExceptionDialog.setRecordSessionInfo( sjID, sessionID );
 				ExceptionDialog.openLogFile( sjID, sessionID );
 			}
 		}
@@ -1264,6 +1169,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				{
 					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
 					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SUBJECT_SESSION_IDS_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+					
 				}
 				else if( i == 1 || i == 2 )
 				{					
@@ -1284,6 +1190,41 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			        {
 			            System.out.println("No se encontró ningún número.");
 			        }
+				}
+				else if( i == 3 )
+				{
+					String sjId = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString().trim();
+					
+					String warnMsg = "";
+					
+					if( sjId.isEmpty() )
+					{
+						warnMsg += Language.getLocalCaption( Language.SUBJECT_ID_TEXT ) + ": " + Language.getLocalCaption( Language.MSG_EMPTY );
+					}
+					else
+					{
+						warnMsg += Language.getLocalCaption( Language.SUBJECT_ID_TEXT ) + ": " + sjId  + "." ;
+					}
+					
+					warnMsg += " " + Language.getLocalCaption( Language.OK_TEXT ) + "?";
+					warnMsgsList.add( new WarningMessage( warnMsg, WarningMessage.WARNING_MESSAGE ) );
+				}
+				else if( i == 4 )
+				{
+					String testId = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString().trim();
+					
+					String warnMsg = "";
+										
+					if( testId.isEmpty() )
+					{
+						warnMsg += Language.getLocalCaption( Language.TEST_ID_TEXT ) + ": " + Language.getLocalCaption( Language.MSG_EMPTY );
+					}
+					else
+					{
+						warnMsg += Language.getLocalCaption( Language.TEST_ID_TEXT ) + ": " + testId + ".";						
+					}
+					warnMsg += " " + Language.getLocalCaption( Language.OK_TEXT ) + "?";
+					warnMsgsList.add( new WarningMessage( warnMsg, WarningMessage.WARNING_MESSAGE ) );
 				}
 				else
 				{
@@ -2212,7 +2153,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 						if( val > savingDataProgress )
 						{
 							//managerGUI.setAppState( AppState.State.SAVING, val, true );							
-							managerGUI.setAppState( AppState.State.SAVING, 0, false );
+							managerGUI.setAppState( AppState.State.SAVING, 0, false);
 							savingDataProgress = val;
 						}
 					}
@@ -2308,6 +2249,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			LostWaitedThread.getInstance().wakeup();
 						
+			managerGUI.restoreGUI();
 			managerGUI.enablePlayButton( true );
 			
 			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
@@ -2581,7 +2523,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
 
 				managerGUI.restoreGUI();
-
+				
 				if( writingTestTimer != null )
 				{
 					//writingTestTimer.stop();

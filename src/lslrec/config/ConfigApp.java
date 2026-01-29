@@ -41,7 +41,6 @@ import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
-import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketSetting;
 
 import java.io.File;
@@ -51,10 +50,8 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -75,47 +72,11 @@ import lslrec.config.language.Language;
 import lslrec.control.message.RegisterSyncMessages;
 
 public class ConfigApp
-{
+{	
 	// Language
 	public static final String LANGUAGE = "LANGUAGE";
 	
-	public static final String fullNameApp = "LSL Recorder";
-	public static final String shortNameApp = "LSLRec";
-	public static final Calendar buildDate = new GregorianCalendar( 2026, 1 - 1, 21 );
-	//public static final int buildNum = 33;
-	
-	public static final int WRITING_TEST_TIME = 1000 * 60; // 1 minute
-	
-	public static final String version = "Version 4" 
-											//+ "." + buildNum
-											+ "." + ( buildDate.get( Calendar.YEAR ) % 100 )											
-											+ "." + ( buildDate.get( Calendar.DAY_OF_YEAR ) ) 
-											;
-	
-	public static final String appDateRange = "2018-" + buildDate.get( Calendar.YEAR );
-	public static final String defaultPathFile = System.getProperty("user.dir") + File.separatorChar + "records" + File.separatorChar;
-	
-	public static final String defaultLogPathFile = System.getProperty("user.dir") + File.separatorChar + "logs" + File.separatorChar;
-	public static final String defaulLogFileNamePrefix = "log_errorsWarnings" ;
-	public static final String defaulLogFileExtension = "txt" ;
-	
-	public static final String defaultNameFileConfigExtension = "cfg";
-	
-	public static String defaultNameFileConfig = "config." + defaultNameFileConfigExtension;
-	
-	public static final String defaultNameOutputDataFile = "data"; //"data.clis";
-	
-	public static final String HEADER_SEPARATOR = ";" ;
-
-	//public static final int DEFAULT_SEGMENTATION_BLOCK_SIZE = (int)( 10 * ( Math.pow( 2, 20 ) ) );
-	
-	public static final int DEFAULT_NUM_SOCKET_PING = SocketMessageDelayCalculator.DEFAULT_NUM_PINGS;
-	
-	public static final String SYSTEM_LIB_WIN_PATH = "systemLib/win/";
-	public static final String SYSTEM_LIB_LINUX_PATH = "systemLib/linux/";
-	public static final String SYSTEM_LIB_MACOS_PATH = "systemLib/macox/";
-	//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
-	
+	public static String defaultNameFileConfig = "config." + GeneralSettings.defaultNameFileConfigExtension;
 	
 	/**********************
 	 * 
@@ -124,21 +85,16 @@ public class ConfigApp
 			
 	public static final String SELECTED_SYNC_METHOD = "SYNC_METHOD";
 	
-	//public static final String DATA_CHART_SUMMARY = "DATA_CHART_SUMMARY";
-	
 	/***********
 	 * 
 	 * Socket	
 	 *  
 	 */
-	//public static final String IS_SOCKET_SERVER_ACTIVE = "IS_SOCKET_SERVER_ACTIVE";
 	
 	public static final String IS_ACTIVE_SPECIAL_INPUTS = "IS_ACTIVE_SPECIAL_INPUTS";
 
 	public static final String SERVER_SOCKET = "SERVER_SOCKET_TABLE";
 	
-	//public static final String STREAM_LIBRARY = "STREAM_LIBRARY";
-
 	/****************
 	 * 
 	 * Lab Streaming Layer
@@ -837,7 +793,7 @@ public class ConfigApp
 										{
 											Tuple< Boolean, String > chMsg = checkList.get( index );
 																						
-											if( index < 1 )
+											if( index < 1 || index == 3 || index == 4 )
 											{
 												if( msg.equals( chMsg.t2 ) )
 												{
@@ -1992,12 +1948,12 @@ public class ConfigApp
 
 	private static void loadDefaultLSLOutputFileName()
 	{
-		listConfig.put( OUTPUT_FILE_NAME, defaultNameOutputDataFile );
+		listConfig.put( OUTPUT_FILE_NAME, GeneralSettings.defaultNameOutputDataFile );
 	}
 	
 	private static void loadDefaultLSLOutputFileFolder()
 	{
-		listConfig.put( OUTPUT_FILE_FOLDER, defaultPathFile );
+		listConfig.put( OUTPUT_FILE_FOLDER, GeneralSettings.defaultPathFile );
 	}
 	
 	private static void loadDefaultLSLOutputSubjectID()
@@ -2085,9 +2041,11 @@ public class ConfigApp
 	{
 		List< Tuple< Boolean, String > > chlist = new ArrayList< Tuple< Boolean, String> >();
 		
-		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), ConfigApp.fullNameApp ) );
+		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), GeneralSettings.fullNameApp ) );
 		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG ) + "1" ) );
 		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SELECTED_SYNC_STREAMS_MSG ) + "1" ) );
+		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SUBJECT_IDS_WARNING_MSG ) ) );
+		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SESSION_IDS_WARNING_MSG ) ) );
 		
 		listConfig.put( CHECKLIST_MSGS, chlist );
 	}

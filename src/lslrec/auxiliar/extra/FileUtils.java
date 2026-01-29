@@ -19,6 +19,7 @@
  */
 package lslrec.auxiliar.extra;
 
+import java.awt.Component;
 import java.io.File;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
@@ -190,7 +191,7 @@ public class FileUtils
 		return res;
 	}
 
-	public static File[] selectFile(String defaulName, String titleDialog
+	public static File[] selectFile( Component parent, String defaulName, String titleDialog
 							, int typeDialog, boolean multiSelection
 							, int selectionModel, String descrFilter
 							, String[] filterExtensions, String defaultFolder )
@@ -221,7 +222,8 @@ public class FileUtils
 			jfc.setFileFilter( filter );
 		}
 
-		int returnVal = jfc.showDialog( AppUI.getInstance(), null);
+		//int returnVal = jfc.showDialog( AppUI.getInstance(), null);
+		int returnVal = jfc.showDialog( parent, null);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION )
 		{
@@ -239,12 +241,12 @@ public class FileUtils
 		return file;
 	}
 	
-	public static String[] selectUserFile(String defaultName, boolean mustExist
+	public static String[] selectUserFile(Component parent, String defaultName, boolean mustExist
 									, boolean multiSelection, int selectionModel
 									, String descrFilter, String[] filterExtensions
 									, String defaultFolder )
 	{
-		File[] f = selectFile( defaultName, Language.getLocalCaption( Language.DIALOG_SELECT_UESR_FILE )
+		File[] f = selectFile( parent, defaultName, Language.getLocalCaption( Language.DIALOG_SELECT_UESR_FILE )
 								, JFileChooser.OPEN_DIALOG
 								, multiSelection, selectionModel, descrFilter, filterExtensions, defaultFolder );
 
@@ -430,36 +432,4 @@ public class FileUtils
 		
 		return outFile;
 	}
-
-	/*
-	public static boolean checkOutputOutputFilePath(  )
-	{
-		String folder = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
-		String name = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
-		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
-		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
-		
-		//File f = new File( folder );	
-		//String folderTxt = f.getPath();
-		
-		boolean ok = true;
-		
-		try 
-		{
-			Paths.get( folder );
-		} 
-		catch (InvalidPathException | NullPointerException ex) 
-		{
-		  ok = false;
-		}
-		
-		ok = ok && !folder.isEmpty();// && !folderTxt.matches( "[^\\.]+(\\.[\\\\/]).*" );
-		
-		ok = ok && name.matches("^[a-zA-Z0-9-_]+$")
-						&& ( subj.isEmpty() || subj.matches("^[a-zA-Z0-9-_]+$" ) )
-						&& ( test.isEmpty() || test.matches("^[a-zA-Z0-9-_]+$" ) );
-		
-		return ok;
-	}	
-	//*/
 }

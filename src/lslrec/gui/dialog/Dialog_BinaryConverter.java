@@ -140,17 +140,13 @@ public class Dialog_BinaryConverter extends JDialog
 	private JPanel buttonPane;	
 	private JPanel filesPanel;
 	private JPanel dataFilePanel;
-	//private JPanel timeStampPanel;
 	private JPanel panelBtnAddData;
-	//private JPanel panelBtnAddTime;
 	private JPanel panelFilesInfo;
 	private JPanel panelBinInfo;
-	//private JPanel panelOutPath;
 	private JPanel panelSyncFile;
 	
 	// JTable
 	private JTable tableFileData;
-	//private JTable tableFileTime;
 		
 	
 	// Labels
@@ -595,7 +591,8 @@ public class Dialog_BinaryConverter extends JDialog
 					indexDot = clisExt.indexOf( "." );
 					clisExt = clisExt.substring( indexDot + 1 );
 					
-					String[] FILES = FileUtils.selectUserFile( "", true, false, JFileChooser.FILES_ONLY
+					String[] FILES = FileUtils.selectUserFile(GuiManager.getInstance().getAppUI()
+																, "", true, false, JFileChooser.FILES_ONLY
 																, syncExt + "/" + clisExt , new String[] { syncExt, clisExt }
 																, currentFolderPath );
 					if( FILES != null )
@@ -745,6 +742,7 @@ public class Dialog_BinaryConverter extends JDialog
 				buttonAddData.setText( Language.getLocalCaption( Language.SELECT_TEXT ) );
 			}
 			
+			final JDialog parent = this;
 			buttonAddData.addActionListener( new ActionListener( ) 
 			{
 				public void actionPerformed( ActionEvent e ) 
@@ -753,7 +751,7 @@ public class Dialog_BinaryConverter extends JDialog
 					
 					getTableFileData().clearSelection();
 					
-					String[] FILES = FileUtils.selectUserFile( "", true, true, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
+					String[] FILES = FileUtils.selectUserFile( parent, "", true, true, JFileChooser.FILES_ONLY, null, null, currentFolderPath );
 					if( FILES != null )
 					{
 						for( String file : FILES )
