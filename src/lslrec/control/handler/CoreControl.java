@@ -644,7 +644,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if ( this.ctrlOutputFile != null )
 		{	
-			String file = FileUtils.getOutputCompletedFileNameFromConfig();
+			//String file = FileUtils.getOutputCompletedFileNameFromConfig();
+			List< String > fileParts = FileUtils.getOutputCompletedFileNameFromConfig();
+			String file = FileUtils.getOutputCompletedFileName( fileParts );
 			if( file == null)
 			{
 				throw new IllegalArgumentException( "Output file path error" );
@@ -664,7 +666,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			for( IMutableStreamSetting dev : deviceIDs )
 			{
 				if( dev.isSelected() )
-				{	
+				{						
 					dev.setRecordingCheckerTimer( recordingCheckerTimer );
 					dev.setReconnectionWaitingTime( waitingTime2reconnect );
 					
@@ -779,6 +781,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				nodeId = StreamExtraLabels.ID_RECORD_GENERAL_DESCRIPTION;
 				nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_DESCR ).toString();
+				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
+				
+				nodeId = StreamExtraLabels.ID_SUBJ;
+				nodeText = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
+				
+				nodeId = StreamExtraLabels.ID_SESSION;
+				nodeText = fileParts.get( 2 );
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
 				
 				Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );

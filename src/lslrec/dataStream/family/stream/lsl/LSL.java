@@ -6,20 +6,13 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
-import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.exceptions.LostException;
 import lslrec.exceptions.TimeoutException;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
 
 
 /**

@@ -52,8 +52,12 @@ import com.sun.jna.Platform;
 
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
+import lslrec.dataStream.family.DataStreamFactory;
+import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
+import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class mainLSLRecorder 
 {
@@ -295,7 +299,7 @@ public class mainLSLRecorder
 			showError(e, false);
 			e.printStackTrace();
 		}
-
+		
 		// Load GUI
 		ExceptionDialog.createExceptionDialog( createAppGUI() );
 

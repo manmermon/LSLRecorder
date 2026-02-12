@@ -35,7 +35,7 @@ public class NumberRange implements Comparable< NumberRange >
     {
     	if( min.doubleValue() > max.doubleValue() )
     	{
-    		throw new IllegalArgumentException( "Minimum value must be greater than maximum value.");
+    		throw new IllegalArgumentException( "Maximun value must be greater than minimun value.");
     	}
     	
         this.min = min.doubleValue();
@@ -188,5 +188,42 @@ public class NumberRange implements Comparable< NumberRange >
 	public String toString() 
 	{
 		return "[" + this.min + "," + this.max + "]";
+	}
+	
+	/**
+	 * 
+	 * @param range format: [min,max] 
+	 * @return NumberRange
+	 * @throws NumberFormatException
+	 */
+	public static NumberRange parseNumberRange( String range )
+	{ 
+		NumberRange nRange = null;
+		
+		if( range == null )
+		{
+			throw new NumberFormatException( "Input null." );
+		}
+		
+		range = range.trim().replace( "[", "" ).replace( "]", "");
+		String[] values = range.split( "," );
+		if( values.length != 2 )
+		{
+			throw new NumberFormatException( "Input is not a range." );
+		}
+		
+		try
+		{
+			Number min = Double.parseDouble( values[ 0 ] );
+			Number max = Double.parseDouble( values[ 1 ] );
+			nRange = new NumberRange( min, max );
+		}
+		catch( Exception e )
+		{
+			throw new NumberFormatException( "Input is not a range: " + e.getMessage() );
+		}
+		
+		
+		return nRange;
 	}
 }

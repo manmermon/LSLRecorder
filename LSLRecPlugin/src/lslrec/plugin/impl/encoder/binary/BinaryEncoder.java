@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import lslrec.auxiliar.task.ITaskMonitor;
-import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
@@ -35,7 +35,7 @@ public class BinaryEncoder implements Encoder
 	@Override
 	public String getID() 
 	{
-		return ConfigApp.shortNameApp + "BIN";
+		return GeneralSettings.shortNameApp + "BIN";
 	}
 
 	@Override

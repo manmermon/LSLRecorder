@@ -1318,7 +1318,8 @@ public class RightPanelSettings extends JPanel
 	
 	private boolean setCompledteOutputFileName()
 	{
-		String outFile = FileUtils.getOutputCompletedFileNameFromConfig();
+		//String outFile = FileUtils.getOutputCompletedFileNameFromConfig();
+		String outFile = FileUtils.getOutputCompletedFileName( FileUtils.getOutputCompletedFileNameFromConfig() );
 		
 		boolean ok = outFile != null;
 		

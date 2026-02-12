@@ -64,7 +64,6 @@ import org.jfree.data.xy.DefaultXYDataset;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilter.FilterType;
 import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
 import lslrec.plugin.impl.gui.BasicPainter2D;

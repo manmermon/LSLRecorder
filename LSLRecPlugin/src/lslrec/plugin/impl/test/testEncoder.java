@@ -2,6 +2,7 @@ package lslrec.plugin.impl.test;
 
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
@@ -400,7 +401,7 @@ public class testEncoder
 			
 			OutputFileFormatParameters pars = new OutputFileFormatParameters();
 
-			pars.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT,  ConfigApp.shortNameApp + "BIN" );
+			pars.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT,  GeneralSettings.shortNameApp + "BIN" );
 
 			Parameter< String > p = pars.getParameter( OutputFileFormatParameters.OUT_FILE_FORMAT );
 			pars.setParameter( OutputFileFormatParameters.OUT_FILE_NAME, "prueba.temp" );

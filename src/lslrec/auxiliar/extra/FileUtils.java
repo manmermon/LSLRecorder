@@ -24,7 +24,9 @@ import java.io.File;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -290,6 +292,7 @@ public class FileUtils
 		return path;
 	}
 
+	/*
 	public static String getOutputCompletedFileNameFromConfig()
 	{
 		String outFile = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
@@ -429,6 +432,178 @@ public class FileUtils
 		}
 		
 		outFile = ( !ok ) ? null : outFile;
+		
+		return outFile;
+	}
+	//*/
+		
+	public static List< String > getOutputCompletedFileNameFromConfig()
+	{
+		String outFile = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FOLDER ).toString();
+		String subj = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString();
+		String test = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString();
+		String filename = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_NAME ).toString();
+		
+		List< String > outFileParts = new ArrayList< String >();
+		
+		boolean ok = true;
+		
+		try 
+		{
+			Paths.get( outFile );
+			
+			outFile = outFile.isEmpty() ? "." : outFile;
+			outFileParts.add( outFile );
+			
+			if( !outFile.endsWith( File.separator ) )
+			{
+				outFile += File.separator;
+			}
+			
+			if( ok && subj != null && ( subj.isEmpty() || subj.matches("^[a-zA-Z0-9-_]+$" ) ) )
+			{
+				outFile += subj + ( subj.isEmpty() ? "" : File.separator );
+				outFileParts.add( subj );
+			}
+			else
+			{
+				ok = false;
+			}
+			
+			if( ok && test != null && ( test.isEmpty() || test.matches("^[a-zA-Z0-9-_%]+$" ) ) )
+			{			
+				Calendar c = Calendar.getInstance();
+				c.add( Calendar.SECOND, 1 );
+				String suffix = new SimpleDateFormat("yyyy-MM-dd").format( c.getTime() );
+				test = test.replaceAll( "%date%", suffix );
+				
+				suffix = new SimpleDateFormat("HHmmss").format( c.getTime() );
+				test = test.replaceAll( "%time%", suffix );
+				
+				Pattern p = Pattern.compile( "%n[0-9]*%" );
+				Matcher m = p.matcher( test );
+				
+				if( m.find() )
+				{
+					int count = 1;
+					File auxFile = new File( outFile );
+					if( auxFile.exists() )
+					{
+						for( File subf : auxFile.listFiles() )
+						{
+							count = ( subf.isDirectory() ) ? count + 1 : count;
+						}
+					}
+					
+					String pad = "";
+					
+					int initPat = m.start();
+					int endPat = m.end();
+					String digs = test.substring( initPat + 2, endPat - 1 );
+					
+					if( !digs.isEmpty() )
+					{
+						pad = "0" + Integer.parseInt( digs);
+						
+						pad = ( Integer.parseInt( pad ) == 0 ) ? "" : pad;
+					}
+					
+										
+					boolean rep = true;					
+					String val = "";
+					while( rep )
+					{
+						val = String.format( "%" + pad + "d", count );
+						
+						String copyTest = test.replaceAll( "%n[0-9]*%", val );
+						
+						rep = auxFile.exists();
+						if( rep )
+						{
+							boolean found = false;
+							checkExist: 
+								for( File subf : auxFile.listFiles() )
+								{
+									found = subf.isDirectory() && subf.getName().equals( copyTest );
+									if( found )
+									{
+										count++;
+										break checkExist; 
+									}
+								}				
+							
+							rep = found;
+						}
+					}
+					
+					test = test.replaceAll( "%n[0-9]*%", val );
+				}
+				
+				ok = !test.contains( "%" );
+				if( ok )
+				{
+					outFile += test + (test.isEmpty() ? "" : File.separator );
+					outFileParts.add( test );
+				}
+			}
+			else
+			{
+				ok = false;
+			}
+			
+			if( filename == null || filename.isEmpty() )
+			{
+				filename += "data";
+			}
+			
+			String format = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
+			
+			Tuple< Encoder, WarningMessage > tencoder = DataFileFormat.getDataFileEncoder( format );
+			Encoder encorder = tencoder.t1;
+					
+			String ext = encorder.getOutputFileExtension();
+			
+			int pos = filename.lastIndexOf( "." );
+			if( pos > 0 )
+			{
+				filename = filename.substring( 0 , pos );
+			}
+			
+			filename += ext;			
+			outFileParts.add( filename );			
+		} 
+		catch (InvalidPathException | NullPointerException ex) 
+		{
+			ok = false;
+		}
+		
+		outFileParts = ( !ok ) ? null : outFileParts;
+		
+		return outFileParts;
+	}
+	
+	public static String getOutputCompletedFileName( List< String > outFileParts)
+	{
+		String outFile = "";
+			
+		if( outFileParts != null )
+		{
+			for( String part : outFileParts )
+			{
+				outFile += part;
+				
+				if( !outFile.endsWith( File.separator ) )
+				{
+					outFile += File.separator;
+				}				 
+			}
+			
+			int pos = outFile.lastIndexOf( File.separator );
+			if( pos > 0 )
+			{
+				outFile = outFile.substring( 0 , pos );
+			}
+		}
 		
 		return outFile;
 	}

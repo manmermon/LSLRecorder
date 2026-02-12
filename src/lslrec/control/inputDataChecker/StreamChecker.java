@@ -159,7 +159,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 			Long waitingTime = this.inputDataWaitingTime.get( str );
 			
 			IStreamSetting iss = str.getStreamSetting();
-		
+					
 			boolean updateTime = ( prevNumBlocks != numBlocks );
 						
 			if( !updateTime )
@@ -176,7 +176,14 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 							)
 					{
 						if( reconnectionCounter > 0 && reconnectionCounter < this.reconnectionWarningMaxCounter )
-						{							
+						{
+							String errMsg = "Reconnected stream <" + iss.name() + ">.";
+							EventInfo ev = new  EventInfo( this.getID(), EventType.WARNING, errMsg );
+							
+							events.add( ev );
+							
+							this.reconnectionCounter.put( str, 0 );
+							
 							updateTime = true;
 						}
 						else
@@ -190,7 +197,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 							}
 							
 							// Data stream problem
-							String errMsg = "Waiting time for input data from device <" + iss.name() + "> was exceeded.";
+							String errMsg = "Waiting time (" + (waitingTime/1000) + "s) for input data from device <" + iss.name() + "> was exceeded.";
 							EventInfo ev = new  EventInfo( this.getID(), evType, errMsg );
 							
 							events.add( ev );
@@ -201,7 +208,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 					{
 						// Reconnection timeout expired
 						
-						String errMsg = "Reconnection time for device <" + iss.name() + "> was exceeded.";
+						String errMsg = "Reconnection time (" + iss.reconnectionWaitingTime() +"s) for device <" + iss.name() + "> was exceeded.";
 						EventInfo ev = new  EventInfo( this.getID(), EventType.PROBLEM, errMsg );
 						
 						events.add( ev );
@@ -239,7 +246,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 					
 					events.add( ev );
 					
-					reconnectionCounter = 0;
+					reconnectionCounter = reconnectionWarningMaxCounter;
 				}
 				
 				this.reconnectionCounter.put( str, reconnectionCounter );

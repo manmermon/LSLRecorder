@@ -254,7 +254,7 @@ public class StreamUtils
 				if( streamsetting.getLibraryID() == StreamLibrary.LSL )
 				{
 					StreamInlet in = new StreamInlet( (LSLStreamInfo)stream );
-
+					
 					xml = in.info().description();
 				}
 				else if( streamsetting.getLibraryID() == StreamLibrary.LSLREC )

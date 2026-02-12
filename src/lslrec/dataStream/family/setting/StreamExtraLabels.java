@@ -34,4 +34,9 @@ public class StreamExtraLabels
 	public static final String ID_RECORDED_SAMPLES_BY_CHANNELS = "recordedSamplesByChannels";
 	public static final String ID_EXTRA_INFO_LABEL = "extra";
 	public static final String ID_TRIAL_INFO_LABEL = "trial";
+	public static final String ID_START_SESSION_DATE = "startSessionDate";
+	public static final String ID_END_SESSION_DATE = "endSessionDate";
+	public static final String ID_SUBJ = "subjectID";
+	public static final String ID_SESSION = "sessionID";
+	
 }

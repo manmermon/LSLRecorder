@@ -18,9 +18,9 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_GNUGLPLicence.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Info.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Opening.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{KeyActions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_PlotClis.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{GeneralSettings.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{KeyActions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>

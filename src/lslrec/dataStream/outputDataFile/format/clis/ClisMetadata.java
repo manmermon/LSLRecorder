@@ -41,7 +41,6 @@ import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
-import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;

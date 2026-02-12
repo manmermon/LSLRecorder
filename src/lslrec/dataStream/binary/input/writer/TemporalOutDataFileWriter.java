@@ -28,6 +28,7 @@ import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
+import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.IStoppableThread;
@@ -35,8 +36,10 @@ import lslrec.stoppableThread.IStoppableThread;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Map;
 
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.control.message.EventInfo;
@@ -140,6 +143,14 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		{
 			this.datProcessingExec.startThread();
 		}
+		
+		Calendar c = Calendar.getInstance();
+		c.add( 13, 1 );
+		String date = new SimpleDateFormat("yyyyMMdd_HHmmss.SSS").format( c.getTime() );
+		
+		String idDate = StreamExtraLabels.ID_START_SESSION_DATE;
+		Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
+		addInfo.put( idDate, date );
 	}
 	
 	protected void managerData( byte[] data, byte[] time ) throws Exception
@@ -181,7 +192,15 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	{
 		this.out.close();
 		
-		super.cleanUp();	
+		super.cleanUp();
+		
+		Calendar c = Calendar.getInstance();
+		c.add( 13, 1 );
+		String date = new SimpleDateFormat("yyyyMMdd_HHmmss.SSS").format( c.getTime() );
+		
+		String idDate = StreamExtraLabels.ID_END_SESSION_DATE;
+		Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
+		addInfo.put( idDate, date );
 	}
 	
 	protected void postCleanUp() throws Exception

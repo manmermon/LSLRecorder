@@ -165,6 +165,19 @@ public class Parameter< T > implements IParameter< T >
 		this.listenerList.add( ChangeListener.class, listener );
 	}
 	
+	public void removeValueChangeListener( ChangeListener listener )
+	{
+		this.listenerList.remove( ChangeListener.class, listener );
+	}
+	
+	public void clearChangeListeners()
+	{
+		for( ChangeListener list : this.listenerList.getListeners( ChangeListener.class ) )
+		{
+			this.removeValueChangeListener( list );
+		}
+	}
+	
 	/**
 	 * 
 	 */

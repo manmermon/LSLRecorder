@@ -3,13 +3,7 @@
  */
 package lslrec.plugin.impl.encoder.binary;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -22,16 +16,12 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
-import lslrec.dataStream.binary.input.writer.TemporalOutDataFileWriter;
-import lslrec.dataStream.binary.reader.TemporalBinData;
-import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
-import lslrec.exceptions.ReadInputDataException;
 
 /**
  * @author Manuel Merino Monge
