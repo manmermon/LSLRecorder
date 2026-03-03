@@ -1,3 +1,12 @@
+/**
+ * Adds JAR files to the class path dynamically. Uses an officially supported
+ * API where possible. To ensure use of the official method and compatibility
+ * with Java 9+, your app must be started with
+ * {@code -javaagent:path/to/jar-loader.jar}.
+ *
+ * @author Chris Jennings <https://cgjennings.ca/contact.html>
+ */
+
 package lslrec.plugin.loader;
 
 import java.io.File;
@@ -8,15 +17,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.jar.JarFile;
-
-/**
- * Adds JAR files to the class path dynamically. Uses an officially supported
- * API where possible. To ensure use of the official method and compatibility
- * with Java 9+, your app must be started with
- * {@code -javaagent:path/to/jar-loader.jar}.
- *
- * @author Chris Jennings <https://cgjennings.ca/contact.html>
- */
 
 public class JarLoader {
 

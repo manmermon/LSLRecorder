@@ -1,11 +1,8 @@
 /**
- * 
+ * From Lab Streaming Layer project.
  */
 package lslrec.exceptions;
 
-/**
- * From Lab Streaming Layer project.
- */
 public class LostException extends Exception 
 {
 	/**

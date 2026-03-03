@@ -21,6 +21,7 @@ package lslrec.dataStream.tools;
 
 import java.io.StringWriter;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -35,8 +36,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import lslrec.auxiliar.extra.ConvertTo;
+import lslrec.config.ConfigApp;
+import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.family.stream.lsl.LSL.StreamInlet;
@@ -271,4 +273,23 @@ public class StreamUtils
 		return xml;
 	}
 
+	public static int getNumberOfSelectedStreams( boolean checkSync )
+	{
+		HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+
+		int n = 0;
+		for( IMutableStreamSetting str : deviceIDs )
+		{
+			if( checkSync )
+			{
+				n =  ( str.isSynchronationStream() ) ? n +1 : n;
+			}
+			else
+			{
+				n =  ( str.isSelected() ) ? n +1 : n;
+			}
+		}
+		
+		return n;
+	}
 }

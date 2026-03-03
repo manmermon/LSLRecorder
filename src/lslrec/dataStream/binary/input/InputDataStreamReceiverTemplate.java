@@ -32,7 +32,6 @@ import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
-import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -47,9 +46,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 

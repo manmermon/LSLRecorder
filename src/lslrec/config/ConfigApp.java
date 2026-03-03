@@ -31,6 +31,7 @@ import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.exceptions.DefaultValueException;
 import lslrec.gui.miscellany.IPAddressValidator;
 import lslrec.plugin.loader.PluginLoader;
@@ -70,6 +71,11 @@ import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.language.Language;
 import lslrec.control.message.RegisterSyncMessages;
+import lslrec.control.message.checklist.CheckMessage;
+import lslrec.control.message.checklist.CheckMessagePartFromSetting;
+import lslrec.control.message.checklist.CheckMessagePartFromText;
+import lslrec.control.message.checklist.ICheckMessagePart;
+import lslrec.control.message.checklist.MessageEvaluator;
 
 public class ConfigApp
 {	
@@ -138,6 +144,8 @@ public class ConfigApp
 	public static final String CHECKLIST_TIMER = "CHECKLIST_TIMER";	
 	
 	public static final String WAITING_TIME_TO_RECONNECT_LOST_STREAM = "WAITING_TIME_TO_RECONNECT_LOST_STREAM";
+	
+	public static final String MESSAGE_LOG_FILE = "MESSAGE_LOG_FILE";
 	
 	/****
 	 * 
@@ -234,6 +242,8 @@ public class ConfigApp
 		
 		list_Key_Type.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, Double.class );
 		
+		list_Key_Type.put( MESSAGE_LOG_FILE, Boolean.class );
+		
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
 		//list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
@@ -329,7 +339,7 @@ public class ConfigApp
 				//String p = toSave.toString();
 				//p = p.replace( ">, <", ">; <" );
 				prop.setProperty( key, p );
-			}		
+			}
 			else
 			{
 				prop.setProperty(key, listConfig.get(key).toString());
@@ -760,6 +770,160 @@ public class ConfigApp
 						defaultMsg += key + "; ";
 					}
 				}
+				else if( key.equals( CHECKLIST_MSGS ) )
+				{
+					loadDefaultChecklist();
+					
+					List< CheckMessage > nonRemovableMsg = new ArrayList<CheckMessage>();
+					nonRemovableMsg.addAll( (List<CheckMessage>)listConfig.get( key ) );
+					
+					List< CheckMessage > userCheckMessage = new ArrayList<CheckMessage>();
+					
+					boolean ok = true;
+					
+					value = value.replaceAll( "\\[\\[", "[" ).replaceAll( "\\]\\]", "]" ).trim();
+					
+					String[] messages = value.split("\\],\\s+\\[" );
+					
+					int itemPartLen = 5;
+					
+					msgLoop:
+						for( String msg : messages )
+						{
+							try
+							{
+								//msg = msg.replaceAll( "\\[", "").replaceAll( "\\]", "" );
+								String[] items = msg.split( String.valueOf( CheckMessage.toStrSeparator ) );
+
+								ok = items.length > itemPartLen;
+
+								if( !ok )
+								{
+									break msgLoop;
+								}
+								String idMsg = items[ 0 ].replaceAll( "\\[", ""); // string
+								String msgType = items[ 1 ]; // int
+								String enable = items[ 2 ]; // boolean
+								String desc = items[ 3 ]; // string
+								String alternative = items[ 4 ]; // string
+
+								List< ICheckMessagePart > partlist = new ArrayList<ICheckMessagePart>();
+
+								partLoop:
+									for( int i = itemPartLen; i < items.length; i++ )
+									{
+										String[] msgPart = items[ i ].replaceAll( "<", "")
+												.replace(">]", "").replaceAll(">", "")
+												.trim().split( String.valueOf( ICheckMessagePart.toStrSeparator ) );
+
+										ok = ( msgPart.length == 5 ); 
+
+										if( !ok )
+										{
+											break msgLoop;
+										}
+
+										String partType = msgPart[ 0 ]; // ICheckMessagePart.TypeMessagePart 
+										String partEditable = msgPart[ 1 ]; // boolean
+										String idLang = msgPart[ 2 ]; // string
+										String patter = msgPart[ 3 ];
+										String tx = msgPart[ 4 ];
+
+										ICheckMessagePart.TypeMessagePart type = ICheckMessagePart.TypeMessagePart.valueOf( partType );
+
+										ICheckMessagePart part = null;
+										switch( type )
+										{
+											case Setting  :
+											{
+												part = new CheckMessagePartFromSetting( tx );
+	
+												break;
+											}
+											default:
+											{
+												part = new CheckMessagePartFromText( tx, patter, Boolean.parseBoolean( partEditable ) );
+												part.setIDLangCaption( idLang );
+	
+												break;
+											}
+										}
+
+										partlist.add( part );
+									}
+
+
+								CheckMessage defaultCheckMsg = null;							
+								for( CheckMessage defMsg : nonRemovableMsg )
+								{
+									if( defMsg.getMessageID().equals( idMsg ) )
+									{
+										defaultCheckMsg = defMsg;
+										break;
+									}
+								}
+
+								if( defaultCheckMsg != null )
+								{
+									if( defaultCheckMsg.isEditableMessage() )
+									{
+										List< ICheckMessagePart > defParts = defaultCheckMsg.getMessagePart();
+										if( defParts.size() != partlist.size() ) 
+										{
+											ok = false;
+											break msgLoop;
+										}
+										else
+										{
+											for( int i = 0; i < partlist.size(); i++ )
+											{
+												ICheckMessagePart defpart = defParts.get( i );
+												ICheckMessagePart inpart = partlist.get( i );
+
+												if( defpart.isPartEditable() )
+												{
+													defpart.setMessagePart( inpart.getMessagePart() );
+												}
+											}
+										}
+									}
+
+									defaultCheckMsg.setAlternativeMessage( alternative );
+									defaultCheckMsg.setEnable( Boolean.parseBoolean( enable ) );
+								}
+								else
+								{
+									CheckMessage checkMsg = new CheckMessage( idMsg, Integer.parseInt( msgType ), CheckMessage.REMOVABLE_MESSAGE );
+									checkMsg.setEnable( Boolean.parseBoolean( enable ) );
+									checkMsg.setDescription( desc );
+									checkMsg.setAlternativeMessage( alternative );
+
+									for( ICheckMessagePart part : partlist )
+									{
+										checkMsg.addMessagePart( part );
+									}
+									
+									userCheckMessage.add( checkMsg );
+								}
+							}
+							catch (Exception e)
+							{
+								ok = false;
+								break msgLoop;
+							}
+						}
+
+					if( !ok )
+					{
+						defaultValue = true;
+
+						defaultMsg += key + "; ";
+					}
+					else
+					{
+						((List<CheckMessage>)listConfig.get( key )).addAll( userCheckMessage );
+					}
+				}
 				else if( clase.getCanonicalName().equals( List.class.getCanonicalName() ) )
 				{
 					List<String> values = new ArrayList<String>();
@@ -773,6 +937,7 @@ public class ConfigApp
 					
 					switch (key) 
 					{
+						/*
 						case CHECKLIST_MSGS:
 						{
 							boolean ok = ( parts.length % 2 == 0 );
@@ -862,6 +1027,7 @@ public class ConfigApp
 							
 							break;
 						}
+						//*/
 						default:
 						{
 							for (int i = 0; i < parts.length; i++)
@@ -1795,6 +1961,12 @@ public class ConfigApp
 				
 				break;
 			}
+			case MESSAGE_LOG_FILE:
+			{
+				loadDefaultMessageLogFile();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -1802,15 +1974,7 @@ public class ConfigApp
 				
 				break;
 			}
-			*/
-			/*
-			case DATA_CHART_SUMMARY:
-			{
-				loadDefaultDataChartSummary();
-				
-				break;
-			}
-			*/
+			//*/			
 		}
 	}
 
@@ -1820,7 +1984,6 @@ public class ConfigApp
 
 		loadDefaultValueServerSocketTable();
 
-		//loadDefaultValueIsServerSocketActive();
 		loadDefaultSyncMethod();
 		loadDefaultValueIsServerSocketActiveInputSpecialMsg();
 		
@@ -1855,9 +2018,10 @@ public class ConfigApp
 		loadDefaultChecklistTimer();
 		
 		loadDefaultWaitingTime2reconnectLostStream();
-		//loadDefaultStreamLibrary();
 		
-		//loadDefaultDataChartSummary();
+		loadDefaultMessageLogFile();
+		
+		//loadDefaultStreamLibrary();		
 	}
 
 	private static void loadDefaultLanguage()
@@ -1944,6 +2108,172 @@ public class ConfigApp
 		}
 		
 		listConfig.put( ID_STREAMS, settings );
+	}
+	
+	private static List< CheckMessage > getPredefinedChecklistMessages()
+	{
+		//
+		//
+		//
+		List< CheckMessage > messages = new ArrayList<CheckMessage>();
+		
+		CheckMessage msg = new CheckMessage( "syncMethodCheck", CheckMessage.WARNING );
+		
+		ICheckMessagePart part = new CheckMessagePartFromText( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG )
+													, "", false );
+		part.setIDLangCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG );
+		msg.addMessagePart( part );
+		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.SELECTED_SYNC_METHOD, "!({0}.contains(\""+SyncMethod.SYNC_NONE + "\"))", null ) );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "specialInputCheck", CheckMessage.WARNING );
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG )
+									, "", false );
+		part.setIDLangCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG );
+		msg.addMessagePart( part );
+		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, "{0}==true", null ) );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "chunkSizeCheck", CheckMessage.WARNING );
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG )
+									, "", false );
+		part.setIDLangCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG );
+		msg.addMessagePart( part );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "numSelectedDataStreamChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS )
+									, "", false );
+		part.setIDLangCaption( Language.MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromText( "1", "^\\d+$", true );									
+		msg.addMessagePart( part );
+	
+		List< ICheckMessagePart > parts = new ArrayList<ICheckMessagePart>();
+		parts.add( part );
+		
+		MessageEvaluator ev = new MessageEvaluator( ConfigApp.ID_STREAMS, "", parts )
+		{
+			public boolean evalue() 
+			{
+				int nstreams = StreamUtils.getNumberOfSelectedStreams( false );
+				int ncmp = Integer.parseInt( parts.get( 0 ).getMessagePart() );
+				return  nstreams == ncmp ;
+			};
+		};
+		
+		msg.setMessageEvaluator( ev );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "numSelectedSyncStreamChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS )
+									, "", false );
+		part.setIDLangCaption( Language.MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromText( "1", "^\\d+$", true );									
+		msg.addMessagePart( part );
+	
+		List< ICheckMessagePart > parts2 = new ArrayList< ICheckMessagePart >();
+		parts2.add( part );
+		
+		ev = new MessageEvaluator( ConfigApp.ID_STREAMS, "", parts2 )
+		{
+			public boolean evalue() 
+			{
+				int nstreams = StreamUtils.getNumberOfSelectedStreams( true );
+				int ncmp = Integer.parseInt( parts2.get( 0 ).getMessagePart() );
+				return  nstreams == ncmp ;
+			};
+		};
+		
+		msg.setMessageEvaluator( ev );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "subjectIDChecker", CheckMessage.WARNING );
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.SUBJECT_ID_TEXT ), "", false );
+		part.setIDLangCaption( Language.SUBJECT_ID_TEXT );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromText( ":", "", false );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromSetting( ConfigApp.OUTPUT_SUBJ_ID );
+		msg.addMessagePart( part );
+				
+		msg.setDescription( Language.getLocalCaption( Language.CHECK_SUBJECT_IDS_WARNING_MSG ) );
+		
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "sessionIDChecker", CheckMessage.WARNING );
+		msg.setDescription( Language.getLocalCaption( Language.CHECK_SESSION_IDS_WARNING_MSG ) );
+		
+		part = new CheckMessagePartFromText( Language.getLocalCaption( Language.TEST_ID_TEXT ), "", false );
+		part.setIDLangCaption( Language.TEST_ID_TEXT );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromText( ":", "", false );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromSetting( ConfigApp.OUTPUT_TEST_ID );
+		msg.addMessagePart( part );
+		messages.add( msg );
+				
+		//
+		//
+		//
+		msg = new CheckMessage( "emptySessionIDChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( "Sessiong id empty", "", false );
+		msg.addMessagePart( part );
+		
+		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_TEST_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "emptySubjectIDChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( "Subject id empty", "", false );
+		msg.addMessagePart( part );
+		
+		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		messages.add( msg );
+		
+		//
+		//
+		//
+		msg = new CheckMessage( "formatSubjectIDChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( "Subject format:", "", false );
+		msg.addMessagePart( part );
+		
+		part = new CheckMessagePartFromText( "regular expression", "", true );
+		msg.addMessagePart( part );
+		
+		List< ICheckMessagePart > parts3 = new ArrayList<ICheckMessagePart>();
+		parts3.add( part );
+		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}.matches(\"{1}\")", parts3 ) );
+		messages.add( msg );
+		
+		return messages; 
 	}
 
 	private static void loadDefaultLSLOutputFileName()
@@ -2039,6 +2369,7 @@ public class ConfigApp
 	
 	private static void loadDefaultChecklist()
 	{
+		/*
 		List< Tuple< Boolean, String > > chlist = new ArrayList< Tuple< Boolean, String> >();
 		
 		chlist.add( new Tuple<Boolean, String>( !ConfigApp.isTesting(), GeneralSettings.fullNameApp ) );
@@ -2048,6 +2379,9 @@ public class ConfigApp
 		chlist.add( new Tuple<Boolean, String>( false, Language.getLocalCaption( Language.CHECK_SESSION_IDS_WARNING_MSG ) ) );
 		
 		listConfig.put( CHECKLIST_MSGS, chlist );
+		//*/
+		
+		listConfig.put( CHECKLIST_MSGS, getPredefinedChecklistMessages() );
 	}
 	
 	private static void loadDefaultChecklistTimer()
@@ -2060,17 +2394,15 @@ public class ConfigApp
 		listConfig.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, 0.0D );
 	}
 	
+	private static void loadDefaultMessageLogFile()
+	{
+		listConfig.put( MESSAGE_LOG_FILE, true );
+	}
+	
 	/*
 	private static void loadDefaultStreamLibrary()
 	{
 		listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.LSL );
 	}
-	*/
-	
-	/*
-	private static void loadDefaultDataChartSummary()
-	{
-		listConfig.put( DATA_CHART_SUMMARY, false );
-	}
-	//*/
+	//*/	
 }

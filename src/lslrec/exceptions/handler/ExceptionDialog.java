@@ -47,6 +47,7 @@ import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
+import lslrec.config.ConfigApp;
 import lslrec.gui.GuiManager;
 import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.GeneralAppIcon;
@@ -60,12 +61,7 @@ public class ExceptionDialog
 	private static Object syncLogFile = new Object();
 	
 	private static ExceptionLogGUIThread logGUI = new ExceptionLogGUIThread( 1 );
-	
-	//private static File errorWarningLog =  null;
-	
-	//private static String recordSubjID = null;
-	//private static String recordSessionID = null;
-	
+		
 	private static ExceptionLogFileThread errorWarningLog;
 	
 	public static void createExceptionDialog( Window owner ) 
@@ -84,11 +80,8 @@ public class ExceptionDialog
 			jta.setText( "" );
 			jta.setAutoscrolls( true );
 			jta.setEditable( false );
-			//jta.setLineWrap( true );
-			//jta.setTabSize( 0 );
 	
-			//log2 = new TextAreaPrintStream( jta, new ByteArrayOutputStream() );
-			 logGUI.addLog( new TextAreaPrintStream( jta, new ByteArrayOutputStream() ) );
+			logGUI.addLog( new TextAreaPrintStream( jta, new ByteArrayOutputStream() ) );
 	
 			dialog = new JDialog( owner );
 	
@@ -115,12 +108,6 @@ public class ExceptionDialog
 			Dimension d = new Dimension( (int)( dim.width /3 ), dim.height / 2 );
 			dialog.setSize( d );
 	
-			/*
-			Point pos = ge.getCenterPoint();
-			pos.x -= d.width / 2;
-			pos.y -= d.height / 2;
-			dialog.setLocation(pos);
-			*/
 			dialog.setLocationRelativeTo( owner );
 	
 			dialog.addWindowListener(new WindowAdapter()
@@ -138,16 +125,7 @@ public class ExceptionDialog
 				public void actionPerformed(ActionEvent e) 
 				{
 					synchronized( sync )
-					{
-						/*
-						log2.flush();
-						
-						if( log1 != null )
-						{
-							log1.flush();
-						}
-						//*/
-						
+					{	
 						logGUI.clearLog();
 					}					
 				}
@@ -155,8 +133,6 @@ public class ExceptionDialog
 			
 			dialog.add( new JScrollPane( jta ), BorderLayout.CENTER );
 			dialog.add( clearBt, BorderLayout.SOUTH );
-			//dialog.toFront();
-			//dialog.setVisible( true );
 			
 			dialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
 														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
@@ -169,7 +145,6 @@ public class ExceptionDialog
 		synchronized ( sync )
 		{
 			logGUI.addLog( mainLog );
-			//log1 = mainLog;
 		}
 	}
 	
@@ -210,7 +185,10 @@ public class ExceptionDialog
 				throw new RuntimeException( "Log is opened." );
 			}
 			
-			errorWarningLog = new ExceptionLogFileThread( subjID, sessionID );
+			if( ((Boolean)ConfigApp.getProperty( ConfigApp.MESSAGE_LOG_FILE ) ) )
+			{
+				errorWarningLog = new ExceptionLogFileThread( subjID, sessionID );
+			}
 		}
 	}
 	

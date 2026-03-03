@@ -57,7 +57,6 @@ import com.sun.jna.Platform;
 
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.stream.lsl.LSL;
-import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.gui.AppUI;
 import lslrec.gui.KeyActions;

@@ -28,6 +28,8 @@ public class TableButtonCellEditor extends DefaultCellEditor
 													, int row, int column) 
 	{	
 		this.bt.setBackground( table.getSelectionBackground() );
+		boolean editable = table.getModel().isCellEditable(row, column);
+		this.bt.setEnabled(editable);
 		
 		return this.bt;
 	}

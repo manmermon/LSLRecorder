@@ -1,5 +1,5 @@
 /* 
- * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ * Copyright 2018-2025 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
  *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
  *

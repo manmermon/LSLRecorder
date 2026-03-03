@@ -87,7 +87,6 @@ import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.miscellany.BasicPainter2D;
-import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 
 public class CanvasStreamDataPlot extends JPanel

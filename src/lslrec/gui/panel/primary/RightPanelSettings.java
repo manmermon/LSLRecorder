@@ -276,7 +276,7 @@ public class RightPanelSettings extends JPanel
 	{
 		if( this.disPanel == null )
 		{
-			this.disPanel = new DisabledPanel( this.getPanelDeviceAndSetting() ); 
+			this.disPanel = new DisabledPanel( this.getPanelDeviceAndSetting() );			
 		}
 		return this.disPanel;
 	}
@@ -290,6 +290,65 @@ public class RightPanelSettings extends JPanel
 	}
 	
 	private void updateDeviceInfos() throws Exception
+	{		
+		String result = GuiManager.getInstance().streamResponseChecker( 10_000 );
+
+		if( result !=  null )
+		{				
+			ExceptionMessage msg = null;
+
+			if( result.equalsIgnoreCase( "OK" ) )
+			{					    		
+				try 
+				{
+					updateStreamInfos();
+				} 
+				catch (Exception e) 
+				{
+					this.deviceInfo = null;
+					msg = new ExceptionMessage( new Exception( "One or more streams are not responding." )
+							, Language.getLocalCaption( Language.PROBLEM_TEXT ) 
+							, ExceptionMessage.WARNING_MESSAGE );
+				}
+			}
+			else
+			{
+				this.deviceInfo = null;
+				msg = new ExceptionMessage( new Exception( "One or more streams are not responding." )
+						, Language.getLocalCaption( Language.PROBLEM_TEXT ) 
+						, ExceptionMessage.WARNING_MESSAGE );
+			}
+
+			if( msg != null )
+			{	
+				GuiManager.getInstance().showStreamResponseChecker( msg );
+			}
+		}
+		else
+		{
+			ExceptionMessage msg = new ExceptionMessage( new Exception( "Stream response checker missing." )
+					, Language.getLocalCaption( Language.PROBLEM_TEXT )
+					, ExceptionMessage.WARNING_MESSAGE );		 
+
+			GuiManager.getInstance().showStreamResponseChecker( msg );
+
+			try 
+			{
+				updateStreamInfos();
+			} 
+			catch (Exception e) 
+			{
+				this.deviceInfo = null;
+				ExceptionMessage msg2 = new ExceptionMessage( new Exception( "One or more streams are not responding." )
+						, Language.getLocalCaption( Language.PROBLEM_TEXT ) 
+						, ExceptionMessage.WARNING_MESSAGE );
+
+				GuiManager.getInstance().showStreamResponseChecker( msg2 );
+			}
+		}	
+	}
+		
+	private void updateStreamInfos() throws Exception
 	{
 		this.deviceInfo = null;
 
@@ -297,7 +356,7 @@ public class RightPanelSettings extends JPanel
 		{
 			IStreamSetting[] streams = DataStreamFactory.getStreamSettings( ); 
 			streams = DataStreamFactory.getStreamSettings( ); // 
-			
+						
 			Comparator< Tuple< String, Integer > > comp = new Comparator<Tuple<String,Integer>>() 
 			{	
 				@Override

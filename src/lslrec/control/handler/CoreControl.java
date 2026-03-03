@@ -41,6 +41,7 @@ import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
 import lslrec.control.message.RegisterSyncMessages;
 import lslrec.control.message.SocketInformations;
+import lslrec.control.message.checklist.CheckMessage;
 import lslrec.control.notification.INotificationTask;
 import lslrec.dataStream.binary.input.plotter.DataPlotter;
 import lslrec.dataStream.binary.input.plotter.StringPlotter;
@@ -100,8 +101,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -941,6 +940,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * Check Settings.
 	 *   
 	 */
+	/*
 	private List< WarningMessage > checkSettings() 
 	{
 		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
@@ -1134,18 +1134,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		// Checking plugin setting
-		/*
-		for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcesses() )
-		{
-			if( !DataProcessingPluginRegistrar.getDataStreams( process ).isEmpty() )
-			{
-				WarningMessage w = process.checkSettings();			
-				String msg = w.getMessage();
-								
-				this.warnMsg.addMessage( msg, w.getWarningType() );
-			}
-		}
-		//*/
 		for( IStreamSetting str : DataProcessingPluginRegistrar.getAllDataStreams() )
 		{
 			int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
@@ -1257,7 +1245,238 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		return warnMsgsList;
 	}
+	//*/
 	
+	private List< WarningMessage > checkSettings() 
+	{
+		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
+		
+		//this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
+		
+		WarningMessage outFileMsg = this.ctrlOutputFile.checkParameters();
+		WarningMessage socketMsg = this.ctrSocket.checkParameters();
+		
+		warnMsgsList.add( outFileMsg );
+		warnMsgsList.add( socketMsg );
+		
+		ILSLRecPluginTrial trial = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
+		
+		if( trial != null )
+		{
+			WarningMessage trW = trial.checkSettings();
+			
+			warnMsgsList.add( new WarningMessage( trW.getMessage(), trW.getWarningType() ) );
+		}
+		
+		String idFormat = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
+		Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( idFormat );
+		if( enc == null || enc.t1 == null)
+		{
+			warnMsgsList.add( new WarningMessage( "Encoder null", WarningMessage.ERROR_MESSAGE ) );
+		}
+		else if( !( enc.t1 instanceof ClisEncoder ) )
+		{
+			WarningMessage wm = enc.t2;
+			if( wm != null )
+			{
+				warnMsgsList.add( new WarningMessage( wm.getMessage(), wm.getWarningType() ) );
+			}
+		}
+
+		/*
+		boolean specialInMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
+		if( !specialInMsg )
+		{
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+		}
+		
+		Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+		
+		if( syncMeths.contains( SyncMethod.SYNC_NONE ) )
+		{
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+		}
+		//*/
+		
+		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
+		{
+			Dialog_Password pass = new Dialog_Password( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+			
+			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
+			pass.setVisible( true );
+			
+			while( pass.getState() == Dialog_Password.PASSWORD_INCORRECT )
+			{
+				pass.setMessage( pass.getPasswordError()  + " " + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");
+				pass.setVisible( true );
+			}
+			
+			if( pass.getState() != Dialog_Password.PASSWORD_OK )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
+													, WarningMessage.ERROR_MESSAGE ) );
+			}
+			
+			this.encryptKey = pass.getPassword();
+			
+			if( this.encryptKey == null )
+			{
+				this.encryptKey = "";
+			}
+		}
+		
+		HashSet< IStreamSetting > lslPars = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
+		IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
+				
+		boolean existSelectedSyncLSL = false;
+		
+		if( results.length >= 0 )
+		{
+			boolean selectedStreamsOK = true;
+			boolean selectOneOrMoreStream = false;
+
+			for( IStreamSetting lslcfg : lslPars )
+			{
+				selectOneOrMoreStream = lslcfg.isSelected();
+				
+				if( selectOneOrMoreStream )
+				{
+					break;
+				}
+			}
+			
+			if( selectOneOrMoreStream )
+			{
+				// Check selected streams.
+				for( IStreamSetting lslcfg : lslPars )
+				{
+					if( lslcfg.isSelected() )
+					{	
+						boolean findStream = false;
+						for( int i = 0; i < results.length && !findStream; i++ )
+						{
+							findStream = results[ i ].uid().equals( lslcfg.uid() );
+						}
+						
+						if( !findStream )
+						{
+							selectedStreamsOK = false;
+							break;
+						}
+					}
+				}
+			}
+			
+			// Check if sync stream is selected.
+			for( IStreamSetting lslcfg : lslPars )
+			{
+				existSelectedSyncLSL = lslcfg.isSynchronationStream();
+
+				if( existSelectedSyncLSL )
+				{
+					break;
+				}
+			}
+
+			if( !selectOneOrMoreStream )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );	
+			}
+			
+			if( !selectedStreamsOK )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
+			}
+			
+			Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
+			boolean specialInMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
+			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )
+			{
+					String msg = Language.getLocalCaption( Language.CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG );
+					int warmType = WarningMessage.WARNING_MESSAGE;
+					
+					if( specialInMsg )
+					{
+						msg = Language.getLocalCaption( Language.CHECK_SYNC_UNSELECTABLE_ERROR_MSG );
+						warmType = WarningMessage.ERROR_MESSAGE;
+					}
+					
+					warnMsgsList.add( new WarningMessage( msg, warmType ) );
+			}			
+			else if( existSelectedSyncLSL && !syncMeths.contains( SyncMethod.SYNC_STREAM ) )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
+			}
+			
+			boolean change = false;
+				
+			for( int i = 0; i < results.length && !change; i++ )
+			{
+				IStreamSetting stream = results[ i ];
+
+				for( IStreamSetting lslcfg : lslPars )
+				{
+					if( ( lslcfg.isSelected() || lslcfg.isSynchronationStream() )
+							&& lslcfg.name().equals( stream.name() ) 
+							&& lslcfg.uid().equals( stream.source_id() ) )
+					{
+						change = !stream.uid().equals( lslcfg.uid() ) ;
+	
+						if( change )
+						{
+							break;
+						}
+					}
+				}
+			}
+
+			if( change )
+			{
+				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
+			}
+		}
+		else
+		{
+			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
+		}
+		
+		// Checking plugin setting
+		for( IStreamSetting str : DataProcessingPluginRegistrar.getAllDataStreams() )
+		{
+			int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
+			
+			for( int processLoc : processLocs )
+			{
+				for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcessing( str, processLoc ) ) 
+				{
+					WarningMessage w = process.checkSettings();			
+					String msg = w.getMessage();
+
+					warnMsgsList.add( new WarningMessage( msg, w.getWarningType() ) );
+				}
+			}
+		}
+		
+		if( this.ctrlOutputFile.isSavingData() )
+		{
+			LostWaitedThread.getInstance().wakeup();
+			warnMsgsList.add( new WarningMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE ) );
+		}
+		
+		List< CheckMessage > checklist = (List< CheckMessage >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
+		for( CheckMessage msg : checklist )
+		{
+			if( msg.isEnable() )
+			{
+				WarningMessage w = msg.evaluateMessage();
+				warnMsgsList.add( w );
+			}
+		}
+		
+		return warnMsgsList;
+	}
+	
+	/*
 	private boolean checkNumberOfSelectedStreams( int n, boolean checkSync )
 	{
 		if( n > 0 )
@@ -1279,6 +1498,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		return n == 0;
 	}
+	//*/
 	
 	/**
 	 * Wait to start message

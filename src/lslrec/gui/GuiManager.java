@@ -33,8 +33,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -47,6 +50,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.AbstractButton;
 import javax.swing.Icon;
@@ -127,10 +131,10 @@ public class GuiManager
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
 	
 	private static Object sync = new Object();
-	
+		
 	private GuiManager()
 	{
-		this.sessionTimer = new Timer( this.sessionTimeUpdateElapsed, this.getSessionTimerAction() );
+		this.sessionTimer = new Timer( this.sessionTimeUpdateElapsed, this.getSessionTimerAction() );		
 	}
 
 	public static GuiManager getInstance() 
@@ -244,7 +248,81 @@ public class GuiManager
 	
 	public void refreshDataStreams()
 	{
-		AppUI.getInstance().getJButtonRefreshDataStreams().doClick();		
+		AppUI.getInstance().getJButtonRefreshDataStreams().doClick();			
+	}
+		
+	public String streamResponseChecker( long timeoutMs ) 
+	{				
+	    try 
+	    {
+	    	String jarFile = Paths.get(".", "StreamResponseTester.jar").toString();
+	    	
+	    	if( !(new File( jarFile) ).exists() )
+	    	{
+	    		jarFile = Paths.get("binaries", "StreamResponseTester.jar").toString();
+	    	}
+	    	
+	        ProcessBuilder pb = new ProcessBuilder(
+	                "java"
+	                , "-jar"
+	                , jarFile
+	        );
+
+	        Process process = pb.start();
+
+	        boolean finished = process.waitFor( timeoutMs, TimeUnit.MILLISECONDS);
+
+	        if (!finished) 
+	        {
+	            process.destroyForcibly();
+	            return "TIMEOUT";
+	        }
+
+	        BufferedReader reader = new BufferedReader(new InputStreamReader( process.getInputStream() ) );
+
+	        return reader.readLine();
+
+	    }
+	    catch (Exception e) 
+	    {
+	        return "ERROR";
+	    }
+	}
+	
+	//private Thread showStreamResponseMsg = null;
+	
+	public synchronized void showStreamResponseChecker( final ExceptionMessage msg )
+	{
+		/*
+		if( msg != null && (this.showStreamResponseMsg == null || !this.showStreamResponseMsg.isAlive() ) )
+		{
+			this.showStreamResponseMsg = new Thread() 
+    		{
+    			public void run() 
+    			{	
+    				synchronized( this )
+    				{
+	    				try 
+	    				{
+							super.wait( 400L );
+						}
+	    				catch (InterruptedException e) 
+	    				{
+						}
+    				}
+    				
+	    			ExceptionDialog.showMessageDialog( msg, true, false );	
+				}
+    		};
+    		
+    		this.showStreamResponseMsg.start();
+		}
+		//*/
+		
+		if( msg != null )
+		{
+			ExceptionDialog.showMessageDialog( msg, true, false );
+		}
 	}
 	
 	protected void convertBin2CLIS()

@@ -36,7 +36,6 @@ import lslrec.stoppableThread.IStoppableThread;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.reflect.Parameter;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;

@@ -20,7 +20,6 @@
  *   
  */
 
-
 package lslrec.gui.miscellany;
 
 import java.awt.Color;

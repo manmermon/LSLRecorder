@@ -29,11 +29,7 @@ import java.awt.FontMetrics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,20 +50,19 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
-import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
-import lslrec.config.GeneralSettings;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
+import lslrec.control.message.checklist.CheckMessage;
+import lslrec.control.message.checklist.CheckMessagePartFromText;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
+import lslrec.gui.miscellany.TableButtonCellEditor;
+import lslrec.gui.miscellany.TableButtonCellRender;
 
-public class Dialog_SetChecklist extends JDialog {
-
-	/**
-	 * 
-	 */
+public class Dialog_SetChecklist extends JDialog 
+{
 	private static final long serialVersionUID = 1L;
 	
 	private JPanel contentPanel;
@@ -77,9 +72,11 @@ public class Dialog_SetChecklist extends JDialog {
 	private JButton btAddMsg;
 	private JButton btnDelMsg;
 	private JButton btUpMsg;
-	private JButton btDonwMsg;
+	private JButton btDonwMsg;	
 	
 	private JTable tableChecklist;
+	
+	private List< CheckMessage > checkMessageList = null;
 	
 	/**
 	 * Launch the application.
@@ -107,6 +104,7 @@ public class Dialog_SetChecklist extends JDialog {
 		
 		super.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
 		
+		/*
 		super.addWindowListener( new WindowAdapter()
 		{
 			@Override
@@ -115,16 +113,16 @@ public class Dialog_SetChecklist extends JDialog {
 				saveChecklistMessages();
 			}
 		});
+		//*/
 		
-		List< Tuple< Boolean, String > > msgs = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
-		for( Tuple< Boolean, String > msg : msgs )
+		this.checkMessageList = (List< CheckMessage >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
+		for( CheckMessage msg : this.checkMessageList )
 		{
-			boolean sel = ( msg.t1 == null ) ? true : msg.t1;
-			String val = msg.t2;
-			this.createNewMsg2Checklist( sel, val );
+			this.createNewMsg2Checklist( msg );
 		}	
 	}
 	
+	/*
 	private void saveChecklistMessages()
 	{
 		String ID = ConfigApp.CHECKLIST_MSGS;
@@ -145,6 +143,7 @@ public class Dialog_SetChecklist extends JDialog {
 		
 		ConfigApp.setProperty( ID, msgs );
 	}
+	//*/
 	
 	private JPanel getContentPanel()
 	{
@@ -157,6 +156,7 @@ public class Dialog_SetChecklist extends JDialog {
 			this.contentPanel.add( this.getButtonsPanel(), BorderLayout.NORTH );
 			
 			JScrollPane sc = new JScrollPane( this.getChecklistPanel(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			sc.getVerticalScrollBar().setUnitIncrement( 10 );
 			this.contentPanel.add( sc, BorderLayout.CENTER );
 		}
 		return this.contentPanel;
@@ -207,7 +207,39 @@ public class Dialog_SetChecklist extends JDialog {
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					createNewMsg2Checklist( true, "message");
+					SwingUtilities.invokeLater( () ->
+					{
+						CheckMessage msg = new CheckMessage( "userCheckMsg" + (getChecklistTable().getRowCount()+1)
+															, CheckMessage.WARNING, CheckMessage.REMOVABLE_MESSAGE );
+						msg.setEnable( true );
+						
+						msg.addMessagePart( new CheckMessagePartFromText( "message", "", true ));
+											
+						checkMessageList.add( msg );
+						
+						createNewMsg2Checklist( msg );						
+						
+						SwingUtilities.invokeLater( () ->
+						{
+							JTable table = getChecklistTable();
+
+							int lastRow = table.getRowCount() - 1;						
+							int column = 1;
+							if (lastRow >= 0) 
+							{	
+								table.setRowSelectionInterval( lastRow, lastRow);							
+								table.setColumnSelectionInterval( column, column );
+
+								table.editCellAt(lastRow, column );
+
+								Component editor = table.getEditorComponent();
+								if (editor instanceof JButton) 
+								{
+									((JButton) editor).doClick();
+								}
+							}
+						});
+					});
 				}
 			});
 			
@@ -224,11 +256,12 @@ public class Dialog_SetChecklist extends JDialog {
 			this.btnDelMsg.setEnabled( false );
 			this.btnDelMsg.setFont( new Font( Font.DIALOG, Font.BOLD, 16) );
 			
-			Icon ic = GeneralAppIcon.Close( 16, Color.RED );
+			//Icon ic = GeneralAppIcon.Close( 16, Color.RED );
+			Icon ic = GeneralAppIcon.Trash( 16, Color.RED.darker() );
 			this.btnDelMsg.setIcon( ic );
 			if( ic == null )
 			{
-				this.btnDelMsg.setText( "X" );
+				this.btnDelMsg.setText( "delete" );
 				this.btnDelMsg.setForeground( Color.RED );
 			}
 			
@@ -238,6 +271,12 @@ public class Dialog_SetChecklist extends JDialog {
 				public void actionPerformed(ActionEvent e)
 				{
 					removeMsgsFromChecklist();
+					/*
+					SwingUtilities.invokeLater(() ->
+					{
+						removeMsgsFromChecklist();
+					});
+					//*/
 				}
 			});
 		}
@@ -324,7 +363,7 @@ public class Dialog_SetChecklist extends JDialog {
 		}
 		return this.btDonwMsg;
 	}
-	
+		
 	private JTable getChecklistTable()
 	{
 		if( this.tableChecklist == null )
@@ -340,27 +379,63 @@ public class Dialog_SetChecklist extends JDialog {
 			this.tableChecklist.getColumnModel().getColumn(0).setMaxWidth( fm.stringWidth( hCol0 ) * 2 );
 			this.tableChecklist.getColumnModel().getColumn(0).setMinWidth( fm.stringWidth( hCol0 ) );
 			
-			this.tableChecklist.addMouseListener( new MouseAdapter() 
-			{
+			hCol0 = this.tableChecklist.getColumnModel().getColumn( 1 ).getHeaderValue().toString() + "   ";
+			this.tableChecklist.getColumnModel().getColumn(1).setResizable(false);
+			this.tableChecklist.getColumnModel().getColumn(1).setPreferredWidth( fm.stringWidth( hCol0 ) );
+			this.tableChecklist.getColumnModel().getColumn(1).setMaxWidth( fm.stringWidth( hCol0 ) * 2 );
+			this.tableChecklist.getColumnModel().getColumn(1).setMinWidth( fm.stringWidth( hCol0 ) );
+						
+			
+			TableButtonCellRender btRender = new TableButtonCellRender();
+			TableButtonCellEditor btEditor = new TableButtonCellEditor();
+			
+			JButton btR = btRender.getButton();
+			JButton btEd = btEditor.getButton();
+			
+			btR.setIcon( GeneralAppIcon.Pencil( 14, Color.BLACK ) );
+			btEd.setIcon( GeneralAppIcon.Pencil( 14, Color.BLACK ) );
+			
+			ActionListener actListener = new ActionListener() 
+			{	
 				@Override
-				public void mouseClicked(MouseEvent e) 
+				public void actionPerformed(ActionEvent e) 
 				{
-					JTable tb = (JTable)e.getSource();
+					JButton bt = (JButton)e.getSource();
 					
-					int row = tb.rowAtPoint( e.getPoint() );
-					int col = tb.columnAtPoint( e.getPoint() );
+					JTable table = getChecklistTable();
+					int r = table.getSelectedRow();
 					
-					if( row == 1 && col == 1 )
+					if( r >= 0 && r < checkMessageList.size() )
 					{
-						changeCheckNumberSelectedStreams( Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG ), row, col );
-					}
-					else if( row == 2 && col == 1 )
-					{
-						changeCheckNumberSelectedStreams( Language.getLocalCaption( Language.CHECK_SELECTED_SYNC_STREAMS_MSG ), row, col );
+						CheckMessage msg = checkMessageList.get( r );
+
+						Dialog_SetCheckMessagePart diag = new Dialog_SetCheckMessagePart( msg );
+						diag.setModal( true );
+						diag.setIconImage( GeneralAppIcon.Pencil( 16, Color.BLACK ).getImage() );
+						diag.setTitle( Language.getLocalCaption( Language.CHECKLIST_TEXT )
+										+ " - " + Language.getLocalCaption( Language.EDIT_TEXT ) );
+						
+						diag.setSize( new Dimension( 400, 200 ) );
+						diag.setLocationRelativeTo( SwingUtilities.getWindowAncestor( bt ) );
+						
+						diag.setVisible( true );		
+						
+						SwingUtilities.invokeLater(() -> 
+						{
+							DefaultTableModel model = (DefaultTableModel) table.getModel();
+							model.setValueAt( msg.getMessage(), r, 2 );
+							model.fireTableCellUpdated( r, 2 );
+						});
+						
 					}
 				}
-			});
+			};
+			btR.addActionListener(actListener );
+			btEd.addActionListener(actListener );
 			
+			this.tableChecklist.getColumnModel().getColumn( 1 ).setCellRenderer( btRender );
+			this.tableChecklist.getColumnModel().getColumn( 1 ).setCellEditor( btEditor );			
+						
 			this.tableChecklist.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{	
 				@Override
@@ -371,15 +446,45 @@ public class Dialog_SetChecklist extends JDialog {
 						JTable t = getChecklistTable();
 						
 						int selRow = t.getSelectedRow();
+						int col = t.getSelectedColumn();
 						
-						boolean enable = ( selRow >= GeneralSettings.CHECKLIST_DEFAULT_LEN );
-						
-						getBtDelMsg().setEnabled( enable );
-						getBtUpMsg().setEnabled( enable );
-						getBtDonwMsg().setEnabled( enable );
+						if( selRow >= 0 && selRow < checkMessageList.size() )
+						{
+							CheckMessage msg = checkMessageList.get( selRow );
+							
+							boolean enable = msg.isRemovableMsg();
+							
+							getBtDelMsg().setEnabled( enable );
+							getBtUpMsg().setEnabled( enable );
+							getBtDonwMsg().setEnabled( enable );
+						}
 					}
 				}
 			} );	
+			
+			this.tableChecklist.getModel().addTableModelListener( new TableModelListener() 
+			{				
+				@Override
+				public void tableChanged(TableModelEvent e) 
+				{
+					if (e.getType() == TableModelEvent.UPDATE) 
+					{
+				        int column = e.getColumn();
+				        int row = e.getFirstRow();
+
+				        if (column == 0)
+				        { 
+				        	CheckMessage msg = checkMessageList.get( row );
+				        	
+				        	// columna booleana
+				            Object value = getChecklistTable().getModel().getValueAt( row, column );
+				            boolean newValue = (Boolean) value;
+
+							msg.setEnable( newValue );
+				        }
+				    }	
+				}
+			});
 		}
 		
 		return this.tableChecklist;
@@ -414,29 +519,21 @@ public class Dialog_SetChecklist extends JDialog {
 				        
 		table.setDefaultRenderer( Object.class, new DefaultTableCellRenderer()
 											{	
-												/**
-												 * 
-												 */
 												private static final long serialVersionUID = 4144425414849985295L;
 
 												public Component getTableCellRendererComponent( JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
 											    {	
 											        Component cellComponent = super.getTableCellRendererComponent( table, value, isSelected, hasFocus, row, column);
 											        
-											        if( !table.isCellEditable( row, column ) )
-											        {	
+											        CheckMessage msg = checkMessageList.get( row );
+											        
+											        if( !msg.isRemovableMsg() )
+											        {
 											        	cellComponent.setBackground( new Color( 255, 255, 150 ) );
-											        }
+											        }											        
 											        else
 											        {
-											        	if( isSelected )
-											        	{
-											        		cellComponent.setBackground( new Color( 174, 214, 241 ) );											        		
-											        	}
-											        	else
-											        	{
-											        		cellComponent.setBackground( Color.WHITE );
-											        	}
+											        	cellComponent.setBackground( Color.WHITE );
 											        }
 											        
 											        cellComponent.setForeground( Color.BLACK );
@@ -452,9 +549,7 @@ public class Dialog_SetChecklist extends JDialog {
 	
 	private void changeCheckNumberSelectedStreams( String msg, int row, int col )
 	{
-		String errMsg = "";
-		//String msg = Language.getLocalCaption( Language.CHECK_SELECTED_DATA_STREAMS_MSG );
-		
+		String errMsg = "";		
 		String val = "";
 		
 		while( val != null && val.isEmpty() )
@@ -487,12 +582,14 @@ public class Dialog_SetChecklist extends JDialog {
 	
 	private TableModel createTablemodel( )
 	{	
-		TableModel tm =  new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.SELECT_TEXT), Language.getLocalCaption( Language.CHECKLIST_TEXT )  } )
+		TableModel tm =  new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.SELECT_TEXT )
+																		, Language.getLocalCaption( Language.EDIT_TEXT )
+																		, Language.getLocalCaption( Language.CHECKLIST_TEXT )  } )
 							{
 								private static final long serialVersionUID = 1L;
 								
-								Class[] columnTypes = new Class[]{ Boolean.class, String.class };								
-								boolean[] columnEditables = new boolean[] { true, true };
+								Class[] columnTypes = new Class[]{ Boolean.class, String.class, String.class };								
+								boolean[] columnEditables = new boolean[] { true, true, false };
 																
 								public Class getColumnClass(int columnIndex) 
 								{
@@ -500,35 +597,52 @@ public class Dialog_SetChecklist extends JDialog {
 								}
 																								
 								public boolean isCellEditable(int row, int column) 
-								{
-									boolean editable = ( row >= GeneralSettings.CHECKLIST_DEFAULT_LEN || column < 1 ) ? columnEditables[ column ] : false;
+								{						
+									//return columnEditables[ column ];
+									boolean edit = columnEditables[ column ];
 									
-									return editable;
+									if( column == 1 )
+									{
+										CheckMessage msg = checkMessageList.get( row );
+										edit = msg.isEditableMessage();
+									}
+									
+									return edit;
 								}
 							};
 		return tm;
 	}
 	
-	private void createNewMsg2Checklist( boolean sel, String msg )
+	private void createNewMsg2Checklist( CheckMessage msg )
 	{
-		JTable chlistTb = this.getChecklistTable();
-		
-		chlistTb.setVisible( false );
-		
-		DefaultTableModel chlistTm = (DefaultTableModel)chlistTb.getModel();
-		
-		chlistTm.addRow( new Object[]{ sel, msg} );
-		
-		chlistTb.setVisible( true );
+		if( msg != null )
+		{
+			JTable chlistTb = this.getChecklistTable();
+
+			chlistTb.setVisible( false );
+
+			DefaultTableModel chlistTm = (DefaultTableModel)chlistTb.getModel();
+
+			chlistTm.addRow( new Object[]{ msg.isEnable()
+											, msg.isEditableMessage()
+											, msg.getDescription() } );
+
+			chlistTb.setVisible( true );
+		}
 	}
 	
 	private void removeMsgsFromChecklist( )
 	{
 		JTable chlistTb = this.getChecklistTable();
 		
-		chlistTb.setVisible( false );
+		//chlistTb.setVisible( false );
 		
 		DefaultTableModel chlistTm = (DefaultTableModel)chlistTb.getModel();		
+		
+		if( chlistTb.isEditing() )
+		{
+		    chlistTb.getCellEditor().stopCellEditing();
+		}
 		
 		int[] index = chlistTb.getSelectedRows();
 		
@@ -536,23 +650,41 @@ public class Dialog_SetChecklist extends JDialog {
 		
 		for( int i = index.length - 1; i >= 0; i-- )
 		{			
-			int r = index[ i ];
-				
-			if( r >= GeneralSettings.CHECKLIST_DEFAULT_LEN )
+			//int r = index[ i ];
+			
+			int viewRow = index[i];
+	        int r = chlistTb.convertRowIndexToModel(viewRow);
+
+	        if (r < 0 || r >= chlistTm.getRowCount() || r >= checkMessageList.size() ) 
+	        {
+	        	continue;
+	        }
+			
+			CheckMessage msg = checkMessageList.get( r );
+			if( msg.isRemovableMsg() )
 			{
+				checkMessageList.remove( r );
+								
 				chlistTm.removeRow( r );
 				
-				r = ( r < chlistTm.getRowCount() ) ? r : chlistTm.getRowCount()-1;
+				int newRow = ( r < chlistTm.getRowCount() ) ? r : chlistTm.getRowCount()-1;
 				
-				if( r >= 0 )
+				if( newRow >= 0 )
 				{
-					chlistTb.setRowSelectionInterval(r, r);
+					int viewIndex = chlistTb.convertRowIndexToView(newRow);
+					if (viewIndex >= 0)
+					{
+						chlistTb.setRowSelectionInterval(viewIndex, viewIndex);
+					}
 				}
 			}
 		}
 		
-		chlistTb.setVisible( true );
+		//chlistTb.setVisible( true );
+		chlistTb.revalidate();
+	    chlistTb.repaint();
 	}
+	
 	
 	private void reorderMsgs( int shift )
 	{
@@ -615,7 +747,10 @@ public class Dialog_SetChecklist extends JDialog {
 					int index = selIndex[ i ];
 					int row = index + dir;
 					
-					if( row >= GeneralSettings.CHECKLIST_DEFAULT_LEN && index >= GeneralSettings.CHECKLIST_DEFAULT_LEN )
+					CheckMessage msg1 = checkMessageList.get( row );
+					CheckMessage msg2 = checkMessageList.get( index );
+					
+					if( msg1.isRemovableMsg() && msg2.isRemovableMsg() )
 					{
 						tmSource.moveRow( index, index, row );
 						
@@ -623,6 +758,12 @@ public class Dialog_SetChecklist extends JDialog {
 						{
 							source.setRowSelectionInterval( row, row );
 						}
+						
+						checkMessageList.remove( row );
+						checkMessageList.add( row, msg2 );
+						
+						checkMessageList.remove( index );
+						checkMessageList.add( index, msg1 );						
 					}
 				}				
 			}

@@ -1,5 +1,5 @@
 /*
-f * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+ * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
  * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
@@ -19,8 +19,6 @@ f * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *  
  */
-
-
 package lslrec.config.language;
 
 import java.io.File;
@@ -36,7 +34,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
-import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.dataStream.sync.SyncMethod;
 
@@ -163,6 +160,7 @@ public class Language
 	public static final String MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS = "MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS";
 	public static final String MSG_CHECKLIST_WARNING = "MSG_CHECKLIST_WARNING";
 	public static final String MSG_EMPTY = "MSG_EMPTY";
+	public static final String MSG_STREAM_RESPONSE_CHECK = "MSG_STREAM_RESPONSE_CHECK";
 	
 	public static final String INFO_STATE_LABEL = "INFO_STATE_LABEL";
 	public static final String INFO_SESSION_TIME_LABEL = "INFO_SESSION_TIME_LABEL";
@@ -256,6 +254,9 @@ public class Language
 	public static final String NONE_TEXT = "NONE_TEXT";
 	public static final String XAXIS_TEXT = "XAXIS_TEXT";
 	public static final String RELATIVE_TEXT = "RELATIVE_TEXT";
+	public static final String EDIT_TEXT = "EDIT_TEXT";
+	
+	public static final String ALTERNATIVE_TEXT = "ALTERNATIVE_TEXT";
 	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
@@ -264,6 +265,9 @@ public class Language
 		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
 		
+		captions.put( ALTERNATIVE_TEXT, new Caption(ALTERNATIVE_TEXT, defaultLanguage, "Alternative" ) );
+		captions.put( EDIT_TEXT, new Caption(EDIT_TEXT, defaultLanguage, "Edit" ) );
+		
 		captions.put( COMMON_TEXT, new Caption(COMMON_TEXT, defaultLanguage, "Common" ) );
 		captions.put( TOTAL_TEXT, new Caption(TOTAL_TEXT, defaultLanguage, "Total" ) );
 		
@@ -271,6 +275,7 @@ public class Language
 		
 		captions.put( MSG_EMPTY, new Caption(MSG_EMPTY, defaultLanguage, "It is empty." ) );
 		captions.put( MSG_CHECKLIST_WARNING, new Caption(MSG_CHECKLIST_WARNING, defaultLanguage, "Too fast! Read the options before checking them." ) );
+		captions.put( MSG_STREAM_RESPONSE_CHECK, new Caption(MSG_STREAM_RESPONSE_CHECK, defaultLanguage, "Checking that the streams respond..." ) );
 		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS, defaultLanguage, "Number of selected data streams is not equal to " ) );		
 		captions.put( MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, new Caption(MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS, defaultLanguage, "Number of selected sync streams is not equal to " ) );

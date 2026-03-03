@@ -44,6 +44,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -366,6 +367,7 @@ public class Dialog_PlotClis extends JDialog
 	private JSpinner xAxisOffsetValue;
 	
 	private JDialog dataInfoDialog;
+	private JPanel  dataInfoPanelDialog;
 	
 	private String currentFolderPath;
 		
@@ -401,6 +403,7 @@ public class Dialog_PlotClis extends JDialog
 				clearCurrentClisFile();
 				clearClisData();
 				
+				dataInfoDialog.dispose();				
 				dispose();				
 			}
 			
@@ -410,6 +413,70 @@ public class Dialog_PlotClis extends JDialog
 		container.add( this.getCenterPanel(), BorderLayout.CENTER);
 		//super.getContentPane().add( this.getSouthPanel(), BorderLayout.SOUTH);
 		super.getContentPane().add( this.getLoadFilePanel(), BorderLayout.NORTH);
+		
+		this.setDialogInfo();
+	}
+	
+	private void setDialogInfo()
+	{
+		this.dataInfoDialog = new JDialog( this );
+		
+		this.dataInfoDialog.setLayout( new BorderLayout() );						
+		this.dataInfoDialog.setSize( new Dimension( 500, 400 ));
+		this.dataInfoDialog.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
+
+		this.dataInfoDialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow") 
+															, KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0) 
+															, JComponent.WHEN_IN_FOCUSED_WINDOW );
+		
+		JPanel northPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
+		final JToggleButton tgbt = new JToggleButton();		
+		tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, true ) );
+		
+		tgbt.addChangeListener( new ChangeListener() 
+		{							
+			@Override
+			public void stateChanged(ChangeEvent e) 
+			{
+				JToggleButton tgbt = (JToggleButton)e.getSource();
+				
+				tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, !tgbt.isSelected() ));
+			}
+		});
+		
+		northPanel.add( tgbt );
+		this.dataInfoDialog.add( northPanel, BorderLayout.NORTH );
+		
+		this.dataInfoDialog.addWindowFocusListener( new WindowFocusListener()
+		{				
+			@Override
+			public void windowLostFocus(WindowEvent e) 
+			{
+				if( !tgbt.isSelected() )
+				{
+					((Window)e.getSource()).dispose();
+				}
+			}
+			
+			@Override
+			public void windowGainedFocus(WindowEvent e) 
+			{					
+			}
+		});
+		
+		this.dataInfoDialog.addComponentListener( new ComponentAdapter()
+		{
+			@Override
+			public void componentShown(ComponentEvent e) 
+			{
+				getCanva().revalidate();
+				getCanva().repaint();
+			}
+		});
+		
+		this.dataInfoPanelDialog = new JPanel( new BorderLayout() );
+		this.dataInfoPanelDialog.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
+		this.dataInfoDialog.add( this.dataInfoPanelDialog, BorderLayout.CENTER );		
 	}
 	
 	private JPanel getCenterPanel()
@@ -420,9 +487,7 @@ public class Dialog_PlotClis extends JDialog
 			
 			this.centerPanel.setLayout( new BorderLayout( 0, 5 ) );
 			this.centerPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-			
-			//this.centerPanel.add( this.getInfoFilePanel(), BorderLayout.WEST );
-			
+						
 			JButton colapseInfoPanelButton = new JButton( "<" );
 			colapseInfoPanelButton.setBorder( BorderFactory.createEtchedBorder() );
 			colapseInfoPanelButton.setPreferredSize( new Dimension( 15, 0 ) );
@@ -710,6 +775,11 @@ public class Dialog_PlotClis extends JDialog
 			scrp.getHorizontalScrollBar().setPreferredSize( new Dimension( 0, 10) );
 			
 			infoPanel.add( scrp , BorderLayout.CENTER );
+		}
+		
+		if( this.dataInfoDialog.isVisible() )
+		{
+			this.dataInfoDialog.setTitle( getTxtClisFile().getText() );
 		}
 		
 		infoPanel.setVisible( vis );
@@ -1137,90 +1207,53 @@ public class Dialog_PlotClis extends JDialog
 				this.btnShowFileInfo.setText( " i " );
 			}
 			
-			final Dialog_PlotClis dgplotclis = this;
 			this.btnShowFileInfo.addActionListener( new ActionListener() 
 			{				
 				@Override
 				public void actionPerformed(ActionEvent e) 
-				{
+				{						
 					if( clisData != null )
-					{
-						JButton bt = (JButton)e.getSource();
-						
-						if( dataInfoDialog == null || !dataInfoDialog.isVisible() )
+					{						
+						SwingUtilities.invokeLater(()->
 						{
-							dataInfoDialog = new JDialog( dgplotclis );
-							
-							dataInfoDialog.setTitle( getTxtClisFile().getText() );
-							dataInfoDialog.setLayout( new BorderLayout() );						
-							dataInfoDialog.setSize( new Dimension( 500, 400 ));
-							dataInfoDialog.setDefaultCloseOperation( JDialog.DISPOSE_ON_CLOSE );
-							
-							dataInfoDialog.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow"), 
-															KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-															JComponent.WHEN_IN_FOCUSED_WINDOW );							
-						}
-						
-						dataInfoDialog.getContentPane().removeAll();
-						
-						JPanel northPanel = new JPanel( new FlowLayout( FlowLayout.LEFT ) );
-						final JToggleButton tgbt = new JToggleButton();
-						//tgbt.setIcon( GeneralAppIcon.Thumbtack( 16, Color.BLACK ) );
-						tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, true ) );
-						
-						tgbt.addChangeListener( new ChangeListener() 
-						{							
-							@Override
-							public void stateChanged(ChangeEvent e) 
-							{
-								JToggleButton tgbt = (JToggleButton)e.getSource();
-								
-								tgbt.setIcon( GeneralAppIcon.Lock( 16, Color.BLACK, !tgbt.isSelected() ));
-							}
+							showInfoDialog( (Component)e.getSource() );
 						});
-						
-						northPanel.add( tgbt );
-						dataInfoDialog.add( northPanel, BorderLayout.NORTH );
-						
-						JPanel infoPanel = getInfoFilePanel();
-						infoPanel.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
-						dataInfoDialog.add( infoPanel, BorderLayout.CENTER );
-												
-						Point loc = bt.getLocationOnScreen();
-						Dimension size = bt.getSize();
-						dataInfoDialog.setLocation( loc.x + size.width, loc.y );					
-							
-						dataInfoDialog.addWindowFocusListener( new WindowFocusListener()
-						{				
-							@Override
-							public void windowLostFocus(WindowEvent e) 
-							{
-								if( !tgbt.isSelected() )
-								{
-									((Window)e.getSource()).dispose();
-								}
-							}
-							
-							@Override
-							public void windowGainedFocus(WindowEvent e) 
-							{					
-							}
-						});
-						
-						dataInfoDialog.setAlwaysOnTop( true );			
-						dataInfoDialog.setVisible( true );
-						dataInfoDialog.requestFocus();
 					}
+					else
+					{
+						dataInfoDialog.setVisible( false );
+					}
+					/*
 					else if( dataInfoDialog != null )
 					{
 						dataInfoDialog.dispose();
 						dataInfoDialog = null;
 					}
+					//*/					
 				}
 			});
 		}
 		
 		return this.btnShowFileInfo;
+	}
+	
+	private void showInfoDialog( Component bt )
+	{		
+		//dataInfoDialog.setVisible( false );	
+		dataInfoDialog.setTitle( getTxtClisFile().getText() );
+		
+		dataInfoPanelDialog.removeAll();
+								
+		JPanel infoPanel = getInfoFilePanel();
+		dataInfoPanelDialog.add( infoPanel, BorderLayout.CENTER );
+								
+		Point loc = bt.getLocationOnScreen();
+		Dimension size = bt.getSize();
+		dataInfoDialog.setLocation( loc.x + size.width, loc.y );					
+		
+		dataInfoDialog.setAlwaysOnTop( true );			
+		dataInfoDialog.setVisible( true );
+		dataInfoDialog.requestFocus();
 	}
 	
 	private JLabel getLblVariable() 
@@ -2425,7 +2458,7 @@ public class Dialog_PlotClis extends JDialog
 		{	
 			this.tableFileData = this.getCreateJTable( );
 			this.tableFileData.setModel( this.createBinFileTable( ) );
-			
+						
 			this.tableFileData.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 			
 			this.tableFileData.getModel().addTableModelListener( new TableModelListener() 
@@ -2493,8 +2526,8 @@ public class Dialog_PlotClis extends JDialog
 			JButton btR = btRender.getButton();
 			JButton btEd = btEditor.getButton();
 			
-			btR.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
-			btEd.setIcon( GeneralAppIcon.Close( 12, Color.RED ) );
+			btR.setIcon( GeneralAppIcon.Trash( 12, Color.RED ) );
+			btEd.setIcon( GeneralAppIcon.Trash( 12, Color.RED ) );
 			
 			ActionListener actListener = new ActionListener() 
 			{	
@@ -2515,7 +2548,59 @@ public class Dialog_PlotClis extends JDialog
 			tcm.getColumn( 1  ).setResizable( false );
 			tcm.getColumn( 1 ).setPreferredWidth( 25 );
 			tcm.getColumn( 1 ).setMaxWidth( 25 );
+			
+			
+			TableButtonCellRender btRH = new TableButtonCellRender();
+			
+			JButton btR2 = btRH.getButton();
+			btR2.setRolloverEnabled( true );
+			btR2.setIcon( GeneralAppIcon.Trash( 12, Color.RED ) );
 						
+			tcm.getColumn( 1 ).setHeaderRenderer( btRH );
+						
+			tcm.getColumn( 1 ).setHeaderRenderer( btRH );
+			this.tableFileData.getTableHeader().addMouseMotionListener( new MouseMotionAdapter() 
+			{				
+				@Override
+				public void mouseMoved(MouseEvent e) 
+				{
+					int colIndex = tableFileData.getTableHeader().columnAtPoint(e.getPoint());
+			    	
+			    	btRH.setHover( colIndex == 1 );
+				}
+			});
+			
+			this.tableFileData.getTableHeader().addMouseListener(new MouseAdapter() 
+			{
+				private int colIndex = -1;
+				
+			    @Override
+			    public void mousePressed(MouseEvent e) 
+			    {
+			    	colIndex = tableFileData.getTableHeader().columnAtPoint(e.getPoint());
+			    }
+			    
+			    @Override
+			    public void mouseReleased( MouseEvent e ) 
+			    {
+			    	 int col = tableFileData.getTableHeader().columnAtPoint(e.getPoint());
+ 			        
+			    	 if (colIndex == col ) 
+			    	 {			        	
+			    		 for( int i = tableFileData.getRowCount()-1; i>=0; i-- )
+			    		 {
+			    			 removeFileTable( i );
+			    		 }
+			    	 }
+			    }
+			    
+			    @Override
+			    public void mouseExited(MouseEvent e) 
+			    {
+			    	btRH.setHover( false );			    	 
+			    }
+			});
+			
 			this.tableFileData.getSelectionModel( ).addListSelectionListener( new ListSelectionListener( ) 
 			{	
 				@Override
@@ -2548,10 +2633,9 @@ public class Dialog_PlotClis extends JDialog
 							
 								getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
 							}
-							else if( dataInfoDialog != null || dataInfoDialog.isVisible() )
+							else
 							{
-								dataInfoDialog.dispose();
-								dataInfoDialog = null;
+								dataInfoDialog.setVisible( false );
 							}
 						});
 					}
@@ -2582,7 +2666,7 @@ public class Dialog_PlotClis extends JDialog
 
 				@Override
 				public synchronized void drop( DropTargetDropEvent dtde ) 
-				{
+				{					 
 					setCursor( new Cursor( Cursor.WAIT_CURSOR ) );
 					
 					try 
@@ -2601,8 +2685,11 @@ public class Dialog_PlotClis extends JDialog
 						if( filePaths != null && filePaths.length > 0 )
 						{
 							Arrays.sort( filePaths );
-															
-							insertFilePath2Table( filePaths );
+						
+							SwingUtilities.invokeLater(() ->
+							{
+								insertFilePath2Table( filePaths );
+							});
 							
 							currentFolderPath = (new File( filePaths[ 0 ] ) ).getAbsolutePath();
 						}

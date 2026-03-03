@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no"?>
+<jardesc>
+    <jar path="LSLRecorder/binaries/StreamResponseTester.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/LSLRecorder/StreamResponseTester.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <manifest generateManifest="false" manifestLocation="/LSLRecorder/StreamResponseTesterManifest/manifest.mf" manifestVersion="1.0" reuseManifest="true" saveManifest="true" usesManifest="true">
+        <sealing sealJar="false">
+            <packagesToSeal/>
+            <packagesToUnSeal/>
+        </sealing>
+    </manifest>
+    <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra{ArrayTreeMap.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{ConfigApp.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{GeneralSettings.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra{NumberRange.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra{StringTuple.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra{Tuple.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread{StreamResponseTester.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.setting"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lsl"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.family.stream.lslrec.streamgiver"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.tools"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.exceptions.handler"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.sockets.info"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.stoppableThread"/>
+    </selectedElements>
+</jardesc>

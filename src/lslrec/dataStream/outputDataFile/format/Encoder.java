@@ -25,7 +25,6 @@ import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ParameterList;
 import lslrec.config.SettingOptions;
-import lslrec.control.notification.NotificationTask;
 import lslrec.dataStream.family.setting.IStreamSetting;
 
 public interface Encoder extends ITaskIdentity 

@@ -1203,15 +1203,18 @@ public class AppUI extends JFrame
 													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE 
 													, ConfigApp.CHECKLIST_TIMER
 													, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM
+													, ConfigApp.MESSAGE_LOG_FILE
 													};
 					Map< String, String > optIdLang = new HashMap< String, String >();
 					
+
 					optIdLang.put( ConfigApp.DEL_BINARY_FILES, Language.DEL_BINARY_FILES );
 					optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
 					optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
 					optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
 					optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
 					optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
+					optIdLang.put( ConfigApp.MESSAGE_LOG_FILE, ConfigApp.MESSAGE_LOG_FILE  );					
 										
 					for( String op : optList )
 					{

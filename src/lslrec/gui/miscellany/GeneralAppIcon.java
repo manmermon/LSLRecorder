@@ -2061,4 +2061,28 @@ public class GeneralAppIcon
 		ic = new ImageIcon( img.getScaledInstance( size, size, BufferedImage.SCALE_SMOOTH ) );		
 		return ic;
 	}
+	
+	public static ImageIcon Trash( int size, Color c )
+	{
+		ImageIcon ic = null;
+		
+		int sizeImg = 256;
+		int thin = 16;
+		BufferedImage  img = (BufferedImage)BasicPainter2D.createEmptyImage( sizeImg, sizeImg, null );
+		
+		
+		BufferedImage body = (BufferedImage)BasicPainter2D.paintRectangle( (sizeImg*3)/4, (sizeImg*4)/5, thin, c, null );		
+		BasicPainter2D.paintLine( body.getWidth()/4 , body.getHeight()/4, body.getWidth()/4 , (body.getHeight()*3)/4, thin, c, body);
+		BasicPainter2D.paintLine( (body.getWidth()*3)/4 , body.getHeight()/4, (body.getWidth()*3)/4 , (body.getHeight()*3)/4, thin, c, body);
+		BasicPainter2D.paintLine( (body.getWidth())/2 , body.getHeight()/4, (body.getWidth())/2 , (body.getHeight()*3)/4, thin, c, body);
+		
+		BufferedImage handle = (BufferedImage)BasicPainter2D.paintRectangle( sizeImg/2, img.getHeight()-body.getHeight()+thin, thin, c, null );
+		
+		BasicPainter2D.compoundImages(img, (img.getWidth()-body.getWidth())/2, img.getHeight()-body.getHeight(), body );		
+		BasicPainter2D.paintLine( 0, img.getHeight()-body.getHeight(), img.getWidth(), img.getHeight()-body.getHeight(), thin, c, img );
+		BasicPainter2D.compoundImages( img, (img.getWidth()-handle.getWidth())/2, 0, handle );
+		
+		ic = new ImageIcon( img.getScaledInstance( size, size, BufferedImage.SCALE_SMOOTH ) );
+		return ic;
+	}
 }

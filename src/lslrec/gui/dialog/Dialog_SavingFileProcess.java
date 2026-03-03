@@ -36,7 +36,6 @@ import javax.swing.JPanel;
 
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 
 import lslrec.config.language.Language;
 

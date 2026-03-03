@@ -52,12 +52,8 @@ import com.sun.jna.Platform;
 
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
-import lslrec.dataStream.family.DataStreamFactory;
-import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.dataStream.family.stream.IDataStream;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
-import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 
 public class mainLSLRecorder 
 {
@@ -381,7 +377,7 @@ public class mainLSLRecorder
 		Dialog_Opening openDialog = new Dialog_Opening(openDim, GeneralAppIcon.getIconoAplicacion(128, 128).getImage(),
 													GeneralSettings.shortNameApp,
 													"<html><center><h1>Opening " + GeneralSettings.fullNameApp + ".<br>Wait please...</h1>"
-															+ (ConfigApp.isTesting() ? "<br><h5>Debug mode on</h5>" : "" )															
+															+ (ConfigApp.isTesting() ? "<br><h5>Debug mode</h5>" : "" )															
 															+ "</center></html>",
 													Color.WHITE);
 		openDialog.setVisible(true);

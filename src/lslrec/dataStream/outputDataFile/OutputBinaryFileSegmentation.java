@@ -977,23 +977,7 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 	protected void runExceptionManager( Throwable e )
 	{
 		if (!(e instanceof InterruptedException))
-		{
-			/*
-			if( this.monitor != null )
-			{
-				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new IOException("Problem: it is not possible to write in the file " + this.writer.getFileName() + "\n" + e.getClass()));
-				
-				this.events.add( event );
-				try 
-				{
-					this.monitor.taskDone( this );
-				} 
-				catch (Exception e1) 
-				{	
-				}
-			}
-			*/
-						
+		{						
 			super.stopThread = true;
 			
 			this.outputFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, false );
@@ -1019,15 +1003,6 @@ public class OutputBinaryFileSegmentation extends AbstractStoppableThread implem
 				}
 				
 				EventInfo event = new EventInfo( this.getID(), EventType.PROBLEM, new Exception("Problem: it is not possible to write in the file " + fileName + "\n" + cl));				
-				
-				/*
-				this.notifTask.addEvent( event );
-				
-				synchronized ( this.notifTask )
-				{
-					this.notifTask.notify();
-				}
-				//*/
 				
 				this.notifTask.queueAndSendEvent( event );
 			}			
