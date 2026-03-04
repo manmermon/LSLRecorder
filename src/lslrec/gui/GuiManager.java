@@ -729,13 +729,19 @@ public class GuiManager
 
 			AppUI.getInstance().getLeftPanelSetting().loadRegisteredSyncInputMessages();		
 
+			/*
 			try 
-			{
+			{				
 				AppUI.getInstance().getRightPanelSetting().refreshDataStreams();
 			}
 			catch (Exception e) 
 			{
 			}
+			//*/
+			SwingUtilities.invokeLater(()->
+			{
+				AppUI.getInstance().getJButtonRefreshDataStreams().doClick();
+			});
 		}
 	}
 	

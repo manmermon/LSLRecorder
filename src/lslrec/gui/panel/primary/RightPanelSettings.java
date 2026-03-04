@@ -241,13 +241,6 @@ public class RightPanelSettings extends JPanel
 		this.selectedDeviceGroup = this.getRadioButtonGroup();
 		this.syncDeviceGroup = this.getSynDeviceGroup();
 
-		this.updateDeviceInfos();
-
-		if( this.deviceInfo == null || this.deviceInfo.length < 1 )
-		{
-			ConfigApp.setProperty( ConfigApp.ID_STREAMS, new HashSet< IMutableStreamSetting >() );
-		}
-
 		super.add( this.getContentPanel(), BorderLayout.CENTER );
 		super.setName( "Streaming Settings" );
 		
@@ -258,6 +251,19 @@ public class RightPanelSettings extends JPanel
 		{
 			fileFormat.setSelectedIndex( 0 );
 		}
+		
+		/*
+		SwingUtilities.invokeLater(()->
+		{
+			//this.updateDeviceInfos();
+			GuiManager.getInstance().refreshDataStreams();
+	
+			if( this.deviceInfo == null || this.deviceInfo.length < 1 )
+			{
+				ConfigApp.setProperty( ConfigApp.ID_STREAMS, new HashSet< IMutableStreamSetting >() );
+			}
+		});
+		//*/
 	}
 
 	public void enableSettings( boolean enable )
@@ -455,6 +461,14 @@ public class RightPanelSettings extends JPanel
 	public boolean refreshDataStreams()
 	{	
 		this.getDisabledPanel().setEnabled( false );
+		
+		try 
+		{
+			updateDeviceInfos();
+		}
+		catch (Exception e2) 
+		{
+		}			
 		
 		Tuple< JPanel, JTree > update = this.getUpdateStreamPanel();
 				
@@ -1664,9 +1678,8 @@ public class RightPanelSettings extends JPanel
 		if( this.splitPanelDevices == null )
 		{
 			this.splitPanelDevices = new JSplitPane();
-			this.splitPanelDevices.setResizeWeight( 0.5 );
-			this.splitPanelDevices.setDividerLocation( 0.5 );			
-			this.splitPanelDevices.setOrientation( JSplitPane.VERTICAL_SPLIT );
+			this.splitPanelDevices.setResizeWeight( 0.5 );					
+			this.splitPanelDevices.setOrientation( JSplitPane.VERTICAL_SPLIT );			
 	
 			this.splitPanelDevices.setBackground( Color.WHITE );
 			this.splitPanelDevices.setFocusable( false );
@@ -1676,7 +1689,7 @@ public class RightPanelSettings extends JPanel
 			final Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
 
 			SwingUtilities.invokeLater( () -> 
-			{
+			{				
 				JPanel scr = this.getPanelSelectDevPanel();
 				scr.setVisible( false );
 				scr.removeAll();
@@ -1685,6 +1698,8 @@ public class RightPanelSettings extends JPanel
 
 				this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
 				this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.t2 ) );
+				
+				this.splitPanelDevices.setDividerLocation( 0.40 );				
 			});
 
 		}
@@ -1711,6 +1726,8 @@ public class RightPanelSettings extends JPanel
 			
 			this.panelDeviceAndSetting.add( this.getJPanelOutFile(), BorderLayout.NORTH );
 			this.panelDeviceAndSetting.add( this.getPanelSelectDevPanel(), BorderLayout.CENTER );
+						
+			this.panelDeviceAndSetting.setMinimumSize( new Dimension( 0, 160 ) );
 		}
 			
 		return this.panelDeviceAndSetting;
@@ -1756,6 +1773,7 @@ public class RightPanelSettings extends JPanel
 		this.selectedDeviceGroup.removeAllButtons();
 		this.syncDeviceGroup.removeAllButtons();
 		
+		/*
 		try 
 		{
 			updateDeviceInfos();
@@ -1763,6 +1781,7 @@ public class RightPanelSettings extends JPanel
 		catch (Exception e2) 
 		{
 		}
+		//*/
 				
 		if( this.deviceInfo != null
 				&& this.deviceInfo.length > 0 )

@@ -31,7 +31,7 @@ public class GeneralSettings
 {		
 		public static final String fullNameApp = "LSL Recorder";
 		public static final String shortNameApp = "LSLRec";
-		public static final Calendar buildDate = new GregorianCalendar( 2026, 2 - 1, 27 );
+		public static final Calendar buildDate = new GregorianCalendar( 2026, 3 - 1,  4);
 		//public static final int buildNum = 33;
 		
 		//WEB

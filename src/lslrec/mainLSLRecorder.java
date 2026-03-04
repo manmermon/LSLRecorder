@@ -1,5 +1,5 @@
 /*
- * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
+2 * Work based on CLIS by Manuel Merino Monge <https://github.com/manmermon/CLIS>
  * 
  * Copyright 2018 by Manuel Merino Monge <manmermon@dte.us.es>
  *  
@@ -195,7 +195,7 @@ public class mainLSLRecorder
 					
 					ConfigApp.loadConfig( configFile );
 					
-					GuiManager.getInstance().refreshPlugins();
+					GuiManager.getInstance().refreshPlugins();					
 				}
 			} 
 			catch (Throwable e) 
@@ -211,6 +211,7 @@ public class mainLSLRecorder
 			finally 
 			{
 				GuiManager.loadConfigValues2GuiComponents();
+				//GuiManager.getInstance().refreshDataStreams();
 				GuiManager.getInstance().getAppUI().getGlassPane().setVisible(false);
 			}
 		} 

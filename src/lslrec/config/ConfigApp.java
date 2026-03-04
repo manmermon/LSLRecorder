@@ -1127,8 +1127,7 @@ public class ConfigApp
 													
 							int countDevOff = 0;
 							boolean allOk = true;
-							
-							
+														
 							Map< String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>> > foundLslStreams =  new HashMap<String, ArrayTreeMap< String, Tuple<String, IMutableStreamSetting>>>();
 							for( IMutableStreamSetting lslstr : lslDevs )
 							{
@@ -2124,6 +2123,7 @@ public class ConfigApp
 		part.setIDLangCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG );
 		msg.addMessagePart( part );
 		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.SELECTED_SYNC_METHOD, "!({0}.contains(\""+SyncMethod.SYNC_NONE + "\"))", null ) );
+		msg.setEnable( !isTesting() );	
 		messages.add( msg );
 		
 		//
@@ -2135,6 +2135,7 @@ public class ConfigApp
 		part.setIDLangCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG );
 		msg.addMessagePart( part );
 		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, "{0}==true", null ) );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2145,6 +2146,7 @@ public class ConfigApp
 									, "", false );
 		part.setIDLangCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG );
 		msg.addMessagePart( part );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2173,6 +2175,7 @@ public class ConfigApp
 		};
 		
 		msg.setMessageEvaluator( ev );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2201,6 +2204,7 @@ public class ConfigApp
 		};
 		
 		msg.setMessageEvaluator( ev );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2218,6 +2222,7 @@ public class ConfigApp
 		msg.addMessagePart( part );
 				
 		msg.setDescription( Language.getLocalCaption( Language.CHECK_SUBJECT_IDS_WARNING_MSG ) );
+		msg.setEnable( !isTesting() );
 		
 		messages.add( msg );
 		
@@ -2236,6 +2241,7 @@ public class ConfigApp
 		
 		part = new CheckMessagePartFromSetting( ConfigApp.OUTPUT_TEST_ID );
 		msg.addMessagePart( part );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 				
 		//
@@ -2246,6 +2252,7 @@ public class ConfigApp
 		msg.addMessagePart( part );
 		
 		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_TEST_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2256,6 +2263,7 @@ public class ConfigApp
 		msg.addMessagePart( part );
 		
 		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
 		
 		//
@@ -2271,7 +2279,12 @@ public class ConfigApp
 		List< ICheckMessagePart > parts3 = new ArrayList<ICheckMessagePart>();
 		parts3.add( part );
 		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}.matches(\"{1}\")", parts3 ) );
+		msg.setEnable( !isTesting() );
 		messages.add( msg );
+		
+		//
+		//
+		//
 		
 		return messages; 
 	}

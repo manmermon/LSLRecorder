@@ -829,8 +829,8 @@ public class AppUI extends JFrame
 						
 						bt.setEnabled( false );
 						
-						final boolean enaBtPlay = AppUI.this.getJButtonPlay().isEnabled();
-						AppUI.this.getJButtonPlay().setEnabled( false );
+						//final boolean enaBtPlay = getJButtonPlay().isEnabled();
+						getJButtonPlay().setEnabled( false );
 						
 						Thread t = new Thread()
 						{
@@ -849,16 +849,16 @@ public class AppUI extends JFrame
 												, Language.getLocalCaption( Language.MSG_WARNING )
 												, JOptionPane.WARNING_MESSAGE );
 									}
-									
-									bt.setEnabled( true );
-											
-									if( enaBtPlay )
-									{
-										AppUI.this.getJButtonPlay().setEnabled( true );
-									}
 								} 
 								catch (Exception e) 
 								{
+									e.printStackTrace();
+								}
+								finally
+								{
+									bt.setEnabled( true );
+									//getJButtonPlay().setEnabled( enaBtPlay );
+									getJButtonPlay().setEnabled( true );
 								}
 							} 
 						};		
