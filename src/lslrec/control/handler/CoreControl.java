@@ -1186,7 +1186,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			        }
 			        else 
 			        {
-			            System.out.println("No se encontró ningún número.");
+			            System.out.println("No se encontrï¿½ ningï¿½n nï¿½mero.");
 			        }
 				}
 				else if( i == 3 )
@@ -2362,29 +2362,32 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					}		
 					else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
 					{
-						int val = -1;
-						File file = null;
-						
-						try
+						if( !GuiManager.getInstance().getAppState().equals( AppState.State.SAVED ) ) // all data saved
 						{
-							//val = (Integer)eventObject;				
-							Tuple< File, Integer > progress = (Tuple< File, Integer >)eventObject;
+							int val = -1;
+							File file = null;
 							
-							file = progress.t1;
-							val = progress.t2;							
+							try
+							{
+								//val = (Integer)eventObject;				
+								Tuple< File, Integer > progress = (Tuple< File, Integer >)eventObject;
+								
+								file = progress.t1;
+								val = progress.t2;							
+								
+								managerGUI.setSavingState( file, val );
+							}
+							catch (Exception e) 
+							{
+								val = -1;
+							}
 							
-							managerGUI.setSavingState( file, val );
-						}
-						catch (Exception e) 
-						{
-							val = -1;
-						}
-						
-						if( val > savingDataProgress )
-						{
-							//managerGUI.setAppState( AppState.State.SAVING, val, true );							
-							managerGUI.setAppState( AppState.State.SAVING, 0, false);
-							savingDataProgress = val;
+							if( val > savingDataProgress )
+							{
+								//managerGUI.setAppState( AppState.State.SAVING, val, true );							
+								managerGUI.setAppState( AppState.State.SAVING, 0, false);
+								savingDataProgress = val;
+							}
 						}
 					}
 					else if( event_type.equals( EventType.OUTPUT_DATA_FILE_SAVED ) )
@@ -2465,10 +2468,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 		private void setAllFilesSaved()
-		{
-			managerGUI.setAppState( AppState.State.SAVED, 100, false );
-			managerGUI.closeSavingFileProgressDialog();
-			
+		{			
 			savingDataProgress = 0;
 			
 			if( deadlockDetector != null )
@@ -2484,6 +2484,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
 			
+			managerGUI.setAppState( AppState.State.SAVED, 100, false );
+			managerGUI.closeSavingFileProgressDialog();
+						
 			if( closeWhenDoingNothing && !isDoingSomething() )
 			{
 				System.exit( 0 );

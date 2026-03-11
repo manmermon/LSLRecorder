@@ -93,6 +93,8 @@ public interface IMutableStreamSetting extends IStreamSetting
      */
     public void setReconnectionWaitingTime( double time );
     
+    public void setErrorWhenCheckerTimerExpires( boolean er );
+    
     /**
      * 
      * @param id: XML node to append new values.

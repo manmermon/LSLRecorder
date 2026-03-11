@@ -211,15 +211,6 @@ public interface IStreamSetting
 	public abstract boolean isSynchronationStream();
 	
 	/**
-	 * 
-	 * @return recording checking timer. Default true
-	 */
-	public default boolean isEnableRecordingCheckerTimer()
-	{
-		return true;
-	}
-	
-	/**
 	 * @return data type of timestamp
 	 */
 	public abstract StreamDataType getTimestampDataType();
@@ -307,20 +298,34 @@ public interface IStreamSetting
     		}
     	}
     	
-    	return "<" 	+ this.source_id() 						// 1
-					+ 	", " 	+ this.name() 				// 2
-					+ 	", " 	+ this.content_type() 		// 3
-					+ 	", " 	+ extra						// 4
-					+ 	", " 	+ this.isSelected() 		// 5
-					+ 	", " 	+ this.getChunkSize() 		// 6
-					+ 	", " 	+ this.isInterleavedData()	// 7
-					+ 	", " 	+ this.isSynchronationStream()	// 8
-					+ 	", " 	+ this.isEnableRecordingCheckerTimer()	// 9
+    	return "<" 	+ this.source_id() 						// 0
+					+ 	", " 	+ this.name() 				// 1
+					+ 	", " 	+ this.content_type() 		// 2
+					+ 	", " 	+ extra						// 3
+					+ 	", " 	+ this.isSelected() 		// 4
+					+ 	", " 	+ this.getChunkSize() 		// 5
+					+ 	", " 	+ this.isInterleavedData()	// 6
+					+ 	", " 	+ this.isSynchronationStream()	// 7
+					+ 	", " 	+ this.isEnableRecordingCheckerTimer()	// 8
+					+	", " 	+ this.errorWhenCheckerTimerExpires() // 9
 					//+   ", "    + this.reconnectionWaitingTime()	// 10
 					+ 	">";
     }    
     
-
+    /**
+	 * 
+	 * @return recording checking timer. Default true
+	 */
+	public default boolean isEnableRecordingCheckerTimer()
+	{
+		return true;
+	}
+	
+	public default boolean errorWhenCheckerTimerExpires()
+	{
+		return true;
+	}
+    
     public default boolean reconnectLostStream()
     {
     	return this.reconnectionWaitingTime() != 0.0;

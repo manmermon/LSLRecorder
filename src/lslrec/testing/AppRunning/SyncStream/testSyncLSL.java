@@ -22,11 +22,7 @@ package lslrec.testing.AppRunning.SyncStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sun.xml.internal.ws.util.StreamUtils;
-
-import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
-import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.family.stream.lsl.LSLStreamInfo;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.stoppableThread.AbstractStoppableThread;

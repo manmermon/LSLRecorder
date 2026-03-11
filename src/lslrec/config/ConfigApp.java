@@ -1154,7 +1154,7 @@ public class ConfigApp
 								dev = dev.replace( "<", "" ).replace( ">", "" );
 								String[] devInfo = dev.split( "," );
 								
-								if( devInfo.length == 9 )
+								if( devInfo.length == 10 )
 								{
 									String sourceID = devInfo[ 0 ].replace( " ", "" );
 									String name = devInfo[ 1 ].replace( " ", "" );
@@ -1203,6 +1203,15 @@ public class ConfigApp
 									try
 									{
 										enableRecordingCheckerTimer = new Boolean( devInfo[ 8 ].replace( " ", "" ) );
+									}
+									catch (Exception e) 
+									{
+									}
+									
+									boolean errCheckerTimerExpires = true;									
+									try
+									{
+										errCheckerTimerExpires = new Boolean( devInfo[ 9 ].replace( " ", "" ) );
 									}
 									catch (Exception e) 
 									{
@@ -1281,6 +1290,7 @@ public class ConfigApp
 										lslCfg.setInterleaveadData( interleaved );
 										lslCfg.setSynchronizationStream( isSync );
 										lslCfg.enableRecordingCheckerTimer( enableRecordingCheckerTimer );
+										lslCfg.setErrorWhenCheckerTimerExpires( errCheckerTimerExpires );
 									}
 									else
 									{			

@@ -50,6 +50,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	
 	private int recordingCheckerTime = 3;
 	private boolean enableCheckerTimer = true;
+	private boolean errorCheckerTimerExpires = true;
 	
 	private double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
 	
@@ -82,6 +83,7 @@ public class MutableStreamSetting implements IMutableStreamSetting
 		this.interleaved = this.str.isInterleavedData();
 		this.enableCheckerTimer = this.str.isEnableRecordingCheckerTimer();
 		this.reconnectionTime = streamSetting.reconnectionWaitingTime();
+		this.errorCheckerTimerExpires = streamSetting.errorWhenCheckerTimerExpires();
 		
 		this.extraInfoNode = this.str.getRootNode2ExtraInfoLabel();
 	}
@@ -331,6 +333,18 @@ public class MutableStreamSetting implements IMutableStreamSetting
 	public boolean isEnableRecordingCheckerTimer() 
 	{
 		return this.enableCheckerTimer;
+	}
+	
+	@Override
+	public void setErrorWhenCheckerTimerExpires(boolean er) 
+	{
+		this.errorCheckerTimerExpires = er;
+	}
+	
+	@Override
+	public boolean errorWhenCheckerTimerExpires() 
+	{	
+		return this.errorCheckerTimerExpires;
 	}
 	
 	@Override

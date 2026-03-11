@@ -53,6 +53,7 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	private boolean enableCheckerTimer = true;
 	
 	private double reconnectionTime = IStreamSetting.NO_RECONNECT_LOST_STREAM;
+	private boolean errorCheckerTimerExpires = true;
 	
 	private String extraInfoNode = LSLUtils.getAdditionalInformationLabelInXml();
 			
@@ -410,6 +411,18 @@ public class LSLStreamInfo implements IMutableStreamSetting
 	public void setReconnectionWaitingTime(double time) 
 	{
 		this.reconnectionTime = time;
+	}
+	
+	@Override
+	public void setErrorWhenCheckerTimerExpires(boolean er) 
+	{
+		this.errorCheckerTimerExpires = er;
+	}
+	
+	@Override
+	public boolean errorWhenCheckerTimerExpires() 
+	{
+		return this.errorCheckerTimerExpires;
 	}
 }
 

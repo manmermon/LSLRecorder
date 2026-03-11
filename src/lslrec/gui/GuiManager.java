@@ -971,13 +971,12 @@ public class GuiManager
 			{
 				dialog_savingFileProcess = new Dialog_SavingFileProcess( );
 				dialog_savingFileProcess.setModal( true );
-				dialog_savingFileProcess.setDefaultCloseOperation( JDialog.DO_NOTHING_ON_CLOSE );
+				dialog_savingFileProcess.setDefaultCloseOperation( JDialog.HIDE_ON_CLOSE );
 				dialog_savingFileProcess.setIconImage( getAppUI().getIconImage() );
 
 				dialog_savingFileProcess.setSize( 400, 300 );
 
 				dialog_savingFileProcess.setLocationRelativeTo( getAppUI() );
-
 
 				dialog_savingFileProcess.setVisible( true );
 			}

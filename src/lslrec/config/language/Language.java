@@ -100,6 +100,7 @@ public class Language
 	
 	public static final String SETTING_LSL_SEARCHING_TIME = "SETTING_LSL_SEARCHING_TIME";
 	public static final String SETTING_RECORDING_CHECKER_TIMER= "SETTING_RECORDING_CHECKER_TIMER";
+	public static final String SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES= "SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES";
 	public static final String SETTING_SEGMENT_BLOCK_SIZE= "SETTING_SEGMENTATION_BLOCK_SIZE";
 
 	public static final String LSL_PLOT_FILTERS = "LSL_PLOT_FILTERS";
@@ -304,6 +305,7 @@ public class Language
 		captions.put( MSG_ENCODER_PLUGIN_NO_FOUND, new Caption( MSG_ENCODER_PLUGIN_NO_FOUND,  defaultLanguage, "Encoder plugin no found" ) );
 		captions.put( SETTING_SEGMENT_BLOCK_SIZE, new Caption( SETTING_SEGMENT_BLOCK_SIZE,  defaultLanguage, "Segment block size (MiB)" ) );
 		captions.put( SETTING_RECORDING_CHECKER_TIMER, new Caption( SETTING_RECORDING_CHECKER_TIMER,  defaultLanguage, "Recording checking timer (sec or v / Fsampling)" ) );
+		captions.put( SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES, new Caption( SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES,  defaultLanguage, "Behavior when the checker timer expires." ) );
 		captions.put( MSG_ILLEGAL_VALUE, new Caption( MSG_ILLEGAL_VALUE,  defaultLanguage, "Illegal value" ) );
 		captions.put( SETTING_LSL_SEARCHING_TIME, new Caption( SETTING_LSL_SEARCHING_TIME,  defaultLanguage, "Stream searching time (s)" ) );
 		captions.put( MENU_ADVANCED, new Caption( MENU_ADVANCED,  defaultLanguage, "Advanced" ) );

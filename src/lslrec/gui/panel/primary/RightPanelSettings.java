@@ -2143,6 +2143,16 @@ public class RightPanelSettings extends JPanel
 							Parameter< Boolean > check = new Parameter<Boolean>( Language.SETTING_RECORDING_CHECKER_TIMER, dev.isEnableRecordingCheckerTimer() );
 							check.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
 							parlist.addParameter( check );
+							
+							opts.add( null );
+							
+							opt = new SettingOptions( Language.SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES, SettingOptions.Type.BOOLEAN, false, null,  Language.SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES );
+							opt.addValue( "true" );
+							opts.add( opt );
+														
+							check = new Parameter<Boolean>( Language.SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES, dev.errorWhenCheckerTimerExpires() );
+							check.setLangID( Language.SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES );
+							parlist.addParameter( check );
 						}
 						
 						Dialog_AdvancedOptions dialogOpts = new Dialog_AdvancedOptions(opts, parlist );
@@ -2169,6 +2179,12 @@ public class RightPanelSettings extends JPanel
 						if( par != null )
 						{
 							dev.enableRecordingCheckerTimer( par.getValue() );
+						}
+						
+						par = parlist.getParameter( Language.SETTING_ERROR_BEHAVOIR_CHECKER_TIMER_EXPIRES );
+						if( par != null )
+						{
+							dev.setErrorWhenCheckerTimerExpires( par.getValue() );
 						}
 							
 						getJTabDevice( null ).setVisible( false );

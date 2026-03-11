@@ -209,7 +209,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 						{						
 							String evType = EventType.PROBLEM;
 							
-							if( iss.sampling_rate() == IStreamSetting.IRREGULAR_RATE )
+							if( iss.sampling_rate() == IStreamSetting.IRREGULAR_RATE || !iss.errorWhenCheckerTimerExpires() )
 							{
 								evType = EventType.WARNING;
 								updateTime = true; // To not send another message until more time has passed

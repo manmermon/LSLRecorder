@@ -1,5 +1,6 @@
 package lslrec.testing.Others;
 import java.security.*;
+import java.util.Base64;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.crypto.Cipher;
@@ -23,7 +24,8 @@ public class AESWithKeyChanges {
         for (int i = 0; i < ITERATIONS; i++) {
             valueToEnc = salt + eValue;
             byte[] encValue = c.doFinal(valueToEnc.getBytes());
-            eValue = new BASE64Encoder().encode(encValue);
+            //eValue = new BASE64Encoder().encode(encValue);
+            eValue = Base64.getEncoder().encodeToString(encValue);
         }
         return eValue;
     }
@@ -36,7 +38,8 @@ public class AESWithKeyChanges {
         String dValue = null;
         String valueToDecrypt = value;
         for (int i = 0; i < ITERATIONS; i++) {
-            byte[] decordedValue = new BASE64Decoder().decodeBuffer(valueToDecrypt);
+           // byte[] decordedValue = new BASE64Decoder().decodeBuffer(valueToDecrypt);
+        	byte[] decordedValue = Base64.getDecoder().decode( valueToDecrypt );
             byte[] decValue = c.doFinal(decordedValue);
             dValue = new String(decValue).substring(salt.length());
             valueToDecrypt = dValue;

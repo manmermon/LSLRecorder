@@ -31,6 +31,8 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 {	
 	private String extraInfoNode = super.getRootNode2ExtraInfoLabel();
 	
+	private boolean errorCheckerTimerExpires = true;
+	
 	/**
 	 * @param libType
 	 * @param name
@@ -130,5 +132,17 @@ public class SimpleMutableStreamSetting extends SimpleStreamSetting implements I
 	public String getRootNode2ExtraInfoLabel() 
 	{
 		return this.extraInfoNode;
+	}
+
+	@Override
+	public void setErrorWhenCheckerTimerExpires(boolean er) 
+	{
+		this.errorCheckerTimerExpires = er;
+	}	
+	
+	@Override
+	public boolean errorWhenCheckerTimerExpires() 
+	{
+		return this.errorCheckerTimerExpires;
 	}
 }
