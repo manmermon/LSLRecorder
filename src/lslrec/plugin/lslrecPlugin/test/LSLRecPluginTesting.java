@@ -37,7 +37,7 @@ import lslrec.auxiliar.extra.Tuple;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
-import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
 import lslrec.dataStream.family.setting.IStreamSetting.StreamLibrary;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;

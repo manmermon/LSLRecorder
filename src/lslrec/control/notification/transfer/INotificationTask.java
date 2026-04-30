@@ -20,7 +20,7 @@
  *   
  */
 
-package lslrec.control.notification;
+package lslrec.control.notification.transfer;
 
 import java.util.List;
 

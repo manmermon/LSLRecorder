@@ -9,12 +9,12 @@ import java.util.List;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
-import lslrec.config.SettingOptions.Type;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
+import lslrec.gui.setting.SettingOptions;
+import lslrec.gui.setting.SettingOptions.Type;
 
 /**
  * @author Manuel Merino Monge

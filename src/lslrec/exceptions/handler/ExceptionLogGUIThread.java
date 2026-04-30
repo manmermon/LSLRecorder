@@ -118,22 +118,22 @@ public class ExceptionLogGUIThread
 	} 
 	
  	private void showException( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace )
-	{		
-		Throwable ex = msg.getException();
-		
-		Color msgColor = Color.ORANGE;
-
-		if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
-		{
-			msgColor = Color.RED;
-		}
-		else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
-		{
-			msgColor = Color.BLACK;
-		}
-		
+	{	
 		synchronized( sync )
 		{
+			Throwable ex = msg.getException();
+			
+			Color msgColor = Color.ORANGE;
+
+			if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
+			{
+				msgColor = Color.RED;
+			}
+			else if( msg.getMessageType() == ExceptionMessage.INFO_MESSAGE )
+			{
+				msgColor = Color.BLACK;
+			}
+			
 			for( TextAreaPrintStream log : this.logs )
 			{
 				if( !concatMsg )
@@ -145,12 +145,12 @@ public class ExceptionLogGUIThread
 				{
 					log.SetColorText( msgColor );
 				}
-					
+				
 				if( ex != null )
 				{
 					if( printExceptionTrace )
 					{
-						ex.printStackTrace( log );
+						ex.printStackTrace( log );						
 					}
 					else
 					{

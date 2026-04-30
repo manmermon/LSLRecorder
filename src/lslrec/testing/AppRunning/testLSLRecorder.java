@@ -59,7 +59,7 @@ import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
-import lslrec.control.handler.OutputDataFileHandler;
+import lslrec.control.handler.minion.OutputDataFileHandler;
 import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;

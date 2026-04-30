@@ -50,13 +50,13 @@ import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
-import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
 import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.setting.SettingOptions;
+import lslrec.gui.setting.SettingOptions.Type;
 
 public class CreatorDefaultSettingPanel 
 {

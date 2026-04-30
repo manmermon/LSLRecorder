@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.control.message.checklist;
+package lslrec.config.checklistMessage;
 
 import java.util.regex.Pattern;
 

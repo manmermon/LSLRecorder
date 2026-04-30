@@ -28,7 +28,7 @@ import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

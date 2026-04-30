@@ -30,6 +30,7 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.dataPlot.DataStreamPlotter;
 import lslrec.gui.dialog.Dialog_AboutApp;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_SetChecklist;
@@ -43,13 +44,13 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.primary.SyncSocketPanelSetting;
+import lslrec.gui.setting.SettingOptions;
 import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
 import lslrec.gui.miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
@@ -114,6 +115,7 @@ import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.event.ChangeEvent;
@@ -838,7 +840,8 @@ public class AppUI extends JFrame
 							{
 								try 
 								{	
-									CoreControl.getInstance().disposeDataPlots();
+									//CoreControl.getInstance().disposeDataPlots();
+									DataStreamPlotter.getInstance().disposeDataPlots();
 									
 									getRightPanelSetting().refreshDataStreams();
 									
@@ -1656,7 +1659,7 @@ public class AppUI extends JFrame
 			{	
 				@Override
 				public void itemStateChanged(ItemEvent e)  
-				{						
+				{	
 					JToggleButton b = (JToggleButton) e.getSource();
 
 					if ( b.isSelected() )

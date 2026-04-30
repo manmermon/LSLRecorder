@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.control.inputDataChecker;
+package lslrec.control.handler.minion.dataStreamChecker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,14 +30,14 @@ import lslrec.auxiliar.thread.timer.IAction;
 import lslrec.auxiliar.thread.timer.Timer;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.binary.input.InputDataStreamReceiverTemplate;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.exceptions.SettingException;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
-public class StreamChecker extends AbstractStoppableThread implements ITaskIdentity
+public class DataStreamChecker extends AbstractStoppableThread implements ITaskIdentity
 {
 	private Timer timer = null;
 	
@@ -57,7 +57,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 	
 	private Map< InputDataStreamReceiverTemplate, Integer > reconnectionCounter = null;
 		
-	public StreamChecker() 
+	public DataStreamChecker() 
 	{
 		super.setName( super.getClass().getSimpleName() );
 		
@@ -75,7 +75,7 @@ public class StreamChecker extends AbstractStoppableThread implements ITaskIdent
 	
 	private ActionTimerThread getActionTimer()
 	{
-		final StreamChecker checker = this;
+		final DataStreamChecker checker = this;
 		IAction action = new IAction() 
 		{			
 			@Override

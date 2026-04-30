@@ -21,7 +21,7 @@
  *   
  */
 
-package lslrec.control.handler;
+package lslrec.control.handler.minion;
 
 import lslrec.auxiliar.thread.LaunchThread;
 import lslrec.auxiliar.thread.timer.ActionTimerThread;
@@ -51,11 +51,11 @@ import lslrec.config.ParameterList;
 import lslrec.control.HandlerMinionTemplate;
 import lslrec.control.IHandlerMinion;
 import lslrec.control.MinionParameters;
-import lslrec.control.inputDataChecker.StreamChecker;
+import lslrec.control.handler.minion.dataStreamChecker.DataStreamChecker;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.INotificationTask;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -118,7 +118,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 	
 	private NotificationTask inputDataNotificationTask = null;
 	
-	private StreamChecker streamChecker = null;
+	private DataStreamChecker streamChecker = null;
 		
 	private LaunchOutBinFileSegmentation lauchConvertThread = null;
 	
@@ -432,7 +432,7 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 			
 			if( this.streamChecker == null )
 			{
-				this.streamChecker = new StreamChecker();
+				this.streamChecker = new DataStreamChecker();
 				this.streamChecker.setNotificationTask( this.inputDataNotificationTask );
 			}
 			
@@ -843,20 +843,23 @@ public class OutputDataFileHandler extends HandlerMinionTemplate implements ITas
 						}
 						else
 						{
-							Thread wakeupLauch = new Thread()
+							if( this.lauchConvertThread != null )
 							{
-								@Override
-								public synchronized void run() 
+								Thread wakeupLauch = new Thread()
 								{
-									synchronized( lauchConvertThread )
+									@Override
+									public synchronized void run() 
 									{
-										lauchConvertThread.notify();
+										synchronized( lauchConvertThread )
+										{
+											lauchConvertThread.notify();
+										}
 									}
-								}
-							};
-							
-							wakeupLauch.setName( "Wake up launch convert thread" );
-							wakeupLauch.start();
+								};
+								
+								wakeupLauch.setName( "Wake up launch convert thread" );
+								wakeupLauch.start();
+							}
 						}
 						
 						if( this.NumberOfSavingThreads.get() < 0 )

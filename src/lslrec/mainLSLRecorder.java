@@ -364,7 +364,8 @@ public class mainLSLRecorder
 		try 
 		{
 			CoreControl ctrl = CoreControl.getInstance();
-			ctrl.start();
+			//ctrl.start();
+			ctrl.startThread();
 		}
 		catch (Exception e) 
 		{

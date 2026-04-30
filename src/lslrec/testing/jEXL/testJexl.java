@@ -14,12 +14,12 @@ import org.apache.commons.jexl3.MapContext;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.ConfigApp;
+import lslrec.config.checklistMessage.CheckMessage;
+import lslrec.config.checklistMessage.CheckMessagePartFromSetting;
+import lslrec.config.checklistMessage.CheckMessagePartFromText;
+import lslrec.config.checklistMessage.ICheckMessagePart;
+import lslrec.config.checklistMessage.CheckMessageEvaluator;
 import lslrec.config.language.Language;
-import lslrec.control.message.checklist.CheckMessage;
-import lslrec.control.message.checklist.CheckMessagePartFromSetting;
-import lslrec.control.message.checklist.CheckMessagePartFromText;
-import lslrec.control.message.checklist.ICheckMessagePart;
-import lslrec.control.message.checklist.MessageEvaluator;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.dataStream.tools.StreamUtils;
@@ -37,7 +37,7 @@ public class testJexl {
 													, "", false );
 		part.setIDLangCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG );
 		msg.addMessagePart( part );
-		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.SELECTED_SYNC_METHOD, "!({0}.contains(\""+SyncMethod.SYNC_NONE + "\"))", null ) );
+		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.SELECTED_SYNC_METHOD, "!({0}.contains(\""+SyncMethod.SYNC_NONE + "\"))", null ) );
 		
 		WarningMessage res = msg.evaluateMessage();
 		System.out.println("testJexl.main() " +res);
@@ -50,7 +50,7 @@ public class testJexl {
 									, "", false );
 		part.setIDLangCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG );
 		msg.addMessagePart( part );
-		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, "{0}==true", null ) );
+		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS, "{0}==true", null ) );
 		res = msg.evaluateMessage();
 		System.out.println("testJexl.main() " +res);
 		
@@ -80,7 +80,7 @@ public class testJexl {
 		List< ICheckMessagePart > parts = new ArrayList<ICheckMessagePart>();
 		parts.add( part );
 		
-		MessageEvaluator ev = new MessageEvaluator( ConfigApp.ID_STREAMS, "", parts )
+		CheckMessageEvaluator ev = new CheckMessageEvaluator( ConfigApp.ID_STREAMS, "", parts )
 		{
 			public boolean evalue() 
 			{
@@ -109,7 +109,7 @@ public class testJexl {
 		List< ICheckMessagePart > parts2 = new ArrayList< ICheckMessagePart >();
 		parts2.add( part );
 		
-		ev = new MessageEvaluator( ConfigApp.ID_STREAMS, "", parts2 )
+		ev = new CheckMessageEvaluator( ConfigApp.ID_STREAMS, "", parts2 )
 		{
 			public boolean evalue() 
 			{
@@ -170,7 +170,7 @@ public class testJexl {
 		part = new CheckMessagePartFromText( "Sessiong id empty", "", false );
 		msg.addMessagePart( part );
 		
-		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_TEST_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.OUTPUT_TEST_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
 		res = msg.evaluateMessage();
 		System.out.println("testJexl.main() " +res);
 		
@@ -181,7 +181,7 @@ public class testJexl {
 		part = new CheckMessagePartFromText( "Subject id empty", "", false );
 		msg.addMessagePart( part );
 		
-		msg.setMessageEvaluator( new MessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.OUTPUT_SUBJ_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );
 		res = msg.evaluateMessage();
 		System.out.println("testJexl.main() " +res);
 		

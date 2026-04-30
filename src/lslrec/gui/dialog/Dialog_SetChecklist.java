@@ -51,10 +51,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.checklistMessage.CheckMessage;
+import lslrec.config.checklistMessage.CheckMessagePartFromText;
 import lslrec.config.language.Caption;
 import lslrec.config.language.Language;
-import lslrec.control.message.checklist.CheckMessage;
-import lslrec.control.message.checklist.CheckMessagePartFromText;
 import lslrec.gui.GuiTextManager;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;

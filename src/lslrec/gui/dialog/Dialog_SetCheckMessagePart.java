@@ -24,10 +24,10 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
+import lslrec.config.checklistMessage.CheckMessage;
+import lslrec.config.checklistMessage.CheckMessagePartFromText;
+import lslrec.config.checklistMessage.ICheckMessagePart;
 import lslrec.config.language.Language;
-import lslrec.control.message.checklist.CheckMessage;
-import lslrec.control.message.checklist.CheckMessagePartFromText;
-import lslrec.control.message.checklist.ICheckMessagePart;
 
 public class Dialog_SetCheckMessagePart extends JDialog 
 {

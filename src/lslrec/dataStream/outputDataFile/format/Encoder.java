@@ -24,8 +24,8 @@ import java.util.List;
 import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.gui.setting.SettingOptions;
 
 public interface Encoder extends ITaskIdentity 
 {	

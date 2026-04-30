@@ -1,4 +1,4 @@
-package lslrec.control.message.checklist;
+package lslrec.config.checklistMessage;
 
 public interface ICheckMessagePart 
 {

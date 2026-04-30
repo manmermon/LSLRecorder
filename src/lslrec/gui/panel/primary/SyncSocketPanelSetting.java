@@ -67,8 +67,8 @@ import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
 import lslrec.control.message.RegisterSyncMessages;
-import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.gui.miscellany.DisabledPanel;
 import lslrec.gui.miscellany.IPAddressCellEditor;
 import lslrec.gui.miscellany.SpinnerNumberCellEditor;

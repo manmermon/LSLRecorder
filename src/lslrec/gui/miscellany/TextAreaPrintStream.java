@@ -74,8 +74,16 @@ public class TextAreaPrintStream extends PrintStream
      * attribute of the class).
      * After having printed such a String, prints a new line.
      **/
-    public void println(String inString ) 
+    public void println( final String inString ) 
     {
+    	StyleContext sc = StyleContext.getDefaultStyleContext();
+    	
+    	AttributeSet attrs = SimpleAttributeSet.EMPTY;
+		
+    	Color c = this.getColorText();
+    	c = ( c == null ) ? Color.BLACK : c;
+    	final AttributeSet attSetCopy = sc.addAttribute( attrs , StyleConstants.Foreground, c );
+    	
     	SwingUtilities.invokeLater(() -> 
     	{
     		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");  
@@ -85,12 +93,12 @@ public class TextAreaPrintStream extends PrintStream
     		int len = this.textArea.getDocument().getLength();
 
     		this.textArea.setCaretPosition( len );
-    		this.textArea.setCharacterAttributes( this.attSet, true );
+    		this.textArea.setCharacterAttributes( attSetCopy, true );
 
     		StyledDocument doc = this.textArea.getStyledDocument();
     		try 
     		{
-    			doc.insertString( len, str + "\n", this.attSet );
+    			doc.insertString( len, str + "\n", attSetCopy );
     		} 
     		catch (BadLocationException e) 
     		{

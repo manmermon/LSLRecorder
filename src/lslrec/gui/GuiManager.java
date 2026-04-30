@@ -80,11 +80,11 @@ import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
-import lslrec.control.handler.OutputDataFileHandler;
+import lslrec.control.handler.minion.OutputDataFileHandler;
 import lslrec.control.message.AppState;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.TemporalBinData;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
@@ -118,9 +118,7 @@ public class GuiManager
 	private Timer sessionTimer;
 	private final int sessionTimeUpdateElapsed = 250; // 
 	private Date initSessionTime = null;
-	
-	//private OpeningDialog preparingRunDiag;
-	
+		
 	private Boolean isWriteTest = false;
 	
 	private AppState.State appState = AppState.State.NONE;
@@ -131,6 +129,8 @@ public class GuiManager
 	private static Map< StringTuple, Component > guiParameters = new HashMap< StringTuple, Component>();
 	
 	private static Object sync = new Object();
+	
+	//private Thread startRecordLaunchThread = null;
 		
 	private GuiManager()
 	{
@@ -288,8 +288,6 @@ public class GuiManager
 	        return "ERROR";
 	    }
 	}
-	
-	//private Thread showStreamResponseMsg = null;
 	
 	public synchronized void showStreamResponseChecker( final ExceptionMessage msg )
 	{
@@ -529,8 +527,6 @@ public class GuiManager
 		{
 		}
 	}
-
-	
 	
 	private void loadValueConfig(File f)
 	{		
@@ -885,14 +881,12 @@ public class GuiManager
 	
 	public void stopTest()
 	{
-		enablePlayButton( false );
+		this.enablePlayButton( false );
 		
 		JToggleButton btnStart = AppUI.getInstance().getJButtonPlay();
 		btnStart.setText( Language.getLocalCaption( Language.ACTION_PLAY ) );		
 		btnStart.setIcon( START_ICO );
-		
-		//this.StopSessionTimer();
-		
+
 		try
 		{
 			CoreControl.getInstance().stopWorking( );
@@ -900,19 +894,13 @@ public class GuiManager
 		catch (Exception e)
 		{
 			e.printStackTrace();
-			
-			/*
-			JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.PROBLEM_TEXT )+ ": " + e.getCause(),
-					Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
-			*/
-			
+
 			ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg, true, true );
-			
 		}
 		finally
 		{	
-		}
+		} 
 	}
 
 	/*
@@ -1150,4 +1138,18 @@ public class GuiManager
 		}
 	}
 	
+	public int forceQuitDialog()
+	{
+		String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
+				UIManager.getString( "OptionPane.noButtonText" ) };
+
+		int actionDialog = JOptionPane.showOptionDialog( GuiManager.getInstance().getAppUI(), Language.getLocalCaption( Language.TOO_MUCH_TIME )				
+				+ "\n" + Language.getLocalCaption( Language.FORCE_QUIT ) 
+				+ "?", 
+				Language.getLocalCaption( Language.MSG_WARNING )
+				, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
+				null, opts, opts[1]);
+		
+		return actionDialog;
+	}
 }

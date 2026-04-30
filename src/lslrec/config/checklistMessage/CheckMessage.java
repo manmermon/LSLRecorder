@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.control.message.checklist;
+package lslrec.config.checklistMessage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,7 @@ public class CheckMessage
 	private List< ICheckMessagePart > msgParts = new ArrayList< ICheckMessagePart >();
 	private String idMessage = "";
 		
-	private MessageEvaluator evaluator = null;
+	private CheckMessageEvaluator evaluator = null;
 	
 	private int type = INFO;
 	
@@ -146,7 +146,7 @@ public class CheckMessage
 		return ( this.description == null || this.description.isEmpty() ) ? this.getMessage() : this.description;
 	}
 	
-	public void setMessageEvaluator( MessageEvaluator eval )
+	public void setMessageEvaluator( CheckMessageEvaluator eval )
 	{
 		this.evaluator = eval;
 	}

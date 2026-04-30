@@ -58,8 +58,8 @@ import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.GuiTextManager;
 import lslrec.gui.GuiManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.plugin.lslrecPlugin.trial.ILSLRecPluginTrial;
 import lslrec.plugin.register.TrialPluginRegistrar;
 

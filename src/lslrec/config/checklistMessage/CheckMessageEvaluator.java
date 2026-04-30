@@ -1,4 +1,4 @@
-package lslrec.control.message.checklist;
+package lslrec.config.checklistMessage;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import org.apache.commons.jexl3.MapContext;
 //*/
 
 import lslrec.config.ConfigApp;
-public class MessageEvaluator 
+public class CheckMessageEvaluator 
 {
 	private String idParameter = "";
 	private String exp2Eval = "";
@@ -29,7 +29,7 @@ public class MessageEvaluator
 	 * @param exp
 	 * @param pars
 	 */
-	public MessageEvaluator( String idPar, String exp, List< ICheckMessagePart > pars ) 
+	public CheckMessageEvaluator( String idPar, String exp, List< ICheckMessagePart > pars ) 
 	{
 		this.idParameter = ( idPar != null ) ? idPar : ""; ;
 		this.exp2Eval = ( exp != null ) ? exp : "";

@@ -117,9 +117,10 @@ import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.GuiTextManager;
+import lslrec.gui.dataPlot.DataStreamPlotter;
 import lslrec.gui.AppUI;
 import lslrec.gui.GuiManager;
+import lslrec.gui.GuiTextManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledPanel;
@@ -129,10 +130,10 @@ import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.TextAreaPrintStream;
 import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
+import lslrec.gui.setting.SettingOptions;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -432,7 +433,6 @@ public class RightPanelSettings extends JPanel
 		{
 			this.contentPanel = new JPanel( new BorderLayout() );// JSplitPane();
 
-			//this.contentPanel.add( new JScrollPane( this.getJPanelEvent() ), BorderLayout.WEST );
 			this.contentPanel.add( this.getJPanelDeviceInfo(), BorderLayout.CENTER );			
 		}
 
@@ -446,7 +446,6 @@ public class RightPanelSettings extends JPanel
 			this.jPanelStreamInfo = new JPanel();
 			this.jPanelStreamInfo.setLayout( new BorderLayout() );
 
-			//this.jPanelDeviceInfo.add( this.getJPanelOutFileFormat(), BorderLayout.NORTH );
 			this.jPanelStreamInfo.add( this.getJPaneDeviceInfo( ), BorderLayout.CENTER );
 		}
 
@@ -476,9 +475,6 @@ public class RightPanelSettings extends JPanel
 
 		try
 		{
-			//updateDeviceInfos();						
-			//p.add( getContentPanelDeviceInfo() );
-
 			HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( ConfigApp.ID_STREAMS );
 
 			for( IMutableStreamSetting dev : devs )
@@ -564,12 +560,9 @@ public class RightPanelSettings extends JPanel
 			this.jOutFile = new JPanel( );
 			this.jOutFile.setLayout( new BoxLayout( this.jOutFile, BoxLayout.Y_AXIS ) );
 
-			//this.jOutFile.add( this.getPanelGeneralAddInfoOutFile() );		
-			//this.jOutFile.add( this.getJPanelOutFileFormat() );
 			JScrollPane p = new JScrollPane( this.getJPanelOutFileFormat() );
 			
 			TitledBorder tb = new TitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) );
-			//this.jOutFile.setBorder( tb );
 			p.setBorder( tb );
 						
 			this.jOutFile.add( p );
@@ -579,66 +572,6 @@ public class RightPanelSettings extends JPanel
 
 		return this.jOutFile;
 	}
-	
-	/*
-	private JTextField getGeneralDescrOutFile() 
-	{
-		if( this.generalDescrOutFile == null )
-		{
-			final String ID = ConfigApp.OUTPUT_FILE_DESCR;
-			
-			this.generalDescrOutFile = new JTextField();
-			
-			/ *
-			//Dimension d = this.generalDescrOutFile.getSize();
-			//FontMetrics fm = this.getJTextCompleteFileName().getFontMetrics( this.getJTextCompleteFileName().getFont() );
-			//d.width = fm.stringWidth( "W" ) * 30;			
-			//d.height = fm.getHeight() + 8;
-			//this.generalDescrOutFile.setPreferredSize( d );
-			//* /
-			
-			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
-			{				
-				@Override
-				public void removeUpdate(DocumentEvent e) 
-				{
-					updateDoc( e );
-				}
-
-				@Override
-				public void insertUpdate(DocumentEvent e) 
-				{
-					updateDoc( e );
-				}
-
-				@Override
-				public void changedUpdate(DocumentEvent e) 
-				{
-					updateDoc( e );
-				}
-
-				private void updateDoc( DocumentEvent e )
-				{
-					try 
-					{
-						String desc = e.getDocument().getText( 0, e.getDocument().getLength() );
-						ConfigApp.setProperty( ID, desc );
-						
-						generalDescrOutFile.setToolTipText( desc );
-					}
-					catch (BadLocationException e1) 
-					{
-						e1.printStackTrace();
-					}
-				}
-			});
-
-			GuiManager.setGUIComponent( ID, ID, this.generalDescrOutFile );
-		}
-		
-		return this.generalDescrOutFile;
-	}
-	//*/
 	
 	private JTextArea getGeneralDescrOutFile() 
 	{
@@ -697,39 +630,6 @@ public class RightPanelSettings extends JPanel
 		return this.generalDescrOutFile;
 	}
 	
-	/*
-	private JCheckBox getDeleteBinaryFiles()
-	{
-		if( this.delBinaryFiles == null )
-		{
-			final String ID = ConfigApp.DEL_BINARY_FILES;
-			
-			this.delBinaryFiles = new JCheckBox();
-			
-			this.delBinaryFiles.setText( Language.getLocalCaption( Language.DEL_BINARY_FILES ) );
-			this.delBinaryFiles.setHorizontalTextPosition( JCheckBox.LEFT );
-			
-			this.delBinaryFiles.addActionListener( new ActionListener() 
-			{	
-				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
-					JCheckBox ch = (JCheckBox)e.getSource();
-					
-					ConfigApp.setProperty( ID, ch.isSelected() );				
-				}
-			});
-			
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.DEL_BINARY_FILES, this.delBinaryFiles );
-			GuiManager.setGUIComponent( ID, ID, this.delBinaryFiles );
-			
-			//this.delBinaryFiles.setSelected( (Boolean)ConfigApp.getProperty( ID ) );
-		}
-		
-		return this.delBinaryFiles;
-	}
-	//*/
-
 	private JCheckBox getEncryptKeyActive()
 	{
 		if( this.encryptKeyActive == null )
@@ -779,87 +679,6 @@ public class RightPanelSettings extends JPanel
 		return this.encryptKeyActive;
 	}
 	
-	/*
-	private JCheckBox getDataChartSummaryCheckbox()
-	{
-		if( this.dataChartSummary == null )
-		{
-			final String ID = ConfigApp.DATA_CHART_SUMMARY;
-			
-			this.dataChartSummary = new JCheckBox();
-			this.dataChartSummary.setText( Language.getLocalCaption( Language.DATA_CHART_SUMMARY_TEXT ) );
-			this.dataChartSummary.setHorizontalTextPosition( JCheckBox.LEFT );
-			
-			this.dataChartSummary.addActionListener( new ActionListener() 
-			{	
-				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
-					JCheckBox ch = (JCheckBox)e.getSource();
-					
-					ConfigApp.setProperty( ID, ch.isSelected() );				
-				}
-			});
-			
-			this.dataChartSummary.addPropertyChangeListener( new PropertyChangeListener() 
-			{				
-				@Override
-				public void propertyChange(PropertyChangeEvent evt) 
-				{
-					if( evt.getPropertyName().equals( "enabled" ) )
-					{
-						JCheckBox chb = (JCheckBox)evt.getSource();
-						boolean ena = (Boolean)evt.getNewValue();
-						
-						ConfigApp.setProperty( ID, ena );
-						
-						if( ena )
-						{
-							ConfigApp.setProperty( ID, chb.isSelected() );
-						}
-					}
-				}
-			});
-			
-			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.DATA_CHART_SUMMARY_TEXT, this.dataChartSummary );
-			GuiManager.setGUIComponent( ID, ID, this.dataChartSummary );
-									
-		}
-		
-		return this.dataChartSummary;
-	}
-	//*/
-	
-	/*
-	private JCheckBox getParallelizeActive()
-	{
-		if( this.parallelizeActive == null )
-		{
-			final String ID = ConfigApp.OUTPUT_PARALLELIZE;
-			
-			this.parallelizeActive = new JCheckBox();
-			this.parallelizeActive.setText( Language.getLocalCaption( Language.PARALLELIZE_TEXT ) );
-			this.parallelizeActive.setHorizontalTextPosition( JCheckBox.LEFT );
-			
-			this.parallelizeActive.addActionListener( new ActionListener() 
-			{	
-				@Override
-				public void actionPerformed(ActionEvent e) 
-				{
-					JCheckBox ch = (JCheckBox)e.getSource();
-					
-					ConfigApp.setProperty( ID, ch.isSelected() );				
-				}
-			});
-						
-			GuiLanguageManager.addComponent( GuiLanguageManager.TEXT, Language.PARALLELIZE_TEXT, this.parallelizeActive );
-			this.parameters.put( ID, this.parallelizeActive );									
-		}
-		
-		return this.parallelizeActive;
-	}
-	*/
-	
 	private JPanel getJPanelOutFileFormat()
 	{
 		if( this.jOutFileFormat == null )
@@ -867,15 +686,9 @@ public class RightPanelSettings extends JPanel
 			this.jOutFileFormat = new JPanel( );
 			BorderLayout ly = new BorderLayout( 2, 2 );
 			this.jOutFileFormat.setLayout( ly );
-			//this.jOutFileFormat.setBorder( BorderFactory.createEmptyBorder( 2, 2, 2, 2 ) );
-			
-			//this.jOutFileFormat.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.OUTPUT_TEXT ) ) );
-			
+
 			this.jOutFileFormat.add( this.getPanelOutFileOption(), BorderLayout.SOUTH );
-			this.jOutFileFormat.add( this.getPanelOutFileName(), BorderLayout.NORTH );			
-			//this.jOutFileFormat.add( this.getPanelGeneralAddInfoOutFile(), BorderLayout.SOUTH );
-			
-			//GuiLanguageManager.addComponent( GuiLanguageManager.BORDER, Language.OUTPUT_TEXT, this.jOutFileFormat.getBorder() );
+			this.jOutFileFormat.add( this.getPanelOutFileName(), BorderLayout.NORTH );		
 		}
 
 		return this.jOutFileFormat;
@@ -1575,7 +1388,7 @@ public class RightPanelSettings extends JPanel
 		return this.panelOutFileOption;
 	}
 	
-	private JComboBox< String > getJComboxFileFormat()
+	private synchronized JComboBox< String > getJComboxFileFormat()
 	{
 		if( this.fileFormat == null )
 		{
@@ -2250,7 +2063,8 @@ public class RightPanelSettings extends JPanel
 							{
 								JToggleButton jtb = (JToggleButton)e.getSource();
 																
-								if( !CoreControl.getInstance().isPlotingStream( dev ) )
+								//if( !CoreControl.getInstance().isPlotingStream( dev ) )
+								if( !DataStreamPlotter.getInstance().isPlotingStream( dev ) )
 								{	
 									plotGroup.clearSelection();
 									Enumeration< AbstractButton > abts = plotGroup.getElements();
@@ -2272,7 +2086,8 @@ public class RightPanelSettings extends JPanel
 										{
 											try 
 											{
-												CoreControl.getInstance().createLSLDataPlot( plotPanel, dev );
+												//CoreControl.getInstance().createLSLDataPlot( plotPanel, dev );
+												DataStreamPlotter.getInstance().createLSLDataPlot( plotPanel, dev );
 											}
 											catch (Exception e) 
 											{
@@ -2294,7 +2109,8 @@ public class RightPanelSettings extends JPanel
 								}
 								else
 								{
-									CoreControl.getInstance().disposeDataPlots();
+									//CoreControl.getInstance().disposeDataPlots();
+									DataStreamPlotter.getInstance().disposeDataPlots();
 									
 									isRunning.release();
 								}								
@@ -2328,7 +2144,8 @@ public class RightPanelSettings extends JPanel
 				
 				try 
 				{
-					plot.setSelected( CoreControl.getInstance().isPlotingStream( dev ) );
+					//plot.setSelected( CoreControl.getInstance().isPlotingStream( dev ) );
+					plot.setSelected( DataStreamPlotter.getInstance().isPlotingStream( dev ) );
 				}
 				catch (Exception e1) 
 				{

@@ -29,7 +29,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import lslrec.auxiliar.extra.ConvertTo;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.Parameter;
-import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.dataStream.outputDataFile.compress.IOutZip;
 import lslrec.dataStream.family.setting.IStreamSetting;
@@ -43,6 +42,7 @@ import lslrec.dataStream.outputDataFile.format.parallelize.OutputParallelizableF
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.setting.SettingOptions;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class OutputClisDataParallelWriter extends OutputParallelizableFileWriterTemplate implements ICompressDataCollector, IStoppableThread

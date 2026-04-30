@@ -22,7 +22,7 @@
 
 package lslrec.auxiliar.task;
 
-import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 

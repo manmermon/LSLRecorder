@@ -28,7 +28,7 @@ import lslrec.config.ParameterList;
 import lslrec.control.IHandlerMinion;
 import lslrec.control.IHandlerSupervisor;
 import lslrec.control.MinionParameters;
-import lslrec.control.handler.SocketHandler;
+import lslrec.control.handler.minion.SocketHandler;
 import lslrec.control.message.EventInfo;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.sockets.info.SocketSetting;

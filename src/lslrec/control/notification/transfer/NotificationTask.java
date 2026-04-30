@@ -18,7 +18,7 @@
  *   
  *
  */
-package lslrec.control.notification;
+package lslrec.control.notification.transfer;
 
 import java.util.ArrayList;
 import java.util.List;

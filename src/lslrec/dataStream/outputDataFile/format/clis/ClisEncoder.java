@@ -26,8 +26,6 @@ import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
-import lslrec.config.SettingOptions.Type;
 import lslrec.config.language.Language;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.outputDataFile.compress.CompressorDataFactory;
@@ -35,6 +33,8 @@ import lslrec.dataStream.outputDataFile.format.Encoder;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.parallel.OutputClisDataParallelWriter;
+import lslrec.gui.setting.SettingOptions;
+import lslrec.gui.setting.SettingOptions.Type;
 
 public class ClisEncoder implements Encoder 
 {

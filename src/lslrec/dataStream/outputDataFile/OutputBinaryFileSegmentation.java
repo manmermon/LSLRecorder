@@ -53,8 +53,8 @@ import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.INotificationTask;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 
 /**
  * 

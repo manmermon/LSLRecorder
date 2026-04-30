@@ -38,7 +38,7 @@ import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;

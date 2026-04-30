@@ -31,8 +31,7 @@ public class GeneralSettings
 {		
 		public static final String fullNameApp = "LSL Recorder";
 		public static final String shortNameApp = "LSLRec";
-		public static final Calendar buildDate = new GregorianCalendar( 2026, 3 - 1,  11);
-		//public static final int buildNum = 33;
+		public static final Calendar buildDate = new GregorianCalendar( 2026, 4 - 1, 23 );
 		
 		//WEB
 		public static final String url = "http://grupo.us.es/grupotais/";//"http://matrix.dte.us.es/grupotais/";

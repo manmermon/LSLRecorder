@@ -32,7 +32,7 @@ import org.icmp4j.IcmpPingUtil;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.stoppableThread.AbstractStoppableThread;
@@ -298,7 +298,6 @@ public class SocketMessageDelayCalculator extends AbstractStoppableThread
 			}			
 		}
 	}
-
 
 	public String getID() 
 	{

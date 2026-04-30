@@ -21,7 +21,7 @@
  *   
  */
 
-package lslrec.control.handler;
+package lslrec.control.handler.minion;
 
 import lslrec.sockets.info.SocketSetting;
 import lslrec.sockets.info.StreamSocketProblem;
@@ -37,7 +37,7 @@ import lslrec.control.HandlerMinionTemplate;
 import lslrec.control.MinionParameters;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;

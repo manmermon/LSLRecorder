@@ -40,7 +40,7 @@ import lslrec.stoppableThread.IStoppableThread;
 import lslrec.config.ConfigApp;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.setting.BinaryFileStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;

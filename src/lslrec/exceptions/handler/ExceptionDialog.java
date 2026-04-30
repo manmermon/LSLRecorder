@@ -236,7 +236,17 @@ public class ExceptionDialog
  		Throwable ex = msg.getException();
  		StringWriter sw = new StringWriter();
  		PrintWriter pw = new PrintWriter(sw);
- 		ex.printStackTrace(pw);
+ 		
+ 		
+ 		if( msg.getMessageType() != ExceptionMessage.INFO_MESSAGE )
+ 		{
+ 			ex.printStackTrace(pw);
+ 		}
+ 		else
+ 		{
+ 			String m = ex.getMessage();
+ 			sw.write( m, 0, m.length() );
+ 		}
 
  		synchronized ( syncLogFile )
 		{

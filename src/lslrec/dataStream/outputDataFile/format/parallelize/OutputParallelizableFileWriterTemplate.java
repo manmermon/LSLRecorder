@@ -28,7 +28,7 @@ import lslrec.auxiliar.task.ITaskIdentity;
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
-import lslrec.control.notification.NotificationTask;
+import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.outputDataFile.dataBlock.DataBlock;
 import lslrec.dataStream.outputDataFile.format.IOutputDataFileWriter;
 import lslrec.stoppableThread.AbstractStoppableThread;

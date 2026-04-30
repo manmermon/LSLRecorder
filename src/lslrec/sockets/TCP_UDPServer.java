@@ -24,7 +24,7 @@ import java.util.List;
 
 import lslrec.auxiliar.task.ITaskMonitor;
 import lslrec.control.message.EventInfo;
-import lslrec.control.notification.INotificationTask;
+import lslrec.control.notification.transfer.INotificationTask;
 import lslrec.sockets.info.SocketSetting;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;

@@ -34,10 +34,10 @@ import javax.swing.KeyStroke;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.config.SettingOptions;
 import lslrec.config.language.Language;
 import lslrec.gui.KeyActions;
 import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.setting.SettingOptions;
 
 /**
  * @author Manuel Merino Monge

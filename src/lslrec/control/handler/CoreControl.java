@@ -32,19 +32,18 @@ import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
+import lslrec.config.checklistMessage.CheckMessage;
 import lslrec.config.language.Language;
 import lslrec.control.IHandlerMinion;
 import lslrec.control.IHandlerSupervisor;
 import lslrec.control.MinionParameters;
+import lslrec.control.handler.minion.OutputDataFileHandler;
+import lslrec.control.handler.minion.SocketHandler;
 import lslrec.control.message.AppState;
 import lslrec.control.message.EventInfo;
-import lslrec.control.message.EventType;
 import lslrec.control.message.RegisterSyncMessages;
 import lslrec.control.message.SocketInformations;
-import lslrec.control.message.checklist.CheckMessage;
-import lslrec.control.notification.INotificationTask;
-import lslrec.dataStream.binary.input.plotter.DataPlotter;
-import lslrec.dataStream.binary.input.plotter.StringPlotter;
+import lslrec.control.notification.manager.ControlNotificationCoordinator;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
@@ -59,12 +58,12 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.outputDataFile.format.clis.ClisEncoder;
 import lslrec.dataStream.sync.SyncMarker;
 import lslrec.dataStream.sync.SyncMethod;
-import lslrec.dataStream.tools.StreamUtils.StreamDataType;
+import lslrec.exceptions.CoreControlUserCancelStartException;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.GuiManager;
-import lslrec.gui.dataPlot.CanvasStreamDataPlot;
+import lslrec.gui.dataPlot.DataStreamPlotter;
 import lslrec.gui.dialog.Dialog_Password;
 import lslrec.gui.dialog.Dialog_WarningMessages;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
@@ -77,22 +76,17 @@ import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
 import lslrec.sockets.info.StreamInputMessage;
 import lslrec.sockets.info.SocketSetting;
-import lslrec.sockets.info.StreamSocketProblem;
 import lslrec.sockets.SocketMessageDelayCalculator;
 import lslrec.sockets.info.SocketParameters;
 import lslrec.stoppableThread.AbstractStoppableThread;
 import lslrec.stoppableThread.IStoppableThread;
 import lslrec.auxiliar.WarningMessage;
-import lslrec.auxiliar.extra.ArrayTreeMap;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
-import lslrec.auxiliar.task.ITaskMonitor;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
 import java.nio.file.FileSystemException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,60 +94,41 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Semaphore;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.UIManager;
 
-public class CoreControl extends Thread implements IHandlerSupervisor
+public class CoreControl extends AbstractStoppableThread implements IHandlerSupervisor
 {
-	private SocketInformations streamPars = null;
-
+	private static CoreControl core = null;
+	
 	private SocketHandler ctrSocket = null;
-
 	private OutputDataFileHandler ctrlOutputFile = null;
-	private DataPlotter ctrLSLDataPlot = null;
-	private StringPlotter ctrLSLDataStringPlot = null;
-
-	private NotifiedEventHandler notifiedEventHandler = null;
-
+	private ControlNotificationCoordinator notifiedEventHandler = null;
+	
+	private StopWorkingThread stopThread = null; // To avoid deadlock
+	private Object lock = new Object();
+				
+	private SocketInformations streamPars = null;
+	
 	private boolean isWaitingForStartCommand = false;
 	private boolean isRecording = false;
-
-	private static CoreControl core = null;
-
-	private GuiManager managerGUI;
-
-	private boolean showWarningEvent = true;
 	
 	private boolean closeWhenDoingNothing = false;
-	
-	private boolean isActiveSpecialInputMsg = false;
 	
 	private Timer writingTestTimer;
 	
 	private SyncMarker SpecialMarker = null;
 
 	private SocketMessageDelayCalculator socketMsgDelayCal = null;
-	
-	private StopWorkingThread stopThread = null;
-	
-	private int savingDataProgress = 0;
-	
+		
 	private volatile String encryptKey = "";
 	
 	private LSLRecPluginTrial trial = null;
-	//private JFrame trialWindows = null;
 	
 	private List< LSLRecPluginSyncMethod > syncPluginMet = new ArrayList< LSLRecPluginSyncMethod >();
 	
 	private DeadlockDetector deadlockDetector = null;
-	
-	private Object lock = new Object();
 	
 	private BeepSound beep = null;
 	
@@ -198,6 +173,53 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		return core;
 	}
 
+	public void setSpecialMarker( SyncMarker mark )
+	{	
+		if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) )
+		{ 			
+			if( (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS ) )
+			{				
+				this.SpecialMarker = mark;
+				
+				try 
+				{
+					CoreControl.getInstance().stopWorking();
+				}
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+				
+			}
+		}
+		else if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) )
+		{			
+			if( (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS ) 
+					&& !isRecording() 
+					&&  isWaitingForStartCommand )
+				{
+					isWaitingForStartCommand = false;
+
+					GuiManager.getInstance().addInputMessageLog( mark.getMarkValue() + "\n");
+					
+					try
+					{
+						this.SpecialMarker = mark;
+						startRecord();
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+		}
+	}
+	
+	public void calculateSocketDelay( StreamInputMessage msg )
+	{
+		this.socketMsgDelayCal.CalculateMsgDelay( msg );
+	}
+	
 	/**
 	 * Create the subordinate controls.
 	 * 
@@ -205,9 +227,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private void createControlUnits() throws Exception
 	{
-		this.managerGUI = GuiManager.getInstance(); // GUI manager
-
-		// socket handler
+		// socket control
 		this.ctrSocket = SocketHandler.getInstance();
 		this.ctrSocket.setControlSupervisor( this );
 		this.ctrSocket.startThread();
@@ -229,217 +249,19 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		this.socketMsgDelayCal.startThread();
 
 		// Notification control thread
-		this.notifiedEventHandler = new NotifiedEventHandler();
+		this.notifiedEventHandler = new ControlNotificationCoordinator();
 		this.notifiedEventHandler.setName( this.notifiedEventHandler.getClass().getName() );
 		this.notifiedEventHandler.startThread();
 		
 		//		
 		LostWaitedThread.getInstance().startThread();
 	}
-
-	/**
-	 * Delete plot thread.
-	 */
-	private void disposeLSLDataPlot()
-	{
-		if (this.ctrLSLDataPlot != null)
-		{
-			try
-			{
-				this.ctrLSLDataPlot.stopThread( IStoppableThread.FORCE_STOP );
-			}
-			catch (Exception e) 
-			{
-				if( !this.ctrLSLDataPlot.getState().equals( Thread.State.TERMINATED ) )
-				{
-					this.ctrLSLDataPlot.stopThread( IStoppableThread.FORCE_STOP );
-				}
-			}
-			catch ( Error e)
-			{
-				if( !this.ctrLSLDataPlot.getState().equals( Thread.State.TERMINATED ) )
-				{
-					this.ctrLSLDataPlot.stopThread( IStoppableThread.FORCE_STOP );
-				}
-			}
-			
-			this.ctrLSLDataPlot = null;
-		}
-	}
 	
-	/**
-	 * Delete string plot thread.
-	 */
-	private void disposeLSLDataStringPlot()
-	{
-		if (this.ctrLSLDataStringPlot != null)
-		{
-			try
-			{
-				this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
-			}
-			catch (Exception e) 
-			{
-				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
-				{
-					this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
-				}
-			}
-			catch ( Error e)
-			{
-				if( !this.ctrLSLDataStringPlot.getState().equals( Thread.State.TERMINATED ) )
-				{
-					this.ctrLSLDataStringPlot.stopThread( IStoppableThread.FORCE_STOP );
-				}
-			}
-			
-			this.ctrLSLDataStringPlot = null;
-		}
-	}
-	
-	public void disposeDataPlots()
-	{
-		this.disposeLSLDataPlot();
-		this.disposeLSLDataStringPlot();
-	}
-
-	/**
-	 * Create a plot.
-	 *  
-	 * @param PlotPanel 	-> plot panel.
-	 * @param streamSetting	-> LSL setting to plot data.
-	 */
-	public void createLSLDataPlot( JPanel PlotPanel, IStreamSetting streamSetting )
-	{
-		try
-		{
-			// Delete plots.
-			this.disposeDataPlots();
-			
-			PlotPanel.setVisible( false );
-			PlotPanel.removeAll();
-						
-			// Get alive LSL streaming
-			/*
-			IStreamSetting[] results = LSL.resolve_streams();
-			*/
-			
-			//IStreamSetting stream = streamSetting;
-			
-			/*
-			if( streamSetting instanceof MutableStreamSetting )
-			{
-				stream = ((MutableStreamSetting)streamSetting).getStreamSetting(); 
-			}
-			*/
-			
-			//IStreamSetting[] results = DataStreamFactory.getStreamSettings( streamSetting.getLibraryID() ); 
-			IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
-
-			IStreamSetting inletInfo = null;
-
-			// Look for the LSL streaming 
-			for (int i = 0; i < results.length && inletInfo == null; i++)
-			{
-				IStreamSetting info = results[i];
-				if ( info.uid().equals( streamSetting.uid() ) )
-				{
-					//inletInfo = results[i];
-					inletInfo = streamSetting;
-				}
-			}
-
-			if ( inletInfo != null)
-			{
-				// Set sampling rate
-				double frq = inletInfo.sampling_rate();
-
-				// Data plot queue length								
-				int queueLength = ((int)(5.0D * frq)) * inletInfo.getChunkSize();
-				if (queueLength < 10)
-				{
-					queueLength = 100;
-				}
-
-				if( inletInfo.data_type() != StreamDataType.string )
-				{	
-					CanvasStreamDataPlot LSLCanvaPlot = new CanvasStreamDataPlot( queueLength ); 
-					
-					LSLCanvaPlot.clearData();
-					LSLCanvaPlot.clearFilters();
-	
-					PlotPanel.add( LSLCanvaPlot, BorderLayout.CENTER );
-					
-					// Plot data
-					//this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, stream );
-					this.ctrLSLDataPlot = new DataPlotter( LSLCanvaPlot, inletInfo );
-					this.ctrLSLDataPlot.startThread();
-				}
-				else
-				{
-					JTextPane log = new JTextPane();
-					
-					PlotPanel.add( new JScrollPane( log ), BorderLayout.CENTER );
-					
-					// String data plot
-					//this.ctrLSLDataStringPlot = new StringPlotter( log, stream );
-					this.ctrLSLDataStringPlot = new StringPlotter( log, inletInfo );
-					this.ctrLSLDataStringPlot.startThread();
-				}
-				
-				PlotPanel.setVisible( true );
-			}
-			else
-			{
-				//JOptionPane.showMessageDialog( appUI.getInstance(), Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ), Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE);
-				
-				Exception ex = new Exception( Language.getLocalCaption( Language.MSG_LSL_PLOT_ERROR ) );
-												
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
-				ExceptionDialog.showMessageDialog( msg, true, false );
-			}
-		}
-		catch (Exception localException) 
-		{
-			localException.printStackTrace();
-			
-			ExceptionMessage msg = new ExceptionMessage( localException, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
-			ExceptionDialog.showMessageDialog( msg, true, true );
-		}
-		catch (Error localError) 
-		{
-			localError.printStackTrace();
-			
-			ExceptionMessage msg = new ExceptionMessage( localError, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE ); 
-			ExceptionDialog.showMessageDialog( msg, true, true );
-		}
-	}
-	
-	public boolean isPlotingStream( IStreamSetting stream )
-	{
-		boolean check = false;
-		
-		if( stream != null )
-		{
-			if( this.ctrLSLDataPlot != null )
-			{
-				check = this.ctrLSLDataPlot.getStreamUID().equals( stream.uid() );
-			}
-			
-			if( this.ctrLSLDataStringPlot != null )
-			{
-				check = check || this.ctrLSLDataPlot.getStreamUID().equals( stream.uid() );
-			}
-		}
-		
-		return check;
-	}
-
 	/**
 	 * Start to record data
 	 */
 	public synchronized void startWorking( boolean testWriting )
-	{
+	{		
 		try
 		{	
 			if( this.writingTestTimer != null )
@@ -447,13 +269,13 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				this.writingTestTimer.stopThread( IStoppableThread.FORCE_STOP );
 				this.writingTestTimer = null;
 			}
-			
+					
 			System.gc(); // Clean memory
 
 			// Delete plots.
-			this.disposeDataPlots();
+			DataStreamPlotter.getInstance().disposeDataPlots();
 			
-			this.managerGUI.setAppState( AppState.State.PREPARING, 0, false );
+			GuiManager.getInstance().setAppState( AppState.State.PREPARING, 0, false );
 			
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
@@ -495,16 +317,16 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					//&& !ConfigApp.isTesting() 
 					)
 			{
-				Dialog_WarningMessages dialog = new Dialog_WarningMessages( this.managerGUI.getAppUI(), warningMsgs );
+				Dialog_WarningMessages dialog = new Dialog_WarningMessages( GuiManager.getInstance().getAppUI(), warningMsgs );
 
-				dialog.setLocationRelativeTo( this.managerGUI.getAppUI() );
+				dialog.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
 				dialog.setVisible( true );
 				
 				int actionDialog = dialog.getSelectedOption();
 				if ( actionDialog == Dialog_WarningMessages.OPTION_CANCEL 
 						|| actionDialog == Dialog_WarningMessages.OPTION_NO_SELECTED )
 				{					
-					this.managerGUI.setAppState( AppState.State.NONE, 0, false );
+					GuiManager.getInstance().setAppState( AppState.State.NONE, 0, false );
 										
 					throw new CoreControlUserCancelStartException();
 				}
@@ -527,11 +349,11 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			//			
 			boolean isSyncLSL = this.setOutputHandlerSetting( testWriting );
 			
-			this.isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
+			boolean isActiveSpecialInputMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
 			
 			if( !testWriting )
 			{
-				this.isWaitingForStartCommand = this.isActiveSpecialInputMsg												
+				this.isWaitingForStartCommand = isActiveSpecialInputMsg												
 												&& 
 												( this.streamPars.getInputCommands().containsKey( RegisterSyncMessages.INPUT_START )
 														|| isSyncLSL
@@ -546,7 +368,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					@Override
 					public void execute() 
 					{
-						managerGUI.stopTest();						
+						GuiManager.getInstance().stopTest();						
 					}
 				} ));
 				
@@ -562,11 +384,18 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			// deadlock detector
 			//
 			this.setDeadlockDetector();
-						
+			
 			this.waitStartCommand();
 		}
 		catch ( Exception | Error e )
-		{			
+		{	
+			/*
+			ExceptionDialog.showMessageDialog( new ExceptionMessage(  e //new Throwable( "Exception recording" )
+																	, "Exception"
+																	, ExceptionMessage.ERROR_MESSAGE)
+																, true, false);
+			//*/
+			
 			if( this.ctrSocket != null )
 			{
 				this.ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
@@ -581,25 +410,24 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			
 			if( !this.ctrlOutputFile.isSavingData() )
 			{
-				this.managerGUI.setAppState( AppState.State.STOP, 0, false );
+				GuiManager.getInstance().setAppState( AppState.State.STOP, 0, false );
 			}
 			else
 			{
-				//this.managerGUI.setAppState( AppState.State.SAVING, 0, true );
-				this.managerGUI.setAppState( AppState.State.SAVING, 0, false);
+				GuiManager.getInstance().setAppState( AppState.State.SAVING, 0, false);
 			}
 			
-			this.managerGUI.restoreGUI();
-			this.managerGUI.refreshDataStreams();
+			GuiManager.getInstance().restoreGUI();
+			GuiManager.getInstance().refreshDataStreams();
+			
 			this.isWaitingForStartCommand = false;
-			this.showWarningEvent = true;
-				
+			
 			if( !(e instanceof CoreControlUserCancelStartException ) )
 			{
 				try 
 				{
 					ExceptionMessage ex = new ExceptionMessage( e,  Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
-					ExceptionDialog.showMessageDialog( ex, true, true );
+					ExceptionDialog.showMessageDialog( ex, true, !(e instanceof SettingException ) );
 					
 					e.printStackTrace();
 				}
@@ -845,8 +673,17 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );				
 		}
 		
-		this.deadlockDetector = new DeadlockDetector( 10000L, 10 ); // 10 s, 10 iteractions
+		this.deadlockDetector = new DeadlockDetector( 10_000L, 10 ); // 10 s, 10 iteractions
 		this.deadlockDetector.startThread();
+	}
+	
+	public void stopRunningBackgroundThreads() throws Exception
+	{
+		if( this.deadlockDetector != null )
+		{ 
+			this.deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
+			this.deadlockDetector = null;
+		}		
 	}
 	
 	private void setSyncPlugin()
@@ -879,8 +716,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			}
 		}		
 	}
-	
-	
+		
 	private String setTrialPlugin()
 	{
 		ILSLRecPluginTrial trialPl = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
@@ -902,17 +738,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					LSLRecStream.setDataStreamGiver( trialPl.getID(), log );
 					this.trial.setTrialLogStream( log );
 				}
-				
-				/*
-				if( this.trialWindows != null )
-				{
-					this.trialWindows.dispose();
-				}
-				
-				this.trialWindows = this.trial.getWindonw();
-				this.trialWindows.setVisible( false );
-				this.trialWindows.setExtendedState( this.trialWindows.getExtendedState() | JFrame.MAXIMIZED_BOTH );
-				*/
 				
 				if( (Boolean)ConfigApp.getProperty( ConfigApp.TRIAL_FULLSCREEN ) )
 				{
@@ -940,13 +765,10 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * Check Settings.
 	 *   
 	 */
-	/*
 	private List< WarningMessage > checkSettings() 
 	{
 		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
-		
-		//this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
-		
+				
 		WarningMessage outFileMsg = this.ctrlOutputFile.checkParameters();
 		WarningMessage socketMsg = this.ctrSocket.checkParameters();
 		
@@ -976,333 +798,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				warnMsgsList.add( new WarningMessage( wm.getMessage(), wm.getWarningType() ) );
 			}
 		}
-
-		boolean specialInMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
-		if( !specialInMsg )
-		{
-			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-		}
-		
-		Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
-		
-		if( syncMeths.contains( SyncMethod.SYNC_NONE ) )
-		{
-			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-		}
 		
 		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
 		{
-			Dialog_Password pass = new Dialog_Password( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
+			Dialog_Password pass = new Dialog_Password( GuiManager.getInstance().getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
 			
-			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
-			pass.setVisible( true );
-			
-			while( pass.getState() == Dialog_Password.PASSWORD_INCORRECT )
-			{
-				pass.setMessage( pass.getPasswordError()  + " " + Language.getLocalCaption( Language.REPEAT_TEXT ) + ".");
-				pass.setVisible( true );
-			}
-			
-			if( pass.getState() != Dialog_Password.PASSWORD_OK )
-			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.PROCESS_TEXT ) + " " + Language.getLocalCaption( Language.CANCEL_TEXT )
-													, WarningMessage.ERROR_MESSAGE ) );
-			}
-			
-			this.encryptKey = pass.getPassword();
-			
-			if( this.encryptKey == null )
-			{
-				this.encryptKey = "";
-			}
-		}
-		
-		HashSet< IStreamSetting > lslPars = (HashSet< IStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
-				
-		//IStreamSetting[] results = LSL.resolve_streams();
-		//IStreamSetting[] results = DataStreamFactory.getStreamSettings( (StreamLibrary)ConfigApp.getProperty( ConfigApp.STREAM_LIBRARY ) );
-		IStreamSetting[] results = DataStreamFactory.getStreamSettings( );
-				
-		boolean existSelectedSyncLSL = false;
-		
-		if( results.length >= 0 )
-		{
-			boolean selectedStreamsOK = true;
-			boolean selectOneOrMoreStream = false;
-
-			for( IStreamSetting lslcfg : lslPars )
-			{
-				selectOneOrMoreStream = lslcfg.isSelected();
-				
-				if( selectOneOrMoreStream )
-				{
-					break;
-				}
-			}
-			
-			if( selectOneOrMoreStream )
-			{
-				// Check selected streams.
-				for( IStreamSetting lslcfg : lslPars )
-				{
-					if( lslcfg.isSelected() )
-					{	
-						boolean findStream = false;
-						for( int i = 0; i < results.length && !findStream; i++ )
-						{
-							findStream = results[ i ].uid().equals( lslcfg.uid() );
-						}
-						
-						if( !findStream )
-						{
-							selectedStreamsOK = false;
-							break;
-						}
-					}
-				}
-			}
-			
-			// Check if sync stream is selected.
-			for( IStreamSetting lslcfg : lslPars )
-			{
-				existSelectedSyncLSL = lslcfg.isSynchronationStream();
-
-				if( existSelectedSyncLSL )
-				{
-					break;
-				}
-			}
-
-			if( !selectOneOrMoreStream )
-			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );	
-			}
-			
-			if( !selectedStreamsOK )
-			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
-			}
-			
-			if( syncMeths.contains( SyncMethod.SYNC_STREAM ) && !existSelectedSyncLSL )
-			{
-					String msg = Language.getLocalCaption( Language.CHECK_SYNC_NO_SELECT_STREAM_WARNING_MSG );
-					int warmType = WarningMessage.WARNING_MESSAGE;
-					
-					if( specialInMsg )
-					{
-						msg = Language.getLocalCaption( Language.CHECK_SYNC_UNSELECTABLE_ERROR_MSG );
-						warmType = WarningMessage.ERROR_MESSAGE;
-					}
-					
-					warnMsgsList.add( new WarningMessage( msg, warmType ) );
-			}			
-			else if( existSelectedSyncLSL && !syncMeths.contains( SyncMethod.SYNC_STREAM ) )
-			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_STREAM_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-			}
-			
-			boolean change = false;
-				
-			for( int i = 0; i < results.length && !change; i++ )
-			{
-				IStreamSetting stream = results[ i ];
-
-				for( IStreamSetting lslcfg : lslPars )
-				{
-					if( ( lslcfg.isSelected() || lslcfg.isSynchronationStream() )
-							&& lslcfg.name().equals( stream.name() ) 
-							&& lslcfg.uid().equals( stream.source_id() ) )
-					{
-						change = !stream.uid().equals( lslcfg.uid() ) ;
-	
-						if( change )
-						{
-							break;
-						}
-					}
-				}
-			}
-
-			if( change )
-			{
-				warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_DEVICES_CHANGE_WARNING_MSG ), WarningMessage.ERROR_MESSAGE ) );
-			}
-		}
-		else
-		{
-			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_NON_SELECTED_STREAMS_ERROR_MSG ), WarningMessage.ERROR_MESSAGE ) );
-		}
-		
-		// Checking plugin setting
-		for( IStreamSetting str : DataProcessingPluginRegistrar.getAllDataStreams() )
-		{
-			int[] processLocs = new int[] { DataProcessingPluginRegistrar.PROCESSING, DataProcessingPluginRegistrar.POSTPROCESSING };
-			
-			for( int processLoc : processLocs )
-			{
-				for( ILSLRecPluginDataProcessing process : DataProcessingPluginRegistrar.getDataProcessing( str, processLoc ) ) 
-				{
-					WarningMessage w = process.checkSettings();			
-					String msg = w.getMessage();
-
-					warnMsgsList.add( new WarningMessage( msg, w.getWarningType() ) );
-				}
-			}
-		}
-		
-		if( this.ctrlOutputFile.isSavingData() )
-		{
-			LostWaitedThread.getInstance().wakeup();
-			warnMsgsList.add( new WarningMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE ) );
-		}
-		
-		//this.warnMsg.addMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE );
-		List< Tuple< Boolean, String > > checklist = (List< Tuple< Boolean, String > >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
-		for( int i = 0; i < checklist.size(); i++ )
-		{
-			Tuple< Boolean, String > msg = checklist.get( i );
-			if( msg.t1 )
-			{
-				if( i == 0 )
-				{
-					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_LSL_CHUNCKSIZE_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-					warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SUBJECT_SESSION_IDS_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-					
-				}
-				else if( i == 1 || i == 2 )
-				{					
-					String val = msg.t2;
-					Pattern pattern = Pattern.compile("(\\d+\\.?\\d*)(?!.*\\d)");
-			        Matcher matcher = pattern.matcher( val );
-			        
-			        if (matcher.find()) 
-			        {
-						int n = Integer.parseInt( matcher.group( 1 ) ) ;
-						if( !checkNumberOfSelectedStreams( n, i == 2 ) )
-						{
-							warnMsgsList.add( new WarningMessage( Language.getLocalCaption( (i==1)? Language.MSG_ERROR_NUMBER_SELECTED_DATA_STREAMS : Language.MSG_ERROR_NUMBER_SELECTED_SYNC_STREAMS ) + n
-																, WarningMessage.ERROR_MESSAGE ) );
-						}						
-			        }
-			        else 
-			        {
-			            System.out.println("No se encontr� ning�n n�mero.");
-			        }
-				}
-				else if( i == 3 )
-				{
-					String sjId = ConfigApp.getProperty( ConfigApp.OUTPUT_SUBJ_ID ).toString().trim();
-					
-					String warnMsg = "";
-					
-					if( sjId.isEmpty() )
-					{
-						warnMsg += Language.getLocalCaption( Language.SUBJECT_ID_TEXT ) + ": " + Language.getLocalCaption( Language.MSG_EMPTY );
-					}
-					else
-					{
-						warnMsg += Language.getLocalCaption( Language.SUBJECT_ID_TEXT ) + ": " + sjId  + "." ;
-					}
-					
-					warnMsg += " " + Language.getLocalCaption( Language.OK_TEXT ) + "?";
-					warnMsgsList.add( new WarningMessage( warnMsg, WarningMessage.WARNING_MESSAGE ) );
-				}
-				else if( i == 4 )
-				{
-					String testId = ConfigApp.getProperty( ConfigApp.OUTPUT_TEST_ID ).toString().trim();
-					
-					String warnMsg = "";
-										
-					if( testId.isEmpty() )
-					{
-						warnMsg += Language.getLocalCaption( Language.TEST_ID_TEXT ) + ": " + Language.getLocalCaption( Language.MSG_EMPTY );
-					}
-					else
-					{
-						warnMsg += Language.getLocalCaption( Language.TEST_ID_TEXT ) + ": " + testId + ".";						
-					}
-					warnMsg += " " + Language.getLocalCaption( Language.OK_TEXT ) + "?";
-					warnMsgsList.add( new WarningMessage( warnMsg, WarningMessage.WARNING_MESSAGE ) );
-				}
-				else
-				{
-					warnMsgsList.add( new WarningMessage( msg.t2, WarningMessage.WARNING_MESSAGE ) );
-				}
-			}
-			else if( i == 0 )
-			{
-				Iterator< WarningMessage > itWM = warnMsgsList.iterator();
-				while( itWM.hasNext() )
-				{
-					WarningMessage w = itWM.next();
-					if( w.getWarningType() == WarningMessage.WARNING_MESSAGE ) 
-					{
-						itWM.remove();
-					}
-				}
-			}
-		}
-		
-		return warnMsgsList;
-	}
-	//*/
-	
-	private List< WarningMessage > checkSettings() 
-	{
-		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
-		
-		//this.warnMsg.setMessage( "", WarningMessage.OK_MESSAGE );
-		
-		WarningMessage outFileMsg = this.ctrlOutputFile.checkParameters();
-		WarningMessage socketMsg = this.ctrSocket.checkParameters();
-		
-		warnMsgsList.add( outFileMsg );
-		warnMsgsList.add( socketMsg );
-		
-		ILSLRecPluginTrial trial = TrialPluginRegistrar.getNewInstanceOfTrialPlugin();
-		
-		if( trial != null )
-		{
-			WarningMessage trW = trial.checkSettings();
-			
-			warnMsgsList.add( new WarningMessage( trW.getMessage(), trW.getWarningType() ) );
-		}
-		
-		String idFormat = ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ).toString();
-		Tuple< Encoder, WarningMessage > enc = DataFileFormat.getDataFileEncoder( idFormat );
-		if( enc == null || enc.t1 == null)
-		{
-			warnMsgsList.add( new WarningMessage( "Encoder null", WarningMessage.ERROR_MESSAGE ) );
-		}
-		else if( !( enc.t1 instanceof ClisEncoder ) )
-		{
-			WarningMessage wm = enc.t2;
-			if( wm != null )
-			{
-				warnMsgsList.add( new WarningMessage( wm.getMessage(), wm.getWarningType() ) );
-			}
-		}
-
-		/*
-		boolean specialInMsg = (Boolean)ConfigApp.getProperty( ConfigApp.IS_ACTIVE_SPECIAL_INPUTS );
-		if( !specialInMsg )
-		{
-			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SPECIAL_IN_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-		}
-		
-		Set< String > syncMeths = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
-		
-		if( syncMeths.contains( SyncMethod.SYNC_NONE ) )
-		{
-			warnMsgsList.add( new WarningMessage( Language.getLocalCaption( Language.CHECK_SYNC_METHOD_WARNING_MSG ), WarningMessage.WARNING_MESSAGE ) );
-		}
-		//*/
-		
-		if( (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_ENCRYPT_DATA ) )
-		{
-			Dialog_Password pass = new Dialog_Password( this.managerGUI.getAppUI(), Language.getLocalCaption( Language.ENCRYPT_KEY_TEXT ) );			
-			
-			pass.setLocationRelativeTo( this.managerGUI.getAppUI() );
+			pass.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
 			pass.setVisible( true );
 			
 			while( pass.getState() == Dialog_Password.PASSWORD_INCORRECT )
@@ -1476,30 +977,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		return warnMsgsList;
 	}
 	
-	/*
-	private boolean checkNumberOfSelectedStreams( int n, boolean checkSync )
-	{
-		if( n > 0 )
-		{
-			HashSet< IMutableStreamSetting > deviceIDs = (HashSet< IMutableStreamSetting >)ConfigApp.getProperty( ConfigApp.ID_STREAMS );
-			
-			for( IMutableStreamSetting str : deviceIDs )
-			{
-				if( checkSync )
-				{
-					n =  ( str.isSynchronationStream() ) ? n -1 : n;
-				}
-				else
-				{
-					n =  ( str.isSelected() ) ? n -1 : n;
-				}
-			}
-		}
-		
-		return n == 0;
-	}
-	//*/
-	
 	/**
 	 * Wait to start message
 	 * 
@@ -1517,7 +994,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		
 		if ( this.isWaitingForStartCommand )
 		{			
-			this.managerGUI.setAppState( AppState.State.WAIT, 0, false );
+			GuiManager.getInstance().setAppState( AppState.State.WAIT, 0, false );
 			
 			this.ctrlOutputFile.toWorkSubordinates( new Tuple<String, String>( OutputDataFileHandler.ACTION_START_SYNC, "" ) );
 			this.ctrSocket.toWorkSubordinates( null );
@@ -1528,7 +1005,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			this.startRecord();
 		}
 		
-
 		/*
 		if( this.isWaitingForStartCommand )
 		{
@@ -1566,9 +1042,14 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 */
 	private synchronized void startRecord() throws Exception
 	{
-		this.managerGUI.StartSessionTimer();
+		ExceptionDialog.showMessageDialog( new ExceptionMessage(  new Throwable( "Start recording" )
+																	, "Start"
+																	, ExceptionMessage.INFO_MESSAGE)
+																, true, false);
 		
-		this.managerGUI.setAppState( AppState.State.RUN, 0, false );
+		GuiManager.getInstance().StartSessionTimer();
+		
+		GuiManager.getInstance().setAppState( AppState.State.RUN, 0, false );
 		
 		if( this.beep == null )
 		{
@@ -1611,6 +1092,21 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	 * 
 	 * @throws Exception
 	 */
+	/*
+	public void stopWorking( ) throws Exception
+	{	
+		synchronized ( this )
+		{
+			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
+			
+			ExceptionDialog.showMessageDialog( new ExceptionMessage(  new Throwable( "Stop recording" )
+																					, "Stop"
+																					, ExceptionMessage.INFO_MESSAGE)
+																				, true, false);
+			super.notify();
+		}		
+	}
+	//*/	
 	public void stopWorking( ) throws Exception
 	{	
 		synchronized ( this.lock )
@@ -1619,175 +1115,40 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 			{
 				GuiManager.getInstance().getAppUI().getGlassPane().setVisible( true );
 				
+				ExceptionDialog.showMessageDialog( new ExceptionMessage(  new Throwable( "Stop recording" )
+																						, "Stop"
+																						, ExceptionMessage.INFO_MESSAGE)
+																					, true, false);
+				
+				// To avoid deadlock
 				this.stopThread = new StopWorkingThread();
 				this.stopThread.setName( this.stopThread.getClass().getCanonicalName() );
 				this.stopThread.startThread();
 			}
 		}		
 	}
-	
-	private void stopWorkingThreadEnd()
-	{
-		synchronized ( this.lock )
-		{
-			if( this.stopThread != null )
-			{
-				if( !this.stopThread.getState().equals( Thread.State.TERMINATED ) )
-				{
-					this.stopThread.stopThread( IStoppableThread.FORCE_STOP );
-				}
-				
-				this.stopThread = null;
-				
-				ExceptionDialog.closeLogFile();
-			}
-		}
-	}
-	
-	/*
-	private void unparkOutputFileThread()
-	{
-		if( this.getOutFileStates() != 0 )
-		{
-			this.ctrlOutputFile.unparkOutputFile();
-		}
-	}
-	*/
 
 	/**
 	 * Register and processing the notification.
 	 */
 	public synchronized void eventNotification( IHandlerMinion subordinate, final EventInfo event)
 	{
-		/*
-		Thread t = new Thread()
-		{
-			@Override
-			public void run() 
-			{
-				super.setName( "coreControl-eventNotification" );
-				
-				notifiedEventHandler.registreNotification( event );
-				
-				notifiedEventHandler.treatEvent();
-			}
-		};
-		
-		t.start();
-		*/
 		this.notifiedEventHandler.registreNotification( event );
 		
 		//this.notifiedEventHandler.treatEvent();
+		
+		// To avoid a block due to notifiedEventHandler is processing.
 		Thread t = new Thread()
 		{
 			@Override
 			public void run() 
 			{
 				super.setName( "coreControl-eventNotification.treatEvent" );				
-				//System.out.println("CoreControl.eventNotification(...) " + super.getName() + " >> " + event );
 				notifiedEventHandler.treatEvent();
 			}
 		};
 		
 		t.start();
-	}
-
-	/**
-	 * Socket message manager.
-	 * 
-	 * @param EVENTS
-	 * 
-	 * @throws Exception
-	 */
-	private synchronized void eventSocketMessagesManager( List< EventInfo > EVENTS ) throws Exception
-	{
-		if ( ( EVENTS != null ) && ( !EVENTS.isEmpty() ) )
-		{
-			for (EventInfo event : EVENTS)
-			{
-				if (event.getEventType().equals( EventType.SOCKET_INPUT_MSG ) )
-				{
-					this.socketMsgDelayCal.CalculateMsgDelay( ( StreamInputMessage )event.getEventInformation() );
-				}
-				else if (event.getEventType().equals( EventType.SOCKET_CONNECTION_PROBLEM ))
-				{
-					StreamSocketProblem problem = (StreamSocketProblem)event.getEventInformation();
-
-					String msg = problem.getProblemCause().getMessage();
-										
-					if ( msg == null || msg.isEmpty() )
-					{
-						msg = "Streaming connection problems";
-					}
-
-					//this.ctrSocket.removeClientStreamSocket( problem.getSocketAddress() );
-					
-					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CONNECTION_PROBLEM, ExceptionMessage.WARNING_MESSAGE );
-					ExceptionDialog.showMessageDialog( exmsg, true, false );
-					
-					/*
-					if( !ConfigApp.isTesting() )
-					{
-						final String copyMsg = msg;
-						Thread t = new Thread()
-						{
-							@Override
-							public void run() 
-							{
-								JOptionPane.showMessageDialog( guiManager.getInstance().getAppUI(), copyMsg, 
-																EventType.SOCKET_CONNECTION_PROBLEM, 
-																JOptionPane.WARNING_MESSAGE );
-							}
-						};
-						
-						t.start();						
-					}
-					else
-					{
-						this.managerGUI.addInputMessageLog( EventType.SOCKET_CONNECTION_PROBLEM + ": " + msg );
-					}
-					*/
-				}
-				else if (event.getEventType().equals(  EventType.SOCKET_CHANNEL_CLOSE ))
-				{
-					StreamSocketProblem problem = (StreamSocketProblem)event.getEventInformation();
-
-					String msg = problem.getProblemCause().getMessage();
-					if (msg.isEmpty())
-					{
-						msg = problem.getProblemCause().getCause().toString();
-					}
-
-					Exception ex = new Exception( msg );
-					ExceptionMessage exmsg = new ExceptionMessage( ex, EventType.SOCKET_CHANNEL_CLOSE, ExceptionMessage.WARNING_MESSAGE );
-					ExceptionDialog.showMessageDialog( exmsg, true, false );
-									
-					/*
-					if( !ConfigApp.isTesting() )
-					{						
-						final String copyMsg = msg;
-						Thread t = new Thread()
-						{
-							@Override
-							public void run() 
-							{
-								JOptionPane.showMessageDialog( guiManager.getInstance().getAppUI(), copyMsg, 
-																EventType.SOCKET_CHANNEL_CLOSE, 
-																JOptionPane.WARNING_MESSAGE );
-							}
-						};
-						
-						t.start();
-					}
-					else
-					{
-						this.managerGUI.addInputMessageLog( EventType.SOCKET_CHANNEL_CLOSE + ": " + msg );
-					}
-					*/
-				}
-			}
-		}
 	}
 
 	/**
@@ -1819,18 +1180,24 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		this.closeWhenDoingNothing = true;
 		
-		if( this.closeWhenDoingNothing && !this.isDoingSomething() )
+		if( !this.isDoingSomething() )
 		{
-			System.exit( 0 );
+			this.exitLSLRecorder();
 		}
 		else
 		{
 			if( this.getOutFileStates() != 0 )
 			{
-				//this.unparkOutputFileThread();
 				this.startCloseTimer();
 			}
 		}
+	}
+	
+	private void exitLSLRecorder()
+	{
+		super.stopThread( IStoppableThread.FORCE_STOP );
+		
+		System.exit( 0 );
 	}
 	
 	public boolean isClosing()
@@ -1890,19 +1257,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		if( this.getOutFileStates() != 0 )
 		{		
-			String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
-					UIManager.getString( "OptionPane.noButtonText" ) };
-	
-			int actionDialog = JOptionPane.showOptionDialog( managerGUI.getAppUI(), Language.getLocalCaption( Language.TOO_MUCH_TIME )				
-					+ "\n" + Language.getLocalCaption( Language.FORCE_QUIT ) 
-					+ "?", 
-					Language.getLocalCaption( Language.MSG_WARNING )
-					, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
-					null, opts, opts[1]);
+			int actionDialog = GuiManager.getInstance().forceQuitDialog();
 			
 			if ( actionDialog == JOptionPane.YES_OPTION )
 			{
-				System.exit( 0 );
+				//System.exit( 0 );
+				this.exitLSLRecorder();
 			}
 			else
 			{
@@ -1919,11 +1279,8 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 	{
 		SocketInformations infos = new SocketInformations();
 
-		//String syncMet = ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD ).toString();
-		
 		Set< String > syncMet = ( Set< String > )ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
 		
-		//if ( SyncMethod.isAllSyncMethod( syncMet ) || syncMet.equals( SyncMethod.SYNC_SOCKET ) )
 		if( syncMet.contains( SyncMethod.SYNC_SOCKET ) )
 		{
 			Set< String > SOCKETS = (Set< String > )ConfigApp.getProperty( ConfigApp.SERVER_SOCKET );
@@ -1961,738 +1318,66 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 		return infos;
 	}
+	
+	//*
+	@Override
+	protected void preStopThread(int friendliness) throws Exception 
+	{}
 
-	private String createMessage(String msg)
+	@Override
+	protected void postStopThread(int friendliness) throws Exception 
+	{}
+
+	@Override
+	protected void runInLoop() throws Exception 
 	{
-		if (msg != null)
+		synchronized( this )
 		{
-			String[] special = { "\\t", "\\r", "\\n" };
-			String[] speChars = { "\t", "\r", "\n" };
-			for (int i = 0; i < special.length; i++)
+			super.wait();
+		}
+	}
+	
+	@Override
+	protected void runExceptionManager( Throwable e) 
+	{
+		if( !( e instanceof InterruptedException ) )
+		{
+			e.printStackTrace();
+			
+			ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
+			ExceptionDialog.showMessageDialog( msg, true, true );
+		}
+	}
+	//*/
+	
+	private void stopWorkingThreadEnd()
+	{
+		synchronized ( this.lock )
+		{
+			if( this.stopThread != null )
 			{
-				String msgAux = "";
-				String str = special[i];
-
-				int index = 0;
-				int init = 0;
-				while (index >= 0)
+				if( !this.stopThread.getState().equals( Thread.State.TERMINATED ) )
 				{
-					index = msg.substring(init).indexOf( "\\" + str);
-					if (index < 0)
-					{
-						msgAux = msgAux + msg.substring(init).replaceAll(new StringBuilder("\\").append(str).toString(), speChars[i]);
-					}
-					else
-					{
-						msgAux = msgAux + msg.substring(init, index);
-						msgAux = msgAux.replaceAll( new StringBuilder( "\\" ).append(str).toString(), speChars[i] ) + str;
-						init = index + str.length() + 1;
-
-						if (init >= msg.length())
-						{
-							index = -1;
-						}
-					}
+					this.stopThread.stopThread( IStoppableThread.FORCE_STOP );
 				}
-
-				msg = msgAux;
+				
+				this.stopThread = null;
+				
+				//ExceptionDialog.closeLogFile();
 			}
 		}
-
-		return msg;
 	}
-
-	public boolean controlNotifiedEventSemBlock()
-	{
-		return this.notifiedEventHandler.controlNotifySemphore.availablePermits() == 0;
-	}
-
 
 	///////////////////////////////////////
 	//
-	//
-
-	private class NotifiedEventHandler extends AbstractStoppableThread implements ITaskMonitor
-	{
-		//private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
-		private ArrayTreeMap< String, Object > eventRegister = new ArrayTreeMap<String, Object >();
-		private boolean treatEvent = true;
-
-		private CoreControl.controlNotifiedManager ctrlManager = null;
-
-		private Semaphore controlNotifySemphore = null;
-		private Semaphore eventRegisterSemaphore = null;
-
-		public NotifiedEventHandler()
-		{
-			this.controlNotifySemphore = new Semaphore(1, true);
-			this.eventRegisterSemaphore = new Semaphore(1, true);
-		}
-
-
-		protected void preStopThread(int friendliness) throws Exception
-		{}
-
-		protected void postStopThread(int friendliness) throws Exception
-		{
-			try
-			{
-				this.eventRegisterSemaphore.acquire();
-			}
-			catch (Exception localException) 
-			{}
-
-			this.ctrlManager.stopThread( IStoppableThread.FORCE_STOP );
-			this.ctrlManager = null;
-			this.eventRegister.clear();
-
-			if (this.eventRegisterSemaphore.availablePermits() < 1)
-			{
-				this.eventRegisterSemaphore.release();
-			}
-		}
-
-		protected void runInLoop() throws Exception
-		{
-			if (this.eventRegister.size() == 0)
-			{
-				synchronized ( this )
-				{
-					try
-					{
-						super.wait();
-					}
-					catch( InterruptedException e)
-					{						
-					}
-				}				
-			}
-
-			try
-			{
-				this.eventRegisterSemaphore.acquire();
-			}
-			catch (Exception localException ) 
-			{}
-
-			synchronized ( this.eventRegister )
-			{		
-				if (this.ctrlManager == null || this.ctrlManager.getState().equals( State.TERMINATED ) )
-				{
-
-					//System.out.println("CoreControl.eventNotification() " + this.eventRegister );
-					this.ctrlManager = new controlNotifiedManager( this.eventRegister );
-					this.ctrlManager.taskMonitor( this );
-
-					this.eventRegister.clear();
-
-					this.ctrlManager.startThread();
-				}
-			}
-
-			if (this.eventRegisterSemaphore.availablePermits() < 1)
-			{
-				this.eventRegisterSemaphore.release();
-			}
-		}
-
-		public void registreNotification( EventInfo event )
-		{
-			try
-			{
-				this.controlNotifySemphore.acquire();
-			}
-			catch ( InterruptedException localInterruptedException ) 
-			{}      
-
-
-			String event_type = event.getEventType();
-			Object event_Info = event.getEventInformation();
-						
-			try
-			{
-				this.eventRegisterSemaphore.acquire();
-			}
-			catch ( Exception localException ) 
-			{}
-			
-			synchronized ( this.eventRegister )
-			{
-				//if ( this.eventRegister.size() > 0 )
-				//{
-					if ( event_type.equals( EventType.SOCKET_EVENTS ) )
-					{
-						//List< EventInfo > storedEvents = ( List< EventInfo > )this.eventRegister.get( event_type );
-						List< Object > storedEvents = this.eventRegister.get( event_type );
-						List< EventInfo > newEvents = ( List< EventInfo > )event_Info;
-						Set< String > setRegisteredEvents = new HashSet< String >(); 
-						
-						if ( storedEvents != null )
-						{
-							//Iterator< EventInfo > itEvent = storedEvents.iterator();
-							Iterator< Object > itEvent = storedEvents.iterator();
-
-							while ( itEvent.hasNext() )
-							{
-								EventInfo e = ( EventInfo )itEvent.next();
-
-								if ( !e.getEventType().equals( EventType.SOCKET_MSG_DELAY )
-										&& setRegisteredEvents.contains( e.getEventType() ) )
-								{
-									itEvent.remove();
-								}
-								else
-								{
-									setRegisteredEvents.add( e.getEventType() );
-								}
-							}							
-						}
-						
-						Iterator<EventInfo> itNewEvent = newEvents.iterator();
-						while ( itNewEvent.hasNext() )
-						{
-							EventInfo ev = itNewEvent.next();
-							
-							if( !ev.getEventType().equals( EventType.SOCKET_MSG_DELAY ) )
-							{
-								if ( setRegisteredEvents.contains( ev.getEventType() ) )
-								{
-									itNewEvent.remove();
-								}
-							}		
-						}
-						
-						/*
-						if (storedEvents != null)
-						{
-							storedEvents.addAll( newEvents );
-						}
-						else
-						{
-							storedEvents = newEvents;
-						}
-
-						event_Info = storedEvents;
-						//*/
-						
-						if (storedEvents != null)
-						{
-							storedEvents.addAll( newEvents );
-						}
-						else
-						{
-							storedEvents = new ArrayList< Object >( newEvents );
-						}
-						
-						event_Info = storedEvents;						
-					}
-
-					if( event_type.equals( EventType.TEST_WRITE_TIME ) )
-					{
-						List ob = (List)this.eventRegister.get( event_type );
-						
-						if( ob == null )
-						{
-							ob = new ArrayList();
-						}
-						
-						ob.add( event_Info );
-						
-						this.eventRegister.putElement( event_type, ob );
-					}
-					else
-					{
-						this.eventRegister.putElement(event_type, event_Info);
-					}
-				}
-			//}
-
-			if (this.eventRegisterSemaphore.availablePermits() < 1)
-			{
-				this.eventRegisterSemaphore.release();
-			}
-
-			if (this.controlNotifySemphore.availablePermits() < 1)
-			{
-				this.controlNotifySemphore.release();
-			}
-		}
-
-		public void treatEvent()
-		{
-			/*
-			if ( super.getState().equals( Thread.State.WAITING ) )
-			{
-				this.treatEvent = true;
-				super.notify();
-			}
-			*/
-			synchronized ( this )
-			{
-				this.treatEvent = true;
-				super.notify();	
-			}
-		}
-
-		public void interruptProcess()
-		{
-			this.treatEvent = false;
-		}
-
-		public void clearEvent()
-		{
-			try
-			{
-				this.eventRegisterSemaphore.acquire();
-			}
-			catch (Exception localException) 
-			{}
-
-			synchronized (this.eventRegister)
-			{
-				if (this.eventRegister.size() > 0)
-				{
-					this.eventRegister.clear();
-
-					super.interrupt();
-				}
-			}
-
-			if (this.eventRegisterSemaphore.availablePermits() < 1)
-			{
-				this.eventRegisterSemaphore.release();
-			}
-		}
-
-		protected void runExceptionManager(Exception e)
-		{
-			if (!(e instanceof InterruptedException))
-			{
-				e.printStackTrace();
-				
-				/*
-				JOptionPane.showMessageDialog( coreControl.this.managerGUI.getAppUI(), e.getMessage(), 
-											"Exception in " + getClass().getSimpleName(),
-											JOptionPane.ERROR_MESSAGE);
-				*/
-				
-				ExceptionMessage msg = new ExceptionMessage( e, "Exception in " + getClass().getSimpleName(), ExceptionMessage.ERROR_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, true );
-			}
-		}
-
-		public void taskDone(INotificationTask task) throws Exception
-		{
-			try
-			{
-				this.eventRegisterSemaphore.acquire();
-			}
-			catch (Exception localException) 
-			{}
-			
-			if (this.eventRegisterSemaphore.availablePermits() < 1)
-			{
-				this.eventRegisterSemaphore.release();
-			}
-		}
-	}
-
-
-	////////////////////////////////
-	//
-	//
-	private class controlNotifiedManager extends AbstractStoppableThread implements INotificationTask
-	{
-		//private LinkedHashMap<String, Object> eventRegister = new LinkedHashMap<String, Object>();
-		private ArrayTreeMap< String, Object > eventRegister = new ArrayTreeMap<String, Object>();
-
-		private ITaskMonitor monitor;
-
-		//public controlNotifiedManager( Map< String, Object > events )
-		public controlNotifiedManager( ArrayTreeMap< String, Object > events )
-		{
-			if (events != null)
-			{
-				synchronized (events)
-				{
-					for (String event : events.keySet())
-					{
-						this.eventRegister.put( event, events.get( event ) );
-					}
-				}				
-			}
-			
-			super.setName( this.getClass().getName() );
-		}
-
-		@Override
-		protected void preStopThread(int friendliness) throws Exception
-		{}
-
-		@Override
-		protected void postStopThread(int friendliness)  throws Exception
-		{
-			this.eventRegister.clear();
-			this.eventRegister = null;
-		}
-		
-		@Override
-		protected void runInLoop() throws Exception
-		{
-			if ( this.eventRegister.size() > 0 )
-			{
-				String event_type = (String)this.eventRegister.keySet().iterator().next();
-				//final Object eventObject = this.eventRegister.get( event_type );
-				List< Object > evObjList = this.eventRegister.get( event_type );
-
-				this.eventRegister.remove( event_type );
-				
-				for( Object eventObject : evObjList )
-				{
-					if( event_type.equals( EventType.ALL_OUTPUT_DATA_FILES_SAVED ) )
-					{
-						this.setAllFilesSaved();
-					}
-					else if( event_type.equals( EventType.SAVING_OUTPUT_TEMPORAL_FILE ) )
-					{	
-						//managerGUI.setAppState( AppState.State.SAVING, 0, true );
-						managerGUI.setAppState( AppState.State.SAVING, 0, false );
-						
-						managerGUI.enablePlayButton( false );
-					}		
-					else if( event_type.equals( EventType.SAVING_DATA_PROGRESS ) )
-					{
-						if( !GuiManager.getInstance().getAppState().equals( AppState.State.SAVED ) ) // all data saved
-						{
-							int val = -1;
-							File file = null;
-							
-							try
-							{
-								//val = (Integer)eventObject;				
-								Tuple< File, Integer > progress = (Tuple< File, Integer >)eventObject;
-								
-								file = progress.t1;
-								val = progress.t2;							
-								
-								managerGUI.setSavingState( file, val );
-							}
-							catch (Exception e) 
-							{
-								val = -1;
-							}
-							
-							if( val > savingDataProgress )
-							{
-								//managerGUI.setAppState( AppState.State.SAVING, val, true );							
-								managerGUI.setAppState( AppState.State.SAVING, 0, false);
-								savingDataProgress = val;
-							}
-						}
-					}
-					else if( event_type.equals( EventType.OUTPUT_DATA_FILE_SAVED ) )
-					{
-						File file = (File)eventObject;
-						
-						managerGUI.setSavingStateEnd( file );;
-					}
-					else if (event_type.equals( EventType.SOCKET_EVENTS ))
-					{
-						eventSocketMessagesManager( (List< EventInfo> )eventObject );
-					}
-					else if( event_type.equals( EventType.TEST_WRITE_TIME ) )
-					{
-						List< Tuple< String, List< Long > > > testValues = (List)eventObject;
-						for( Tuple< String, List< Long > > times : testValues )
-						{				
-							WriteTestCalculator cal = new WriteTestCalculator(  times.t1, times.t2 );
-							cal.start();
-						}
-					}
-					else if( event_type.equals( EventType.INPUT_MARK_READY ) )
-					{
-						this.InputMarker( (SyncMarker) eventObject );
-					}				
-					else if (event_type.equals( EventType.PROBLEM ) )
-					{
-						try 
-						{
-							stopWorking( );						
-						}
-						catch (Exception e) 
-						{
-							ExceptionMessage msg = new ExceptionMessage( e, "Stop Exception", ExceptionMessage.ERROR_MESSAGE );
-							ExceptionDialog.showMessageDialog( msg , true, true );						
-						}
-	
-						Exception ex = new Exception( eventObject.toString() );
-											
-						if( eventObject instanceof Exception )
-						{
-							ex = (Exception)eventObject;
-						}
-						
-						ExceptionMessage msg = new ExceptionMessage( ex, event_type, ExceptionMessage.ERROR_MESSAGE );
-						ExceptionDialog.showMessageDialog( msg, true, true );
-						
-						//GuiManager.getInstance().refreshDataStreams();					
-					}
-					else if (event_type.equals( EventType.WARNING ) )
-					{
-						if( showWarningEvent )
-						{
-							new Thread()
-							{
-								public void run()
-								{
-									super.setName( "Thread show warning");
-									
-									Exception ex = new Exception( eventObject.toString() );
-									
-									if( eventObject instanceof Exception )
-									{
-										ex = (Exception)eventObject ;
-									}
-									
-									ExceptionMessage msg = new ExceptionMessage( ex
-																				, Language.getLocalCaption( Language.MSG_WARNING )
-																				, ExceptionMessage.WARNING_MESSAGE );
-									
-									ExceptionDialog.showMessageDialog( msg, true, false );								
-								}
-							}.start();
-						}
-					}
-				}
-			}
-		}
-		
-		private void setAllFilesSaved()
-		{			
-			savingDataProgress = 0;
-			
-			if( deadlockDetector != null )
-			{ 
-				deadlockDetector.stopThread( IStoppableThread.FORCE_STOP );
-				deadlockDetector = null;
-			}
-			
-			LostWaitedThread.getInstance().wakeup();
-						
-			managerGUI.restoreGUI();
-			managerGUI.enablePlayButton( true );
-			
-			GuiManager.getInstance().getAppUI().getGlassPane().setVisible( false );
-			
-			managerGUI.setAppState( AppState.State.SAVED, 100, false );
-			managerGUI.closeSavingFileProgressDialog();
-						
-			if( closeWhenDoingNothing && !isDoingSomething() )
-			{
-				System.exit( 0 );
-			}
-		}
-		
-		private void InputMarker( SyncMarker mark )
-		{			
-			if( isRecording )
-			{
-				managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
-			}
-								
-			if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_STOP ) )
-			{ 
-				if( isActiveSpecialInputMsg )
-				{
-					SpecialMarker = mark;
-									
-					try 
-					{
-						stopWorking( );
-					}
-					catch (Exception e) 
-					{
-						e.printStackTrace();
-					}
-					
-				}
-			}
-			else if ( mark.getMarkValue() == RegisterSyncMessages.getSyncMark( RegisterSyncMessages.INPUT_START ) )
-			{
-				if( isActiveSpecialInputMsg 
-						&& !isRecording 
-						&&  isWaitingForStartCommand )
-					{
-						isWaitingForStartCommand = false;
-
-						managerGUI.addInputMessageLog( mark.getMarkValue() + "\n");
-						
-						try
-						{
-							SpecialMarker = mark;
-							startRecord();
-						}
-						catch (Exception e)
-						{
-							e.printStackTrace();
-						}
-					}
-			}
-		}
-
-		@Override
-		protected void targetDone() throws Exception
-		{
-			super.targetDone();
-
-			this.stopThread = this.eventRegister.isEmpty();
-		}
-
-		@Override
-		protected void runExceptionManager( Throwable e)
-		{
-			if (!(e instanceof InterruptedException))
-			{
-				e.printStackTrace();
-								
-				ExceptionMessage msg = new ExceptionMessage( e
-															, "Exception in " + getClass().getSimpleName()
-															, ExceptionMessage.ERROR_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, true );
-			}
-		}
-
-		@Override
-		protected void cleanUp() throws Exception
-		{
-			super.cleanUp();
-
-			if (this.monitor != null)
-			{
-				this.monitor.taskDone(this);
-			}
-		}
-
-		@Override
-		public void taskMonitor(ITaskMonitor monitor)
-		{
-			this.monitor = monitor;
-		}
-
-
-		@Override
-		public List<EventInfo> getResult( boolean clear )
-		{
-			return null;
-		}
-
-		@Override
-		public void clearResult() 
-		{
-
-		}
-		
-		@Override
-		public String getID() 
-		{
-			return super.getName();
-		}
-	}
-	
-	///////////////////////////////////////
-	//
-	//
-	//
-	
-	private class WriteTestCalculator extends Thread
-	{
-		private List< Long > values;
-		private String ID;
-		public WriteTestCalculator( String streamId, List< Long > val )
-		{
-			this.ID = streamId;
-			this.values = val;
-		}
-		
-		@Override
-		public void run() 
-		{
-			if( this.values != null && !this.values.isEmpty() )
-			{
-				double acumM= 0.0;
-				double acumSD = 0.0;
-				for( Long v : this.values )
-				{
-					acumM += v;
-					acumSD += (v * v );
-				}
-				
-				acumM /= this.values.size();				
-				acumSD -= ( acumM * acumM * this.values.size() ) ;
-				
-				if( this.values.size() > 1 )
-				{
-					acumSD /= ( this.values.size() - 1 );
-				}
-				
-				acumSD = Math.sqrt( acumSD );
-				
-				String[] timeUnits = new String[] { "seconds"	, "milliseconds", "microseconds", "nanoseconds" };
-				String[] freqUnits = new String[] { "Hz"		, "kHz"			, "MHz"			, "GHz" };
-				acumM /= 1e9D; // seconds
-				acumSD /= 1e9D;
-				
-				double freq = 1 / acumM;
-				
-				int timeUnitIndex = 0;
-				while( acumM < 1 && timeUnitIndex < timeUnits.length )
-				{
-					timeUnitIndex++;
-					acumM *= 1_000;
-					acumSD *= 1_000;
-					
-					freq /= 1_000;
-				}
-				
-
-				int freqUnitIndex = timeUnitIndex;
-				if( freqUnitIndex > 0 )
-				{
-					if( freq < 1 )
-					{
-						freqUnitIndex--;
-						freq *= 1_000;
-					}
-				}
-				
-				DecimalFormat df = new DecimalFormat("#.00"); 
-				
-				Exception ex = new Exception( this.ID + " -> average of writing time " + df.format( acumM ) + " \u00B1 " + df.format( acumSD ) 
-															+ " " + timeUnits[ timeUnitIndex ] + "" +" (Freq = " + df.format( freq )+ " " + freqUnits[ freqUnitIndex ] + ")" );
-				
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, false );
-			}
-			else
-			{
-				Exception ex = new Exception( this.ID + " -> non data available." );
-				ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
-				ExceptionDialog.showMessageDialog( msg, true, false );				
-			}
-			
-			this.values.clear();
-			this.values = null;
-		}
-	}
-	
-
-	///////////////////////////////////////
-	//
-	//
+	// To avoid deadlock
 	//
 	
 	private class StopWorkingThread extends AbstractStoppableThread 
 	{
+		//
+		// To avoid deadlock
+		//
 
 		@Override
 		protected void preStopThread(int friendliness) throws Exception 
@@ -2728,11 +1413,9 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				
 				isRecording = false;
 				isWaitingForStartCommand = false;
-				isActiveSpecialInputMsg = false;
-
-				managerGUI.setAppState( AppState.State.STOPPING, 0, false );
-				//managerGUI.enablePlayButton( false );
-
+				
+				GuiManager.getInstance().setAppState( AppState.State.STOPPING, 0, false );
+				
 				if( beep == null )
 				{
 					try
@@ -2750,12 +1433,12 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 					beep.play();
 				}
 				
-				notifiedEventHandler.interruptProcess();
+				//notifiedEventHandler.interruptProcess();
 				notifiedEventHandler.clearEvent();
 
 				ctrSocket.deleteSubordinates( IStoppableThread.FORCE_STOP );
 
-				managerGUI.restoreGUI();
+				GuiManager.getInstance().restoreGUI();
 				
 				if( writingTestTimer != null )
 				{
@@ -2789,7 +1472,6 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 									, System.nanoTime() / 1e9D );
 						}
 
-						// TODO
 						ctrlOutputFile.toWorkSubordinates( new Tuple< String, SyncMarker>( ctrlOutputFile.ACTION_SET_MARK, SpecialMarker ) );
 
 						Thread.sleep( 10L );
@@ -2802,18 +1484,17 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 
 						if( ctrlOutputFile.isSavingData() )
 						{
-							//managerGUI.setAppState( AppState.State.SAVING, 0, true );
-							managerGUI.setAppState( AppState.State.SAVING, 0, false );
+							GuiManager.getInstance().setAppState( AppState.State.SAVING, 0, false );
 						}
 						else
 						{
-							managerGUI.setAppState( AppState.State.STOP, 0, true );
+							GuiManager.getInstance().setAppState( AppState.State.STOP, 0, true );
 						}
 					}
 					catch (Exception localException) 
 					{
 						localException.printStackTrace();
-						managerGUI.setAppState( AppState.State.NONE, 0, false );
+						GuiManager.getInstance().setAppState( AppState.State.NONE, 0, false );
 					}
 					catch (Error localError) 
 					{
@@ -2824,19 +1505,7 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 				SpecialMarker = null;
 				
 				GuiManager.getInstance().refreshDataStreams();
-
-				/*
-				System.gc();
-				
-				if( closeWhenDoingNothing 
-						&& !isDoingSomething() )
-				{
-					System.exit( 0 );
-				}
-				*/
-			}			
-						
-			//trialWindows = null;
+			}
 		}
 		
 		@Override
@@ -2877,20 +1546,4 @@ public class CoreControl extends Thread implements IHandlerSupervisor
 		}
 		
 	}
-
-	private class CoreControlUserCancelStartException extends Exception 
-	{
-		private static final long serialVersionUID = 1L;
-
-		public CoreControlUserCancelStartException()
-		{
-			super();
-		}
-		
-		public CoreControlUserCancelStartException( String message ) 
-	    { 
-	    	super(message); 
-	    }
-	}
-	
 }
