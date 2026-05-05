@@ -23,34 +23,18 @@
 package lslrec.gui;
 
 import lslrec.config.language.Language;
-import lslrec.control.handler.CoreControl;
 import lslrec.control.message.AppState;
-import lslrec.control.message.RegisterSyncMessages;
 import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 import lslrec.dataStream.sync.SyncMethod;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.dataPlot.DataStreamPlotter;
-import lslrec.gui.dialog.Dialog_AboutApp;
-import lslrec.gui.dialog.Dialog_AdvancedOptions;
-import lslrec.gui.dialog.Dialog_SetChecklist;
-import lslrec.gui.dialog.Dialog_ConvertClis;
-import lslrec.gui.dialog.Dialog_GNUGLPLicence;
-import lslrec.gui.dialog.Dialog_Info;
-import lslrec.gui.dialog.Dialog_PlotClis;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
-import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.panel.primary.SyncSocketPanelSetting;
-import lslrec.gui.setting.SettingOptions;
 import lslrec.gui.panel.primary.RightPanelSettings;
-import lslrec.auxiliar.extra.NumberRange;
 import lslrec.config.ConfigApp;
-import lslrec.config.GeneralSettings;
-import lslrec.config.Parameter;
-import lslrec.config.ParameterList;
 import lslrec.gui.miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
@@ -62,7 +46,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
@@ -76,15 +59,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
@@ -95,13 +71,11 @@ import javax.swing.InputMap;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -114,20 +88,10 @@ import javax.swing.JToggleButton;
 import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
-import javax.swing.text.StyledDocument;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatDarkLaf;
@@ -199,7 +163,7 @@ public class AppUI extends JFrame
 	private JMenuItem menuConvertBinary = null;
 	private JMenuItem menuWritingTest = null;
 	private JMenuItem menuExit = null;	
-	private JMenuItem menuShowLog = null;
+	//private JMenuItem menuShowLog = null;
 	private JMenuItem menuAdvanceOpt = null;
 	private JMenuItem menuConvertClisTo = null;
 	private JMenuItem menuClisDataPlot = null;
@@ -262,7 +226,7 @@ public class AppUI extends JFrame
 		{
 			public void windowClosing(WindowEvent e)
 			{				
-				closingChecks();
+				GuiManager.getInstance().closingChecks();
 			}
 		});
 
@@ -282,77 +246,6 @@ public class AppUI extends JFrame
 		idAct = "actionRefresh";
 		inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK ), idAct );		 
 		actionMap.put( idAct, KeyActions.getButtonClickAction( idAct, this.getJButtonRefreshDataStreams() ) );
-	}
-
-	private void closingChecks()
-	{
-		try
-		{					 
-			if(  !getGlassPane().isVisible( ) )
-			{
-				AppState.State state = GuiManager.getInstance().getAppState();
-				
-				if( CoreControl.getInstance().isDoingSomething() 
-						|| (  state != AppState.State.NONE && state != AppState.State.SAVED )
-						)
-				{						
-					System.out.println("AppUI.closingChecks() " + CoreControl.getInstance().isDoingSomething() );
-					String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
-							UIManager.getString( "OptionPane.noButtonText" ) };
-
-					int actionDialog = JOptionPane.showOptionDialog( ui, Language.getLocalCaption( Language.MSG_APP_STATE )
-							//+ " " + getExecutionTextState().getText() + "."
-							+ " " + getExecutionTextState().getString() + "."
-							+ "\n" + Language.getLocalCaption( Language.MSG_INTERRUPT ) 
-							+ "?", 
-							Language.getLocalCaption( Language.MSG_WARNING )
-							, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
-							null, opts, opts[1]);
-
-					if ( actionDialog == JOptionPane.YES_OPTION )
-					{								 
-						if( CoreControl.getInstance().isRecording() )
-						{
-							CoreControl.getInstance().stopWorking( );
-						}
-
-						getGlassPane().setVisible( true );
-
-						CoreControl.getInstance().closeWhenDoingNothing( );
-					}
-				}
-				else
-				{
-					System.exit( 0 );
-				}
-			}
-			else if( CoreControl.getInstance().isClosing() )
-			{
-				String[] opts = { Language.getLocalCaption( Language.FORCE_QUIT ),
-						Language.getLocalCaption( Language.WAIT ) };
-
-				int actionDialog = JOptionPane.showOptionDialog( ui, Language.getLocalCaption( Language.TOO_MUCH_TIME ), 
-						Language.getLocalCaption( Language.MSG_WARNING )
-						, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
-						null, opts, opts[1]);
-
-				if ( actionDialog == JOptionPane.YES_OPTION )
-				{								 
-					System.exit( 0 );
-				}
-			}
-		}
-		catch (Exception e1)
-		{
-			e1.printStackTrace();
-			String msg = e1.getMessage();
-			if ((msg == null) || (msg.isEmpty()))
-			{
-				msg = "" + e1.getCause();
-			}
-
-			JOptionPane.showMessageDialog( AppUI.ui, msg, Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE  );
-		}				 
 	}
 
 	/**
@@ -491,215 +384,11 @@ public class AppUI extends JFrame
 				{
 					final JButton syncBtn = (JButton)e.getSource();
 
-					JDialog w = new JDialog( AppUI.getInstance() );
-					w.setUndecorated( true );
-										
-					JPanel p = new JPanel( new VerticalFlowLayout( VerticalFlowLayout.TOP ) );
-					w.setContentPane( new JScrollPane( p ) );
-					
-					p.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
-					
-					Set< String > mets = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
-					
-					if( mets.isEmpty() )
-					{
-						mets.add( SyncMethod.SYNC_NONE );
-					}
-					
-					final List< JCheckBox > synMets = new ArrayList< JCheckBox >();
-					for( String met : SyncMethod.getSyncMethodID() )
-					{
-						JCheckBox ch = new JCheckBox( met );
-						
-						ch.setSelected( mets.contains( met ) );
-						
-						synMets.add( ch );
-												
-						p.add( ch );
-						
-						if( SyncMethod.isNoneSyncMethod( met ) || SyncMethod.isAllSyncMethod( met ) )
-						{
-							JSeparator sp = new JSeparator( JSeparator.HORIZONTAL );							
-							sp.setPreferredSize( new Dimension( syncBtn.getSize().width, 2 ) );
-							
-							p.add( sp );
-						}
-					}
-					
-					boolean selAll = ( mets.size() >= SyncMethod.getSyncMethodID().length - 2 );
-											
-					for( JCheckBox ch : synMets )
-					{
-						ch.addItemListener( new ItemListener() 
-						{	
-							@Override
-							public void itemStateChanged(ItemEvent e) 
-							{	
-								Set< String > mets = (Set< String >)ConfigApp.getProperty( ConfigApp.SELECTED_SYNC_METHOD );
-								
-								JCheckBox ch = (JCheckBox)e.getSource();
-								
-								String sync = ch.getText();
-																
-								if( e.getStateChange() == ItemEvent.SELECTED )
-								{
-									if( SyncMethod.isNoneSyncMethod( sync ) )
-									{	
-										for( JCheckBox ch2 : synMets )
-										{
-											if( !ch2.equals( ch ) )
-											{
-												ch2.setSelected( false );
-											}
-										}
-										
-										syncBtn.setText( sync );
-										syncBtn.setToolTipText( sync );
-									}
-									else
-									{
-										if( SyncMethod.isAllSyncMethod( sync ) )
-										{
-											for( JCheckBox ch2 : synMets )
-											{
-												if(  !ch2.equals( ch ) && !SyncMethod.isNoneSyncMethod( ch2.getText() ) )
-												{
-													ch2.setSelected( true );
-												}
-											}
-											
-											ch.setSelected( true );
-										}
-										else
-										{
-											mets.add( sync );
-										}
-																				
-										for( JCheckBox ch2 : synMets )
-										{											
-											if( SyncMethod.isNoneSyncMethod( ch2.getText() ) )
-											{
-												ch2.setSelected( false );
-												
-												break;
-											}
-										}
-									}
-								}
-								else
-								{
-									mets.remove( sync );
-									
-									if( sync.equals( SyncMethod.SYNC_STREAM ) )
-									{
-										try 
-										{
-											getRightPanelSetting().unselectSyncDevices();
-										}
-										catch (Exception e1) 
-										{
-											e1.printStackTrace();
-										}
-									}									
-								}
-								
-								boolean selAll = ( mets.size() >= SyncMethod.getSyncMethodID().length - 2 );
-																
-								for( JCheckBox ch2 : synMets )
-								{											
-									if( SyncMethod.isAllSyncMethod( ch2.getText() ) )
-									{
-										ch2.setSelected( selAll );
-										
-										break;
-									}
-								}
-								
-								if( mets.isEmpty() )
-								{
-									for( JCheckBox c : synMets )
-									{
-										if( SyncMethod.isNoneSyncMethod( c.getText() ) )
-										{
-											c.setSelected( true );
-											
-											break;
-										}
-									}
-								}
-								else
-								{
-									String syncText = "";
-									
-									for( String m :  mets )
-									{
-										if( syncText.isEmpty() )
-										{
-											syncText = m;
-										}
-										else
-										{
-											syncText = mets.size() + " " + Language.getLocalCaption( Language.SETTING_SYNC_METHOD );
-											
-											break;
-										}
-									}
-									
-									syncBtn.setText( syncText );									
-									syncBtn.setToolTipText( mets.toString() );
-								}
-							}
-						});
-					
-						if( SyncMethod.isAllSyncMethod( ch.getText() ) )
-						{
-							ch.setSelected( selAll );
-						}
-					}
-										
-					Dimension size = syncBtn.getSize();
-					Point pos = syncBtn.getLocationOnScreen();
-
-					Point loc = new Point( pos.x + 1, pos.y + size.height - 1 ); 
-
-					w.setLocation( loc );					
-
-					w.pack();
-					
-					size = w.getSize();
-					
-					if( size.height > 150 )
-					{						
-						size.height = 150;
-					}
-					
-					if( size.width > 150 )
-					{
-						size.width = 150;
-					}
-					
-					w.setSize( size );
-					
-					w.addWindowListener( new WindowAdapter() 
-					{
-						@Override
-						public void windowDeactivated(WindowEvent e) 
-						{
-							e.getWindow().dispose();
-						}
-					});
-					
-					w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
-															KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
-															JComponent.WHEN_IN_FOCUSED_WINDOW );
-					
-					w.setVisible( true );
-					
-										
+					GuiManager.getInstance().showSelectionSyncMethod( syncBtn );
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.jBtnSyncMet );
+			GuiManager.registerGUIComponent( ID, ID, this.jBtnSyncMet );
 		}
 
 		return this.jBtnSyncMet;
@@ -730,7 +419,9 @@ public class AppUI extends JFrame
 						}					
 					}					
 					*/
-					ConfigApp.setProperty( ID, c.isSelected() );
+					//ConfigApp.setProperty( ID, c.isSelected() );
+					
+					GuiManager.getInstance().setConfigValueCheckbox( ID, c );
 				}
 			});
 
@@ -742,7 +433,7 @@ public class AppUI extends JFrame
 			}
 			*/
 			
-			GuiManager.setGUIComponent( ID, ID, this.checkActiveSpecialInputMsg );
+			GuiManager.registerGUIComponent( ID, ID, this.checkActiveSpecialInputMsg );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.SETTING_SPECIAL_IN_METHOD, this.checkActiveSpecialInputMsg );
 
@@ -776,40 +467,12 @@ public class AppUI extends JFrame
 				{
 					JButton b = (JButton)e.getSource();
 
-					Dialog_Info w = new Dialog_Info( ui, getSpecialInputMessages() );
-
-					w.setSize( 350, 110 );
-					Dimension size = w.getSize();
-					Point pos = b.getLocationOnScreen();
-
-					Point loc = new Point( pos.x - size.width, pos.y ); 
-
-					w.setLocation( loc );
-
-					w.setVisible( true );
+					GuiManager.getInstance().showInfoPanel( b );
 				}
 			});
 		}
 
 		return this.jBtnInfo;
-	}
-
-	private String getSpecialInputMessages()
-	{
-		Map< String, String > legends = RegisterSyncMessages.getInputSpecialMessageLengeds( true );
-
-		String text = Language.getLocalCaption( Language.SETTING_SPECIAL_IN_METHOD_LEGEND) + ":\n";
-
-		for( String cm : legends.keySet() )
-		{
-			Integer mark = RegisterSyncMessages.getSyncMark( cm );
-
-			String lg = legends.get( cm );				
-			text += "    " + "(" + mark + ", " + cm.toLowerCase() + "): ";
-			text += lg + "\n";
-		}
-
-		return text;
 	}
 
 	protected JButton getJButtonRefreshDataStreams()
@@ -825,52 +488,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					try
-					{
-						final JButton bt = (JButton)e.getSource();
-						
-						bt.setEnabled( false );
-						
-						//final boolean enaBtPlay = getJButtonPlay().isEnabled();
-						getJButtonPlay().setEnabled( false );
-						
-						Thread t = new Thread()
-						{
-							public void run() 
-							{
-								try 
-								{	
-									//CoreControl.getInstance().disposeDataPlots();
-									DataStreamPlotter.getInstance().disposeDataPlots();
-									
-									getRightPanelSetting().refreshDataStreams();
-									
-									if( GuiManager.getInstance().refreshPlugins() )
-									{
-										JOptionPane.showMessageDialog( AppUI.getInstance()
-												, Language.getLocalCaption( Language.MSG_DATA_PROCESSING_STREAMS_CHANGED )
-												, Language.getLocalCaption( Language.MSG_WARNING )
-												, JOptionPane.WARNING_MESSAGE );
-									}
-								} 
-								catch (Exception e) 
-								{
-									e.printStackTrace();
-								}
-								finally
-								{
-									bt.setEnabled( true );
-									//getJButtonPlay().setEnabled( enaBtPlay );
-									getJButtonPlay().setEnabled( true );
-								}
-							} 
-						};		
-						
-						t.start();
-					}					
-					catch( Exception ex )
-					{						
-					}			
+					GuiManager.getInstance().execRefreshStreams();
 				}
 			});
 
@@ -924,8 +542,9 @@ public class AppUI extends JFrame
 				
 				//JOptionPane.showMessageDialog( this, e.getMessage() + "\n" + e.getCause(), "LSL Exception", JOptionPane.ERROR_MESSAGE );
 				ExceptionMessage msg = new  ExceptionMessage( e
-																, "Stream Exception" 
-																, ExceptionMessage.ERROR_MESSAGE );
+															, "Stream Exception" 
+															, ExceptionMessage.ERROR_MESSAGE );
+				
 				ExceptionDialog.showMessageDialog(msg, true, true );
 			}
 		}
@@ -958,7 +577,7 @@ public class AppUI extends JFrame
 	{
 		if( this.leftSettingPanel == null )
 		{
-			this.leftSettingPanel = new SyncSocketPanelSetting( this );
+			this.leftSettingPanel = new SyncSocketPanelSetting( ); //this );
 		}
 
 		return this.leftSettingPanel;
@@ -1112,7 +731,6 @@ public class AppUI extends JFrame
 
 		return this.jLangMenu;
 	}
-
 	
 	private JMenu getThemeMenu()
 	{
@@ -1163,9 +781,9 @@ public class AppUI extends JFrame
 						try
 						{
 							String idLF = lf.getClassName();
-							UIManager.setLookAndFeel( idLF );
-							SwingUtilities.updateComponentTreeUI( AppUI.getInstance() );
-							AppUI.getInstance().pack();
+
+							GuiManager.getInstance().changeTheme( idLF );
+							
 						}
 						catch (Exception ex) 
 						{
@@ -1199,161 +817,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent arg0) 
 				{	
-					List< SettingOptions > opts = new ArrayList< SettingOptions >();
-					ParameterList pars = new ParameterList();
-					
-					String[] optList = new String[] { ConfigApp.DEL_BINARY_FILES, ConfigApp.STREAM_SEARCHING_TIME
-													, ConfigApp.RECORDING_CHECKER_TIMER, ConfigApp.SEGMENT_BLOCK_SIZE 
-													, ConfigApp.CHECKLIST_TIMER
-													, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM
-													, ConfigApp.MESSAGE_LOG_FILE
-													};
-					Map< String, String > optIdLang = new HashMap< String, String >();
-					
-
-					optIdLang.put( ConfigApp.DEL_BINARY_FILES, Language.DEL_BINARY_FILES );
-					optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
-					optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
-					optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
-					optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
-					optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
-					optIdLang.put( ConfigApp.MESSAGE_LOG_FILE, ConfigApp.MESSAGE_LOG_FILE  );					
-										
-					for( String op : optList )
-					{
-						Object val = ConfigApp.getProperty( op );
-						
-						Parameter par =  null;
-						
-						NumberRange rg = ConfigApp.getPropertyRange( op );
-						
-						SettingOptions.Type type = null;
-						
-						if( val instanceof Number )
-						{
-							type =  SettingOptions.Type.NUMBER;
-							
-							if( val instanceof Integer )
-							{
-								par = new Parameter< Integer >( op, (Integer)val );
-							}
-							else if( val instanceof Double )
-							{
-								par = new Parameter< Double >( op, (Double)val );
-							}							
-						}
-						else if( val instanceof String )
-						{
-							type =  SettingOptions.Type.STRING;
-							
-							par = new Parameter< String >( op, val.toString() );
-						}
-						else if( val instanceof Boolean )
-						{
-							type = SettingOptions.Type.BOOLEAN;
-							
-							par = new Parameter< Boolean >( op, (Boolean)val );
-						}
-						
-						if( par != null )
-						{
-							par.setLangID( optIdLang.get( op ) );							
-							par.addValueChangeListener( new ChangeListener() 
-							{	
-								@Override
-								public void stateChanged(ChangeEvent e) 
-								{
-									Parameter par = (Parameter)e.getSource();
-	
-									if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-									{
-										throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-									}
-								}
-							});
-						}
-						
-						pars.addParameter( par );
-						
-						boolean isList = false;
-						
-						SettingOptions opt = new SettingOptions( op
-																, type
-																, isList
-																, rg
-																, op );
-						opt.addValue( val.toString() );
-						
-						opts.add( opt );
-					}
-					
-					/*
-					Parameter par =  new Parameter< Boolean >( ConfigApp.DEL_BINARY_FILES, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
-					par.setLangID( Language.DEL_BINARY_FILES );
-
-					par.addValueChangeListener( new ChangeListener() 
-					{	
-						@Override
-						public void stateChanged(ChangeEvent e) 
-						{
-							Parameter par = (Parameter)e.getSource();
-
-							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-							{
-								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-							}
-						}
-					});
-
-					
-					ParameterList pars = new ParameterList();
-					pars.addParameter( par );
-
-					par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
-					par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
-
-					par.addValueChangeListener( new ChangeListener() 
-					{	
-						@Override
-						public void stateChanged(ChangeEvent e) 
-						{
-							Parameter par = (Parameter)e.getSource();
-
-							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-							{
-								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-							}
-						}
-					});
-
-					pars.addParameter( par );
-
-					par =  new Parameter< Integer >( ConfigApp.RECORDING_CHECKER_TIMER, (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER ) );
-					par.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
-
-					par.addValueChangeListener( new ChangeListener() 
-					{	
-						@Override
-						public void stateChanged(ChangeEvent e) 
-						{
-							Parameter par = (Parameter)e.getSource();
-
-							if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
-							{
-								throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
-							}
-						}
-					});
-
-					pars.addParameter( par );
-					*/
-					
-					Dialog_AdvancedOptions diag = new Dialog_AdvancedOptions( opts, pars );
-					diag.setTitle( GeneralSettings.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
-					diag.setLocationRelativeTo( ui );
-					diag.setResizable( false );
-					diag.setIconImage( ui.getIconImage() );
-					diag.setVisible( true );
+					GuiManager.getInstance().getAdvanceMenu();
 				}
 			});
 
@@ -1378,7 +842,7 @@ public class AppUI extends JFrame
 			this.jFileMenu.add( this.getMenuConvertBinary() );
 			this.jFileMenu.add( this.getClisMenu() );
 			this.jFileMenu.add( this.getMenuWritingTest() );
-			this.jFileMenu.add( this.getShowLogMenu() );
+			//this.jFileMenu.add( this.getShowLogMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
 			this.jFileMenu.add( this.getPreferenceMenu() );
 			this.jFileMenu.add( new JSeparator( JSeparator.HORIZONTAL ) );
@@ -1439,25 +903,7 @@ public class AppUI extends JFrame
 				{
 					JMenuItem m = (JMenuItem)e.getSource();
 					
-					Dialog_PlotClis plotClis = new Dialog_PlotClis();
-					plotClis.setBounds( 200, 100, 800, 400 );
-										
-					plotClis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
-					plotClis.setTitle( m.getText() );
-					plotClis.setModal( true );
-					plotClis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
-					
-					plotClis.addWindowListener( new WindowAdapter()
-					{
-						@Override
-						public void windowOpened(WindowEvent e) 
-						{
-							JDialog dial = (JDialog)e.getSource();
-							GuiManager.getInstance().adjustDialog2Screen( dial );
-						}
-					});
-					
-					plotClis.setVisible( true );
+					GuiManager.getInstance().showClisDataPlotDialog( m.getText() );
 				}
 			});
 			
@@ -1467,6 +913,7 @@ public class AppUI extends JFrame
 		return this.menuClisDataPlot;
 	}
 	
+	/*
 	private JMenuItem getShowLogMenu()
 	{
 		if( this.menuShowLog == null )
@@ -1488,6 +935,7 @@ public class AppUI extends JFrame
 		
 		return this.menuShowLog;
 	}
+	//*/
 	
 	private JPanel getAppStatePanel( int maxHeight )
 	{
@@ -1556,30 +1004,6 @@ public class AppUI extends JFrame
 		return this.sessionTimeText;
 	}
 	
-	/*
-	protected JTextField getTextState()
-	{
-		if( this.appTextState == null ) 
-		{
-			this.appTextState = new JTextField( );
-
-			//this.appTextState.setBorder( BorderFactory.createEmptyBorder() );	
-			Font f = this.appTextState.getFont();
-			this.appTextState.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
-			
-			FontMetrics fm = this.appTextState.getFontMetrics( this.appTextState.getFont() );
-			
-			Dimension d = this.appTextState.getPreferredSize();
-			d.width = fm.stringWidth( AppState.PREPARING + 5 );
-			this.appTextState.setPreferredSize( d );
-			this.appTextState.setEditable( false );
-			
-		}
-
-		return this.appTextState;
-	}
-	*/
-	
 	protected LevelIndicator getExecutionTextState()
 	{
 		if( this.appTextState == null ) 
@@ -1618,7 +1042,6 @@ public class AppUI extends JFrame
 		{
 			this.timeState = new JTextField( );
 
-			//this.appTextState.setBorder( BorderFactory.createEmptyBorder() );
 			Font f = this.timeState.getFont();
 			this.timeState.setFont( new Font( f.getName(), Font.BOLD, f.getSize() ) );
 			
@@ -1664,33 +1087,17 @@ public class AppUI extends JFrame
 
 					if ( b.isSelected() )
 					{						
-						GuiManager.getInstance().startTest( );
+						GuiManager.getInstance().startRecording( );
 					}
 					else
 					{						
-						GuiManager.getInstance().stopTest();
+						GuiManager.getInstance().stopRecording();
 
 						jButtomPlayStop.transferFocus();
 					}
 
 				}
 			});
-
-			/*
-			this.jMenuPlayStop.addMouseListener(new MouseAdapter()
-			{
-
-				public void mousePressed(MouseEvent arg0)
-				{
-					jMenuPlayStop.setArmed(true);
-				}
-
-				public void mouseReleased(MouseEvent e)
-				{
-					jMenuPlayStop.setArmed(false);
-				}
-			});
-			 */
 
 			this.jButtomPlayStop.setIcon(GuiManager.START_ICO);
 			this.jButtomPlayStop.setSelectedIcon(GuiManager.STOP_ICO);
@@ -1723,11 +1130,11 @@ public class AppUI extends JFrame
 			{
 				public void actionPerformed(java.awt.event.ActionEvent e) 
 				{
-					getGlassPane().setVisible( true );					
+					//getGlassPane().setVisible( true );					
 
 					GuiManager.getInstance().loadFileConfig();
 
-					getGlassPane().setVisible( false );
+					//getGlassPane().setVisible( false );
 
 					//loadConfigValues();
 				}
@@ -1781,7 +1188,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e) 
 				{
-					closingChecks();
+					GuiManager.getInstance().closingChecks();
 				}
 			});
 			
@@ -1802,16 +1209,20 @@ public class AppUI extends JFrame
 			{				
 				@Override
 				public void actionPerformed(ActionEvent e) 
-				{					
+				{	
+					/*
 					DecimalFormat df = new DecimalFormat( "#.##" );
 					
 					Exception ex = new Exception( "Writing test duration " + df.format( GeneralSettings.WRITING_TEST_TIME / 1000.0D ) + " seconds.\n" );
 					ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg, true, false );
-
+					
 					//GuiManager.getInstance().startTest( true );
 					GuiManager.getInstance().setWriteTest( true );
 					getJButtonPlay().setSelected( true );
+					//*/
+					
+					GuiManager.getInstance().setWriteTest( true );
 				}
 			});
 			
@@ -1862,15 +1273,7 @@ public class AppUI extends JFrame
 				{
 					JMenuItem m = (JMenuItem)e.getSource();
 					
-					Dialog_ConvertClis dgclis = new Dialog_ConvertClis();
-					dgclis.setBounds( 200, 100, 400, 400 );
-										
-					dgclis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
-					dgclis.setTitle( m.getText() );
-					dgclis.setModal( true );
-					dgclis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
-										
-					dgclis.setVisible( true );
+					GuiManager.getInstance().showConvertClisDialog( m.getText() );
 				}
 			});
 			
@@ -1917,34 +1320,12 @@ public class AppUI extends JFrame
 				{
 					if (jGNUGLP.isEnabled())
 					{
-						JDialog jDialogGPL;
-
-						try 
-						{
-							jDialogGPL = new Dialog_GNUGLPLicence( AppUI.getInstance() );
-
-							jDialogGPL.setVisible(false);
-							jDialogGPL.pack();
-							jDialogGPL.validate();
-
-							Dimension dd = Toolkit.getDefaultToolkit().getScreenSize();
-							dd.width /= 4;
-							dd.height /= 4;
-							jDialogGPL.setSize(dd);
-							
-							jDialogGPL.setLocationRelativeTo( AppUI.getInstance() );
-
-							jDialogGPL.setResizable(true);
-							jDialogGPL.setVisible(true);
-						} 
-						catch (Exception e1) 
-						{
-							e1.printStackTrace();
-						}
+						GuiManager.getInstance().showGNULicenceDialog();
 					}
 				}
 
 			});
+			
 			this.jGNUGLP.addMouseListener(new MouseAdapter()
 			{
 
@@ -1994,45 +1375,7 @@ public class AppUI extends JFrame
 				{
 					if (jMenuAbout.isEnabled())
 					{
-						try
-						{
-							JDialog jDialogAbout = new Dialog_AboutApp(AppUI.getInstance());
-							jDialogAbout.setVisible(false);
-							jDialogAbout.pack();
-							jDialogAbout.validate();
-
-							Dimension dd = Toolkit.getDefaultToolkit().getScreenSize();
-							dd.width /= 4;
-							dd.height /= 2;
-							jDialogAbout.setSize(dd);
-
-							/*
-							Point l = appUI.ui.getLocation();
-							Dimension d = appUI.ui.getSize();
-							Point loc = new Point(l.x + d.width / 2 - dd.width / 2, l.y + d.height / 2 - dd.height / 2);
-
-							Insets ssooPAD = Toolkit.getDefaultToolkit().getScreenInsets(appUI.ui.getGraphicsConfiguration());
-							if (loc.x < ssooPAD.left + 1)
-							{
-								loc.x = (ssooPAD.left + 1);
-							}
-
-							if (loc.y < ssooPAD.top + 1)
-							{
-								loc.y = (ssooPAD.top + 1);
-							}
-
-							jDialogAbout.setLocation(loc);
-							*/
-							
-							jDialogAbout.setLocationRelativeTo( AppUI.getInstance() );
-
-							jDialogAbout.setResizable(true);
-							jDialogAbout.setVisible(true);
-						}
-						catch (Exception ex) 
-						{
-						}
+						GuiManager.getInstance().showAboutDialog();
 					}
 
 				}
@@ -2187,7 +1530,7 @@ public class AppUI extends JFrame
 		return this.scrollPaneInputMessage;
 	}
 	
-	private JTextPane getLogTextArea() 
+	protected JTextPane getLogTextArea() 
 	{
 		if ( this.logTextArea == null)
 		{
@@ -2316,70 +1659,7 @@ public class AppUI extends JFrame
 		return this.mntmClear;
 	}
 
-	protected void appendTextLog( Color c, String s, AttributeSet attr ) 
-	{ 		
-		JTextPane log = getLogTextArea();
-
-		StyledDocument doc = log.getStyledDocument();
-
-		Color color = c;
-
-		if( c == null )
-		{
-			color = Color.BLACK;
-		}
-
-		StyleContext sc = StyleContext.getDefaultStyleContext(); 
-
-		AttributeSet attrs = attr;
-		if( attrs == null )
-		{
-			attrs = SimpleAttributeSet.EMPTY;
-		}
-
-		AttributeSet aset = sc.addAttribute( attrs , StyleConstants.Foreground, color);
-
-		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-
-		try 
-		{	
-			int numLine = 0;
-
-			String t = log.getText();
-
-			if( !t.isEmpty() )
-			{
-				numLine = t.split("\n").length;
-			}
-
-			int nl = s.split( "\n" ).length;
-
-			String numTxt = "";
-
-			if( nl + numLine > numLine )
-			{
-				numTxt += ( numLine + nl );
-			}						
-
-			int len = log.getDocument().getLength();
-			len = log.getDocument().getLength();
-			doc.insertString( len, dateFormat.format( Calendar.getInstance().getTime() ) + " " + Language.getLocalCaption( Language.INPUT_TEXT ) + " " + numTxt + ": ", null );
-
-			len = log.getDocument().getLength();
-			doc.insertString( len , s, aset );
-
-			if( this.getCheckAutoScroll().isSelected() )
-			{
-				log.setCaretPosition( len + s.length() );
-			}
-		} 
-		catch (BadLocationException e) 
-		{
-			getLogTextArea().setText( getLogTextArea().getText() + s );
-		}
-	} 
-
-	private JCheckBox getCheckAutoScroll()
+	protected JCheckBox getCheckAutoScroll()
 	{
 		if( this.checkAutoScroll == null )
 		{
@@ -2401,15 +1681,7 @@ public class AppUI extends JFrame
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					Dialog_SetChecklist checklistDialog = new Dialog_SetChecklist( );
-					checklistDialog.setModal( true );
-					
-					checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
-					
-					checklistDialog.setLocationRelativeTo( AppUI.ui );
-					checklistDialog.setResizable( false );
-					checklistDialog.setVisible( true );											
-					checklistDialog.pack();
+					GuiManager.getInstance().showChecklistDialog();
 				}
 			});
 		}

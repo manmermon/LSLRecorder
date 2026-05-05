@@ -112,7 +112,7 @@ public class SyncSocketPanelSetting extends JPanel
 	//private Map< String, Component > parameters;
 	
 	//JFrame
-	private JFrame winOwner;
+	//private JFrame winOwner;
 	
 	// disabledPanel
 	private DisabledPanel disPanel;
@@ -120,9 +120,9 @@ public class SyncSocketPanelSetting extends JPanel
 	// Auxiliar
 	private Object[][] previousRowValues = null;
 	
-	public SyncSocketPanelSetting( JFrame owner )
+	public SyncSocketPanelSetting( )//JFrame owner )
 	{
-		this.winOwner = owner;
+		//this.winOwner = owner;
 		
 		//this.parameters = new HashMap<String, Component>();
 		
@@ -516,7 +516,7 @@ public class SyncSocketPanelSetting extends JPanel
 				}
 			});			
 			
-			GuiManager.setGUIComponent( propertyID, propertyID, this.jTableServerSocket );									
+			GuiManager.registerGUIComponent( propertyID, propertyID, this.jTableServerSocket );									
 		}
 		
 		return this.jTableServerSocket;

@@ -31,6 +31,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -39,8 +40,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -56,34 +59,48 @@ import javax.swing.AbstractButton;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
+import javax.swing.text.StyledDocument;
 
 import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
+import lslrec.auxiliar.extra.NumberRange;
 import lslrec.auxiliar.extra.StringTuple;
 import lslrec.auxiliar.extra.Tuple;
 import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
+import lslrec.config.Parameter;
+import lslrec.config.ParameterList;
 import lslrec.config.language.Language;
 import lslrec.control.handler.CoreControl;
 import lslrec.control.handler.minion.OutputDataFileHandler;
 import lslrec.control.message.AppState;
 import lslrec.control.message.EventInfo;
 import lslrec.control.message.EventType;
+import lslrec.control.message.RegisterSyncMessages;
 import lslrec.control.notification.transfer.NotificationTask;
 import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.binary.reader.TemporalBinData;
@@ -95,13 +112,23 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarkerBinFileReader;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.dataPlot.DataStreamPlotter;
+import lslrec.gui.dialog.Dialog_AboutApp;
+import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_BinaryConverter;
+import lslrec.gui.dialog.Dialog_ConvertClis;
+import lslrec.gui.dialog.Dialog_GNUGLPLicence;
+import lslrec.gui.dialog.Dialog_Info;
+import lslrec.gui.dialog.Dialog_PlotClis;
 import lslrec.gui.dialog.Dialog_SavingFileProcess;
+import lslrec.gui.dialog.Dialog_SelectionSyncMethod;
+import lslrec.gui.dialog.Dialog_SetChecklist;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.panel.plugin.Panel_PluginSettings;
 import lslrec.gui.panel.primary.RightPanelSettings;
+import lslrec.gui.setting.SettingOptions;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
@@ -226,6 +253,8 @@ public class GuiManager
 		
 	protected void loadFileConfig()
 	{
+		getAppUI().getGlassPane().setVisible( true );
+		
 		File[] f = FileUtils.selectFile( getAppUI(), ConfigApp.defaultNameFileConfig
 											, Language.getLocalCaption( Language.DIALOG_LOAD )
 											, JFileChooser.OPEN_DIALOG, false, JFileChooser.FILES_ONLY
@@ -244,6 +273,8 @@ public class GuiManager
 			ExceptionMessage msg = new ExceptionMessage( e1, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.WARNING_MESSAGE );
 			ExceptionDialog.showMessageDialog( msg,	true, false );
 		}
+		
+		getAppUI().getGlassPane().setVisible( false );
 	}
 	
 	public void refreshDataStreams()
@@ -559,7 +590,7 @@ public class GuiManager
 		}
 	}
 	
-	public static void setGUIComponent( String guiID, String cfgPropertyID, Component c )
+	public static void registerGUIComponent( String guiID, String cfgPropertyID, Component c )
 	{
 		synchronized( sync )
 		{
@@ -809,15 +840,23 @@ public class GuiManager
 		AppUI.getInstance().getJButtonPlay().setEnabled( enable );
 	}
 	
-	public void setWriteTest( boolean isTest )
+	protected void setWriteTest( boolean isTest )
 	{
+		DecimalFormat df = new DecimalFormat( "#.##" );
+		
+		Exception ex = new Exception( "Writing test duration " + df.format( GeneralSettings.WRITING_TEST_TIME / 1000.0D ) + " seconds." );
+		ExceptionMessage msg = new ExceptionMessage( ex, Language.getLocalCaption( Language.MENU_WRITE_TEST ), ExceptionMessage.INFO_MESSAGE );
+		ExceptionDialog.showMessageDialog( msg, true, false );
+		
 		synchronized ( this.isWriteTest )
 		{
 			this.isWriteTest = isTest;
 		}
+		
+		getAppUI().getJButtonPlay().setSelected( true );
 	}
 	
-	public void startTest( )
+	protected void startRecording( )
 	{	
 		Thread t = new Thread()				
 		{
@@ -850,7 +889,7 @@ public class GuiManager
 				} 
 				catch ( Exception e) 
 				{					
-					stopTest();
+					stopRecording();
 					
 					ExceptionMessage msg = new ExceptionMessage( e, Language.getLocalCaption( Language.DIALOG_ERROR ), ExceptionMessage.ERROR_MESSAGE );
 					ExceptionDialog.showMessageDialog( msg,	true, true );
@@ -879,7 +918,7 @@ public class GuiManager
 		this.initSessionTime = null;
 	}
 	
-	public void stopTest()
+	public void stopRecording()
 	{
 		this.enablePlayButton( false );
 		
@@ -1060,8 +1099,71 @@ public class GuiManager
 		StyleConstants.setBold( attributeSet, true );
 		StyleConstants.setItalic( attributeSet, true );
 
-		AppUI.getInstance().appendTextLog( Color.BLACK,msg, attributeSet);
+		appendTextLog( Color.BLACK,msg, attributeSet );
 	}
+	
+	private void appendTextLog( Color c, String s, AttributeSet attr ) 
+	{ 		
+		JTextPane log = getAppUI().getLogTextArea();
+
+		StyledDocument doc = log.getStyledDocument();
+
+		Color color = c;
+
+		if( c == null )
+		{
+			color = Color.BLACK;
+		}
+
+		StyleContext sc = StyleContext.getDefaultStyleContext(); 
+
+		AttributeSet attrs = attr;
+		if( attrs == null )
+		{
+			attrs = SimpleAttributeSet.EMPTY;
+		}
+
+		AttributeSet aset = sc.addAttribute( attrs , StyleConstants.Foreground, color);
+
+		DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+
+		try 
+		{	
+			int numLine = 0;
+
+			String t = log.getText();
+
+			if( !t.isEmpty() )
+			{
+				numLine = t.split("\n").length;
+			}
+
+			int nl = s.split( "\n" ).length;
+
+			String numTxt = "";
+
+			if( nl + numLine > numLine )
+			{
+				numTxt += ( numLine + nl );
+			}						
+
+			int len = log.getDocument().getLength();
+			len = log.getDocument().getLength();
+			doc.insertString( len, dateFormat.format( Calendar.getInstance().getTime() ) + " " + Language.getLocalCaption( Language.INPUT_TEXT ) + " " + numTxt + ": ", null );
+
+			len = log.getDocument().getLength();
+			doc.insertString( len , s, aset );
+
+			if( getAppUI().getCheckAutoScroll().isSelected() )
+			{
+				log.setCaretPosition( len + s.length() );
+			}
+		} 
+		catch (BadLocationException e) 
+		{
+			getAppUI().getLogTextArea().setText( getAppUI().getLogTextArea().getText() + s );
+		}
+	} 
 	
 	public void LoadPluginSetting( ) throws Exception 
 	{
@@ -1108,7 +1210,7 @@ public class GuiManager
 		return del;
 	}
 	
-	public void adjustDialog2Screen( JDialog dialog )
+	protected void adjustDialog2Screen( JDialog dialog )
 	{
 		if( dialog != null )
 		{
@@ -1131,7 +1233,7 @@ public class GuiManager
 	{
 		try 
 		{
-			AppUI.getInstance().getRightPanelSetting().showStreamTab( RightPanelSettings.TAB_LOG );
+			getAppUI().getRightPanelSetting().showStreamTab( RightPanelSettings.TAB_LOG );
 		}
 		catch (Exception e) 
 		{
@@ -1151,5 +1253,477 @@ public class GuiManager
 				null, opts, opts[1]);
 		
 		return actionDialog;
+	}
+	
+	protected void closingChecks()
+	{
+		try
+		{					 
+			if(  !AppUI.getInstance().getGlassPane().isVisible( ) )
+			{
+				AppState.State state = GuiManager.getInstance().getAppState();
+				
+				if( CoreControl.getInstance().isDoingSomething() 
+						|| (  state != AppState.State.NONE && state != AppState.State.SAVED )
+						)
+				{						
+					System.out.println("AppUI.closingChecks() " + CoreControl.getInstance().isDoingSomething() );
+					String[] opts = { UIManager.getString( "OptionPane.yesButtonText" ), 
+							UIManager.getString( "OptionPane.noButtonText" ) };
+
+					int actionDialog = JOptionPane.showOptionDialog( AppUI.getInstance(), Language.getLocalCaption( Language.MSG_APP_STATE )
+							//+ " " + getExecutionTextState().getText() + "."
+							+ " " + AppUI.getInstance().getExecutionTextState().getString() + "."
+							+ "\n" + Language.getLocalCaption( Language.MSG_INTERRUPT ) 
+							+ "?", 
+							Language.getLocalCaption( Language.MSG_WARNING )
+							, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
+							null, opts, opts[1]);
+
+					if ( actionDialog == JOptionPane.YES_OPTION )
+					{								 
+						if( CoreControl.getInstance().isRecording() )
+						{
+							CoreControl.getInstance().stopWorking( );
+						}
+
+						AppUI.getInstance().getGlassPane().setVisible( true );
+
+						CoreControl.getInstance().closeWhenDoingNothing( );
+					}
+				}
+				else
+				{
+					System.exit( 0 );
+				}
+			}
+			else if( CoreControl.getInstance().isClosing() )
+			{
+				String[] opts = { Language.getLocalCaption( Language.FORCE_QUIT ),
+						Language.getLocalCaption( Language.WAIT ) };
+
+				int actionDialog = JOptionPane.showOptionDialog( AppUI.getInstance(), Language.getLocalCaption( Language.TOO_MUCH_TIME ), 
+						Language.getLocalCaption( Language.MSG_WARNING )
+						, JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, 
+						null, opts, opts[1]);
+
+				if ( actionDialog == JOptionPane.YES_OPTION )
+				{								 
+					System.exit( 0 );
+				}
+			}
+		}
+		catch (Exception e1)
+		{
+			e1.printStackTrace();
+			String msg = e1.getMessage();
+			if ((msg == null) || (msg.isEmpty()))
+			{
+				msg = "" + e1.getCause();
+			}
+
+			JOptionPane.showMessageDialog( AppUI.getInstance(), msg, Language.getLocalCaption( Language.DIALOG_ERROR ), JOptionPane.ERROR_MESSAGE  );
+		}				 
+	}
+	
+	public void unselectSyncDevices()
+	{
+		try 
+		{
+			getAppUI().getRightPanelSetting().unselectSyncDevices();
+		}
+		catch (Exception e) 
+		{
+		}
+	}
+	
+	protected void execRefreshStreams()
+	{
+		final JButton bt = getAppUI().getJButtonRefreshDataStreams();
+		
+		bt.setEnabled( false );
+		
+		getAppUI().getJButtonPlay().setEnabled( false );
+		
+		Thread t = new Thread()
+		{
+			public void run() 
+			{
+				try 
+				{	
+					DataStreamPlotter.getInstance().disposeDataPlots();
+					
+					getAppUI().getRightPanelSetting().refreshDataStreams();
+					
+					if( GuiManager.getInstance().refreshPlugins() )
+					{
+						JOptionPane.showMessageDialog( AppUI.getInstance()
+								, Language.getLocalCaption( Language.MSG_DATA_PROCESSING_STREAMS_CHANGED )
+								, Language.getLocalCaption( Language.MSG_WARNING )
+								, JOptionPane.WARNING_MESSAGE );
+					}
+				} 
+				catch (Exception e) 
+				{
+					e.printStackTrace();
+				}
+				finally
+				{
+					bt.setEnabled( true );
+					getAppUI().getJButtonPlay().setEnabled( true );
+				}
+			} 
+		};		
+		
+		t.start();
+	}
+	
+	protected void showSelectionSyncMethod( JButton syncBtn )
+	{
+		Dialog_SelectionSyncMethod w = new Dialog_SelectionSyncMethod( syncBtn, getAppUI() );
+		
+		Dimension size = syncBtn.getSize();
+		Point pos = syncBtn.getLocationOnScreen();
+
+		Point loc = new Point( pos.x + 1, pos.y + size.height - 1 ); 
+
+		w.setLocation( loc );					
+
+		w.pack();
+		
+		size = w.getSize();
+		size.height = ( size.height > 150 ) ? 150 : size.height;
+		size.width = ( size.width > 150 ) ? 150 : size.width;				
+		
+		w.setSize( size );
+		
+		w.addWindowListener( new WindowAdapter() 
+		{
+			@Override
+			public void windowDeactivated(WindowEvent e) 
+			{
+				e.getWindow().dispose();
+			}
+		});
+		
+		w.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+												KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+												JComponent.WHEN_IN_FOCUSED_WINDOW );
+		
+		w.setVisible( true );
+	}
+	
+	protected void setConfigValueCheckbox( String ID, JCheckBox c )
+	{
+		ConfigApp.setProperty( ID, c.isSelected() );
+	}
+	
+	protected void showInfoPanel( JButton b )
+	{
+		Dialog_Info w = new Dialog_Info( getAppUI(), getSpecialInputMessages() );
+
+		w.setSize( 350, 110 );
+		Dimension size = w.getSize();
+		Point pos = b.getLocationOnScreen();
+
+		Point loc = new Point( pos.x - size.width, pos.y ); 
+
+		w.setLocation( loc );
+
+		w.setVisible( true );
+	}
+	
+	private String getSpecialInputMessages()
+	{
+		Map< String, String > legends = RegisterSyncMessages.getInputSpecialMessageLengeds( true );
+
+		String text = Language.getLocalCaption( Language.SETTING_SPECIAL_IN_METHOD_LEGEND) + ":\n";
+
+		for( String cm : legends.keySet() )
+		{
+			Integer mark = RegisterSyncMessages.getSyncMark( cm );
+
+			String lg = legends.get( cm );				
+			text += "    " + "(" + mark + ", " + cm.toLowerCase() + "): ";
+			text += lg + "\n";
+		}
+
+		return text;
+	}
+
+	protected void changeTheme( String idLF )
+	{
+		try
+		{
+			UIManager.setLookAndFeel( idLF );
+			SwingUtilities.updateComponentTreeUI( AppUI.getInstance() );
+			AppUI.getInstance().pack();
+		}
+		catch (Exception ex) 
+		{
+			ex.printStackTrace();
+		}
+	}
+	
+	protected void getAdvanceMenu()
+	{
+		List< SettingOptions > opts = new ArrayList< SettingOptions >();
+		ParameterList pars = new ParameterList();
+		
+		String[] optList = new String[] { ConfigApp.DEL_BINARY_FILES
+										, ConfigApp.STREAM_SEARCHING_TIME
+										, ConfigApp.RECORDING_CHECKER_TIMER
+										, ConfigApp.SEGMENT_BLOCK_SIZE 
+										, ConfigApp.CHECKLIST_TIMER
+										, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM
+										, ConfigApp.MESSAGE_LOG_FILE
+										};
+		Map< String, String > optIdLang = new HashMap< String, String >();
+		
+
+		optIdLang.put( ConfigApp.DEL_BINARY_FILES, Language.DEL_BINARY_FILES );
+		optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
+		optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
+		optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
+		optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
+		optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
+		optIdLang.put( ConfigApp.MESSAGE_LOG_FILE, ConfigApp.MESSAGE_LOG_FILE  );					
+							
+		for( String op : optList )
+		{
+			Object val = ConfigApp.getProperty( op );
+			
+			Parameter par =  null;
+			
+			NumberRange rg = ConfigApp.getPropertyRange( op );
+			
+			SettingOptions.Type type = null;
+			
+			if( val instanceof Number )
+			{
+				type =  SettingOptions.Type.NUMBER;
+				
+				if( val instanceof Integer )
+				{
+					par = new Parameter< Integer >( op, (Integer)val );
+				}
+				else if( val instanceof Double )
+				{
+					par = new Parameter< Double >( op, (Double)val );
+				}							
+			}
+			else if( val instanceof String )
+			{
+				type =  SettingOptions.Type.STRING;
+				
+				par = new Parameter< String >( op, val.toString() );
+			}
+			else if( val instanceof Boolean )
+			{
+				type = SettingOptions.Type.BOOLEAN;
+				
+				par = new Parameter< Boolean >( op, (Boolean)val );
+			}
+			
+			if( par != null )
+			{
+				par.setLangID( optIdLang.get( op ) );							
+				par.addValueChangeListener( new ChangeListener() 
+				{	
+					@Override
+					public void stateChanged(ChangeEvent e) 
+					{
+						Parameter par = (Parameter)e.getSource();
+
+						if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+						{
+							throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+						}
+					}
+				});
+			}
+			
+			pars.addParameter( par );
+			
+			boolean isList = false;
+			
+			SettingOptions opt = new SettingOptions( op
+													, type
+													, isList
+													, rg
+													, op );
+			opt.addValue( val.toString() );
+			
+			opts.add( opt );
+		}
+		
+		/*
+		Parameter par =  new Parameter< Boolean >( ConfigApp.DEL_BINARY_FILES, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
+		par.setLangID( Language.DEL_BINARY_FILES );
+
+		par.addValueChangeListener( new ChangeListener() 
+		{	
+			@Override
+			public void stateChanged(ChangeEvent e) 
+			{
+				Parameter par = (Parameter)e.getSource();
+
+				if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+				{
+					throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+				}
+			}
+		});
+
+		
+		ParameterList pars = new ParameterList();
+		pars.addParameter( par );
+
+		par =  new Parameter< Double >( ConfigApp.STREAM_SEARCHING_TIME, (Double)ConfigApp.getProperty( ConfigApp.STREAM_SEARCHING_TIME ) );
+		par.setLangID( Language.SETTING_LSL_SEARCHING_TIME );
+
+		par.addValueChangeListener( new ChangeListener() 
+		{	
+			@Override
+			public void stateChanged(ChangeEvent e) 
+			{
+				Parameter par = (Parameter)e.getSource();
+
+				if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+				{
+					throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+				}
+			}
+		});
+
+		pars.addParameter( par );
+
+		par =  new Parameter< Integer >( ConfigApp.RECORDING_CHECKER_TIMER, (Integer)ConfigApp.getProperty( ConfigApp.RECORDING_CHECKER_TIMER ) );
+		par.setLangID( Language.SETTING_RECORDING_CHECKER_TIMER );
+
+		par.addValueChangeListener( new ChangeListener() 
+		{	
+			@Override
+			public void stateChanged(ChangeEvent e) 
+			{
+				Parameter par = (Parameter)e.getSource();
+
+				if( !ConfigApp.setProperty( par.getID(), par.getValue() ) )
+				{
+					throw new IllegalArgumentException( Language.getLocalCaption( Language.MSG_ILLEGAL_VALUE ) );
+				}
+			}
+		});
+
+		pars.addParameter( par );
+		*/
+		
+		Dialog_AdvancedOptions diag = new Dialog_AdvancedOptions( opts, pars );
+		diag.setTitle( GeneralSettings.fullNameApp + " - " + Language.getLocalCaption( Language.MENU_ADVANCED ) );
+		diag.setLocationRelativeTo( getAppUI() );
+		diag.setResizable( false );
+		diag.setIconImage( getAppUI().getIconImage() );
+		diag.setVisible( true );
+	}
+
+	protected void showClisDataPlotDialog( String title )
+	{
+		Dialog_PlotClis plotClis = new Dialog_PlotClis();
+		plotClis.setBounds( 200, 100, 800, 400 );
+							
+		plotClis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );
+		plotClis.setTitle( title );
+		plotClis.setModal( true );
+		plotClis.setIconImage( GuiManager.getInstance().getAppUI().getIconImage() );
+		
+		plotClis.addWindowListener( new WindowAdapter()
+		{
+			@Override
+			public void windowOpened(WindowEvent e) 
+			{
+				JDialog dial = (JDialog)e.getSource();
+				GuiManager.getInstance().adjustDialog2Screen( dial );
+			}
+		});
+		
+		plotClis.setVisible( true );
+	}
+	
+	protected void showConvertClisDialog( String title )
+	{
+		Dialog_ConvertClis dgclis = new Dialog_ConvertClis();
+		dgclis.setBounds( 200, 100, 400, 400 );
+							
+		dgclis.setLocationRelativeTo( getAppUI() );
+		dgclis.setTitle( title );
+		dgclis.setModal( true );
+		dgclis.setIconImage( getAppUI().getIconImage() );
+							
+		dgclis.setVisible( true );
+	}
+	
+	protected void showGNULicenceDialog()
+	{
+		JDialog jDialogGPL;
+
+		try 
+		{
+			jDialogGPL = new Dialog_GNUGLPLicence( AppUI.getInstance() );
+
+			jDialogGPL.setVisible(false);
+			jDialogGPL.pack();
+			jDialogGPL.validate();
+
+			Dimension dd = Toolkit.getDefaultToolkit().getScreenSize();
+			dd.width /= 4;
+			dd.height /= 4;
+			jDialogGPL.setSize(dd);
+			
+			jDialogGPL.setLocationRelativeTo( AppUI.getInstance() );
+
+			jDialogGPL.setResizable(true);
+			jDialogGPL.setVisible(true);
+		} 
+		catch (Exception e1) 
+		{
+			e1.printStackTrace();
+		}
+	}
+	
+	protected void showAboutDialog()
+	{
+		try
+		{
+			JDialog jDialogAbout = new Dialog_AboutApp(AppUI.getInstance());
+			jDialogAbout.setVisible(false);
+			jDialogAbout.pack();
+			jDialogAbout.validate();
+
+			Dimension dd = Toolkit.getDefaultToolkit().getScreenSize();
+			dd.width /= 4;
+			dd.height /= 2;
+			jDialogAbout.setSize(dd);
+			
+			jDialogAbout.setLocationRelativeTo( AppUI.getInstance() );
+
+			jDialogAbout.setResizable(true);
+			jDialogAbout.setVisible(true);
+		}
+		catch (Exception ex) 
+		{
+		}
+	}
+	
+	protected void showChecklistDialog()
+	{
+		Dialog_SetChecklist checklistDialog = new Dialog_SetChecklist( );
+		checklistDialog.setModal( true );
+		
+		checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
+		
+		checklistDialog.setLocationRelativeTo( getAppUI() );
+		checklistDialog.setResizable( false );
+		checklistDialog.setVisible( true );											
+		checklistDialog.pack();
 	}
 }

@@ -465,7 +465,7 @@ public class TrialPluginSelectorPanel extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.chckbxFullScreen );
+			GuiManager.registerGUIComponent( ID, ID, this.chckbxFullScreen );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT
 											, Language.FULLSCREEN
@@ -549,7 +549,7 @@ public class TrialPluginSelectorPanel extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.spinnerWidth );
+			GuiManager.registerGUIComponent( ID, ID, this.spinnerWidth );
 		}
 		
 		
@@ -616,7 +616,7 @@ public class TrialPluginSelectorPanel extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.spinnerHeight );
+			GuiManager.registerGUIComponent( ID, ID, this.spinnerHeight );
 		}
 		
 		return this.spinnerHeight;

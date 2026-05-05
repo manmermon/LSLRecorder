@@ -274,7 +274,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.saveOutpuDataProcessing );
+			GuiManager.registerGUIComponent( ID, ID, this.saveOutpuDataProcessing );
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT
 											, Language.SAVE_DATA_PROCESSING_TEXT

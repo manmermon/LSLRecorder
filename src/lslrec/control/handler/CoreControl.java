@@ -368,7 +368,7 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 					@Override
 					public void execute() 
 					{
-						GuiManager.getInstance().stopTest();						
+						GuiManager.getInstance().stopRecording();						
 					}
 				} ));
 				

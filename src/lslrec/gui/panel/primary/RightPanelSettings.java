@@ -285,6 +285,7 @@ public class RightPanelSettings extends JPanel
 		{
 			this.disPanel = new DisabledPanel( this.getPanelDeviceAndSetting() );			
 		}
+		
 		return this.disPanel;
 	}
 	
@@ -624,7 +625,7 @@ public class RightPanelSettings extends JPanel
 				}
 			});
 
-			GuiManager.setGUIComponent( ID, ID, this.generalDescrOutFile );
+			GuiManager.registerGUIComponent( ID, ID, this.generalDescrOutFile );
 		}
 		
 		return this.generalDescrOutFile;
@@ -672,7 +673,7 @@ public class RightPanelSettings extends JPanel
 			});
 			
 			GuiTextManager.addComponent( GuiTextManager.TEXT, Language.ENCRYPT_KEY_TEXT, this.encryptKeyActive );
-			GuiManager.setGUIComponent( ID, ID, this.encryptKeyActive );
+			GuiManager.registerGUIComponent( ID, ID, this.encryptKeyActive );
 									
 		}
 		
@@ -937,7 +938,7 @@ public class RightPanelSettings extends JPanel
 
 			this.fileFolder.setToolTipText( this.fileFolder.getText() );
 			
-			GuiManager.setGUIComponent( ID, ID, this.fileFolder );
+			GuiManager.registerGUIComponent( ID, ID, this.fileFolder );
 		}
 
 		return this.fileFolder;
@@ -1022,7 +1023,7 @@ public class RightPanelSettings extends JPanel
 			
 			this.subjectID.setToolTipText( this.subjectID.getText() );
 			
-			GuiManager.setGUIComponent( ID, ID, this.subjectID );
+			GuiManager.registerGUIComponent( ID, ID, this.subjectID );
 		}
 		
 		return this.subjectID;
@@ -1104,7 +1105,7 @@ public class RightPanelSettings extends JPanel
 			
 			this.testID.setToolTipText( this.testID.getText() );
 			
-			GuiManager.setGUIComponent( ID, ID, this.testID );
+			GuiManager.registerGUIComponent( ID, ID, this.testID );
 		}
 		
 		return this.testID;
@@ -1196,7 +1197,7 @@ public class RightPanelSettings extends JPanel
 			
 			this.fileName.setToolTipText( this.fileName.getText() );
 			
-			GuiManager.setGUIComponent( ID, ID, this.fileName );
+			GuiManager.registerGUIComponent( ID, ID, this.fileName );
 		}
 		
 		return this.fileName;
@@ -1433,7 +1434,7 @@ public class RightPanelSettings extends JPanel
 				}
 			});
 			
-			GuiManager.setGUIComponent( ID, ID, this.fileFormat );
+			GuiManager.registerGUIComponent( ID, ID, this.fileFormat );
 		}
 
 		return this.fileFormat;
@@ -2658,7 +2659,7 @@ public class RightPanelSettings extends JPanel
 			this.selectedDeviceGroup = new SelectedButtonGroup();
 			//this.selectedDeviceGroup.setLayout( new BoxLayout( this.selectedDeviceGroup, BoxLayout.Y_AXIS ) );
 
-			GuiManager.setGUIComponent( STREAM_NAME, ConfigApp.ID_STREAMS, this.selectedDeviceGroup );
+			GuiManager.registerGUIComponent( STREAM_NAME, ConfigApp.ID_STREAMS, this.selectedDeviceGroup );
 		}
 
 		return this.selectedDeviceGroup;
@@ -2670,7 +2671,7 @@ public class RightPanelSettings extends JPanel
 		{
 			this.syncDeviceGroup = new SelectedButtonGroup();
 
-			GuiManager.setGUIComponent( STREAM_SYNC, ConfigApp.ID_STREAMS, this.syncDeviceGroup );
+			GuiManager.registerGUIComponent( STREAM_SYNC, ConfigApp.ID_STREAMS, this.syncDeviceGroup );
 		}
 
 		return this.syncDeviceGroup;

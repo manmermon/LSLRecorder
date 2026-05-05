@@ -548,7 +548,7 @@ public class CoreControl_copia extends Thread implements IHandlerSupervisor
 					@Override
 					public void execute() 
 					{
-						managerGUI.stopTest();						
+						managerGUI.stopRecording();						
 					}
 				} ));
 				
