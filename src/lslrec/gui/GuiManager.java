@@ -1726,4 +1726,6 @@ public class GuiManager
 		checklistDialog.setVisible( true );											
 		checklistDialog.pack();
 	}
+	
+	
 }

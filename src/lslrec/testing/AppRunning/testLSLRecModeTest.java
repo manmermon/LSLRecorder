@@ -163,8 +163,8 @@ public class testLSLRecModeTest
 				
 				if( startRecord )
 				{
-					System.out.println("testLSLRecModeTest.main() START ");
-					GuiManager.getInstance().startRecording( );
+					System.out.println("testLSLRecModeTest.main() START no activo");
+					//GuiManager.getInstance().startRecording( );
 				}
 			}
 		}

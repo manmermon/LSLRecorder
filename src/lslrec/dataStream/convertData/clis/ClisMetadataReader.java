@@ -67,52 +67,65 @@ public class ClisMetadataReader
 		
 	public ClisMetadataReader( File file ) throws Exception 
 	{
-		this.fileStreamReader = new RandomAccessFile( file, "r" );
-		 		
-		String metadata = this.fileStreamReader.readLine();  		
-		
-		this.fields = new HashMap<String, Object>();		
-		
-		String[] parts  = metadata.split( ";" );
-		
-		this.getVersion( parts[ 0 ] );	
-		
-		if( ((Float)this.fields.get( VER ) ) == 2.1F )
+		try
 		{
-			this.processMetadataFields( Arrays.copyOfRange( parts, 1, parts.length ) );
-		}
+			this.fileStreamReader = new RandomAccessFile( file, "r" );
+
+			String metadata = this.fileStreamReader.readLine();  		
+
+			this.fields = new HashMap<String, Object>();		
+
+			String[] parts  = metadata.split( ";" );
 		
-		if( this.isEncryptedData() )
-		{	
-			JPasswordField jpf = new JPasswordField( 16 );
-		    JLabel jl = new JLabel( Language.getLocalCaption( Language.DECRYPT_KEY_TEXT ) + " - " +Language.getLocalCaption( Language.PASSWORD_TEXT ) + ": ");
-		    Box box = Box.createHorizontalBox();
-		    box.add(jl);
-		    box.add(jpf);
+		
+			this.getVersion( parts[ 0 ] );	
 			
-			int ok = JOptionPane.showConfirmDialog( GuiManager.getInstance().getAppUI(), box, Language.getLocalCaption( Language.PASSWORD_TEXT ), JOptionPane.OK_CANCEL_OPTION );
-			
-			
-			String password = "";
-			
-		    if ( ok == JOptionPane.OK_OPTION) 
-		    {
-		    	char[] pass = jpf.getPassword();
-		    	
-		    	if( pass != null )
-		    	{
-		    		password = new String( pass );
-		    	}
-		    }
-			
-			this.setDecrypt( password );
-			
-			if( !this.checkDecryptPassword( password ) )
+			if( ((Float)this.fields.get( VER ) ) == 2.1F )
 			{
-				throw new ClisMetadataException( Language.getLocalCaption( Language.PASSWORD_TEXT ) 
-													+ ": " 
-													+ Language.getLocalCaption( Language.DIALOG_ERROR )  );
+				this.processMetadataFields( Arrays.copyOfRange( parts, 1, parts.length ) );
 			}
+			
+			if( this.isEncryptedData() )
+			{	
+				JPasswordField jpf = new JPasswordField( 16 );
+			    JLabel jl = new JLabel( Language.getLocalCaption( Language.DECRYPT_KEY_TEXT ) + " - " +Language.getLocalCaption( Language.PASSWORD_TEXT ) + ": ");
+			    Box box = Box.createHorizontalBox();
+			    box.add(jl);
+			    box.add(jpf);
+				
+				int ok = JOptionPane.showConfirmDialog( GuiManager.getInstance().getAppUI(), box, Language.getLocalCaption( Language.PASSWORD_TEXT ), JOptionPane.OK_CANCEL_OPTION );
+				
+				
+				String password = "";
+				
+			    if ( ok == JOptionPane.OK_OPTION) 
+			    {
+			    	char[] pass = jpf.getPassword();
+			    	
+			    	if( pass != null )
+			    	{
+			    		password = new String( pass );
+			    	}
+			    }
+				
+				this.setDecrypt( password );
+				
+				if( !this.checkDecryptPassword( password ) )
+				{
+					throw new ClisMetadataException( Language.getLocalCaption( Language.PASSWORD_TEXT ) 
+														+ ": " 
+														+ Language.getLocalCaption( Language.DIALOG_ERROR )  );
+				}
+			}
+		}
+		catch (Exception e) 
+		{
+			if( this.fileStreamReader != null )
+			{
+				this.fileStreamReader.close();
+			}
+			
+			throw e;
 		}
 	}
 

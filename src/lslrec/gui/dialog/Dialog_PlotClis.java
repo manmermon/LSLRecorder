@@ -44,7 +44,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.ItemEvent;
@@ -654,8 +653,10 @@ public class Dialog_PlotClis extends JDialog
 		return btnLoadRecursiveFilesFromFolder;
 	}
 	
-	private void setClisFile( final String FILE )
+	private boolean setClisFile( final String FILE )
 	{
+		boolean ok = true;
+		
 		if( FILE != null )
 		{	
 			super.setCursor( Cursor.getPredefinedCursor( Cursor.WAIT_CURSOR ) );
@@ -684,6 +685,8 @@ public class Dialog_PlotClis extends JDialog
 				}
 				
 				this.currentClisFile = null;
+				
+				ok = false;
 			}
 
 			this.showBinaryFileInfo( );
@@ -691,6 +694,8 @@ public class Dialog_PlotClis extends JDialog
 			
 			super.setCursor( Cursor.getPredefinedCursor( Cursor.DEFAULT_CURSOR ) );
 		}
+		
+		return ok;
 	}
 	
 	private JLabel getLblLoadFile() 
@@ -2507,7 +2512,7 @@ public class Dialog_PlotClis extends JDialog
 
                     String texto = value != null ? value.toString() : "";
 
-                    // Mostrar solo los últimos caracteres si el texto es muy largo
+                    // Mostrar solo los ï¿½ltimos caracteres si el texto es muy largo
                     int len = 20-3;
                     if (texto.length() > len) 
                     {
@@ -2621,17 +2626,20 @@ public class Dialog_PlotClis extends JDialog
 							{
 								String file = tableFileData.getValueAt( r, 0 ).toString();
 								
-								setClisFile( file );
+								boolean ok =  setClisFile( file );
 								
-								int numTotal = getCbXAxisVariables().getItemCount();
-							
-								int prevSelXAxisIndex = prevSel;
-								if( prevSelXAxisIndex < 0 && numTotal > 0 )
-								{					
-									prevSelXAxisIndex = 0;
+								if( ok )
+								{								
+									int numTotal = getCbXAxisVariables().getItemCount();
+								
+									int prevSelXAxisIndex = prevSel;
+									if( prevSelXAxisIndex < 0 && numTotal > 0 )
+									{					
+										prevSelXAxisIndex = 0;
+									}
+								
+									getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
 								}
-							
-								getCbXAxisVariables().setSelectedIndex( prevSelXAxisIndex );
 							}
 							else
 							{

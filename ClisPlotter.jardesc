@@ -11,16 +11,16 @@
         </sealing>
     </manifest>
     <selectedElements exportClassFiles="true" exportJavaFiles="false" exportOutputFolder="false">
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{AppUI.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisCompressorWriter.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisEncoder.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.outputDataFile.format.clis{ClisMetadata.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_GNUGLPLicence.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Info.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_Opening.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_PlotClis.java"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{KeyActions.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config{GeneralSettings.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{KeyActions.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui{AppUI.java"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog{Dialog_PlotClis.java"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.extra"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.task"/>

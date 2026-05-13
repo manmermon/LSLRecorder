@@ -7,18 +7,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.text.html.HTMLEditorKit;
@@ -28,6 +31,7 @@ import lslrec.config.checklistMessage.CheckMessage;
 import lslrec.config.checklistMessage.CheckMessagePartFromText;
 import lslrec.config.checklistMessage.ICheckMessagePart;
 import lslrec.config.language.Language;
+import lslrec.gui.KeyActions;
 
 public class Dialog_SetCheckMessagePart extends JDialog 
 {
@@ -100,6 +104,10 @@ public class Dialog_SetCheckMessagePart extends JDialog
 				showMessage();
 			}
 		});
+		
+		super.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+				KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+				JComponent.WHEN_IN_FOCUSED_WINDOW );
 	}
 	
 	private void showMessage()
