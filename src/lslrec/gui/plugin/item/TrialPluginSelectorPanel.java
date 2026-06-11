@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.gui.panel.plugin.item;
+package lslrec.gui.plugin.item;
 
 import java.awt.BorderLayout;
 import java.awt.Color;

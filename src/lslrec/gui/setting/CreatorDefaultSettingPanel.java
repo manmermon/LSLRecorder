@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.gui.panel.plugin.item;
+package lslrec.gui.setting;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -55,7 +55,6 @@ import lslrec.dataStream.tools.StreamUtils;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
-import lslrec.gui.setting.SettingOptions;
 import lslrec.gui.setting.SettingOptions.Type;
 
 public class CreatorDefaultSettingPanel 

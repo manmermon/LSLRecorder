@@ -1,5 +1,21 @@
-/**
- * 
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec. https://github.com/manmermon/LSLRecorder
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
  */
 package lslrec.plugin.impl.dataProcessing.painter;
 
@@ -12,8 +28,7 @@ import javax.swing.JPanel;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.setting.CreatorDefaultSettingPanel;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;
@@ -213,7 +228,8 @@ public class DataDisplayPlugin extends LSLRecConfigurablePluginAbstract implemen
 		String prevProc = "";
 		if( arg1 != null )
 		{
-			prevProc = arg1.getID();
+			prevProc = arg1.getID() + "("+arg1.getProcessesList().size()+")";
+			
 		}
 		pars.add( new Parameter<String>( DataDisplay.WIN_TITLE, disp.getID() + ":" + prevProc + " - " + settings.getStreamSettings().name() ) );
 		

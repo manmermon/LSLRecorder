@@ -1,3 +1,22 @@
+/* 
+ * Copyright 2018-2020 by Manuel Merino Monge <manmermon@dte.us.es>
+ *  
+ *   This file is part of LSLRec.  https://github.com/manmermon/LSLRecorder
+ *
+ *   LSLRec is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   LSLRec is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
+ *   
+ */
 package lslrec.plugin.impl.test;
 
 import java.awt.EventQueue;
@@ -17,14 +36,21 @@ import javax.swing.JButton;
 import javax.swing.border.TitledBorder;
 
 import lslrec.auxiliar.extra.ArrayTreeMap;
+import lslrec.plugin.impl.dataProcessing.WeightInputs.WeightInputsPlugin;
 import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin;
 import lslrec.plugin.impl.dataProcessing.downSampling.DownSamplingPlugin;
+import lslrec.plugin.impl.dataProcessing.envelopFilter.EnvelopFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
-import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
+import lslrec.plugin.impl.dataProcessing.filter.FilterPlugin;
+import lslrec.plugin.impl.dataProcessing.findPeakLocation.FindPeakLocationPlugin;
 import lslrec.plugin.impl.dataProcessing.levelChecker.LevelCheckerPlugin;
+import lslrec.plugin.impl.dataProcessing.locationMedian.LocationMedianPlugin;
+import lslrec.plugin.impl.dataProcessing.locationVariability.LocationVariabilityPlugin;
 import lslrec.plugin.impl.dataProcessing.medianFilter.MedianFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
+import lslrec.plugin.impl.dataProcessing.powerSample.PowerSamplePlugin;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.WindowingFIRFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin;
 import lslrec.plugin.impl.encoder.binary.BinaryEncoderPlugin;
 import lslrec.plugin.impl.encoder.csv.CSVEncoderPlugin;
@@ -163,16 +189,24 @@ public class PluginTestGUI extends JFrame {
 	}
 	
 	private void setPlugins()
-	{		
+	{	
+		plugins.putElement( PluginType.DATA_PROCESSING, new LocationVariabilityPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new WeightInputsPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new EnvelopFilterPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new LocationMedianPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new FindPeakLocationPlugin() );	
 		plugins.putElement( PluginType.DATA_PROCESSING, new DownSamplingPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new FFTPlugin() );
-		plugins.putElement( PluginType.DATA_PROCESSING, new FIRFilterPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new WindowingFIRFilterPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new FilterPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new OpenposePlotterPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new DataDisplayPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new ZTransformPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new BasicStatSummaryPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new MedianFilterPlugin() );
 		plugins.putElement( PluginType.DATA_PROCESSING, new LevelCheckerPlugin() );
+		plugins.putElement( PluginType.DATA_PROCESSING, new PowerSamplePlugin() );
+	
 		
 		plugins.putElement( PluginType.ENCODER , new CSVEncoderPlugin() );
 		plugins.putElement( PluginType.ENCODER , new HDF5EncoderPlugin() );

@@ -14,6 +14,5 @@
         <file path="/LSLRecPlugin/META-INF/services/lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.basicStatSummary"/>
         <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.hr2hrv"/>
-        <javaElement handleIdentifier="=LSLRecPlugin/src&lt;lslrec.plugin.impl.dataProcessing.resender"/>
     </selectedElements>
 </jardesc>

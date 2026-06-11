@@ -32,8 +32,6 @@ import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
-import lslrec.gui.panel.primary.SyncSocketPanelSetting;
-import lslrec.gui.panel.primary.RightPanelSettings;
 import lslrec.config.ConfigApp;
 import lslrec.gui.miscellany.LevelIndicator;
 
@@ -177,8 +175,8 @@ public class AppUI extends JFrame
 	private JTextField sessionTimeText = null;
 
 	// Settings
-	private SyncSocketPanelSetting leftSettingPanel;
-	private RightPanelSettings rightSettingPanel;
+	private SyncSocketSettingPanel leftSettingPanel;
+	private RightSettingsPanel rightSettingPanel;
 
 	// JCombox
 	//private JComboBox< String > jComboxSyncMethod;	
@@ -307,37 +305,6 @@ public class AppUI extends JFrame
 
 		return this.jPanelSelectSyncMethod;
 	}
-
-	/*
-	protected JComboBox< String > getJComboxSyncMethod()	
-	{
-		if( this.jComboxSyncMethod == null )
-		{
-			final String ID = ConfigApp.SELECTED_SYNC_METHOD;
-
-			this.jComboxSyncMethod = new JComboBox< String >( SyncMethod.getSyncMethodID() );
-
-			this.jComboxSyncMethod.setSelectedItem( ConfigApp.getProperty( ID ) );
-
-			this.jComboxSyncMethod.addItemListener( new ItemListener() 
-			{				
-				@Override
-				public void itemStateChanged(ItemEvent e) 
-				{
-					JComboBox< String > jc = ( JComboBox< String >)e.getSource();
-
-					String sync = (String)jc.getSelectedItem();
-					
-					ConfigApp.setProperty( ID, sync );
-				}
-			});
-
-			GuiManager.setGUIComponent( ID, ID, this.jComboxSyncMethod );
-		}
-
-		return this.jComboxSyncMethod;
-	}
-	//*/
 	
 	protected JButton getBtnSyncMethod()	
 	{
@@ -410,28 +377,10 @@ public class AppUI extends JFrame
 				public void itemStateChanged(ItemEvent e) 
 				{
 					JCheckBox c = (JCheckBox)e.getSource();
-					/*
-					if( e.getStateChange() == ItemEvent.SELECTED )
-					{
-						if( !c.isEnabled() )
-						{
-							c.setSelected( false );
-						}					
-					}					
-					*/
-					//ConfigApp.setProperty( ID, c.isSelected() );
 					
 					GuiManager.getInstance().setConfigValueCheckbox( ID, c );
 				}
 			});
-
-			/*
-			if( this.getJComboxSyncMethod().getSelectedItem().toString().equalsIgnoreCase( SyncMethod.SYNC_NONE ) )
-			{
-				this.checkActiveSpecialInputMsg.setSelected( false );;
-				this.checkActiveSpecialInputMsg.setEnabled( false );
-			}
-			*/
 			
 			GuiManager.registerGUIComponent( ID, ID, this.checkActiveSpecialInputMsg );
 			
@@ -573,21 +522,21 @@ public class AppUI extends JFrame
 		return this.jPanelInputMsg;
 	}
 
-	protected SyncSocketPanelSetting getLeftPanelSetting()
+	protected SyncSocketSettingPanel getLeftPanelSetting()
 	{
 		if( this.leftSettingPanel == null )
 		{
-			this.leftSettingPanel = new SyncSocketPanelSetting( ); //this );
+			this.leftSettingPanel = new SyncSocketSettingPanel( ); //this );
 		}
 
 		return this.leftSettingPanel;
 	}
 
-	protected RightPanelSettings getRightPanelSetting() throws Exception
+	protected RightSettingsPanel getRightPanelSetting() throws Exception
 	{
 		if( this.rightSettingPanel == null )
 		{
-			this.rightSettingPanel = new RightPanelSettings( this );
+			this.rightSettingPanel = new RightSettingsPanel( this );
 		}
 
 		return this.rightSettingPanel;

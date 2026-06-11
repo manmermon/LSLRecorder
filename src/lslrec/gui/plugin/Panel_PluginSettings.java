@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.gui.panel.plugin;
+package lslrec.gui.plugin;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -31,8 +31,8 @@ import javax.swing.JTabbedPane;
 
 import lslrec.config.language.Language;
 import lslrec.gui.miscellany.DisabledPanel;
-import lslrec.gui.panel.plugin.item.DataProcessingPluginSelectorPanel;
-import lslrec.gui.panel.plugin.item.TrialPluginSelectorPanel;
+import lslrec.gui.plugin.item.DataProcessingPluginSelectorPanel;
+import lslrec.gui.plugin.item.TrialPluginSelectorPanel;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecConfigurablePlugin;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;

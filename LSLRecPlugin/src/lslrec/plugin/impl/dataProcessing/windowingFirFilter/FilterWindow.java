@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.impl.dataProcessing.firFilter;
+package lslrec.plugin.impl.dataProcessing.windowingFirFilter;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;

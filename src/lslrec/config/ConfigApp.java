@@ -2294,7 +2294,18 @@ public class ConfigApp
 		
 		//
 		//
+		//		
+		msg = new CheckMessage( "descriptionEmptyIDChecker", CheckMessage.ERROR );
+		part = new CheckMessagePartFromText( "Description empty", "", false );
+		msg.addMessagePart( part );
+		
+		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.OUTPUT_FILE_DESCR, "{0}!=null && !{0}.trim().isEmpty()", null ) );
+		msg.setEnable( !isTesting() );
+		messages.add( msg );
+		
 		//
+		//
+		//		
 		
 		return messages; 
 	}

@@ -30,7 +30,7 @@ import javax.swing.event.ChangeListener;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.setting.CreatorDefaultSettingPanel;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.LSLRecConfigurablePluginAbstract;

@@ -20,7 +20,7 @@
  *   
  */
 
-package lslrec.gui.panel.primary;
+package lslrec.gui;
 
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
@@ -104,7 +104,6 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
 import lslrec.config.language.Language;
-import lslrec.control.handler.CoreControl;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
@@ -118,9 +117,6 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
 import lslrec.gui.dataPlot.DataStreamPlotter;
-import lslrec.gui.AppUI;
-import lslrec.gui.GuiManager;
-import lslrec.gui.GuiTextManager;
 import lslrec.gui.dialog.Dialog_AdvancedOptions;
 import lslrec.gui.dialog.Dialog_Info;
 import lslrec.gui.miscellany.DisabledPanel;
@@ -129,7 +125,7 @@ import lslrec.gui.miscellany.NoneSelectedButtonGroup;
 import lslrec.gui.miscellany.SelectedButtonGroup;
 import lslrec.gui.miscellany.TextAreaPrintStream;
 import lslrec.gui.miscellany.VerticalFlowLayout;
-import lslrec.gui.panel.plugin.Panel_PluginSettings;
+import lslrec.gui.plugin.Panel_PluginSettings;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.config.ConfigApp;
 import lslrec.config.Parameter;
@@ -147,7 +143,7 @@ import lslrec.auxiliar.WarningMessage;
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.auxiliar.extra.Tuple;
 
-public class RightPanelSettings extends JPanel
+public class RightSettingsPanel extends JPanel
 {
 	public static final int TAB_STREAM = 0;
 	public static final int TAB_PLOT = 1;
@@ -186,6 +182,8 @@ public class RightPanelSettings extends JPanel
 	private JTextField fileName;
 	private JTextField completedFileName;
 	//private JTextField generalDescrOutFile;
+	
+	// JTEXTAREA
 	private JTextArea generalDescrOutFile;
 
 	// JCHECKBOX
@@ -231,7 +229,7 @@ public class RightPanelSettings extends JPanel
 	/**
 	 * Create the panel.
 	 */
-	public RightPanelSettings( JFrame owner )  throws Exception
+	public RightSettingsPanel( JFrame owner )  throws Exception
 	{
 		this.winOwner = owner;
 
@@ -279,7 +277,7 @@ public class RightPanelSettings extends JPanel
 		this.setEnablePluginSetting( enable );
 	}
 	
-	private DisabledPanel getDisabledPanel( )
+	protected DisabledPanel getDisabledPanel( )
 	{
 		if( this.disPanel == null )
 		{
@@ -586,8 +584,6 @@ public class RightPanelSettings extends JPanel
 			this.generalDescrOutFile.setWrapStyleWord( true );
 			this.generalDescrOutFile.setRows( 2 );
 			this.generalDescrOutFile.setColumns( 10 );
-			
-			
 						
 			this.generalDescrOutFile.getDocument().addDocumentListener( new DocumentListener() 
 			{				

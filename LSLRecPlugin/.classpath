@@ -13,5 +13,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/LSLRecorder"/>
 	<classpathentry kind="lib" path="lib/sis-jhdf5-19.04.0.jar"/>
 	<classpathentry kind="lib" path="lib/sis-base-18.09.0.jar"/>
+	<classpathentry kind="lib" path="lib/jdsp-3.1.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

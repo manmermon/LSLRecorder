@@ -170,8 +170,11 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 						
 						byte[] DAT = ConvertTo.Transform.NumberArray2byteArray( processedData, this.process.getDataStreamSetting().data_type() );
 						
-						this.out.write( DAT );
-						this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );
+						if( DAT != null )
+						{
+							this.out.write( DAT );
+							this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );
+						}
 					}
 				}
 			}	

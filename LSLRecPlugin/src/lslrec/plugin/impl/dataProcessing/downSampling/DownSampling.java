@@ -64,7 +64,7 @@ public class DownSampling extends LSLRecPluginDataProcessing
 	}
 
 	@Override
-	public int getOverlapOffset() 
+	public int getShiftOffset() 
 	{
 		return this.getBufferLength();
 	}

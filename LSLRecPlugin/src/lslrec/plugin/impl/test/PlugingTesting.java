@@ -21,13 +21,13 @@ package lslrec.plugin.impl.test;
 
 import lslrec.plugin.impl.dataProcessing.basicStatSummary.BasicStatSummaryPlugin;
 import lslrec.plugin.impl.dataProcessing.fftPlot.FFTPlugin;
-import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.hr2hrv.HR2HRVPlugin;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotter;
 import lslrec.plugin.impl.dataProcessing.openposePlotter.OpenposePlotterPlugin;
 import lslrec.plugin.impl.dataProcessing.painter.DataDisplayPlugin;
 import lslrec.plugin.impl.dataProcessing.resender.LSLStreamResender;
 import lslrec.plugin.impl.dataProcessing.resender.LSLStreamResenderPlugin;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.WindowingFIRFilterPlugin;
 import lslrec.plugin.impl.dataProcessing.zTransform.ZTransformPlugin;
 import lslrec.plugin.impl.encoder.hdf5.HDF5EncoderPlugin;
 import lslrec.plugin.impl.gui.alarm.PluginAlarmTest;

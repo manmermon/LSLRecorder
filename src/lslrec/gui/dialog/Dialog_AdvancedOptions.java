@@ -36,7 +36,7 @@ import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.language.Language;
 import lslrec.gui.KeyActions;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.setting.CreatorDefaultSettingPanel;
 import lslrec.gui.setting.SettingOptions;
 
 /**

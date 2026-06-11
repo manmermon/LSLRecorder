@@ -32,6 +32,7 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
@@ -43,6 +44,7 @@ import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -76,6 +78,7 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -126,13 +129,13 @@ import lslrec.gui.dialog.Dialog_SetChecklist;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.LevelIndicator;
 import lslrec.gui.miscellany.SelectedButtonGroup;
-import lslrec.gui.panel.plugin.Panel_PluginSettings;
-import lslrec.gui.panel.primary.RightPanelSettings;
+import lslrec.gui.plugin.Panel_PluginSettings;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.plugin.loader.PluginLoader;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.register.DataProcessingPluginRegistrar;
 import lslrec.plugin.register.TrialPluginRegistrar;
+import lslrec.sockets.info.SocketSetting;
 import lslrec.stoppableThread.IStoppableThread;
 
 public class GuiManager
@@ -698,8 +701,8 @@ public class GuiManager
 				{
 					SelectedButtonGroup gr = (SelectedButtonGroup)c;
 
-					if( guiID.equals( RightPanelSettings.STREAM_NAME ) 
-							|| guiID.equals( RightPanelSettings.STREAM_SYNC ) )
+					if( guiID.equals( RightSettingsPanel.STREAM_NAME ) 
+							|| guiID.equals( RightSettingsPanel.STREAM_SYNC ) )
 					{
 						HashSet< IMutableStreamSetting > devs = (HashSet< IMutableStreamSetting >) ConfigApp.getProperty( propID );
 						if( devs != null )
@@ -1233,7 +1236,7 @@ public class GuiManager
 	{
 		try 
 		{
-			getAppUI().getRightPanelSetting().showStreamTab( RightPanelSettings.TAB_LOG );
+			getAppUI().getRightPanelSetting().showStreamTab( RightSettingsPanel.TAB_LOG );
 		}
 		catch (Exception e) 
 		{
@@ -1724,8 +1727,221 @@ public class GuiManager
 		checklistDialog.setLocationRelativeTo( getAppUI() );
 		checklistDialog.setResizable( false );
 		checklistDialog.setVisible( true );											
-		checklistDialog.pack();
+		//checklistDialog.pack();
+	}
+
+	protected void updateRegisteredSynMessage( JTable t, String msg, Integer mark )
+	{
+		Object[] vals = new Object[ t.getColumnCount() ];
+		
+		for( int i = 0; i < vals.length; i++ )
+		{
+			Class c = t.getColumnClass( i );
+			if( c.equals( Integer.class ) )
+			{
+				vals[ i ] = mark;
+			}
+			else 
+			{
+				vals[ i ] = msg;
+			}
+		}
+		
+		DefaultTableModel m = (DefaultTableModel)t.getModel();
+		m.addRow( vals );
+	}
+
+	protected void addNewSocketInputMessage( JTable t )
+	{
+		if( t.isEditing() )
+		{
+			t.getCellEditor().stopCellEditing();
+		}
+		
+		int rCount = t.getRowCount();
+		
+		String msg = "msg" + rCount;
+		boolean add = false;
+		
+		while( !add )
+		{
+			msg = "msg" + rCount;
+			add = RegisterSyncMessages.addSyncMessage( msg );
+			rCount++;
+		}
+		Integer mark = RegisterSyncMessages.getSyncMark( msg );
+		
+		this.updateRegisteredSynMessage( t, msg, mark );
 	}
 	
+	protected void delSocketInputMessage( JTable t )
+	{
+		if( t.isEditing() )
+		{
+			t.getCellEditor().stopCellEditing();
+		}
+		
+		int rCount = t.getRowCount();
+		
+		if( rCount > 0 )
+		{
+			DefaultTableModel m = (DefaultTableModel)t.getModel();
+			
+			int[] selectedRows = t.getSelectedRows();
+									
+			Arrays.sort( selectedRows );
+			
+			for( int i = selectedRows.length - 1; i >= 0; i-- )
+			{					
+				String msg = (String)m.getValueAt( selectedRows[ i ], 1 );
+				
+				RegisterSyncMessages.removeSyncMarks( msg );
+			}
+			
+			for( int i = rCount - 1; i >= 0; i-- )
+			{
+				m.removeRow( i );
+			}
+			
+			Map< String, Integer > syncs = RegisterSyncMessages.getSyncMessagesAndMarks();
+			Object[][] newTableContent = new Object[ syncs.size() ][ 2 ];
+			int index = 0;
+			for( String msg : syncs.keySet() )
+			{
+				newTableContent[ index ][ 0 ] = syncs.get( msg );
+				newTableContent[ index ][ 1 ] = msg;
+				
+				index++;
+			}
+			
+			this.setJCommandTableSocket( m, newTableContent);
+		}
+	}
 	
+	private void setJCommandTableSocket( DefaultTableModel m, Object[][] newTableContent )
+	{
+		if( m.getRowCount() == 0 )
+		{
+			for( int i = 0; i < newTableContent.length; i++ )
+			{				
+				Object[] objs = newTableContent[ i ];
+								
+				m.addRow( objs );
+			}
+		}
+		else
+		{
+			for( int i = 0; i < newTableContent.length; i++ )
+			{
+				for( int j = 0; j < newTableContent[ 0 ].length; j++ )
+				{
+					m.setValueAt( newTableContent[ i ][ j ], i, j );
+				}
+			}
+		}
+	}
+	
+	protected void updateSocket( TableModelEvent e, String propertyID, JTable serverCommandValueTable )
+	{
+		if( e != null && serverCommandValueTable != null)
+		{
+			DefaultTableModel m = (DefaultTableModel)e.getSource();
+			
+			if(  m.getRowCount() > 0 )
+			{
+				int r = e.getFirstRow();
+
+				int protocol = SocketSetting.TCP_PROTOCOL;
+
+				if( m.getValueAt( r, 0 ).toString().toLowerCase().equals( "udp" ) )
+				{
+					protocol = SocketSetting.UDP_PROTOCOL;
+				}
+
+				String newSocketID = SocketSetting.getSocketString( protocol
+																	, m.getValueAt( r, 1).toString()
+																	, (Integer)m.getValueAt( r, 2) );
+				
+				if( newSocketID != null )
+				{	
+					Set< String > map = ( Set< String > )ConfigApp.getProperty( propertyID );
+				
+					String oldSocketID = serverCommandValueTable.getName();					
+					if( oldSocketID != null )
+					{
+						map.remove( oldSocketID );
+					}
+					
+					map.add( newSocketID );
+				}	
+				
+				serverCommandValueTable.setName( newSocketID );
+			}
+		}
+	}
+	
+	protected void applyMouseWheelMoved2IPTextEditor( MouseWheelEvent e, JTextField jtext )
+	{
+		if( e != null && jtext != null && e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
+		{
+			int d = e.getUnitsToScroll();
+						
+			String ip = jtext.getText();
+			
+			int i = ip.lastIndexOf( "." ) + 1;
+			
+			if( i > 0 )
+			{
+				try
+				{
+					int aux =  Integer.parseInt( ip.substring( i ) );
+					
+					if( d > 0 )
+					{
+						aux -= 1; 
+					}
+					else
+					{
+						aux += 1;
+					}
+					
+					if( aux >= 0 && aux <= 255 )
+					{
+						ip = ip.substring( 0, i ) + aux;
+						jtext.setText( ip );
+					}
+				}
+				catch (Exception ex ) 
+				{
+				}
+			}
+		}
+	}
+	
+	protected void applyMouseWheelMoved2Spinner( MouseWheelEvent e, JSpinner sp )
+	{
+		if( e != null && sp != null )
+		{
+			if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
+			{
+				try
+				{
+					int d = e.getWheelRotation();
+					
+					if( d > 0 )
+					{
+						sp.setValue( sp.getModel().getPreviousValue() );
+					}
+					else
+					{
+						sp.setValue( sp.getModel().getNextValue() );
+					}
+				}
+				catch( IllegalArgumentException ex )
+				{
+					
+				}
+			}
+		}
+	}
 }

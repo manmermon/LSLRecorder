@@ -17,21 +17,21 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.impl.dataProcessing.firFilter;
+package lslrec.plugin.impl.dataProcessing.windowingFirFilter;
 
 import java.util.List;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.dataStream.family.setting.IStreamSetting;
-import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.FilterWindow.WindowType;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 
 /**
  * @author Manuel Merino Monge
  *
  */
-public class FIRFilter extends LSLRecPluginDataProcessing 
+public class WindowingFIRFilter extends LSLRecPluginDataProcessing 
 {
 	enum FilterType { LOWPASS_FILTER, HIGHPASS_FILTER, BANDPASS_FILTER, NOTCH_FILTER };
 	
@@ -51,7 +51,7 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	 * @param setting
 	 * @param prevProc
 	 */
-	public FIRFilter( IStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
+	public WindowingFIRFilter( IStreamSetting setting, LSLRecPluginDataProcessing prevProc ) 
 	{
 		super( setting, prevProc );
 		
@@ -206,25 +206,25 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 				{
 					case HIGHPASS_FILTER:
 					{
-						this.h = FIRFilterCoefficients.FIRHighpassFilterCoefficients(L, Fc1 / Fm, wt );
+						this.h = WindowingFIRFilterCoefficients.FIRHighpassFilterCoefficients(L, Fc1 / Fm, wt );
 						
 						break;
 					}
 					case BANDPASS_FILTER:
 					{
-						this.h = FIRFilterCoefficients.FIRBandpassFilterCoefficients(L, Fc1 / Fm, Fc2 / Fm, wt );
+						this.h = WindowingFIRFilterCoefficients.FIRBandpassFilterCoefficients(L, Fc1 / Fm, Fc2 / Fm, wt );
 						
 						break;
 					}
 					case NOTCH_FILTER:
 					{
-						this.h = FIRFilterCoefficients.FIRNotchFilterCoefficients(L, Fc1 / Fm, Fc2 / Fm, wt );
+						this.h = WindowingFIRFilterCoefficients.FIRNotchFilterCoefficients(L, Fc1 / Fm, Fc2 / Fm, wt );
 						
 						break;
 					}
 					default:
 					{
-						this.h = FIRFilterCoefficients.FIRLowpassFilterCoefficients(L, Fc1 / Fm, wt );
+						this.h = WindowingFIRFilterCoefficients.FIRLowpassFilterCoefficients(L, Fc1 / Fm, wt );
 						
 						break;
 					}
@@ -250,7 +250,7 @@ public class FIRFilter extends LSLRecPluginDataProcessing
 	}
 
 	@Override
-	public int getOverlapOffset() 
+	public int getShiftOffset() 
 	{	
 		return 1;
 	}

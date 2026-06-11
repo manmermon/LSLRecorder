@@ -27,6 +27,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -100,8 +102,7 @@ public class Dialog_SetChecklist extends JDialog
 	 * Create the dialog.
 	 */
 	public Dialog_SetChecklist( ) 
-	{
-		super.setBounds(100, 100, 450, 300);
+	{		
 		super.getContentPane().setLayout(new BorderLayout());
 		
 		super.getContentPane().add( this.getContentPanel(), BorderLayout.CENTER);
@@ -128,6 +129,13 @@ public class Dialog_SetChecklist extends JDialog
 		{
 			this.createNewMsg2Checklist( msg );
 		}	
+		
+		int h = 100 + 20 * ( this.checkMessageList.size() + 1);
+		int hmax = Toolkit.getDefaultToolkit().getScreenSize().height /2;
+		
+		h = ( h > hmax ) ? hmax : h;
+		
+		super.setBounds(100, 100, 450, h );
 	}
 	
 	/*
@@ -245,6 +253,9 @@ public class Dialog_SetChecklist extends JDialog
 								{
 									((JButton) editor).doClick();
 								}
+								
+								Rectangle rect = table.getCellRect( lastRow, 0, true );
+								table.scrollRectToVisible( rect );
 							}
 						});
 					});
@@ -489,7 +500,7 @@ public class Dialog_SetChecklist extends JDialog
 				            boolean newValue = (Boolean) value;
 
 							msg.setEnable( newValue );
-				        }
+				        }				        
 				    }	
 				}
 			});

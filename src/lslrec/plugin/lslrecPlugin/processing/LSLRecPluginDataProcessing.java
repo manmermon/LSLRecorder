@@ -36,8 +36,8 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 	private LinkedList< Number >[] dataBuffer = null;
 	private int bufferCapacity = 1;
 	
-	private int overlapOffset = 1;
-	private int[] overlapCounter = null;
+	private int shiftOffset = 1;
+	private int[] shiftCounter = null;
 	
 	private ArrayList< Number > tempBuffer = new ArrayList<Number>();
 	
@@ -94,16 +94,16 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 			this.setBuffer();
 		}
 		
-		if( this.overlapCounter == null )
+		if( this.shiftCounter == null )
 		{
-			this.overlapOffset = this.getOverlapOffset();
+			this.shiftOffset = this.getShiftOffset();
 			
-			if( this.overlapOffset <= 0 )
+			if( this.shiftOffset <= 0 )
 			{
-				this.overlapOffset = 1;
+				this.shiftOffset = 1;
 			}
 			
-			this.overlapCounter = new int[ this.streamSetting.channel_count() ];
+			this.shiftCounter = new int[ this.streamSetting.channel_count() ];
 		}
 		
 		List< Number > result = new ArrayList< Number >();
@@ -211,11 +211,11 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 			{
 				buffer.remove( 0 );
 				
-				this.overlapCounter[ c ]++;
+				this.shiftCounter[ c ]++;
 				
-				if( this.overlapCounter[ c ] >= this.overlapOffset )
+				if( this.shiftCounter[ c ] >= this.shiftOffset )
 				{
-					this.overlapCounter[ c ] = 0;
+					this.shiftCounter[ c ] = 0;
 				
 					//
 					// Data processing
@@ -305,7 +305,7 @@ public abstract class LSLRecPluginDataProcessing implements ITaskIdentity
 	
 	public abstract int getBufferLength();
 	
-	public abstract int getOverlapOffset();
+	public abstract int getShiftOffset();
 	
 	protected abstract void finishProcess();
 	

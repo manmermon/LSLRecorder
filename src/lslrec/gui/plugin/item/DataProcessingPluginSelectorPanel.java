@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.gui.panel.plugin.item;
+package lslrec.gui.plugin.item;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -192,6 +192,7 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		
 		JTable t = this.getStreamListTable();		
 		DefaultTableModel tm = (DefaultTableModel)t.getModel();
+		int currentSelectedRow = t.getSelectedRow();		
 		t.clearSelection();
 		
 		while( tm.getRowCount() > 0 )
@@ -202,6 +203,11 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 		for( IStreamSetting str : streams)
 		{
 			tm.addRow( new IStreamSetting[] { str } );
+		}
+		
+		if( currentSelectedRow >= 0 && currentSelectedRow < tm.getRowCount() )
+		{
+			t.setRowSelectionInterval( currentSelectedRow, currentSelectedRow );
 		}
 	}
 	

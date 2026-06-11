@@ -76,7 +76,7 @@ import lslrec.dataStream.outputDataFile.format.OutputFileFormatParameters;
 import lslrec.dataStream.sync.SyncMarkerCollectorWriter;
 import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.gui.miscellany.TableButtonCellRender;
-import lslrec.gui.panel.plugin.item.CreatorDefaultSettingPanel;
+import lslrec.gui.setting.CreatorDefaultSettingPanel;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.gui.GuiManager;
 import lslrec.gui.miscellany.GeneralAppIcon;

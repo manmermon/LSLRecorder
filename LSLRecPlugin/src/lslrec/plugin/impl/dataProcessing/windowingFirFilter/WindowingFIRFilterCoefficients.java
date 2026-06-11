@@ -17,15 +17,15 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.impl.dataProcessing.firFilter;
+package lslrec.plugin.impl.dataProcessing.windowingFirFilter;
 
-import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.FilterWindow.WindowType;
 
 /**
  * @author Manuel Merino Monge
  *
  */
-public class FIRFilterCoefficients 
+public class WindowingFIRFilterCoefficients 
 {
 	public static double[] FIRLowpassFilterCoefficients( int L, double fc, WindowType wt )
 	{

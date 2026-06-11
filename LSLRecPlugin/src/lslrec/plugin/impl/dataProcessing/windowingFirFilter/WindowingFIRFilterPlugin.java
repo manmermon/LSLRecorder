@@ -17,7 +17,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.plugin.impl.dataProcessing.firFilter;
+package lslrec.plugin.impl.dataProcessing.windowingFirFilter;
 
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -64,8 +64,8 @@ import org.jfree.data.xy.DefaultXYDataset;
 import lslrec.auxiliar.WarningMessage;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
-import lslrec.plugin.impl.dataProcessing.firFilter.FIRFilter.FilterType;
-import lslrec.plugin.impl.dataProcessing.firFilter.FilterWindow.WindowType;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.WindowingFIRFilter.FilterType;
+import lslrec.plugin.impl.dataProcessing.windowingFirFilter.FilterWindow.WindowType;
 import lslrec.plugin.impl.gui.BasicPainter2D;
 import lslrec.plugin.lslrecPlugin.ILSLRecPlugin;
 import lslrec.plugin.lslrecPlugin.processing.ILSLRecPluginDataProcessing;
@@ -76,7 +76,7 @@ import lslrec.plugin.lslrecPlugin.processing.PluginDataProcessingSettings;
  * @author Manuel Merino Monge
  *
  */
-public class FIRFilterPlugin implements ILSLRecPluginDataProcessing 
+public class WindowingFIRFilterPlugin implements ILSLRecPluginDataProcessing 
 {
 	private ParameterList pars = null;
 	
@@ -84,23 +84,23 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 	/**
 	 * 
 	 */
-	public FIRFilterPlugin( ) 
+	public WindowingFIRFilterPlugin( ) 
 	{
 		this.pars = new ParameterList();
 		
-		Parameter par = new Parameter< Double >( FIRFilter.CUT_FREQ1, 48D );
+		Parameter par = new Parameter< Double >( WindowingFIRFilter.CUT_FREQ1, 48D );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< Double >( FIRFilter.CUT_FREQ2, 52D );
+		par = new Parameter< Double >( WindowingFIRFilter.CUT_FREQ2, 52D );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< Integer >( FIRFilter.FILTER_LENGTH, 100 );
+		par = new Parameter< Integer >( WindowingFIRFilter.FILTER_LENGTH, 100 );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< WindowType >( FIRFilter.WINDOW_TYPE, WindowType.HAMMING );
+		par = new Parameter< WindowType >( WindowingFIRFilter.WINDOW_TYPE, WindowType.HAMMING );
 		this.pars.addParameter( par );
 		
-		par = new Parameter< FilterType >( FIRFilter.FILTER_TYPE, FilterType.LOWPASS_FILTER );
+		par = new Parameter< FilterType >( WindowingFIRFilter.FILTER_TYPE, FilterType.LOWPASS_FILTER );
 		this.pars.addParameter( par );
 	}
 	
@@ -116,7 +116,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			Parameter par = this.pars.getParameter( id );
 			switch ( id ) 
 			{
-				case FIRFilter.FILTER_LENGTH:
+				case WindowingFIRFilter.FILTER_LENGTH:
 				{					
 					if( (Integer)par.getValue() <= 0 )
 					{
@@ -125,7 +125,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 					
 					break;
 				}
-				case FIRFilter.CUT_FREQ1:
+				case WindowingFIRFilter.CUT_FREQ1:
 				{			
 					Double fr = (Double)par.getValue();
 					if( fr <= 0 )
@@ -137,7 +137,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 					
 					break;
 				}
-				case FIRFilter.CUT_FREQ2:
+				case WindowingFIRFilter.CUT_FREQ2:
 				{				
 					Double fr = (Double)par.getValue();
 					if( fr <= 0 )
@@ -156,7 +156,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			}
 		}
 		
-		FilterType ft = (FilterType)this.pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+		FilterType ft = (FilterType)this.pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 		
 		if( fq < 0 && ( ft == FilterType.BANDPASS_FILTER || ft == FilterType.NOTCH_FILTER  ) )
 		{
@@ -215,7 +215,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 				JSpinner sp = (JSpinner)e.getSource();
 				double Fm = (double)sp.getValue();
 				
-				FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+				FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 				updateFilterPreview( preview, Fm, ft );
 				
 				prevFm = Fm;
@@ -227,7 +227,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			@Override
 			public void componentResized(ComponentEvent e) 
 			{
-				FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+				FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 				
 				double Fm = (double)fmSp.getValue();
 				updateFilterPreview( preview, Fm, ft );
@@ -267,7 +267,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			Component cmp = null;
 			switch ( idPar )
 			{
-				case FIRFilter.FILTER_LENGTH:
+				case WindowingFIRFilter.FILTER_LENGTH:
 				{
 					final int step = 1;
 					
@@ -312,7 +312,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 							pars.getParameter( idPar ).setValue( v );
 							
 							double Fm = (double)fmSp.getValue();
-							FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+							FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 							updateFilterPreview( preview, Fm, ft);
 						}
 					});
@@ -321,7 +321,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 					
 					break;
 				}
-				case FIRFilter.WINDOW_TYPE:
+				case WindowingFIRFilter.WINDOW_TYPE:
 				{
 					JComboBox< WindowType > cb = new JComboBox< WindowType >( WindowType.values() );
 					
@@ -337,7 +337,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 								pars.getParameter( idPar ).setValue( d );
 								
 								double Fm = (double)fmSp.getValue();
-								FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+								FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 								updateFilterPreview( preview, Fm, ft );
 							}
 						}
@@ -381,7 +381,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 					
 					break;
 				}
-				case FIRFilter.FILTER_TYPE:
+				case WindowingFIRFilter.FILTER_TYPE:
 				{
 					JComboBox< FilterType > cb = new JComboBox< FilterType >( FilterType.values() );
 					
@@ -397,7 +397,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 								pars.getParameter( idPar ).setValue( d );
 								
 								double Fm = (double)fmSp.getValue();
-								FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+								FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 								updateFilterPreview( preview, Fm, ft );
 							}
 						}
@@ -441,8 +441,8 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 					
 					break;
 				}
-				case FIRFilter.CUT_FREQ1:
-				case FIRFilter.CUT_FREQ2:
+				case WindowingFIRFilter.CUT_FREQ1:
+				case WindowingFIRFilter.CUT_FREQ2:
 				{
 					final double step = 1D;
 					
@@ -488,7 +488,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 							pars.getParameter( idPar ).setValue( v );
 							
 							double Fm = (double)fmSp.getValue();
-							FilterType ft = (FilterType)pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+							FilterType ft = (FilterType)pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 							
 							updateFilterPreview( preview, Fm, ft);
 						}
@@ -516,7 +516,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			}
 		}
 		
-		FilterType ft = (FilterType)this.pars.getParameter( FIRFilter.FILTER_TYPE ).getValue();
+		FilterType ft = (FilterType)this.pars.getParameter( WindowingFIRFilter.FILTER_TYPE ).getValue();
 		
 		this.updateFilterPreview( preview, (double)fmSp.getValue(), ft );
 		
@@ -530,36 +530,36 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 		
 		if( Fm > 0 )
 		{
-			int L = (int)this.pars.getParameter( FIRFilter.FILTER_LENGTH ).getValue();
-			WindowType t = (WindowType)this.pars.getParameter( FIRFilter.WINDOW_TYPE ).getValue();
+			int L = (int)this.pars.getParameter( WindowingFIRFilter.FILTER_LENGTH ).getValue();
+			WindowType t = (WindowType)this.pars.getParameter( WindowingFIRFilter.WINDOW_TYPE ).getValue();
 					
-			double Fc1 = (double)this.pars.getParameter( FIRFilter.CUT_FREQ1 ).getValue();
-			double Fc2 = (double)this.pars.getParameter( FIRFilter.CUT_FREQ2 ).getValue();
+			double Fc1 = (double)this.pars.getParameter( WindowingFIRFilter.CUT_FREQ1 ).getValue();
+			double Fc2 = (double)this.pars.getParameter( WindowingFIRFilter.CUT_FREQ2 ).getValue();
 		
 			double[] h;
 			switch ( ft ) 
 			{
 				case HIGHPASS_FILTER:
 				{
-					h =  FIRFilterCoefficients.FIRHighpassFilterCoefficients( L, Fc1 / Fm,  t );
+					h =  WindowingFIRFilterCoefficients.FIRHighpassFilterCoefficients( L, Fc1 / Fm,  t );
 				
 					break;
 				}
 				case BANDPASS_FILTER:
 				{
-					h =  FIRFilterCoefficients.FIRBandpassFilterCoefficients( L, Fc1 / Fm, Fc2 / Fm, t );
+					h =  WindowingFIRFilterCoefficients.FIRBandpassFilterCoefficients( L, Fc1 / Fm, Fc2 / Fm, t );
 					
 					break;
 				}
 				case NOTCH_FILTER:
 				{
-					h =  FIRFilterCoefficients.FIRNotchFilterCoefficients( L, Fc1 / Fm, Fc2 / Fm, t );
+					h =  WindowingFIRFilterCoefficients.FIRNotchFilterCoefficients( L, Fc1 / Fm, Fc2 / Fm, t );
 					
 					break;
 				}
 				default:
 				{
-					h =  FIRFilterCoefficients.FIRLowpassFilterCoefficients( L, Fc1 / Fm, t );
+					h =  WindowingFIRFilterCoefficients.FIRLowpassFilterCoefficients( L, Fc1 / Fm, t );
 					
 					break;
 				}
@@ -720,23 +720,23 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 			
 			switch ( id ) 
 			{
-				case FIRFilter.FILTER_LENGTH:
+				case WindowingFIRFilter.FILTER_LENGTH:
 				{					
 					this.pars.getParameter( id ).setValue( Integer.parseInt( val ) );
 					break;
 				}
-				case FIRFilter.CUT_FREQ1:
-				case FIRFilter.CUT_FREQ2:
+				case WindowingFIRFilter.CUT_FREQ1:
+				case WindowingFIRFilter.CUT_FREQ2:
 				{					
 					this.pars.getParameter( id ).setValue( Double.parseDouble( val ) );
 					break;
 				} 
-				case FIRFilter.WINDOW_TYPE:
+				case WindowingFIRFilter.WINDOW_TYPE:
 				{
 					this.pars.getParameter( id ).setValue( WindowType.valueOf( val ) );
 					break;
 				}
-				case FIRFilter.FILTER_TYPE:
+				case WindowingFIRFilter.FILTER_TYPE:
 				{
 					this.pars.getParameter( id ).setValue( FilterType.valueOf( val ) );
 					break;
@@ -771,7 +771,7 @@ public class FIRFilterPlugin implements ILSLRecPluginDataProcessing
 	//public LSLRecPluginDataProcessing getProcessing( IStreamSetting arg0, ParameterList pars, LSLRecPluginDataProcessing arg1 ) 
 	public LSLRecPluginDataProcessing getProcessing( PluginDataProcessingSettings settings, LSLRecPluginDataProcessing arg1 )
 	{
-		FIRFilter fir = new FIRFilter( settings.getStreamSettings(), arg1 );
+		WindowingFIRFilter fir = new WindowingFIRFilter( settings.getStreamSettings(), arg1 );
 		fir.loadProcessingSettings( this.getSettings() );
 		
 		return fir;

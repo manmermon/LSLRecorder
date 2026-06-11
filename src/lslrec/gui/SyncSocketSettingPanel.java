@@ -19,7 +19,7 @@
  *   along with LSLRec.  If not, see <http://www.gnu.org/licenses/>.
  *   
  */
-package lslrec.gui.panel.primary;
+package lslrec.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -35,16 +35,12 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.ServerSocket;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -66,15 +62,13 @@ import javax.swing.table.TableModel;
 
 import lslrec.config.language.Language;
 import lslrec.control.message.RegisterSyncMessages;
-import lslrec.gui.GuiManager;
-import lslrec.gui.GuiTextManager;
 import lslrec.gui.miscellany.DisabledPanel;
+import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.IPAddressCellEditor;
 import lslrec.gui.miscellany.SpinnerNumberCellEditor;
-import lslrec.sockets.info.SocketSetting;
 import lslrec.config.ConfigApp;
 
-public class SyncSocketPanelSetting extends JPanel
+public class SyncSocketSettingPanel extends JPanel
 {	
 	private static final long serialVersionUID = 2157401336834064879L;
 		
@@ -119,7 +113,7 @@ public class SyncSocketPanelSetting extends JPanel
 	// Auxiliar
 	private Object[][] previousRowValues = null;
 	
-	public SyncSocketPanelSetting( )//JFrame owner )
+	public SyncSocketSettingPanel( )//JFrame owner )
 	{
 		//this.winOwner = owner;
 		
@@ -150,7 +144,8 @@ public class SyncSocketPanelSetting extends JPanel
 		{
 			Integer mark = SYNC.get( msg );
 			
-			this.updateRegisteredSynMessage( t, msg, mark );
+			//this.updateRegisteredSynMessage( t, msg, mark );
+			GuiManager.getInstance().updateRegisteredSynMessage( t, msg, mark );
 		}
 	}
 	
@@ -242,7 +237,15 @@ public class SyncSocketPanelSetting extends JPanel
 	{
 		if( this.addInMsgBtn == null )
 		{
-			this.addInMsgBtn = new JButton( Language.getLocalCaption( Language.INSERT_TEXT ) );
+			this.addInMsgBtn = new JButton( );
+			
+			Icon ic = GeneralAppIcon.Add( 16, Color.BLACK );
+			
+			this.addInMsgBtn.setIcon( ic );
+			if( ic == null )
+			{
+				this.addInMsgBtn.setText( Language.getLocalCaption( Language.INSERT_TEXT ) );
+			}
 			
 			this.addInMsgBtn.addActionListener( new ActionListener() 
 			{				
@@ -251,25 +254,7 @@ public class SyncSocketPanelSetting extends JPanel
 				{					
 					JTable t = getJTableServerCommandValues();
 					
-					if( t.isEditing() )
-					{
-						t.getCellEditor().stopCellEditing();
-					}
-					
-					int rCount = t.getRowCount();
-					
-					String msg = "msg" + rCount;
-					boolean add = false;
-					
-					while( !add )
-					{
-						msg = "msg" + rCount;
-						add = RegisterSyncMessages.addSyncMessage( msg );
-						rCount++;
-					}
-					Integer mark = RegisterSyncMessages.getSyncMark( msg );
-					
-					updateRegisteredSynMessage( t, msg, mark );
+					GuiManager.getInstance().addNewSocketInputMessage( t );
 				}
 			});
 		
@@ -278,33 +263,21 @@ public class SyncSocketPanelSetting extends JPanel
 		
 		return this.addInMsgBtn;
 	}
-	
-	private void updateRegisteredSynMessage( JTable t, String msg, Integer mark )
-	{
-		Object[] vals = new Object[ t.getColumnCount() ];
-		
-		for( int i = 0; i < vals.length; i++ )
-		{
-			Class c = t.getColumnClass( i );
-			if( c.equals( Integer.class ) )
-			{
-				vals[ i ] = mark;
-			}
-			else 
-			{
-				vals[ i ] = msg;
-			}
-		}
-		
-		DefaultTableModel m = (DefaultTableModel)t.getModel();
-		m.addRow( vals );
-	}
-		
+				
 	private JButton getDelInMsgButton()
 	{
 		if( this.delInMsgBtn == null )
 		{
-			this.delInMsgBtn = new JButton( Language.getLocalCaption( Language.DELETE_TEXT ) );
+			this.delInMsgBtn = new JButton( );
+			
+			Icon ic = GeneralAppIcon.Trash( 16, Color.RED );
+			
+			this.delInMsgBtn.setIcon( ic );
+			
+			if( ic == null )
+			{
+				this.delInMsgBtn.setText( Language.getLocalCaption( Language.DELETE_TEXT ) );
+			}
 			
 			this.delInMsgBtn.addActionListener( new ActionListener() 
 			{				
@@ -313,46 +286,7 @@ public class SyncSocketPanelSetting extends JPanel
 				{
 					JTable t = getJTableServerCommandValues();
 					
-					if( t.isEditing() )
-					{
-						t.getCellEditor().stopCellEditing();
-					}
-					
-					int rCount = t.getRowCount();
-					
-					if( rCount > 0 )
-					{
-						DefaultTableModel m = (DefaultTableModel)t.getModel();
-						
-						int[] selectedRows = t.getSelectedRows();
-												
-						Arrays.sort( selectedRows );
-						
-						for( int i = selectedRows.length - 1; i >= 0; i-- )
-						{					
-							String msg = (String)m.getValueAt( selectedRows[ i ], 1 );
-							
-							RegisterSyncMessages.removeSyncMarks( msg );
-						}
-						
-						for( int i = rCount - 1; i >= 0; i-- )
-						{
-							m.removeRow( i );
-						}
-						
-						Map< String, Integer > syncs = RegisterSyncMessages.getSyncMessagesAndMarks();
-						Object[][] newTableContent = new Object[ syncs.size() ][ 2 ];
-						int index = 0;
-						for( String msg : syncs.keySet() )
-						{
-							newTableContent[ index ][ 0 ] = syncs.get( msg );
-							newTableContent[ index ][ 1 ] = msg;
-							
-							index++;
-						}
-						
-						setJCommandTableSocket( m, newTableContent);
-					}
+					GuiManager.getInstance().delSocketInputMessage( t );
 				}
 			});
 		
@@ -461,20 +395,7 @@ public class SyncSocketPanelSetting extends JPanel
 		return this.jPanelTableServerSocket;
 	}
 	
-	private void updateSocketTableSetting( String propertyID, String newSocketID, String oldSocketID )
-	{	
-		if( newSocketID != null )
-		{
-			Set< String > map = ( Set< String > )ConfigApp.getProperty( propertyID );
-			
-			if( oldSocketID != null )
-			{
-				map.remove( oldSocketID );
-			}
-			
-			map.add( newSocketID );
-		}		
-	}
+	
 	
 	private JTable getTableServerSockets()
 	{
@@ -492,26 +413,7 @@ public class SyncSocketPanelSetting extends JPanel
 				@Override
 				public void tableChanged( TableModelEvent e ) 
 				{
-					DefaultTableModel m = (DefaultTableModel)e.getSource();
-					
-					if( m.getRowCount() > 0 )
-					{
-						int r = e.getFirstRow();
-						
-						int protocol = SocketSetting.TCP_PROTOCOL;
-						
-						if( m.getValueAt( r, 0 ).toString().toLowerCase().equals( "udp" ) )
-						{
-							protocol = SocketSetting.UDP_PROTOCOL;
-						}
-						
-						String newSocketID = SocketSetting.getSocketString( protocol, 
-																				m.getValueAt( r, 1).toString(),
-																				(Integer)m.getValueAt( r, 2) );
-					
-						updateSocketTableSetting( propertyID, newSocketID, getJTableServerCommandValues().getName() );						
-						getJTableServerCommandValues().setName( newSocketID );
-					}
+					GuiManager.getInstance().updateSocket( e, propertyID, getJTableServerCommandValues() );
 				}
 			});			
 			
@@ -634,36 +536,7 @@ public class SyncSocketPanelSetting extends JPanel
 			@Override
 			public void mouseWheelMoved( MouseWheelEvent e ) 
 			{
-				if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
-				{
-					int d = e.getUnitsToScroll();
-					
-					JTextField jtext = (JTextField)e.getSource();
-					
-					String ip = jtext.getText();
-					
-					int i = ip.lastIndexOf( "." ) + 1;
-					
-					if( i > 0 )
-					{
-						int aux = new Integer( ip.substring( i ) );
-						
-						if( d > 0 )
-						{
-							aux -= 1; 
-						}
-						else
-						{
-							aux += 1;
-						}
-						
-						if( aux >= 0 && aux <= 255 )
-						{
-							ip = ip.substring( 0, i ) + aux;
-							jtext.setText( ip );
-						}
-					}
-				}
+				GuiManager.getInstance().applyMouseWheelMoved2IPTextEditor( e, (JTextField)e.getSource() );
 			}
 		});		
 		
@@ -675,28 +548,7 @@ public class SyncSocketPanelSetting extends JPanel
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent e) 
 			{
-				if( e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL )
-				{
-					try
-					{
-						JSpinner sp = (JSpinner)e.getSource();
-						
-						int d = e.getWheelRotation();
-						
-						if( d > 0 )
-						{
-							sp.setValue( sp.getModel().getPreviousValue() );
-						}
-						else
-						{
-							sp.setValue( sp.getModel().getNextValue() );
-						}
-					}
-					catch( IllegalArgumentException ex )
-					{
-						
-					}
-				}
+				GuiManager.getInstance().applyMouseWheelMoved2Spinner( e, (JSpinner)e.getSource() );
 			}
 		});
 				
@@ -704,30 +556,7 @@ public class SyncSocketPanelSetting extends JPanel
 		
 		return table;
 	}
-	
-	private void setJCommandTableSocket( DefaultTableModel m, Object[][] newTableContent )
-	{
-		if( m.getRowCount() == 0 )
-		{
-			for( int i = 0; i < newTableContent.length; i++ )
-			{				
-				Object[] objs = newTableContent[ i ];
-								
-				m.addRow( objs );
-			}
-		}
-		else
-		{
-			for( int i = 0; i < newTableContent.length; i++ )
-			{
-				for( int j = 0; j < newTableContent[ 0 ].length; j++ )
-				{
-					m.setValueAt( newTableContent[ i ][ j ], i, j );
-				}
-			}
-		}
-	}
-	
+			
 	private TableModel createSocketCommandTablemodel( )
 	{					
 		TableModel tm =  new DefaultTableModel( null, new String[] { Language.getLocalCaption( Language.SETTING_LSL_MARK )
@@ -854,6 +683,7 @@ public class SyncSocketPanelSetting extends JPanel
 		return this.jTableServerCommandValue;
 	}	
 	
+	/*
 	protected void updateTableSockets( JTable table, boolean add )
 	{	
 		DefaultTableModel m = (DefaultTableModel)table.getModel();
@@ -901,4 +731,5 @@ public class SyncSocketPanelSetting extends JPanel
 			}
 		}
 	}
+	//*/
 }
