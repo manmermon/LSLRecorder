@@ -24,6 +24,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -40,6 +41,7 @@ import lslrec.dataStream.outputDataFile.dataBlock.IntegerBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.LongBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.ShortBlock;
 import lslrec.dataStream.outputDataFile.dataBlock.StringBlock;
+import lslrec.dataStream.tools.StreamUtils;
 import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.AbstractStoppableThread;
 
@@ -154,13 +156,13 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 					}
 									
 					Number[] processedData = this.process.processDataBlock( d );
-					//
-					// No interleaved data, that is:
-					// [A0, B0, C0, .., A1, B1, C2, ..., An, Bn, Cn, ...]  
-					//
-										
+															
 					if( this.out != null && processedData != null )
 					{
+						//
+						// No interleaved data, that is:
+						// [A0, B0, C0, .., A1, B1, C2, ..., An, Bn, Cn, ...]  
+						//						
 						if( this.process.getDataStreamSetting().isInterleavedData() )
 						{
 							processedData = ConvertTo.Transform.Interleaved( processedData
@@ -172,8 +174,37 @@ public class DataProcessingExecutor extends AbstractStoppableThread implements I
 						
 						if( DAT != null )
 						{
+							/*
 							this.out.write( DAT );
+
+							int timeLen = processedData.length / this.process.getDataStreamSetting().channel_count();
+							timeLen = ( timeLen < 1 ) ? 1 : timeLen;
+							int timeByteLen = timeLen * StreamUtils.getDataTypeBytes( this.process.getDataStreamSetting().getTimestampDataType() );
+
+							if( timeByteLen < times.length )
+							{
+								times = Arrays.copyOf( times, timeByteLen );
+							}
+
 							this.out.write( ConvertTo.Casting.ByterArray2byteArray( times ) );
+							//*/
+							
+							int splitSize = this.process.getDataStreamSetting().channel_count() * this.process.getDataStreamSetting().getChunkSize();
+							splitSize *= StreamUtils.getDataTypeBytes( this.process.getDataStreamSetting().data_type() );
+							int ToDat = splitSize;
+							int FromTime = 0;
+							while( ToDat <= DAT.length )
+							{		
+								this.out.write( Arrays.copyOfRange( DAT, ToDat - splitSize, ToDat ) );
+								
+								int timeLen = this.process.getDataStreamSetting().getChunkSize();
+								int timeByteLen = timeLen * StreamUtils.getDataTypeBytes( this.process.getDataStreamSetting().getTimestampDataType() );
+									
+								this.out.write( ConvertTo.Casting.ByterArray2byteArray( Arrays.copyOfRange( times, FromTime, FromTime + timeByteLen ) ) );
+							
+								FromTime = ( FromTime + timeByteLen < times.length ) ? FromTime + timeByteLen : FromTime;
+								ToDat += splitSize;
+							}
 						}
 					}
 				}

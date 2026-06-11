@@ -25,9 +25,7 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.inputDataChecker"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message.checklist"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.notification"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary"/>
@@ -64,9 +62,6 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dataPlot"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.miscellany"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.plugin.item"/>
-        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.panel.primary"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin"/>
