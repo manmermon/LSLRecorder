@@ -22,11 +22,16 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread.timer"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.auxiliar.thread.timer.event"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.checklistMessage"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.config.language"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler.minion"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.handler.minion.dataStreamChecker"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.message"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.notification"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.notification.manager"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.control.notification.transfer"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.dataStream.binary.input"/>
@@ -62,6 +67,9 @@
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dataPlot"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.dialog"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.miscellany"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.plugin"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.plugin.item"/>
+        <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.gui.setting"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.loader"/>
         <javaElement handleIdentifier="=LSLRecorder/src&lt;lslrec.plugin.lslrecPlugin"/>

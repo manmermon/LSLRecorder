@@ -2258,7 +2258,7 @@ public class ConfigApp
 		//
 		//
 		msg = new CheckMessage( "emptySessionIDChecker", CheckMessage.ERROR );
-		part = new CheckMessagePartFromText( "Sessiong id empty", "", false );
+		part = new CheckMessagePartFromText( "Session id empty", "", false );
 		msg.addMessagePart( part );
 		
 		msg.setMessageEvaluator( new CheckMessageEvaluator( ConfigApp.OUTPUT_TEST_ID, "{0}!=null && !{0}.trim().isEmpty()", null ) );

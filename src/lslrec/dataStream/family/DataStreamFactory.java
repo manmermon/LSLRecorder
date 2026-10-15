@@ -55,7 +55,7 @@ public class DataStreamFactory
      * @return An array of stream info objects (excluding their desc field), any of which can
      *         subsequently be used to open an inlet. The full info can be retrieve from the inlet.
      */
-	public static IStreamSetting[] createStreamSettings( IStreamSetting.StreamLibrary lib, double timeout )
+	public static IStreamSetting[] getStreamSettings( IStreamSetting.StreamLibrary lib, double timeout )
 	{
 		IStreamSetting[] sst = null;
 		
@@ -102,7 +102,7 @@ public class DataStreamFactory
 		
 		for( StreamLibrary lib : StreamLibrary.values() )
 		{
-			IStreamSetting[] sst = createStreamSettings( lib, searchingTime );
+			IStreamSetting[] sst = getStreamSettings( lib, searchingTime );
 			
 			if( sst != null )
 			{

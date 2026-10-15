@@ -289,6 +289,11 @@ public class GuiManager
 	{				
 	    try 
 	    {
+	    	if( timeoutMs <= 0 )
+	    	{
+	    		return "OK";
+	    	}
+	    	
 	    	String jarFile = Paths.get(".", "StreamResponseTester.jar").toString();
 	    	
 	    	if( !(new File( jarFile) ).exists() )

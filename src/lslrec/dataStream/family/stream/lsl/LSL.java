@@ -488,7 +488,7 @@ public class LSL
          {
              case Platform.WINDOWS:
              {
-             	libName = ( Platform.is64Bit() ? "liblsl64.dll" : "liblsl32.dll" );
+             	libName = ( Platform.is64Bit() ? "lsl.dll" : "liblsl32.dll" );
              	libNameAlt = "liblsl.dll";
                  break;
              }

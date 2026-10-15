@@ -163,7 +163,7 @@ public class testingOutBinFileSegmentation implements ITaskMonitor
 			
 			List< MutableStreamSetting > LSLthreadList = new ArrayList< MutableStreamSetting >();
 			
-			IStreamSetting[] results = DataStreamFactory.createStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
 			
 			if( results.length >= 0 )
 			{

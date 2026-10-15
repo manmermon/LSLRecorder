@@ -111,7 +111,7 @@ public class testingTemporalOutDataFileWriter
 			
 			List< IStreamSetting > LSLthreadList = new ArrayList< IStreamSetting >();
 			
-			IStreamSetting[] results = DataStreamFactory.createStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
+			IStreamSetting[] results = DataStreamFactory.getStreamSettings( StreamLibrary.LSL, DataStreamFactory.TIME_FOREVER );
 			
 			if( results.length >= 0 )
 			{

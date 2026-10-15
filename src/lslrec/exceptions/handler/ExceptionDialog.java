@@ -209,28 +209,31 @@ public class ExceptionDialog
  	public static void showMessageDialog( ExceptionMessage msg, boolean concatMsg, boolean printExceptionTrace ) 
 	{
  		SwingUtilities.invokeLater(() -> 
- 		{
-	 		if( logGUI != null )
+ 		{	
+ 			if( dialog == null )
+ 			{
+ 				createExceptionDialog( null );
+ 			}
+ 			
+ 			if( dialog.getOwner() != null )
 	 		{
 	 			GuiManager.getInstance().showLogTab();
-	 			logGUI.write( msg, concatMsg, printExceptionTrace );
 	 		}
+ 			
+ 			logGUI.write( msg, concatMsg, printExceptionTrace );
 	 		
-	 		if( dialog != null )
+	 		dialog.setTitle( msg.getTitleException() );
+			
+			if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
 			{
-				dialog.setTitle( msg.getTitleException() );
-				
-				if( msg.getMessageType() == ExceptionMessage.ERROR_MESSAGE )
-				{
-					if( !dialog.isVisible() )
-					{							
-						dialog.setLocationRelativeTo( dialog.getOwner() );
-					}
-					
-					dialog.setVisible( true );
-					dialog.toFront();				
+				if( !dialog.isVisible() )
+				{							
+					dialog.setLocationRelativeTo( dialog.getOwner() );
 				}
-			}						
+				
+				dialog.setVisible( true );
+				dialog.toFront();				
+			}
  		});
  		
  		Throwable ex = msg.getException();

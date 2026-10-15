@@ -297,7 +297,8 @@ public class RightSettingsPanel extends JPanel
 	
 	private void updateDeviceInfos() throws Exception
 	{		
-		String result = GuiManager.getInstance().streamResponseChecker( 10_000 );
+		long time = 0; //5_000;
+		String result = GuiManager.getInstance().streamResponseChecker( time );
 
 		if( result !=  null )
 		{				

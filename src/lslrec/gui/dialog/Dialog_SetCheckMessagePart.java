@@ -44,11 +44,11 @@ public class Dialog_SetCheckMessagePart extends JDialog
 	//private JButton cancelButton = null;
 	
 	private JLabel lbEditPart = null;
-	private JLabel lbAlternativeMsg = null;
+	private JLabel lbOutputMsg = null;
 	
 	private JEditorPane msgEditor;
 	private JTextField partTx;
-	private JTextField alternativeTx;
+	private JTextField outputMessageTx;
 	
 	private List< ICheckMessagePart > msgParts;
 	private ICheckMessagePart currentPart = null;	
@@ -162,6 +162,7 @@ public class Dialog_SetCheckMessagePart extends JDialog
 				 currentPart = msgParts.get( i );
 				 getJTxPart().setText( currentPart.getMessagePart() );
 				 getJTxPart().setEditable( true );
+				 getJTxPart().setFocusable( true );
 				 getJTxPart().requestFocusInWindow();
 			 }
 		 }
@@ -183,8 +184,8 @@ public class Dialog_SetCheckMessagePart extends JDialog
 			aux.add( this.getLbEditPart(), BorderLayout.WEST );
 			
 			JPanel aux2 = new JPanel( new BorderLayout( 5, 5 ) );
-			aux2.add( this.getJTxAlternative(), BorderLayout.CENTER );
-			aux2.add( this.getLbAlternativeMsg(), BorderLayout.WEST );
+			aux2.add( this.getJTxOutputMessage(), BorderLayout.CENTER );
+			aux2.add( this.getLbOutputMsg(), BorderLayout.WEST );
 			
 			JPanel mainAux = new JPanel();
 			mainAux.setLayout( new BoxLayout( mainAux, BoxLayout.Y_AXIS ) );
@@ -281,6 +282,7 @@ public class Dialog_SetCheckMessagePart extends JDialog
 			this.partTx = new JTextField();
 			this.partTx.setFont( new Font( Font.DIALOG, Font.PLAIN, 14 ) );
 			this.partTx.setEditable( false );
+			this.partTx.setFocusable( false );
 			
 			this.partTx.addFocusListener( new FocusAdapter()
 			{
@@ -288,14 +290,16 @@ public class Dialog_SetCheckMessagePart extends JDialog
 				public void focusLost(FocusEvent e) 
 				{
 					JTextField jtf = (JTextField)e.getSource();
-					
+
 					currentPart.setMessagePart( jtf.getText() );
 					currentPart = null;
 					
 					jtf.setEditable( false );
+					jtf.setFocusable( false );
 					jtf.setText( "" );
-					
+
 					showMessage();
+
 				}
 			});
 		}
@@ -303,15 +307,15 @@ public class Dialog_SetCheckMessagePart extends JDialog
 		return this.partTx;
 	}
 	
-	private JTextField getJTxAlternative()
+	private JTextField getJTxOutputMessage()
 	{
-		if( this.alternativeTx == null )
+		if( this.outputMessageTx == null )
 		{
-			this.alternativeTx = new JTextField();
-			this.alternativeTx.setFont( new Font( Font.DIALOG, Font.PLAIN, 14 ) );
-			this.alternativeTx.setText( this.chMsg.getMessage2Show() );
+			this.outputMessageTx = new JTextField();
+			this.outputMessageTx.setFont( new Font( Font.DIALOG, Font.PLAIN, 14 ) );
+			this.outputMessageTx.setText( this.chMsg.getMessage2Show() );
 			
-			this.alternativeTx.addFocusListener( new FocusAdapter()
+			this.outputMessageTx.addFocusListener( new FocusAdapter()
 			{
 				@Override
 				public void focusLost(FocusEvent e) 
@@ -323,7 +327,7 @@ public class Dialog_SetCheckMessagePart extends JDialog
 			});
 		}
 		
-		return this.alternativeTx;
+		return this.outputMessageTx;
 	}
 	
 	private JLabel getLbEditPart()
@@ -336,13 +340,13 @@ public class Dialog_SetCheckMessagePart extends JDialog
 		return this.lbEditPart;
 	}
 	
-	private JLabel getLbAlternativeMsg()
+	private JLabel getLbOutputMsg()
 	{
-		if( this.lbAlternativeMsg == null )
+		if( this.lbOutputMsg == null )
 		{
-			this.lbAlternativeMsg = new JLabel( Language.getLocalCaption( Language.ALTERNATIVE_TEXT ) );
+			this.lbOutputMsg = new JLabel( Language.getLocalCaption( Language.OUTPUT_MSGS ) );
 		}
 		
-		return this.lbAlternativeMsg;
+		return this.lbOutputMsg;
 	}
 }

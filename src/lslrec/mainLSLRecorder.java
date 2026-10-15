@@ -42,6 +42,8 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.util.List;
 
@@ -434,7 +436,7 @@ public class mainLSLRecorder
 
 		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		Insets insets = t.getScreenInsets(gd.getDefaultConfiguration());
-		ui.setLocation(insets.left + 1, insets.top + 1);
+		ui.setLocation(insets.left + 5, insets.top + 5);
 		//ui.pack();
 		
 		
