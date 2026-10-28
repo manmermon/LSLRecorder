@@ -22,9 +22,12 @@ package lslrec.dataStream.binary.input.writer;
 
 import java.util.Map;
 
+import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IStreamSetting;
 import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleStreamSetting;
+import lslrec.dataStream.family.stream.IDataStream;
+import lslrec.dataStream.family.stream.lsl.LSL;
 import lslrec.dataStream.tools.StreamUtils;
 
 public class StreamBinaryHeader
@@ -39,7 +42,7 @@ public class StreamBinaryHeader
 		if( streamSetting != null )
 		{
 			String desc = streamSetting.description();
-			
+					
 			if( !(streamSetting instanceof SimpleStreamSetting ) )
 			{
 				if( streamSetting instanceof MutableStreamSetting )

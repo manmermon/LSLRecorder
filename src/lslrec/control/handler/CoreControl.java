@@ -48,6 +48,7 @@ import lslrec.dataStream.binary.input.writer.StreamBinaryHeader;
 import lslrec.dataStream.family.DataStreamFactory;
 import lslrec.dataStream.family.setting.IMutableStreamSetting;
 import lslrec.dataStream.family.setting.IStreamSetting;
+import lslrec.dataStream.family.setting.MutableStreamSetting;
 import lslrec.dataStream.family.setting.SimpleMutableStreamSetting;
 import lslrec.dataStream.family.setting.StreamExtraLabels;
 import lslrec.dataStream.family.stream.lslrec.LSLRecStream;
@@ -617,6 +618,20 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 				nodeId = StreamExtraLabels.ID_SESSION;
 				nodeText = fileParts.get( 2 );
 				((Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() ) ).put( nodeId, nodeText );
+				
+				Map< String, String > recInfo = (Map< String, String >)( outFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue() );
+				for( String id : recInfo.keySet() )
+				{
+					String val = recInfo.get( id );
+					
+					for( IStreamSetting dev : DEV_ID )
+					{
+						if( dev instanceof IMutableStreamSetting )
+						{
+							((IMutableStreamSetting)dev).setAdditionalInfo( id, val );
+						}
+					}
+				}
 				
 				Parameter outFileFormat = new Parameter( this.ctrlOutputFile.PARAMETER_OUTPUT_FORMAT, outFormat );
 				StreamPars.addParameter( outFileFormat );
