@@ -366,7 +366,7 @@ public class GuiManager
 	{
 		Dialog_BinaryConverter diag = new Dialog_BinaryConverter( this.getAppUI(), true );
 		
-		diag.setSize( 550, 450 );
+		diag.setSize( 550, 550 );
 		
 		diag.setTitle( Language.getLocalCaption( Language.MENU_CONVERT_BIN ) );
 		
@@ -381,7 +381,7 @@ public class GuiManager
 		});
 		
 		diag.setLocationRelativeTo( AppUI.getInstance() );
-		
+		diag.pack();
 		diag.setVisible( true );
 				
 		List< Tuple< Tuple< BinaryFileStreamSetting, OutputFileFormatParameters>, BinaryFileStreamSetting > > binFiles;
@@ -1397,13 +1397,13 @@ public class GuiManager
 
 		w.setLocation( loc );					
 
-		w.pack();
-		
+		/*
 		size = w.getSize();
 		size.height = ( size.height > 150 ) ? 150 : size.height;
 		size.width = ( size.width > 150 ) ? 150 : size.width;				
 		
 		w.setSize( size );
+		//*/
 		
 		w.addWindowListener( new WindowAdapter() 
 		{
@@ -1418,6 +1418,7 @@ public class GuiManager
 												KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
 												JComponent.WHEN_IN_FOCUSED_WINDOW );
 		
+		w.pack();
 		w.setVisible( true );
 	}
 	
@@ -1485,6 +1486,7 @@ public class GuiManager
 										, ConfigApp.CHECKLIST_TIMER
 										, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM
 										, ConfigApp.MESSAGE_LOG_FILE
+										, ConfigApp.SYNC_INPUT_DATA_EACH_X_SEC
 										};
 		Map< String, String > optIdLang = new HashMap< String, String >();
 		
@@ -1493,9 +1495,10 @@ public class GuiManager
 		optIdLang.put( ConfigApp.STREAM_SEARCHING_TIME, Language.SETTING_LSL_SEARCHING_TIME );
 		optIdLang.put( ConfigApp.RECORDING_CHECKER_TIMER, Language.SETTING_RECORDING_CHECKER_TIMER );
 		optIdLang.put( ConfigApp.SEGMENT_BLOCK_SIZE, Language.SETTING_SEGMENT_BLOCK_SIZE );
-		optIdLang.put( ConfigApp.CHECKLIST_TIMER, ConfigApp.CHECKLIST_TIMER  );
-		optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
-		optIdLang.put( ConfigApp.MESSAGE_LOG_FILE, ConfigApp.MESSAGE_LOG_FILE  );					
+		optIdLang.put( ConfigApp.CHECKLIST_TIMER, Language.CHECKLIST_TIMER  );
+		optIdLang.put( ConfigApp.WAITING_TIME_TO_RECONNECT_LOST_STREAM, Language.WAITING_TIME_TO_RECONNECT_LOST_STREAM  );
+		optIdLang.put( ConfigApp.MESSAGE_LOG_FILE, Language.MESSAGE_LOG_FILE  );					
+		optIdLang.put( ConfigApp.SYNC_INPUT_DATA_EACH_X_SEC, Language.SYNC_INPUT_DATA_EACH_X_SEC  );
 							
 		for( String op : optList )
 		{
@@ -1631,6 +1634,7 @@ public class GuiManager
 		diag.setLocationRelativeTo( getAppUI() );
 		diag.setResizable( false );
 		diag.setIconImage( getAppUI().getIconImage() );
+		diag.pack();
 		diag.setVisible( true );
 	}
 
@@ -1730,7 +1734,7 @@ public class GuiManager
 		checklistDialog.setTitle( Language.getLocalCaption( Language.MSG_TEXT ) + " - " + Language.getLocalCaption( Language.CHECKLIST_TEXT ) );
 		
 		checklistDialog.setLocationRelativeTo( getAppUI() );
-		checklistDialog.setResizable( false );
+		checklistDialog.setResizable( true );
 		checklistDialog.setVisible( true );											
 		//checklistDialog.pack();
 	}

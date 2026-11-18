@@ -147,6 +147,8 @@ public class ConfigApp
 	
 	public static final String MESSAGE_LOG_FILE = "MESSAGE_LOG_FILE";
 	
+	public static final String SYNC_INPUT_DATA_EACH_X_SEC = "SYNC_INPUT_DATA_EACH_X_SEC";
+	
 	/****
 	 * 
 	 * 
@@ -247,6 +249,8 @@ public class ConfigApp
 		//list_Key_Type.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.class );
 		
 		//list_Key_Type.put( DATA_CHART_SUMMARY, Boolean.class );
+		
+		list_Key_Type.put( SYNC_INPUT_DATA_EACH_X_SEC, Integer.class );
 	}
 	
 	private static void create_Key_RankValues()
@@ -263,6 +267,8 @@ public class ConfigApp
 		
 		list_Key_RankValues.put( CHECKLIST_TIMER, new NumberRange( 0, Integer.MAX_VALUE ) );
 		list_Key_RankValues.put( WAITING_TIME_TO_RECONNECT_LOST_STREAM, new NumberRange( -1, Double.MAX_VALUE ) );
+		
+		list_Key_RankValues.put( SYNC_INPUT_DATA_EACH_X_SEC, new NumberRange( 0, Integer.MAX_VALUE ) );
 	}
 	
 	public static NumberRange getPropertyRange( String id )
@@ -1976,6 +1982,12 @@ public class ConfigApp
 				
 				break;
 			}
+			case SYNC_INPUT_DATA_EACH_X_SEC:
+			{
+				loadDefaultSyncInDataByte();
+				
+				break;
+			}
 			/*
 			case STREAM_LIBRARY:
 			{
@@ -2031,6 +2043,7 @@ public class ConfigApp
 		loadDefaultMessageLogFile();
 		
 		//loadDefaultStreamLibrary();		
+		loadDefaultSyncInDataByte();
 	}
 
 	private static void loadDefaultLanguage()
@@ -2439,4 +2452,9 @@ public class ConfigApp
 		listConfig.put( STREAM_LIBRARY, IStreamSetting.StreamLibrary.LSL );
 	}
 	//*/	
+	
+	private static void loadDefaultSyncInDataByte()
+	{
+		listConfig.put( SYNC_INPUT_DATA_EACH_X_SEC, 5 );
+	}
 }

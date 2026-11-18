@@ -166,7 +166,9 @@ public class Panel_PluginSettings extends JPanel
 							
 							DataProcessingPluginSelectorPanel psp = new DataProcessingPluginSelectorPanel( idPlugins );
 														
-							plugingTabPanel.addTab( pluginCategory, new JScrollPane( psp ) );
+							JScrollPane scr = new JScrollPane( psp );
+							scr.getVerticalScrollBar().setUnitIncrement( 10 );
+							plugingTabPanel.addTab( pluginCategory, scr );
 						} 
 						else if( pluginType == PluginType.TRIAL) 
 						{
@@ -179,7 +181,9 @@ public class Panel_PluginSettings extends JPanel
 							
 							TrialPluginSelectorPanel tsp = new TrialPluginSelectorPanel( idPlugins );
 							
-							plugingTabPanel.addTab( pluginCategory, new JScrollPane( tsp ) );
+							JScrollPane scr = new JScrollPane( tsp );
+							scr.getVerticalScrollBar().setUnitIncrement( 10 );
+							plugingTabPanel.addTab( pluginCategory, scr );
 						}
 						else
 						{
@@ -203,7 +207,10 @@ public class Panel_PluginSettings extends JPanel
 										}
 										
 										String t = p.getID();
-										subTab.addTab( t, new JScrollPane( settingPanel ) );
+										
+										JScrollPane scr = new JScrollPane( settingPanel );
+										scr.getVerticalScrollBar().setUnitIncrement( 10 );
+										subTab.addTab( t, scr );
 									}
 								}
 							}

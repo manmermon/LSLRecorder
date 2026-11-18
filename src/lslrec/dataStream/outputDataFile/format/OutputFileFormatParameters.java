@@ -38,6 +38,7 @@ public class OutputFileFormatParameters
 	public static final String DELETE_BIN = "DELETE_BIN";
 	//public static final String RECORDING_CHECKER_TIMER = "RECORDING_CHECKER_TIMER";
 	public static final String ID_RECORDED_SAMPLES_BY_CHANNELS = "ID_RECORDED_SAMPLES_BY_CHANNELS";
+	public static final String SYNC_IN_DATA_EACH_X_SEC = "SYNC_IN_DATA_EACH_X_SEC";
 	
 	private ParameterList pars = new ParameterList();
 	

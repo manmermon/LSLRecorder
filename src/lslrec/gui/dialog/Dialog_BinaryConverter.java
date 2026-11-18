@@ -91,6 +91,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Font;
@@ -867,8 +868,14 @@ public class Dialog_BinaryConverter extends JDialog
 		{
 			panelFilesInfo = new JPanel( );
 			panelFilesInfo.setLayout( new BorderLayout( 0, 0 ) );
+			panelFilesInfo.setLayout( new GridLayout(2, 1, 0, 0) );
 			panelFilesInfo.add( this.getFilesPanel( ), BorderLayout.CENTER );
-			panelFilesInfo.add( getPanelBinInfo( ), BorderLayout.SOUTH );
+			
+			JScrollPane scr = new JScrollPane( this.getPanelBinInfo()
+												, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
+												, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+			
+			panelFilesInfo.add( scr, BorderLayout.SOUTH );
 		}
 
 		return panelFilesInfo;

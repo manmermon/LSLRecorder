@@ -209,6 +209,7 @@ public class DataFileFormat
 		//outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, !ConfigApp.isTesting() );
 		
 		outPars.setParameter( OutputFileFormatParameters.DELETE_BIN, (Boolean)ConfigApp.getProperty( ConfigApp.DEL_BINARY_FILES ) );
+		outPars.setParameter( OutputFileFormatParameters.SYNC_IN_DATA_EACH_X_SEC, (Integer)ConfigApp.getProperty( ConfigApp.SYNC_INPUT_DATA_EACH_X_SEC ) );
 		
 		return outPars;
 	}

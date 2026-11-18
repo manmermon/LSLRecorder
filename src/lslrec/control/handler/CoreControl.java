@@ -281,7 +281,7 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 			this.ctrlOutputFile.setEnableSaveSyncMark( false );
 			
 			// Check settings
-			List< WarningMessage > warnMsg = this.checkSettings();
+			List< WarningMessage > warnMsg = this.checkSettings( testWriting );
 					
 			List< String > errorMsgs = new ArrayList<String>();
 			List< String > warningMsgs = new ArrayList<String>();
@@ -585,6 +585,13 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 				outFormat.setParameter( OutputFileFormatParameters.OUT_FILE_FORMAT, (String)ConfigApp.getProperty( ConfigApp.OUTPUT_FILE_FORMAT ) );
 				outFormat.setParameter( OutputFileFormatParameters.PARALLELIZE, (Boolean)ConfigApp.getProperty( ConfigApp.OUTPUT_PARALLELIZE ) );				
 				outFormat.setParameter( OutputFileFormatParameters.ENCRYPT_KEY, this.encryptKey );
+				outFormat.setParameter( OutputFileFormatParameters.SYNC_IN_DATA_EACH_X_SEC, ConfigApp.getProperty( ConfigApp.SYNC_INPUT_DATA_EACH_X_SEC ) );
+				
+				if( testWriting )
+				{
+					outFormat.setParameter( OutputFileFormatParameters.DELETE_BIN, true );
+				}
+				
 				this.encryptKey = "";
 				
 				String nodeId = StreamExtraLabels.ID_SOCKET_MARK_INFO_LABEL;
@@ -780,7 +787,7 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 	 * Check Settings.
 	 *   
 	 */
-	private List< WarningMessage > checkSettings() 
+	private List< WarningMessage > checkSettings( boolean writingTest ) 
 	{
 		List< WarningMessage > warnMsgsList = new ArrayList< WarningMessage >();
 				
@@ -979,13 +986,16 @@ public class CoreControl extends AbstractStoppableThread implements IHandlerSupe
 			warnMsgsList.add( new WarningMessage( "Saving data. Wait for the process to finish.", WarningMessage.ERROR_MESSAGE ) );
 		}
 		
-		List< CheckMessage > checklist = (List< CheckMessage >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
-		for( CheckMessage msg : checklist )
+		if( !writingTest )
 		{
-			if( msg.isEnable() )
+			List< CheckMessage > checklist = (List< CheckMessage >)ConfigApp.getProperty( ConfigApp.CHECKLIST_MSGS );
+			for( CheckMessage msg : checklist )
 			{
-				WarningMessage w = msg.evaluateMessage();
-				warnMsgsList.add( w );
+				if( msg.isEnable() )
+				{
+					WarningMessage w = msg.evaluateMessage();
+					warnMsgsList.add( w );
+				}
 			}
 		}
 		

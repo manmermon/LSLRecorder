@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
+import lslrec.config.ConfigApp;
 import lslrec.config.GeneralSettings;
 import lslrec.dataStream.sync.SyncMethod;
 
@@ -258,13 +259,29 @@ public class Language
 	public static final String EDIT_TEXT = "EDIT_TEXT";
 	
 	public static final String ALTERNATIVE_TEXT = "ALTERNATIVE_TEXT";
+	public static final String INFO_TEXT = "INFO_TEXT";
+	
+	/**
+	 * Advance Menu text
+	 */
+	public static final String CHECKLIST_TIMER = "CHECKLIST_TIMER";
+	public static final String WAITING_TIME_TO_RECONNECT_LOST_STREAM = "WAITING_TIME_TO_RECONNECT_LOST_STREAM";
+	public static final String MESSAGE_LOG_FILE = "MESSAGE_LOG_FILE";					
+	public static final String SYNC_INPUT_DATA_EACH_X_SEC  = "SYNC_INPUT_DATA_EACH_X_SEC";
+	
 	
 	private static Map<String, Caption> captions = new HashMap<String, Caption>();
 
 	static 
 	{		
-		
 		captions.put(LANGUAGE, new Caption(LANGUAGE, defaultLanguage, defaultLanguage));
+		
+		captions.put(INFO_TEXT, new Caption(INFO_TEXT, defaultLanguage, "Info"));
+		
+		captions.put(CHECKLIST_TIMER, new Caption(CHECKLIST_TIMER, defaultLanguage, "Waiting time in seconds between checklist items."));
+		captions.put(WAITING_TIME_TO_RECONNECT_LOST_STREAM, new Caption(WAITING_TIME_TO_RECONNECT_LOST_STREAM, defaultLanguage, "Waiting time in seconds to reconnect lost streams."));
+		captions.put(MESSAGE_LOG_FILE, new Caption(MESSAGE_LOG_FILE, defaultLanguage, "Enable message logging"));
+		captions.put(SYNC_INPUT_DATA_EACH_X_SEC, new Caption(SYNC_INPUT_DATA_EACH_X_SEC, defaultLanguage, "Waiting time in seconds before writing data to the hard drive.\nThe value 0 indicates that it will be handled according to operating system criteria."));
 		
 		captions.put( ALTERNATIVE_TEXT, new Caption(ALTERNATIVE_TEXT, defaultLanguage, "Alternative" ) );
 		captions.put( EDIT_TEXT, new Caption(EDIT_TEXT, defaultLanguage, "Edit" ) );

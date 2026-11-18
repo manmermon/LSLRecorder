@@ -42,11 +42,17 @@ import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatLightLaf;
@@ -59,11 +65,39 @@ import lslrec.dataStream.outputDataFile.format.DataFileFormat;
 
 public class mainLSLRecorder 
 {
+	private static Dialog_Opening diagOpen = null;
+	
+	public static void main(String[] args) 
+	{
+		diagOpen = showOpeningDialog();
+    	
+        // Iniciar la tarea en segundo plano
+        diagOpen.addWindowListener( new WindowAdapter()
+        {				
+			@Override
+			public void windowOpened(WindowEvent e) 
+			{
+				loadMain( args );
+			}
+        });
+    }
+	
 	/*
 	 * @param args
 	 */
-	public static void main( String[] args ) 
-	{		
+	//public static void main( String[] args ) 
+    private static void loadMain( String[] args )
+	{	
+		// Opening dialog
+		Thread showOpenDiag = new Thread()
+		{
+			public void run() 
+			{
+				
+			};			
+		};
+		showOpenDiag.start();		
+		
 		String OS = System.getProperty("os.name").toLowerCase();
 
 		String p = System.getProperty("user.dir") + "/" + GeneralSettings.SYSTEM_LIB_WIN_PATH;
@@ -221,7 +255,10 @@ public class mainLSLRecorder
 		{
 			showError(e2, true);
 		} 
-		finally {		}
+		finally 
+		{	
+			diagOpen.dispose();
+		}
 	}
 	
 	private static void addLibraryPath(String pathToAdd) throws Exception 
@@ -267,9 +304,6 @@ public class mainLSLRecorder
 	
 	public static void createApplication( int startDelay ) throws Throwable
 	{
-		// Opening dialog
-		Dialog_Opening open = showOpeningDialog();
-		
 		if( startDelay > 0 )
 		{
 			try
@@ -320,7 +354,7 @@ public class mainLSLRecorder
 			}
 		}
 
-		open.dispose();
+		diagOpen.dispose();
 
 		// Load Controllers
 		createAppCoreControl();
@@ -381,7 +415,7 @@ public class mainLSLRecorder
 		Dialog_Opening openDialog = new Dialog_Opening(openDim, GeneralAppIcon.getIconoAplicacion(128, 128).getImage(),
 													GeneralSettings.shortNameApp,
 													"<html><center><h1>Opening " + GeneralSettings.fullNameApp + ".<br>Wait please...</h1>"
-															+ (ConfigApp.isTesting() ? "<br><h5>Debug mode</h5>" : "" )															
+															//+ (ConfigApp.isTesting() ? "<br><h5>Debug mode</h5>" : "" )															
 															+ "</center></html>",
 													Color.WHITE);
 		openDialog.setVisible(true);
@@ -406,7 +440,7 @@ public class mainLSLRecorder
 
 		String mode = "";
 
-		if (ConfigApp.isTesting()) 
+		if( ConfigApp.isTesting() ) 
 		{
 			mode = " - debug mode";
 		}
@@ -415,8 +449,8 @@ public class mainLSLRecorder
 
 		ui.setBackground(SystemColor.info);
 
-		dm.width = (dm.width / 2 - (pad.left + pad.right));
-		dm.height = (dm.height / 2 - (pad.top + pad.bottom));
+		dm.width = ( ( 6*dm.width ) /10 - (pad.left + pad.right));
+		dm.height = ( ( 7*dm.height ) /10 - (pad.top + pad.bottom));
 
 		if (dm.width < 650) 
 		{
@@ -427,7 +461,7 @@ public class mainLSLRecorder
 		{
 			dm.height = 650;
 		}
-
+		
 		ui.setSize(dm);
 
 		ui.toFront();

@@ -132,10 +132,12 @@ public class Dialog_SetChecklist extends JDialog
 		
 		int h = 100 + 20 * ( this.checkMessageList.size() + 1);
 		int hmax = Toolkit.getDefaultToolkit().getScreenSize().height /2;
+		int wmax = Toolkit.getDefaultToolkit().getScreenSize().width /2;
 		
 		h = ( h > hmax ) ? hmax : h;
+		int w = ( 600 > wmax ) ? wmax : 600;
 		
-		super.setBounds(100, 100, 450, h );
+		super.setBounds(100, 100, w, h );
 	}
 	
 	/*

@@ -1495,7 +1495,7 @@ public class RightSettingsPanel extends JPanel
 			this.splitPanelDevices.setBackground( Color.WHITE );
 			this.splitPanelDevices.setFocusable( false );
 			this.splitPanelDevices.setFocusCycleRoot( false );
-		
+			this.splitPanelDevices.setVisible( false );
 			
 			final Tuple< JPanel, JTree > deviceInfo = this.getUpdateStreamPanel();
 
@@ -1510,7 +1510,8 @@ public class RightSettingsPanel extends JPanel
 				this.splitPanelDevices.setLeftComponent( this.getDisabledPanel( ) );
 				this.splitPanelDevices.setRightComponent( this.getJTabDevice( deviceInfo.t2 ) );
 				
-				this.splitPanelDevices.setDividerLocation( 0.40 );				
+				this.splitPanelDevices.setDividerLocation( 0.40 );		
+				this.splitPanelDevices.setVisible( true );
 			});
 
 		}
@@ -1972,8 +1973,9 @@ public class RightSettingsPanel extends JPanel
 						dialogOpts.pack();
 						Dimension size = dialogOpts.getSize();
 						FontMetrics fm = dialogOpts.getFontMetrics( dialogOpts.getFont() );
-						size.width = fm.stringWidth( dialogOpts.getTitle() ) + 60;
-						dialogOpts.setSize( size );
+						size.width = fm.stringWidth( dialogOpts.getTitle().toLowerCase() )+150;
+						size.height += 20;
+						dialogOpts.setSize( size );						
 						dialogOpts.setVisible(true);
 						
 						

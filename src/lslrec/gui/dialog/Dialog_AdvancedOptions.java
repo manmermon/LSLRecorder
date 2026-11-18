@@ -20,17 +20,30 @@
 
 package lslrec.gui.dialog;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FontMetrics;
+import java.awt.KeyboardFocusManager;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
@@ -55,6 +68,9 @@ public class Dialog_AdvancedOptions extends JDialog
 	
 	private JScrollPane scr;
 	
+	private JComponent focusedComponent = null;
+    private JComponent hoveredComponent = null;
+    
 	/**
 	 * 
 	 */
@@ -69,8 +85,12 @@ public class Dialog_AdvancedOptions extends JDialog
 		JPanel main = new JPanel( new BorderLayout() );		
 		JScrollPane scr = new JScrollPane( optPanel );
 
+		JTextArea infoTx = new JTextArea(3, 0);		
+		infoTx.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INFO_TEXT )  ) );		
+		this.enableInfoTx( infoTx );
+		
+		main.add( infoTx, BorderLayout.NORTH );
 		main.add( scr, BorderLayout.CENTER );
-
 
 		super.add( main );
 									
@@ -114,4 +134,63 @@ public class Dialog_AdvancedOptions extends JDialog
 													JComponent.WHEN_IN_FOCUSED_WINDOW );
 	}	
 	
+	public void enableInfoTx(JTextArea targetArea) 
+	{
+        targetArea.setLineWrap(true);
+        targetArea.setWrapStyleWord(true);
+        targetArea.setEditable( false );
+        targetArea.setForeground( Color.GRAY );
+        ToolTipManager.sharedInstance().setEnabled(false);        
+
+        // 1. Listen for focus changes (keyboard / click)
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addPropertyChangeListener("focusOwner", evt -> 
+	        {
+	                Object newOwner = evt.getNewValue();
+	                this.focusedComponent = (newOwner instanceof JComponent) ? (JComponent) newOwner : null;
+	                updateText(targetArea, null);
+	            });
+
+        // 2. Listen for mouse movement
+        Toolkit.getDefaultToolkit().addAWTEventListener(event -> 
+        {
+            if (event instanceof MouseEvent)
+            {
+                MouseEvent me = (MouseEvent) event;
+                if (me.getID() != MouseEvent.MOUSE_MOVED)
+                {
+                	return;
+                }
+
+                Component comp = SwingUtilities.getDeepestComponentAt( me.getComponent(), me.getX(), me.getY() );
+
+                JComponent jcomp = (comp instanceof JComponent) ? (JComponent) comp : null;
+                
+                if (jcomp != hoveredComponent) 
+                {
+                    this.hoveredComponent = jcomp;
+                    updateText(targetArea, me);
+                }
+            }
+        }, AWTEvent.MOUSE_MOTION_EVENT_MASK);
+    }
+
+    private void updateText(JTextArea targetArea, MouseEvent me) 
+    {
+        // Prioritize the hovered component; if it has no tooltip, fall back to the focused one
+        if ( this.focusedComponent != null && this.focusedComponent.getToolTipText() != null) {
+            targetArea.setText( this.focusedComponent.getToolTipText());
+            return;
+        }
+
+        if( this.hoveredComponent != null) 
+        {
+            String hoverTip = (me != null) ? this.hoveredComponent.getToolTipText(me) : this.hoveredComponent.getToolTipText();
+            if (hoverTip != null) {
+                targetArea.setText(hoverTip);
+                return;
+            }
+        }
+        
+        targetArea.setText("");
+    }
 }

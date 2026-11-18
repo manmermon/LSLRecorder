@@ -483,7 +483,7 @@ public class AppUI extends JFrame
 			try 
 			{
 				this.jPanelOper.setLeftComponent( this.getJPanelInputMsg() );
-				this.jPanelOper.setRightComponent( this.getRightPanelSetting() );
+				this.jPanelOper.setRightComponent( this.getRightPanelSetting() );				
 			} 
 			catch (Exception e) 
 			{

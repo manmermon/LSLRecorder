@@ -34,11 +34,17 @@ import lslrec.plugin.lslrecPlugin.processing.LSLRecPluginDataProcessing;
 import lslrec.stoppableThread.IStoppableThread;
 
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import lslrec.auxiliar.extra.FileUtils;
 import lslrec.control.message.EventInfo;
@@ -49,6 +55,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	protected File file = null;
 
 	private BufferedOutputStream out; 
+	private FileOutputStream fout;
 
 	private final String ext = ".temp";
 	
@@ -58,6 +65,13 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 	private final String outDatProcessInfix = "_processedData";
 	
 	private LSLRecPluginDataProcessing postProcessing = null;
+	
+	private ScheduledExecutorService scheduler2SyncInData = null;
+	private final Object fileLock = new Object();
+	private long secSyncTosaveData = 0;	
+	private ByteArrayOutputStream temporalDataBuffer = null;
+	private ByteArrayOutputStream bufferToWrite = null;
+	private volatile Exception storageError = null;
 	
 	public TemporalOutDataFileWriter( IStreamSetting lslCfg, OutputFileFormatParameters outFormat,  int Number ) throws Exception
 	{
@@ -72,6 +86,8 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		
 		this.outputFormat = outFormat;
 		
+		this.secSyncTosaveData = (Integer)this.outputFormat.getParameter( OutputFileFormatParameters.SYNC_IN_DATA_EACH_X_SEC ).getValue();
+				
 		super.setName( super.streamSetting.name() + "(" + super.streamSetting.uid() + ")");
 				
 		this.file = FileUtils.CreateTemporalBinFile( this.outputFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue() + "_" + date + "_" + super.streamSetting.name() +  this.ext + Number );
@@ -124,24 +140,16 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		
 		FileUtils.CreateTemporalBinFile( this.file );
 
-		this.out = new BufferedOutputStream( new FileOutputStream( this.file ) );
+		this.fout =  new FileOutputStream( this.file );
+		this.out = new BufferedOutputStream( this.fout );
+		
+		this.temporalDataBuffer = new ByteArrayOutputStream( );
 	}
 	
 	@Override
 	protected void startUp() throws Exception 
-	{
-		String binHeader = StreamBinaryHeader.getStreamBinHeader( super.streamSetting );
-		
-		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + "\n";
-		
-		this.out.write( binHeader.getBytes() );
-		
+	{	
 		super.startUp();
-		
-		if( this.datProcessingExec != null )
-		{
-			this.datProcessingExec.startThread();
-		}
 		
 		Calendar c = Calendar.getInstance();
 		c.add( 13, 1 );
@@ -150,6 +158,100 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		String idDate = StreamExtraLabels.ID_START_SESSION_DATE;
 		Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
 		addInfo.put( idDate, date );
+		
+		if( this.secSyncTosaveData > 0 )
+		{
+			this.bufferToWrite = new ByteArrayOutputStream();
+			
+			this.scheduler2SyncInData = Executors.newSingleThreadScheduledExecutor();
+		}
+		
+		this.saveFileHeader();
+		
+		if (this.scheduler2SyncInData != null)
+	    {
+	        this.scheduler2SyncInData.scheduleWithFixedDelay( () -> 
+	        {
+	        	ByteArrayOutputStream batch;
+
+	    	    synchronized (this.fileLock)
+	    	    {
+	    	        if (this.storageError != null)
+	    	        {
+	    	            return;
+	    	        }
+
+	    	        batch = this.temporalDataBuffer;
+
+	    	        this.temporalDataBuffer = this.bufferToWrite;
+	    	        this.bufferToWrite = batch;
+
+	    	        this.temporalDataBuffer.reset();
+	    	    }
+
+	    	    try
+	    	    {
+	    	        if (batch.size() > 0)
+	    	        {
+	    	            batch.writeTo(this.out);
+	    	            this.out.flush();
+	    	            this.fout.getFD().sync();
+	    	        }
+	    	    }
+	    	    catch (IOException e)
+	    	    {
+	    	        synchronized (this.fileLock)
+	    	        {
+	    	            this.storageError = e;
+	    	        }
+
+	    	        throw new RuntimeException(
+	    	            "Error writing or synchronizing the file", e
+	    	        );
+	    	    }
+			},
+	            this.secSyncTosaveData,
+	            this.secSyncTosaveData,
+	            TimeUnit.SECONDS
+	        );
+	    }
+		
+		if( this.datProcessingExec != null )
+		{
+			this.datProcessingExec.startThread();
+		}
+	}
+
+	private void saveFileHeader() throws Exception 
+	{
+		String binHeader = StreamBinaryHeader.getStreamBinHeader( super.streamSetting );
+		
+		binHeader = binHeader.trim().replace( "\r", "" ).replace( "\n", "" ) + "\n";
+		byte[] header = binHeader.getBytes( StandardCharsets.UTF_8 );
+		
+		synchronized( this.fileLock )
+		{
+			this.temporalDataBuffer.write( header );
+		}
+		
+		if( this.scheduler2SyncInData == null )
+		{
+			try
+			{
+				this.temporalDataBuffer.writeTo( this.out );
+				this.out.flush();
+				this.fout.getFD().sync();
+			}
+			catch (Exception e) 
+			{
+				this.storageError = e;
+				throw e;
+			}
+			finally 
+			{
+				this.temporalDataBuffer.reset();
+			}
+		}
 	}
 	
 	protected void managerData( byte[] data, byte[] time ) throws Exception
@@ -160,24 +262,47 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		len = ( time != null ? len + time.length : len );
 		
 		if( len > 0 )
-		{
-			byte[] DAT = new byte[ len ];
-			
-			int init = 0;
-			
-			if( data != null )
+		{						
+			synchronized( this.fileLock )
 			{
-				System.arraycopy( data, 0, DAT, init, data.length );
+				if (this.storageError != null)
+				{
+				    throw new IOException("Storage has failed", this.storageError );
+				}
 				
-				init = data.length;
+				if ( this.scheduler2SyncInData != null )
+				{					
+					if( data != null )
+					{
+						this.temporalDataBuffer.write( data, 0, data.length );
+					}
+
+					if( time != null )
+					{
+						this.temporalDataBuffer.write( time, 0, time.length );
+					}
+				}
+				else
+				{					
+					try
+					{
+				        if( data != null )
+						{
+							this.out.write( data );
+						}
+
+						if( time != null )
+						{
+							this.out.write( time );
+						}
+					}
+					catch (Exception e) 
+					{
+						this.storageError = e;
+						throw e;
+					}
+				}			
 			}
-			
-			if( time != null )
-			{
-				System.arraycopy( time, 0, DAT, init, time.length );
-			}
-						
-			this.out.write( DAT );			
 			
 			if( this.datProcessingExec != null )
 			{
@@ -185,13 +310,11 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 			}
 		}
 	}		
-
+	
 	@Override
 	protected void cleanUp() throws Exception 
-	{
-		this.out.close();
-		
-		super.cleanUp();
+	{	
+		boolean interruptedStop = this.stopStorageScheduler();
 		
 		Calendar c = Calendar.getInstance();
 		c.add( 13, 1 );
@@ -200,8 +323,127 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 		String idDate = StreamExtraLabels.ID_END_SESSION_DATE;
 		Map< String, String > addInfo = (Map< String, String >)this.outputFormat.getParameter( OutputFileFormatParameters.RECORDING_INFO ).getValue();
 		addInfo.put( idDate, date );
+		
+		synchronized( this.fileLock )
+		{			
+			try
+			{
+				if( this.storageError == null ) 
+				{
+					if (this.temporalDataBuffer != null && this.temporalDataBuffer.size() > 0 )
+					{
+						this.temporalDataBuffer.writeTo(this.out);
+					}
+
+					this.out.flush();
+					this.fout.getFD().sync();
+				}
+			}
+			catch (Exception e)
+			{
+				this.storageError = e;
+			}
+			finally
+			{	
+				super.cleanUp();
+				
+				try
+				{
+					this.temporalDataBuffer.close();
+					this.bufferToWrite.close();
+				}
+				catch (Exception e) 
+				{}
+				
+				try
+				{
+					if (this.storageError == null)
+					{
+					    this.out.close();
+					}
+					else
+					{
+					    this.fout.close();
+					}
+				}
+				catch (IOException e)
+				{
+					if( this.storageError == null )
+					{
+						this.storageError = e;
+					}
+					else
+					{
+						this.storageError.addSuppressed( e );
+					}
+					
+					 try
+					 {
+						 this.fout.close();
+					 }
+					 catch (IOException closeError)
+					 {
+						 this.storageError.addSuppressed(closeError);
+					 }
+				}
+			}
+		}
+		
+		if (interruptedStop)
+		{
+		    Thread.currentThread().interrupt();
+		}
+		
+		if (this.storageError != null)
+		{
+			if( interruptedStop )
+			{
+				this.storageError.addSuppressed( 
+						new InterruptedException(
+								"Interrupted while waiting for storage scheduler"
+								)
+						);
+			}
+
+			throw this.storageError;
+		}
+
+		if( interruptedStop )
+		{
+			throw new InterruptedException(
+					"Interrupted while waiting for storage scheduler"
+					);
+		}
 	}
 	
+	private boolean stopStorageScheduler()
+	{
+	    if (this.scheduler2SyncInData == null)
+	    {
+	        return false;
+	    }
+
+	    this.scheduler2SyncInData.shutdown();
+
+	    boolean interrupted = false;
+
+	    while ( !this.scheduler2SyncInData.isTerminated() )
+	    {
+	        try
+	        {
+	            this.scheduler2SyncInData.awaitTermination( 10, TimeUnit.SECONDS );
+	        }
+	        catch (InterruptedException e)
+	        {
+	            interrupted = true;
+	            this.scheduler2SyncInData.shutdownNow();
+	        }
+	    }
+
+	    return interrupted;
+	}
+	
+	@Override
 	protected void postCleanUp() throws Exception
 	{	
 		EventInfo processingEvent = null;		
@@ -213,16 +455,7 @@ public class TemporalOutDataFileWriter extends InputDataStreamReceiverTemplate
 			File processfile = this.datProcessingExec.getOutputBinaryFile();			
 			
 			if( processfile != null )
-			{
-				/*
-				OutputFileFormatParameters procFormat = new OutputFileFormatParameters();
-				
-				for( String idPar : this.outputFormat.getAllParameters().getParameterIDs() )
-				{	
-					procFormat.setParameter( idPar, this.outputFormat.getParameter( idPar ).getValue() );
-				}
-				*/
-				
+			{				
 				OutputFileFormatParameters procFormat = this.outputFormat.clone();
 				
 				String filename = procFormat.getParameter( OutputFileFormatParameters.OUT_FILE_NAME ).getValue().toString();

@@ -47,12 +47,6 @@ public class WritingTest extends TemporalOutDataFileWriter
 		
 		this.times = new ArrayList< Long >();
 	}
-
-	@Override
-	protected void startUp() throws Exception 
-	{
-		super.startUp();
-	}
 	
 	@Override
 	protected void managerData(byte[] data, byte[] times) throws Exception 
@@ -68,21 +62,12 @@ public class WritingTest extends TemporalOutDataFileWriter
 	protected void postCleanUp() throws Exception 
 	{	
 		if( !ConfigApp.isTesting() && !super.file.delete() )
-		{
+		{			
 			super.file.deleteOnExit();
 		}
 		
 		EventInfo event = new EventInfo( super.getID(), EventType.TEST_WRITE_TIME, new Tuple< String, List< Long >>( super.streamSetting.name(), this.times ) );
 		
-		/*
-		this.notifTask.addEvent( event );
-		synchronized ( this.notifTask )
-		{
-			this.notifTask.notify();
-		}
-		//*/
-		
 		this.notifTask.queueAndSendEvent( event );
 	}
-	
 }
