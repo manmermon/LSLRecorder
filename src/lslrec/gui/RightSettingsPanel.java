@@ -128,6 +128,7 @@ import lslrec.gui.miscellany.VerticalFlowLayout;
 import lslrec.gui.plugin.Panel_PluginSettings;
 import lslrec.gui.setting.SettingOptions;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 
@@ -716,7 +717,7 @@ public class RightSettingsPanel extends JPanel
 			aux2.add( lbTestId );
 			
 			JButton testInfoBt = new JButton( "?" );
-			testInfoBt.setBackground( new Color( 255, 255, 204 ) );
+			testInfoBt.setBackground( GeneralSettings.COLOR_INFO );
 			testInfoBt.setBorder( BorderFactory.createEtchedBorder() );
 			testInfoBt.addActionListener( new ActionListener() 
 			{	

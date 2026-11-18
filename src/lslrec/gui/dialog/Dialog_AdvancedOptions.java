@@ -44,7 +44,9 @@ import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
+import javax.swing.border.TitledBorder;
 
+import lslrec.config.GeneralSettings;
 import lslrec.config.Parameter;
 import lslrec.config.ParameterList;
 import lslrec.config.language.Language;
@@ -87,9 +89,8 @@ public class Dialog_AdvancedOptions extends JDialog
 		this.enableInfoTx( infoTx );
 	
 		JScrollPane scr2 = new JScrollPane( infoTx, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
-		scr2.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INFO_TEXT )  ) );
-		scr2.getVerticalScrollBar().setUnitIncrement( 5 );
-		scr2.setBackground( infoTx.getBackground() );
+		scr2.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INFO_TEXT )  ) );		
+		scr2.getVerticalScrollBar().setUnitIncrement( 5 );		
 		
 		main.add( scr2, BorderLayout.NORTH );
 		main.add( scr, BorderLayout.CENTER );
@@ -141,7 +142,7 @@ public class Dialog_AdvancedOptions extends JDialog
         targetArea.setLineWrap(true);
         targetArea.setWrapStyleWord(true);
         targetArea.setEditable( false );
-        targetArea.setBackground( new Color( 255, 255, 204 ) );
+        targetArea.setBackground( GeneralSettings.COLOR_INFO );
         ToolTipManager.sharedInstance().setEnabled(false);        
 
         // 1. Listen for focus changes (keyboard / click)

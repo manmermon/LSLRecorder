@@ -67,6 +67,7 @@ import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.IPAddressCellEditor;
 import lslrec.gui.miscellany.SpinnerNumberCellEditor;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 
 public class SyncSocketSettingPanel extends JPanel
 {	
@@ -458,7 +459,7 @@ public class SyncSocketSettingPanel extends JPanel
 											        	
 											        if( !table.isCellEditable( row, column ) )
 											        {	
-											        	cellComponent.setBackground( new Color( 255, 255, 224 ) );											        	
+											        	cellComponent.setBackground( GeneralSettings.COLOR_INFO );											        	
 											        }
 											        else
 											        {

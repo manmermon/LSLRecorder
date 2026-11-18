@@ -21,6 +21,7 @@
  */
 package lslrec.config;
 
+import java.awt.Color;
 import java.io.File;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -70,4 +71,6 @@ public class GeneralSettings
 		//public static final String SYSTEM_LIB_PATH = System.getProperty( "user.dir" ) + "/systemLib/";
 		
 		//public static final int CHECKLIST_DEFAULT_LEN = 5;
+		
+		public static final Color COLOR_INFO = new Color( 255, 255, 204 );
 }

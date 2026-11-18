@@ -56,6 +56,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.config.checklistMessage.CheckMessage;
 import lslrec.config.checklistMessage.CheckMessagePartFromText;
 import lslrec.config.language.Caption;
@@ -550,7 +551,7 @@ public class Dialog_SetChecklist extends JDialog
 											        
 											        if( !msg.isRemovableMsg() )
 											        {
-											        	cellComponent.setBackground( new Color( 255, 255, 150 ) );
+											        	cellComponent.setBackground( GeneralSettings.COLOR_INFO );
 											        }											        
 											        else
 											        {

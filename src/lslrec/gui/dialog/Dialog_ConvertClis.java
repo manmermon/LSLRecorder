@@ -34,6 +34,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -57,6 +58,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -64,6 +66,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
@@ -100,6 +103,7 @@ import lslrec.dataStream.tools.StreamUtils.StreamDataType;
 import lslrec.exceptions.SettingException;
 import lslrec.exceptions.handler.ExceptionDialog;
 import lslrec.exceptions.handler.ExceptionMessage;
+import lslrec.gui.KeyActions;
 import lslrec.gui.miscellany.BasicPainter2D;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.TableButtonCellEditor;
@@ -280,6 +284,10 @@ public class Dialog_ConvertClis extends JDialog
 	 */
 	public Dialog_ConvertClis() 
 	{	
+		super.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+				KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+				JComponent.WHEN_IN_FOCUSED_WINDOW );
+		
 		this.currentFolderPath = System.getProperty( "user.dir" );
 		this.outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
 		

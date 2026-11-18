@@ -33,6 +33,7 @@ import lslrec.gui.miscellany.DisabledGlassPane;
 import lslrec.gui.miscellany.GeneralAppIcon;
 import lslrec.gui.miscellany.MenuScroller;
 import lslrec.config.ConfigApp;
+import lslrec.config.GeneralSettings;
 import lslrec.gui.miscellany.LevelIndicator;
 
 import java.awt.BorderLayout;
@@ -404,7 +405,7 @@ public class AppUI extends JFrame
 			
 			this.jBtnInfo.setBorder( BorderFactory.createLineBorder( Color.BLACK ) );
 			//this.jBtnInfo.setBackground( Color.YELLOW.darker() );
-			this.jBtnInfo.setBackground( new Color( 255, 255, 204 ) );
+			this.jBtnInfo.setBackground( GeneralSettings.COLOR_INFO );
 			this.jBtnInfo.setForeground( Color.BLACK );
 
 			this.jBtnInfo.setPreferredSize( d );

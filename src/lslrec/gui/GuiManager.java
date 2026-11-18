@@ -1641,6 +1641,9 @@ public class GuiManager
 	protected void showClisDataPlotDialog( String title )
 	{
 		Dialog_PlotClis plotClis = new Dialog_PlotClis();
+		plotClis.getRootPane().registerKeyboardAction( KeyActions.getEscapeCloseWindows( "EscapeCloseWindow" ), 
+														KeyStroke.getKeyStroke( KeyEvent.VK_ESCAPE, 0), 
+														JComponent.WHEN_IN_FOCUSED_WINDOW );
 		plotClis.setBounds( 200, 100, 800, 400 );
 							
 		plotClis.setLocationRelativeTo( GuiManager.getInstance().getAppUI() );

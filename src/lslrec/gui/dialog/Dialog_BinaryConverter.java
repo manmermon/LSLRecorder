@@ -223,6 +223,7 @@ public class Dialog_BinaryConverter extends JDialog
 	{
 		super( owner, modal );
 		
+		
 		this.binaryDataFiles = new HashMap< String, IMutableStreamSetting >( );
 		this.outFormat = DataFileFormat.getDefaultOutputFileFormatParameters();
 		
