@@ -423,7 +423,15 @@ public class DataProcessingPluginSelectorPanel extends JPanel
 				
 				                try 
 				                {
-				                    tip = getValueAt(rowIndex, colIndex).toString();
+				                	Object value = getValueAt(rowIndex, colIndex);
+				                	
+				                    tip = "";
+				                    
+				                    if( value instanceof ILSLRecPluginDataProcessing )
+									{
+										tip = ( (ILSLRecPluginDataProcessing) value).getID();
+										tip += " (id:" + value.hashCode() + ")";
+									}
 				                }
 				                catch ( RuntimeException e1 )
 				                {
