@@ -66,8 +66,6 @@ public class Dialog_AdvancedOptions extends JDialog
 	
 	private JPanel main;
 	
-	private JScrollPane scr;
-	
 	private JComponent focusedComponent = null;
     private JComponent hoveredComponent = null;
     
@@ -83,13 +81,17 @@ public class Dialog_AdvancedOptions extends JDialog
 		JPanel optPanel = CreatorDefaultSettingPanel.getSettingPanel( opts, pars );
 		
 		JPanel main = new JPanel( new BorderLayout() );		
-		JScrollPane scr = new JScrollPane( optPanel );
-
-		JTextArea infoTx = new JTextArea(3, 0);		
-		infoTx.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INFO_TEXT )  ) );		
-		this.enableInfoTx( infoTx );
+		JScrollPane scr = new JScrollPane( optPanel, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
 		
-		main.add( infoTx, BorderLayout.NORTH );
+		JTextArea infoTx = new JTextArea(3, 0);	
+		this.enableInfoTx( infoTx );
+	
+		JScrollPane scr2 = new JScrollPane( infoTx, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED );
+		scr2.setBorder( BorderFactory.createTitledBorder( Language.getLocalCaption( Language.INFO_TEXT )  ) );
+		scr2.getVerticalScrollBar().setUnitIncrement( 5 );
+		scr2.setBackground( infoTx.getBackground() );
+		
+		main.add( scr2, BorderLayout.NORTH );
 		main.add( scr, BorderLayout.CENTER );
 
 		super.add( main );
@@ -139,7 +141,7 @@ public class Dialog_AdvancedOptions extends JDialog
         targetArea.setLineWrap(true);
         targetArea.setWrapStyleWord(true);
         targetArea.setEditable( false );
-        targetArea.setForeground( Color.GRAY );
+        targetArea.setBackground( new Color( 255, 255, 204 ) );
         ToolTipManager.sharedInstance().setEnabled(false);        
 
         // 1. Listen for focus changes (keyboard / click)
